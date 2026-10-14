@@ -115,15 +115,6 @@ class User extends Authenticatable
     */
 
     /**
-     * Get all submissions created by this user (Author)
-     * Sesuai dengan spesifikasi relasi PRD Modul 2
-     */
-    public function submissions(): HasMany
-    {
-        return $this->hasMany(Submission::class, 'author_id');
-    }
-
-    /**
      * Get the role of this user (backwards compatibility - returns primary role)
      */
     public function role()
@@ -141,65 +132,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Get journal roles of this user
-     */
-    public function userRoles()
-    {
-        return $this->hasMany(UserRole::class, 'user_id');
-    }
-
-    /**
-     * Check if user has a role in a specific journal
-     */
-    public function hasJournalRole(string $roleName, $journalId = null): bool
-    {
-        if ($this->relationLoaded('userRoles')) {
-            return $this->userRoles
-                ->where('role_name', $roleName)
-                ->where('id_journal', $journalId)
-                ->where('status', 'Active')
-                ->isNotEmpty();
-        }
-
-        return $this->userRoles()
-            ->where('role_name', $roleName)
-            ->where('id_journal', $journalId)
-            ->where('status', 'Active')
-            ->exists();
-    }
-
-    /**
-     * Check if user has a role in any journal
-     */
-    public function hasRoleInAnyJournal(string $roleName): bool
-    {
-        if ($this->relationLoaded('userRoles')) {
-            return $this->userRoles
-                ->where('role_name', $roleName)
-                ->where('status', 'Active')
-                ->isNotEmpty();
-        }
-
-        return $this->userRoles()
-            ->where('role_name', $roleName)
-            ->where('status', 'Active')
-            ->exists();
-    }
-
-    /**
      * Get the university of this user
      */
     public function university()
     {
         return $this->belongsTo(University::class);
-    }
-
-    /**
-     * Get the scientific field of this user
-     */
-    public function scientificField()
-    {
-        return $this->belongsTo(ScientificField::class);
     }
 
     /**
@@ -211,25 +148,33 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all journals managed by this user
+     * Get all proposals submitted by this user
      */
-    public function journals()
+    public function proposals(): HasMany
     {
-        return $this->hasMany(Journal::class);
+        return $this->hasMany(Proposal::class, 'id_pengusul');
     }
 
     /**
-     * Get all proposals submitted by this user
+     * Get all reviews conducted by this user
      */
-    public function proposals()
+    public function reviews(): HasMany
     {
-        return $this->hasMany(Proposal::class);
+        return $this->hasMany(Review::class, 'id_reviewer');
+    }
+
+    /**
+     * Get all evaluations conducted by this user
+     */
+    public function evaluations(): HasMany
+    {
+        return $this->hasMany(Evaluation::class, 'id_evaluator');
     }
 
     /**
      * Get all progress reports submitted by this user
      */
-    public function progressReports()
+    public function progressReports(): HasMany
     {
         return $this->hasMany(ProgressReport::class);
     }
@@ -237,7 +182,7 @@ class User extends Authenticatable
     /**
      * Get all monev schedules evaluated by this user
      */
-    public function evaluatorSchedules()
+    public function evaluatorSchedules(): HasMany
     {
         return $this->hasMany(MonevSchedule::class, 'evaluator_id');
     }
@@ -245,68 +190,15 @@ class User extends Authenticatable
     /**
      * Get all monev schedules assigned to this user as evaluator.
      */
-    public function monevSchedules(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function monevSchedules(): HasMany
     {
         return $this->hasMany(MonevSchedule::class, 'evaluator_id');
     }
 
     /**
-     * Get all assessments created by this user
-     */
-    public function assessments()
-    {
-        return $this->hasMany(JournalAssessment::class);
-    }
-
-    /**
-     * Get all assessments reviewed by this user (as admin)
-     */
-    public function reviewedAssessments()
-    {
-        return $this->hasMany(JournalAssessment::class, 'reviewed_by');
-    }
-
-    /**
-     * Get all attachments uploaded by this user
-     */
-    public function uploadedAttachments()
-    {
-        return $this->hasMany(AssessmentAttachment::class, 'uploaded_by');
-    }
-
-    /**
-     * Get the citation statistics record of this user
-     */
-    public function citation()
-    {
-        return $this->hasOne(Citation::class);
-    }
-
-    public function authorProfile()
-    {
-        return $this->hasOne(AuthorProfile::class);
-    }
-
-    /**
-     * Get the reviewer profile of this user
-     */
-    public function reviewerProfile()
-    {
-        return $this->hasOne(ReviewerProfile::class);
-    }
-
-    /**
-     * Get all system logs triggered by this user.
-     */
-    public function systemLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(SystemLog::class);
-    }
-
-    /**
      * Get all activity logs for this user.
      */
-    public function activityLogs(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function activityLogs(): HasMany
     {
         return $this->hasMany(ActivityLog::class);
     }
@@ -574,26 +466,6 @@ class User extends Authenticatable
 
         if ($this->isAdminKampus()) {
             return $this->university_id === $universityId;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check if user can edit a specific journal
-     */
-    public function canEditJournal(Journal $journal): bool
-    {
-        if ($this->isSuperAdmin()) {
-            return true;
-        }
-
-        if ($this->isAdminKampus()) {
-            return $journal->university_id === $this->university_id;
-        }
-
-        if ($this->isUser()) {
-            return $journal->user_id === $this->id;
         }
 
         return false;

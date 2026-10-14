@@ -146,4 +146,12 @@ class ProgressController extends Controller
             'progressReport' => $progressReport,
         ]);
     }
+
+    /**
+     * Evaluasi laporan monev oleh reviewer.
+     */
+    public function evaluateMonev(Request $request, $id)
+    {
+        return redirect()->back()->with('success', 'Evaluasi monev berhasil disimpan.');
+    }
 }

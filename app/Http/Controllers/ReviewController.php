@@ -49,4 +49,12 @@ class ReviewController extends Controller
 
         return redirect()->back()->with('success', 'Penilaian proposal berhasil diperbarui.');
     }
+
+    /**
+     * Menampilkan detail proposal untuk direview.
+     */
+    public function show($id)
+    {
+        return app(ReviewerController::class)->show(request(), (int) $id);
+    }
 }

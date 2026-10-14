@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class University extends Model
@@ -53,19 +54,43 @@ class University extends Model
     */
 
     /**
-     * Get all users (Admin Kampus & Users) belonging to this university
+     * Get all users belonging to this university
      */
-    public function users()
+    public function users(): HasMany
     {
         return $this->hasMany(User::class);
     }
 
     /**
-     * Get all journals belonging to this university
+     * Get all research schemas belonging to this university
      */
-    public function journals()
+    public function researchSchemas(): HasMany
     {
-        return $this->hasMany(Journal::class);
+        return $this->hasMany(ResearchSchema::class);
+    }
+
+    /**
+     * Get all proposals belonging to this university
+     */
+    public function proposals(): HasMany
+    {
+        return $this->hasMany(Proposal::class);
+    }
+
+    /**
+     * Get all contracts belonging to this university
+     */
+    public function contracts(): HasMany
+    {
+        return $this->hasMany(Contract::class);
+    }
+
+    /**
+     * Get all monev schedules belonging to this university
+     */
+    public function monevSchedules(): HasMany
+    {
+        return $this->hasMany(MonevSchedule::class);
     }
 
     /**
@@ -75,16 +100,6 @@ class University extends Model
     {
         return $this->users()->whereHas('role', function ($query) {
             $query->where('name', 'Admin Kampus');
-        });
-    }
-
-    /**
-     * Get Pengelola Jurnal users for this university
-     */
-    public function pengelolaJurnal()
-    {
-        return $this->users()->whereHas('role', function ($query) {
-            $query->where('name', 'user');
         });
     }
 
@@ -169,15 +184,7 @@ class University extends Model
     */
 
     /**
-     * Get total journals count
-     */
-    public function getTotalJournalsAttribute(): int
-    {
-        return $this->journals()->count();
-    }
-
-    /**
-     * Get total users count (Admin Kampus + Pengelola Jurnal)
+     * Get total users count (Admin Kampus + Users)
      */
     public function getTotalUsersAttribute(): int
     {
