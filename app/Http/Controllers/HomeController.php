@@ -14,20 +14,16 @@ class HomeController extends Controller
     ) {}
 
     /**
-     * Display the welcome page.
+     * Display the welcome page or redirect authenticated users to dashboard.
      */
     public function index(Request $request): Response
     {
-        $featuredJournals = $this->homeService->getFeaturedJournals();
         $overallStats = $this->homeService->getOverallStats();
-        $scientificFields = $this->homeService->getTopScientificFields();
+        $activeSchemas = $this->homeService->getActiveSchemas();
 
         return Inertia::render('welcome', [
-            'featuredJournals' => $featuredJournals,
-            'totalUniversities' => $overallStats['totalUniversities'],
-            'totalJournals' => $overallStats['totalJournals'],
-            'totalArticles' => $overallStats['totalArticles'],
-            'scientificFields' => $scientificFields,
+            'overallStats' => $overallStats,
+            'activeSchemas' => $activeSchemas,
         ]);
     }
 }
