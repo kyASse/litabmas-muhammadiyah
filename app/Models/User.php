@@ -28,11 +28,11 @@ class User extends Authenticatable
         });
 
         static::saved(function ($user) {
-            // Sync primary role_id to user_roles
+            // Sync primary role_id to role_user
             if ($user->role_id) {
                 $user->roles()->syncWithoutDetaching([$user->role_id => [
                     'assigned_at' => now(),
-                    'assigned_by' => Auth::id() ?? $user->approved_by,
+                    'assigned_by' => Auth::id(),
                 ]]);
             }
 
@@ -42,7 +42,7 @@ class User extends Authenticatable
                 if ($user->is_reviewer) {
                     $user->roles()->syncWithoutDetaching([$reviewerRole->id => [
                         'assigned_at' => now(),
-                        'assigned_by' => Auth::id() ?? $user->approved_by,
+                        'assigned_by' => Auth::id(),
                     ]]);
                 } else {
                     $user->roles()->detach($reviewerRole->id);
@@ -67,6 +67,9 @@ class User extends Authenticatable
         'position',
         'role_id',
         'university_id',
+        'nidn',
+        'faculty',
+        'study_program',
         'scientific_field_id',
         'is_active',
         'is_reviewer',
@@ -127,7 +130,7 @@ class User extends Authenticatable
      */
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'user_roles')
+        return $this->belongsToMany(Role::class, 'role_user')
             ->withPivot('assigned_at', 'assigned_by');
     }
 

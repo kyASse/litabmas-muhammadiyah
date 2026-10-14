@@ -1,10 +1,19 @@
-import RevokeRoleModal from '@/components/RevokeRoleModal';
-import RoleBadge from '@/components/RoleBadge';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { UserPlus } from 'lucide-react';
 import { useState } from 'react';
 
@@ -91,7 +100,7 @@ export default function Index({ users }: IndexProps) {
                                                 <TableCell>{user.email}</TableCell>
                                                 <TableCell>
                                                     <div className="flex flex-col items-start gap-1">
-                                                        <RoleBadge roleName={role.role_name} />
+                                                        <Badge variant="outline">{role.role_name}</Badge>
                                                         {role.journal && (
                                                             <span className="pl-1 text-xs text-muted-foreground italic">{role.journal.name}</span>
                                                         )}
@@ -125,7 +134,32 @@ export default function Index({ users }: IndexProps) {
                 </Card>
             </div>
 
-            {selectedRole && <RevokeRoleModal isOpen={isRevokeOpen} onClose={() => setIsRevokeOpen(false)} userRole={selectedRole} />}
+            {selectedRole && (
+                <AlertDialog open={isRevokeOpen} onOpenChange={setIsRevokeOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Cabut Peran Pengguna</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                Apakah Anda yakin ingin mencabut peran <strong>{selectedRole.role_name}</strong> dari <strong>{selectedRole.user_name}</strong>?
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel onClick={() => setIsRevokeOpen(false)}>Batal</AlertDialogCancel>
+                            <AlertDialogAction
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                onClick={() => {
+                                    router.delete(`/admin/users/revoke/${selectedRole.id_user}`, {
+                                        data: { role_id: selectedRole.id },
+                                        onFinish: () => setIsRevokeOpen(false),
+                                    });
+                                }}
+                            >
+                                Cabut Peran
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+            )}
         </AppLayout>
     );
 }

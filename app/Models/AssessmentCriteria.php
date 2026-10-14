@@ -9,14 +9,28 @@ class AssessmentCriteria extends Model
 {
     use HasFactory;
 
-    protected $table = 'assessment_criterias';
+    protected $table = 'assessment_criteria';
 
     protected $fillable = [
-        'review_id',
+        'nama_kriteria',
+        'bobot',
+        'deskripsi',
+        'urutan',
         'criterion',
         'score',
         'notes',
+        'review_id',
     ];
+
+    public function getCriterionAttribute(): ?string
+    {
+        return $this->attributes['nama_kriteria'] ?? null;
+    }
+
+    public function setCriterionAttribute($value): void
+    {
+        $this->attributes['nama_kriteria'] = $value;
+    }
 
     public function review()
     {

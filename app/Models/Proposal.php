@@ -4,23 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Proposal Model
  *
- * Merepresentasikan proposal penelitian yang diajukan oleh Dosen (User).
- * Kolom mengikuti skema migrasi 2026_05_13_182810_create_proposals_table.php
- *
- * @property int $id
- * @property string $title
- * @property string $description
- * @property int $user_id
- * @property int $research_schema_id
- * @property string $status_proposal Draft|Submitted|Administrasi_Valid|Ditolak
- * @property string|null $rejection_reason
- * @property string|null $file_dokumen_proposal
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $updated_at
+ * Merepresentasikan proposal penelitian yang diajukan oleh Dosen / Peneliti.
+ * Sesuai dengan spesifikasi 21 Tabel Bersih Bab 6.2 PRD.
  */
 class Proposal extends Model
 {
@@ -36,31 +28,46 @@ class Proposal extends Model
 
     public const STATUS_DITOLAK = 'Ditolak';
 
+    public const STATUS_LOLOS_DIDANAI = 'Lolos_Didanai';
+
     // ─── Fillable ────────────────────────────────────────────────────────────
 
     protected $fillable = [
+        'university_id',
+        'id_pengusul',
+        'id_skema_pendanaan',
+        'judul_penelitian',
+        'abstrak',
+        'latar_belakang',
+        'biaya_yang_diusulkan',
+        'status_proposal',
+        'catatan_administrasi',
+        'tanggal_pengajuan',
+        // Virtual / legacy aliases
         'title',
         'description',
         'judul',
         'deskripsi',
         'user_id',
         'research_schema_id',
-        'status_proposal',
         'rejection_reason',
         'abstract',
         'background',
-        'proposal_doc_path',
-        'status',
-        'submitted_at',
         'file_dokumen_proposal',
+        'proposal_doc_path',
     ];
 
     /**
      * Virtual attributes appended to array/JSON representation.
      */
     protected $appends = [
+        'title',
+        'description',
+        'judul',
+        'deskripsi',
         'status',
-        'proposal_doc_path',
+        'user_id',
+        'research_schema_id',
     ];
 
     /*
@@ -69,9 +76,89 @@ class Proposal extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function getTitleAttribute(): ?string
+    {
+        return $this->attributes['judul_penelitian'] ?? null;
+    }
+
+    public function setTitleAttribute($value): void
+    {
+        $this->attributes['judul_penelitian'] = $value;
+    }
+
+    public function getJudulAttribute(): ?string
+    {
+        return $this->attributes['judul_penelitian'] ?? null;
+    }
+
+    public function setJudulAttribute($value): void
+    {
+        $this->attributes['judul_penelitian'] = $value;
+    }
+
+    public function getDescriptionAttribute(): ?string
+    {
+        return $this->attributes['abstrak'] ?? null;
+    }
+
+    public function setDescriptionAttribute($value): void
+    {
+        $this->attributes['abstrak'] = $value;
+    }
+
+    public function getDeskripsiAttribute(): ?string
+    {
+        return $this->attributes['abstrak'] ?? null;
+    }
+
+    public function setDeskripsiAttribute($value): void
+    {
+        $this->attributes['abstrak'] = $value;
+    }
+
+    public function getAbstractAttribute(): ?string
+    {
+        return $this->attributes['abstrak'] ?? null;
+    }
+
+    public function setAbstractAttribute($value): void
+    {
+        $this->attributes['abstrak'] = $value;
+    }
+
+    public function getBackgroundAttribute(): ?string
+    {
+        return $this->attributes['latar_belakang'] ?? null;
+    }
+
+    public function setBackgroundAttribute($value): void
+    {
+        $this->attributes['latar_belakang'] = $value;
+    }
+
+    public function getUserIdAttribute(): ?int
+    {
+        return $this->attributes['id_pengusul'] ?? null;
+    }
+
+    public function setUserIdAttribute($value): void
+    {
+        $this->attributes['id_pengusul'] = $value;
+    }
+
+    public function getResearchSchemaIdAttribute(): ?int
+    {
+        return $this->attributes['id_skema_pendanaan'] ?? null;
+    }
+
+    public function setResearchSchemaIdAttribute($value): void
+    {
+        $this->attributes['id_skema_pendanaan'] = $value;
+    }
+
     public function getStatusAttribute(): string
     {
-        return $this->status_proposal ?? 'Draft';
+        return $this->status_proposal ?? self::STATUS_DRAFT;
     }
 
     public function setStatusAttribute($value): void
@@ -89,65 +176,87 @@ class Proposal extends Model
         $this->attributes['file_dokumen_proposal'] = $value;
     }
 
-    /**
-     * Accessor virtual: judul → title
-     * Digunakan oleh ReviewSummaryController dan frontend Review/Summary.tsx.
-     */
-    public function getJudulAttribute(): ?string
-    {
-        return $this->attributes['title'] ?? null;
-    }
-
-    public function setJudulAttribute($value): void
-    {
-        $this->attributes['title'] = $value;
-    }
-
-    /**
-     * Accessor virtual: deskripsi → description
-     * Digunakan oleh ReviewSummaryController dan frontend Review/Summary.tsx.
-     */
-    public function getDeskripsiAttribute(): ?string
-    {
-        return $this->attributes['description'] ?? null;
-    }
-
-    public function setDeskripsiAttribute($value): void
-    {
-        $this->attributes['description'] = $value;
-    }
-
     // ─── Relationships ───────────────────────────────────────────────────────
+
+    /**
+     * Relasi ke University.
+     */
+    public function university(): BelongsTo
+    {
+        return $this->belongsTo(University::class, 'university_id');
+    }
 
     /**
      * Relasi ke User (Dosen pengusul).
      */
-    public function user()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'id_pengusul');
+    }
+
+    public function pengusul(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'id_pengusul');
     }
 
     /**
      * Relasi ke ResearchSchema (skema penelitian).
      */
-    public function researchSchema()
+    public function researchSchema(): BelongsTo
     {
-        return $this->belongsTo(ResearchSchema::class);
+        return $this->belongsTo(ResearchSchema::class, 'id_skema_pendanaan');
+    }
+
+    public function skemaPendanaan(): BelongsTo
+    {
+        return $this->belongsTo(ResearchSchema::class, 'id_skema_pendanaan');
     }
 
     /**
      * Relasi ke ProposalDocument.
      */
-    public function documents()
+    public function documents(): HasMany
     {
-        return $this->hasMany(ProposalDocument::class);
+        return $this->hasMany(ProposalDocument::class, 'id_proposal');
     }
 
     /**
      * Relasi ke Review (penunjukan/penilaian reviewer).
      */
-    public function reviews()
+    public function reviews(): HasMany
     {
-        return $this->hasMany(Review::class, 'proposal_id');
+        return $this->hasMany(Review::class, 'id_proposal');
+    }
+
+    /**
+     * Relasi ke Kontrak Penelitian.
+     */
+    public function contract(): HasOne
+    {
+        return $this->hasOne(Contract::class, 'id_proposal');
+    }
+
+    /**
+     * Relasi ke Laporan Kemajuan (Monev).
+     */
+    public function progressReports(): HasMany
+    {
+        return $this->hasMany(ProgressReport::class, 'id_proposal');
+    }
+
+    /**
+     * Relasi ke Luaran Penelitian.
+     */
+    public function researchOutputs(): HasMany
+    {
+        return $this->hasMany(ResearchOutput::class, 'id_proposal');
+    }
+
+    /**
+     * Relasi ke Evaluasi Akhir Penelitian.
+     */
+    public function evaluation(): HasOne
+    {
+        return $this->hasOne(Evaluation::class, 'id_proposal');
     }
 }
