@@ -35,14 +35,12 @@ use App\Http\Controllers\OutputDocController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProposalController;
-use App\Http\Controllers\ResourcesController;
 use App\Http\Controllers\Review\ReviewSummaryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewDocumentController;
 use App\Http\Controllers\ReviewerController;
 use App\Http\Controllers\ReviewHistoryController;
 use App\Http\Controllers\SchemaController;
-use App\Http\Controllers\SupportController;
 use App\Http\Controllers\User\UserFundingController;
 use App\Models\Role;
 use Illuminate\Support\Facades\Route;
@@ -74,10 +72,6 @@ Route::get('/storage/{path}', function (string $path) {
 
 // Home / Landing Page
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
-// Shared Public / Information Routes
-Route::get('/support', [SupportController::class, 'index'])->name('support');
-Route::get('/resources', [ResourcesController::class, 'index'])->name('resources');
 
 // Google OAuth
 Route::middleware('guest')->group(function () {
