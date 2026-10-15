@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ResearchSchema extends Model
 {
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
         'university_id',
@@ -57,11 +58,6 @@ class ResearchSchema extends Model
     public function setMaxFundingAttribute($value): void
     {
         $this->attributes['biaya_maksimal'] = $value;
-    }
-
-    public function university()
-    {
-        return $this->belongsTo(University::class);
     }
 
     public function proposals()
