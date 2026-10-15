@@ -71,6 +71,11 @@ Route::get('/storage/{path}', function (string $path) {
 // Home / Landing Page
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Design System Preview Gate (Hybrid Scholarly Enterprise Showcase)
+Route::get('/design-system-preview', function () {
+    return inertia('DesignSystemPreview');
+})->name('design-system-preview');
+
 // Google OAuth
 Route::middleware('guest')->group(function () {
     Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
