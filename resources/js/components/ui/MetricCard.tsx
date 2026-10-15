@@ -6,7 +6,7 @@ export interface MetricCardProps {
   title: string;
   value: number | string;
   type?: 'currency' | 'score' | 'percentage' | 'integer';
-  icon: LucideIcon;
+  icon: LucideIcon | React.ReactNode;
   iconBgClass?: string;
   iconColorClass?: string;
   caption?: string;
@@ -18,7 +18,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   title,
   value,
   type = 'integer',
-  icon: Icon,
+  icon,
   iconBgClass = 'bg-blue-50',
   iconColorClass = 'text-blue-900',
   caption,
@@ -32,6 +32,17 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     danger: 'bg-rose-50 text-rose-700 border-rose-200',
   }[badgeVariant];
 
+  const renderIcon = () => {
+    if (React.isValidElement(icon)) {
+      return icon;
+    }
+    if (typeof icon === 'function' || typeof icon === 'object') {
+      const IconComponent = icon as LucideIcon;
+      return <IconComponent className="w-5 h-5" strokeWidth={1.75} />;
+    }
+    return null;
+  };
+
   return (
     <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-xs transition-shadow hover:shadow-sm">
       <div className="flex items-start justify-between">
@@ -39,7 +50,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
           {title}
         </p>
         <div className={`p-2 rounded-md border border-slate-100 ${iconBgClass} ${iconColorClass}`}>
-          <Icon className="w-5 h-5" strokeWidth={1.75} />
+          {renderIcon()}
         </div>
       </div>
 

@@ -193,7 +193,9 @@ export default function Welcome() {
                             title="Perguruan Tinggi Terintegrasi"
                             value={stats.totalUniversities || 0}
                             type="integer"
-                            icon={<Building2 className="h-5 w-5 text-blue-900 dark:text-blue-400" />}
+                            icon={Building2}
+                            iconBgClass="bg-blue-50"
+                            iconColorClass="text-blue-900"
                             badgeText="MULTI-TENANT"
                             badgeVariant="neutral"
                             caption="Institusi kampus Muhammadiyah aktif"
@@ -202,7 +204,9 @@ export default function Welcome() {
                             title="Skema Riset Aktif"
                             value={stats.totalSchemas || 0}
                             type="integer"
-                            icon={<BookOpen className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />}
+                            icon={BookOpen}
+                            iconBgClass="bg-emerald-50"
+                            iconColorClass="text-emerald-700"
                             badgeText="KOMPETITIF"
                             badgeVariant="success"
                             caption="Hibah penelitian terbuka untuk dosen"
@@ -211,7 +215,9 @@ export default function Welcome() {
                             title="Usulan Proposal"
                             value={stats.totalProposals || 0}
                             type="integer"
-                            icon={<FileText className="h-5 w-5 text-amber-600 dark:text-amber-400" />}
+                            icon={FileText}
+                            iconBgClass="bg-amber-50"
+                            iconColorClass="text-amber-700"
                             badgeText="TERDAFTAR"
                             badgeVariant="warning"
                             caption="Proposal dalam siklus seleksi & monev"
@@ -220,9 +226,11 @@ export default function Welcome() {
                             title="Luaran Terverifikasi"
                             value={stats.totalOutputs || 0}
                             type="integer"
-                            icon={<Award className="h-5 w-5 text-purple-600 dark:text-purple-400" />}
+                            icon={Award}
+                            iconBgClass="bg-purple-50"
+                            iconColorClass="text-purple-700"
                             badgeText="VALID"
-                            badgeVariant="info"
+                            badgeVariant="neutral"
                             caption="Jurnal, buku, HKI, dan produk prototipe"
                         />
                     </div>
