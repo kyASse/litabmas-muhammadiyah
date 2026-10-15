@@ -18,7 +18,8 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dosen.dashboard', absolute: false));
+    $response->assertRedirect(route('dashboard', absolute: false));
+    $this->assertNotNull($user->fresh()->last_login_at);
 });
 
 test('users can not authenticate with invalid password', function () {

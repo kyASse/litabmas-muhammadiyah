@@ -201,6 +201,7 @@ Klaster ini menangani data master universitas, manajemen pengguna, hak akses ber
 | `avatar_url` | VARCHAR(255) | Ya | NULL | Jalur penyimpanan berkas foto profil pengguna. |
 | `is_active` | BOOLEAN | Tidak | TRUE | Status keaktifan akun pengguna (TRUE: Aktif, FALSE: Dinonaktifkan). |
 | `is_reviewer` | BOOLEAN | Tidak | FALSE | Penanda eksplisit kualifikasi dosen sebagai reviewer bersertifikasi. |
+| `last_login_at` | TIMESTAMP | Ya | NULL | Jejak waktu pencatatan aktivitas login terakhir pengguna ke dalam sistem. |
 | `remember_token` | VARCHAR(100) | Ya | NULL | Token sesi login berulang (Remember Me). |
 | `created_at` | TIMESTAMP | Ya | NULL | Waktu pembuatan akun pengguna. |
 | `updated_at` | TIMESTAMP | Ya | NULL | Waktu pembaruan data pengguna. |
