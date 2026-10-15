@@ -10,8 +10,32 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-    --font-sans:
-        'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-serif: 'Newsreader', 'Merriweather', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    --color-surface-base: #f8fafc;
+    --color-surface-card: #ffffff;
+    --color-surface-elevated: #f1f5f9;
+    --color-surface-muted: #e2e8f0;
+    --color-surface-sidebar: #0f172a;
+
+    --color-border-subtle: #e2e8f0;
+    --color-border-strong: #cbd5e1;
+    --color-border-focus: #1e3a8a;
+
+    --color-brand-primary: #1e3a8a;
+    --color-brand-primary-hover: #1e40af;
+    --color-brand-primary-light: #eff6ff;
+
+    --color-brand-accent: #059669;
+    --color-brand-accent-hover: #047857;
+    --color-brand-accent-light: #ecfdf5;
+
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #475569;
+    --color-text-muted: #94a3b8;
+    --color-text-inverse: #ffffff;
 
     --radius-lg: var(--radius);
     --radius-md: calc(var(--radius) - 2px);
