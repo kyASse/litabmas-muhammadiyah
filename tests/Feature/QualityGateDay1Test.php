@@ -32,6 +32,22 @@ class QualityGateDay1Test extends TestCase
     }
 
     /**
+     * Uji rute beranda / mengembalikan HTTP 200 dan merender komponen welcome dengan props riset.
+     */
+    public function test_home_landing_page_renders_cleanly_with_standalone_research_props(): void
+    {
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn (AssertableInertia $page) => $page
+            ->component('welcome')
+            ->has('overallStats')
+            ->has('activeSchemas')
+        );
+    }
+
+
+    /**
      * Uji keberadaan seluruh 21 tabel domain bersih sesuai spesifikasi Kamus Data schema.md.
      */
     public function test_all_twenty_one_clean_domain_tables_exist(): void
