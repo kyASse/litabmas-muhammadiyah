@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Journal;
+use App\Models\ProductionIssue;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -60,7 +61,7 @@ test('can submit new issue to store', function () {
 });
 
 test('production issue edit page is rendered', function () {
-    $issue = \App\Models\ProductionIssue::create([
+    $issue = ProductionIssue::create([
         'journal_id' => $this->journal->id,
         'volume' => '1',
         'nomor' => '1',
@@ -89,7 +90,7 @@ test('production issue edit page is rendered', function () {
 });
 
 test('can update existing issue metadata', function () {
-    $issue = \App\Models\ProductionIssue::create([
+    $issue = ProductionIssue::create([
         'journal_id' => $this->journal->id,
         'volume' => '1',
         'nomor' => '1',
@@ -131,7 +132,7 @@ test('cannot edit issue belonging to another user', function () {
         'user_id' => $otherUser->id,
     ]);
 
-    $issue = \App\Models\ProductionIssue::create([
+    $issue = ProductionIssue::create([
         'journal_id' => $otherJournal->id,
         'volume' => '1',
         'nomor' => '1',

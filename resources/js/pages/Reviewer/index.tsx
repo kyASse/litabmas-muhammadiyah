@@ -18,7 +18,7 @@
  */
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,23 +28,8 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router, usePage } from '@inertiajs/react';
-import {
-    AlertTriangle,
-    Award,
-    CheckCircle2,
-    ChevronLeft,
-    ChevronRight,
-    ClipboardCheck,
-    Clock,
-    FileText,
-    Filter,
-    Layers,
-    Search,
-    UserCheck,
-    X,
-    XCircle,
-} from 'lucide-react';
-import React, { useEffect, useState, type FormEvent } from 'react';
+import { Award, CheckCircle2, ChevronLeft, ChevronRight, ClipboardCheck, Clock, FileText, Layers, Search, X, XCircle } from 'lucide-react';
+import { useEffect, useState, type FormEvent } from 'react';
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
@@ -197,10 +182,8 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
     const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     const getProposalTitle = (proposal?: Proposal | null) => proposal?.title ?? proposal?.judul ?? 'Proposal Tanpa Judul';
-    const getProposalDescription = (proposal?: Proposal | null) =>
-        proposal?.description ?? proposal?.deskripsi ?? 'Belum ada deskripsi proposal.';
-    const getProposalDoc = (proposal?: Proposal | null) =>
-        proposal?.file_dokumen_proposal ?? proposal?.proposal_doc_path ?? null;
+    const getProposalDescription = (proposal?: Proposal | null) => proposal?.description ?? proposal?.deskripsi ?? 'Belum ada deskripsi proposal.';
+    const getProposalDoc = (proposal?: Proposal | null) => proposal?.file_dokumen_proposal ?? proposal?.proposal_doc_path ?? null;
 
     const calculateAverageScore = (items: AssessmentCriteria[]) => {
         if (!items || items.length === 0) return 0;
@@ -310,20 +293,12 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
 
     const handleFilterChange = (val: string) => {
         setStatusFilter(val);
-        router.get(
-            route('reviewer.assignments.index'),
-            { status: val, search: searchQuery },
-            { preserveState: true }
-        );
+        router.get(route('reviewer.assignments.index'), { status: val, search: searchQuery }, { preserveState: true });
     };
 
     const handleSearchSubmit = (e: FormEvent) => {
         e.preventDefault();
-        router.get(
-            route('reviewer.assignments.index'),
-            { status: statusFilter, search: searchQuery },
-            { preserveState: true }
-        );
+        router.get(route('reviewer.assignments.index'), { status: statusFilter, search: searchQuery }, { preserveState: true });
     };
 
     const handleResetFilters = () => {
@@ -357,13 +332,14 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                     setIsDialogOpen(false);
                     setActiveReview(null);
                 },
-            }
+            },
         );
     };
 
     // Calculate Summary Counters
     const totalCount = taskData?.total ?? taskData?.data?.length ?? 0;
-    const completedCount = taskData?.data?.filter((r) => (r.status ?? '').toLowerCase() === 'completed' || (r.status ?? '').toLowerCase() === 'selesai').length ?? 0;
+    const completedCount =
+        taskData?.data?.filter((r) => (r.status ?? '').toLowerCase() === 'completed' || (r.status ?? '').toLowerCase() === 'selesai').length ?? 0;
     const pendingCount = Math.max(0, totalCount - completedCount);
 
     return (
@@ -411,7 +387,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                 <Layers className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Penugasan</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Total Penugasan</p>
                                 <p className="text-2xl font-bold text-foreground">{totalCount}</p>
                             </div>
                         </CardContent>
@@ -423,7 +399,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                 <Clock className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Perlu Evaluasi</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Perlu Evaluasi</p>
                                 <p className="text-2xl font-bold text-foreground">{pendingCount}</p>
                             </div>
                         </CardContent>
@@ -435,7 +411,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                 <CheckCircle2 className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Selesai Dinilai</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Selesai Dinilai</p>
                                 <p className="text-2xl font-bold text-foreground">{completedCount}</p>
                             </div>
                         </CardContent>
@@ -517,9 +493,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                         return (
                                             <TableRow key={task.id} className="border-border">
                                                 <TableCell>
-                                                    <p className="line-clamp-2 font-medium text-foreground">
-                                                        {getProposalTitle(task.proposal)}
-                                                    </p>
+                                                    <p className="line-clamp-2 font-medium text-foreground">{getProposalTitle(task.proposal)}</p>
                                                 </TableCell>
                                                 <TableCell>
                                                     <ReviewStatusBadge status={task.status} />
@@ -531,9 +505,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                 </TableCell>
                                                 <TableCell>
                                                     {scoreVal !== null && scoreVal !== undefined ? (
-                                                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">
-                                                            {scoreVal} / 100
-                                                        </span>
+                                                        <span className="font-semibold text-emerald-600 dark:text-emerald-400">{scoreVal} / 100</span>
                                                     ) : (
                                                         <span className="text-xs text-muted-foreground">—</span>
                                                     )}
@@ -583,7 +555,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                         onClick={() => link.url && router.get(link.url)}
                                         className={`flex h-8 min-w-[2rem] items-center justify-center rounded-md px-2 text-sm transition-colors ${
                                             link.active
-                                                ? 'bg-primary text-primary-foreground font-medium'
+                                                ? 'bg-primary font-medium text-primary-foreground'
                                                 : 'border border-border bg-background text-foreground hover:bg-muted'
                                         } disabled:pointer-events-none disabled:opacity-40`}
                                     >
@@ -611,15 +583,13 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                 }}
             >
                 <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto rounded-xl border-border bg-card p-6 shadow-xl">
-                    <DialogHeader className="pb-2 border-b border-border">
+                    <DialogHeader className="border-b border-border pb-2">
                         <div className="flex items-center gap-2">
                             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-primary">
                                 <ClipboardCheck className="h-5 w-5" />
                             </div>
                             <div>
-                                <DialogTitle className="text-lg font-bold text-foreground">
-                                    {getProposalTitle(activeReview?.proposal)}
-                                </DialogTitle>
+                                <DialogTitle className="text-lg font-bold text-foreground">{getProposalTitle(activeReview?.proposal)}</DialogTitle>
                                 <DialogDescription className="text-xs text-muted-foreground">
                                     Formulir Evaluasi & Penilaian Proposal Penelitian
                                 </DialogDescription>
@@ -630,30 +600,22 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                     {activeReview && (
                         <div className="space-y-6 pt-2">
                             {/* Proposal Overview & Document Box */}
-                            <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-3">
+                            <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-4">
                                 <div>
-                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                        Deskripsi Proposal
-                                    </h4>
-                                    <p className="mt-1 text-sm leading-relaxed text-foreground">
-                                        {getProposalDescription(activeReview.proposal)}
-                                    </p>
+                                    <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Deskripsi Proposal</h4>
+                                    <p className="mt-1 text-sm leading-relaxed text-foreground">{getProposalDescription(activeReview.proposal)}</p>
                                 </div>
 
                                 {getProposalDoc(activeReview.proposal) && (
                                     <div className="flex items-center justify-between rounded-md border border-border bg-background p-2.5">
                                         <div className="flex items-center gap-2 text-sm text-foreground">
                                             <FileText className="h-4 w-4 text-primary" />
-                                            <span className="font-medium text-xs truncate max-w-[320px]">
+                                            <span className="max-w-[320px] truncate text-xs font-medium">
                                                 {getProposalDoc(activeReview.proposal)}
                                             </span>
                                         </div>
-                                        <a
-                                            href={`/storage/${getProposalDoc(activeReview.proposal)}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            <Button size="sm" variant="outline" className="h-8 text-xs gap-1">
+                                        <a href={`/storage/${getProposalDoc(activeReview.proposal)}`} target="_blank" rel="noopener noreferrer">
+                                            <Button size="sm" variant="outline" className="h-8 gap-1 text-xs">
                                                 Lihat Dokumen
                                             </Button>
                                         </a>
@@ -671,7 +633,8 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                             <h3 className="text-sm font-semibold text-foreground">Rincian Penilaian Rubrik Kriteria</h3>
                                         </div>
                                         <span className="text-xs text-muted-foreground">
-                                            {criteriaInputs.length} Indikator • Rata-rata Otomatis: <strong className="text-primary">{scoreInput || 0}</strong>
+                                            {criteriaInputs.length} Indikator • Rata-rata Otomatis:{' '}
+                                            <strong className="text-primary">{scoreInput || 0}</strong>
                                         </span>
                                     </div>
 
@@ -683,7 +646,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
 
                                             return (
                                                 <Card key={idx} className="border-border bg-card/60 shadow-none">
-                                                    <CardContent className="p-3.5 space-y-3">
+                                                    <CardContent className="space-y-3 p-3.5">
                                                         <div className="flex flex-wrap items-center justify-between gap-2">
                                                             <div className="flex items-center gap-2">
                                                                 {code && (
@@ -704,7 +667,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                         </div>
 
                                                         <div className="grid gap-3 sm:grid-cols-12">
-                                                            <div className="sm:col-span-4 space-y-1">
+                                                            <div className="space-y-1 sm:col-span-4">
                                                                 <Label htmlFor={`score-${idx}`} className="text-xs text-muted-foreground">
                                                                     Skor Kriteria (0 - 100)
                                                                 </Label>
@@ -715,7 +678,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                                     max="100"
                                                                     value={item.score}
                                                                     onChange={(e) => handleCriterionScoreChange(idx, e.target.value)}
-                                                                    className="h-9 text-sm border-border bg-background"
+                                                                    className="h-9 border-border bg-background text-sm"
                                                                 />
                                                                 {(item.answer_type === 'scale_1_5' || item.answer_type === 'skala_1_5') && (
                                                                     <div className="flex gap-1 pt-1">
@@ -725,7 +688,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                                                 type="button"
                                                                                 size="sm"
                                                                                 variant={item.score === val * 20 ? 'default' : 'outline'}
-                                                                                className="h-6 w-full text-xs px-0"
+                                                                                className="h-6 w-full px-0 text-xs"
                                                                                 onClick={() => handleCriterionScoreChange(idx, (val * 20).toString())}
                                                                             >
                                                                                 {val}
@@ -757,7 +720,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                                 )}
                                                             </div>
 
-                                                            <div className="sm:col-span-8 space-y-1">
+                                                            <div className="space-y-1 sm:col-span-8">
                                                                 <Label htmlFor={`notes-${idx}`} className="text-xs text-muted-foreground">
                                                                     Catatan / Ulasan Kriteria
                                                                 </Label>
@@ -767,7 +730,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                                     placeholder="Catatan khusus untuk kriteria ini..."
                                                                     value={item.notes ?? ''}
                                                                     onChange={(e) => handleCriterionNoteChange(idx, e.target.value)}
-                                                                    className="h-9 text-sm border-border bg-background"
+                                                                    className="h-9 border-border bg-background text-sm"
                                                                 />
                                                             </div>
                                                         </div>
@@ -778,7 +741,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                     </div>
                                 </div>
 
-                                <div className="grid gap-4 md:grid-cols-2 pt-2 border-t border-border">
+                                <div className="grid gap-4 border-t border-border pt-2 md:grid-cols-2">
                                     {/* Score Input */}
                                     <div className="space-y-1.5">
                                         <Label htmlFor="score" className="text-sm font-medium text-foreground">
@@ -849,7 +812,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                 </div>
 
                                 {/* Action Buttons */}
-                                <div className="flex justify-end gap-2 pt-2 border-t border-border">
+                                <div className="flex justify-end gap-2 border-t border-border pt-2">
                                     <Button type="button" variant="outline" onClick={closeReviewDetails}>
                                         Batal
                                     </Button>
@@ -866,4 +829,3 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
         </AppLayout>
     );
 }
-

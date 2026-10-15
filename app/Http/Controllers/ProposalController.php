@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProposalRequest;
 use App\Models\Proposal;
+use App\Models\ProposalDocument;
 use App\Models\ResearchSchema;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -202,7 +203,7 @@ class ProposalController extends Controller
         $filePath = null;
 
         if (! $proposal) {
-            $document = \App\Models\ProposalDocument::findOrFail($id);
+            $document = ProposalDocument::findOrFail($id);
             $proposal = $document->proposal;
             $filePath = $document->file_path;
         } else {

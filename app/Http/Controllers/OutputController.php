@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\BookOutput;
 use App\Models\HkiOutput;
+use App\Models\Journal;
 use App\Models\JournalOutput;
 use App\Models\ResearchOutput;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -38,8 +41,8 @@ class OutputController extends Controller
         ];
 
         $journals = [];
-        if (class_exists(\App\Models\Journal::class)) {
-            $journals = \App\Models\Journal::select('id', 'title', 'issn', 'e_issn')->get()->toArray();
+        if (class_exists(Journal::class)) {
+            $journals = Journal::select('id', 'title', 'issn', 'e_issn')->get()->toArray();
         }
 
         return Inertia::render('Output/Create', [
@@ -178,7 +181,7 @@ class OutputController extends Controller
     /**
      * Store a newly created HKI/Patent output in storage.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function storeHKI(Request $request)
     {
@@ -243,7 +246,7 @@ class OutputController extends Controller
 
             return redirect()->back()->with([
                 'success' => 'Data HKI berhasil disimpan.',
-                'data' => array_merge(\Illuminate\Support\Arr::except($validated, ['file_sertifikat_atau_cover', 'file_cover_atau_halaman_hak_cipta']), ['file_path' => $filePath]),
+                'data' => array_merge(Arr::except($validated, ['file_sertifikat_atau_cover', 'file_cover_atau_halaman_hak_cipta']), ['file_path' => $filePath]),
             ]);
         } catch (\Exception $e) {
             Log::error('Error storing HKI: '.$e->getMessage());
@@ -255,7 +258,7 @@ class OutputController extends Controller
     /**
      * Store a newly created Book/Module output in storage.
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function storeBook(Request $request)
     {
@@ -320,7 +323,7 @@ class OutputController extends Controller
 
             return redirect()->back()->with([
                 'success' => 'Data Buku berhasil disimpan.',
-                'data' => array_merge(\Illuminate\Support\Arr::except($validated, ['file_sertifikat_atau_cover', 'file_cover_atau_halaman_hak_cipta']), ['file_path' => $filePath]),
+                'data' => array_merge(Arr::except($validated, ['file_sertifikat_atau_cover', 'file_cover_atau_halaman_hak_cipta']), ['file_path' => $filePath]),
             ]);
         } catch (\Exception $e) {
             Log::error('Error storing Book: '.$e->getMessage());

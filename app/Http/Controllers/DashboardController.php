@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Journal;
 use App\Models\Proposal;
+use App\Models\User;
 use App\Services\StatsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -131,7 +132,7 @@ class DashboardController extends Controller
      *                    belonging to the Admin Kampus's university
      *  - User          → personal totals (only their own proposals)
      *
-     * @param  \App\Models\User  $user
+     * @param  User  $user
      * @return array{
      *     total: int,
      *     masuk: int,

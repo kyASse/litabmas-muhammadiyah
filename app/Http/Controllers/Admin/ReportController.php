@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Exports\ResearchReportExport;
 use App\Http\Controllers\Controller;
+use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Maatwebsite\Excel\Facades\Excel;
@@ -15,14 +16,14 @@ class ReportController extends Controller
      */
     public function generator()
     {
-        $years = \App\Models\Proposal::select('tahun_pelaksanaan')
+        $years = Proposal::select('tahun_pelaksanaan')
             ->whereNotNull('tahun_pelaksanaan')
             ->distinct()
             ->orderBy('tahun_pelaksanaan', 'desc')
             ->pluck('tahun_pelaksanaan')
             ->toArray();
 
-        $statuses = \App\Models\Proposal::select('status_proposal')
+        $statuses = Proposal::select('status_proposal')
             ->whereNotNull('status_proposal')
             ->distinct()
             ->pluck('status_proposal')

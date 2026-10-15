@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Admin;
 
+use App\Models\Proposal;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -28,7 +29,7 @@ class AssignReviewerTest extends TestCase
         ]);
 
         // Proposal
-        $proposal = \App\Models\Proposal::factory()->create();
+        $proposal = Proposal::factory()->create();
 
         $response = $this
             ->actingAs($admin)

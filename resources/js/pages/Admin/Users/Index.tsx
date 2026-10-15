@@ -140,7 +140,8 @@ export default function Index({ users }: IndexProps) {
                         <AlertDialogHeader>
                             <AlertDialogTitle>Cabut Peran Pengguna</AlertDialogTitle>
                             <AlertDialogDescription>
-                                Apakah Anda yakin ingin mencabut peran <strong>{selectedRole.role_name}</strong> dari <strong>{selectedRole.user_name}</strong>?
+                                Apakah Anda yakin ingin mencabut peran <strong>{selectedRole.role_name}</strong> dari{' '}
+                                <strong>{selectedRole.user_name}</strong>?
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>

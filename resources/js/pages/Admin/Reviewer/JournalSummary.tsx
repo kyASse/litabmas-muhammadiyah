@@ -24,22 +24,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type PaginatedData } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import {
-    Activity,
-    Award,
-    BarChart3,
-    BookOpen,
-    Building2,
-    ChevronLeft,
-    ChevronRight,
-    FileSearch,
-    GraduationCap,
-    Search,
-    TrendingUp,
-    University,
-    X,
-} from 'lucide-react';
-import React, { useState, type FormEvent } from 'react';
+import { Activity, Award, BookOpen, Building2, GraduationCap, Search, TrendingUp, X } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
 
 // ─── Breadcrumbs ────────────────────────────────────────────────────────────
 
@@ -193,11 +179,7 @@ export default function JournalSummary({
 
     const handleSearchSubmit = (e: FormEvent) => {
         e.preventDefault();
-        router.get(
-            route('admin.assessments.summary'),
-            { search, university_id: universityId, status },
-            { preserveState: true }
-        );
+        router.get(route('admin.assessments.summary'), { search, university_id: universityId, status }, { preserveState: true });
     };
 
     const handleResetFilters = () => {
@@ -234,7 +216,7 @@ export default function JournalSummary({
                                 <BookOpen className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Total Assessment</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Total Assessment</p>
                                 <p className="text-2xl font-bold text-foreground">{globalStats.total}</p>
                             </div>
                         </CardContent>
@@ -246,7 +228,7 @@ export default function JournalSummary({
                                 <TrendingUp className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Completion Rate</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Completion Rate</p>
                                 <p className="text-2xl font-bold text-foreground">{formatPct(globalStats.completion_rate)}</p>
                             </div>
                         </CardContent>
@@ -258,7 +240,7 @@ export default function JournalSummary({
                                 <Award className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Rata-rata Skor</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Rata-rata Skor</p>
                                 <p className="text-2xl font-bold text-foreground">{formatScore(globalStats.avg_score)}</p>
                             </div>
                         </CardContent>
@@ -270,7 +252,7 @@ export default function JournalSummary({
                                 <Activity className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Assessment Selesai</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Assessment Selesai</p>
                                 <p className="text-2xl font-bold text-foreground">{globalStats.reviewed + globalStats.submitted}</p>
                             </div>
                         </CardContent>
@@ -336,7 +318,7 @@ export default function JournalSummary({
                                 <div key={item.grade} className="space-y-1.5">
                                     <div className="flex items-center justify-between text-sm">
                                         <span className="font-semibold text-foreground">{item.label}</span>
-                                        <span className="font-semibold tabular-nums text-muted-foreground">
+                                        <span className="font-semibold text-muted-foreground tabular-nums">
                                             {item.count} Jurnal ({formatPct(item.percentage)})
                                         </span>
                                     </div>
@@ -374,9 +356,7 @@ export default function JournalSummary({
                                     ) : (
                                         universitySummary.map((u) => (
                                             <TableRow key={u.university_id} className="border-border">
-                                                <TableCell className="font-medium text-foreground">
-                                                    {u.university_name}
-                                                </TableCell>
+                                                <TableCell className="font-medium text-foreground">{u.university_name}</TableCell>
                                                 <TableCell className="text-center text-muted-foreground">{u.total}</TableCell>
                                                 <TableCell className="text-right font-semibold text-emerald-600 dark:text-emerald-400">
                                                     {formatPct(u.avg_percentage)}
@@ -421,9 +401,7 @@ export default function JournalSummary({
                                                 <p className="font-medium text-foreground">{row.journal?.title ?? 'Jurnal'}</p>
                                                 <p className="text-xs text-muted-foreground">ISSN: {row.journal?.issn ?? '—'}</p>
                                             </TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">
-                                                {row.university?.name ?? '—'}
-                                            </TableCell>
+                                            <TableCell className="text-sm text-muted-foreground">{row.university?.name ?? '—'}</TableCell>
                                             <TableCell className="text-center">
                                                 <Badge variant="outline" className="font-normal capitalize">
                                                     {row.status_label ?? row.status}
@@ -463,7 +441,7 @@ export default function JournalSummary({
                                     onClick={() => link.url && router.get(link.url)}
                                     className={`flex h-8 min-w-[2rem] items-center justify-center rounded-md px-2 text-sm transition-colors ${
                                         link.active
-                                            ? 'bg-primary text-primary-foreground font-medium'
+                                            ? 'bg-primary font-medium text-primary-foreground'
                                             : 'border border-border bg-background text-foreground hover:bg-muted'
                                     } disabled:pointer-events-none disabled:opacity-40`}
                                 >

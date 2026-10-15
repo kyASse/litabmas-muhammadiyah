@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Proposal;
+use App\Models\ResearchSchema;
 use App\Models\Role;
+use App\Models\University;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -43,7 +46,7 @@ class ProposalNavigationTest extends TestCase
 
     public function test_admin_kampus_can_approve_proposal(): void
     {
-        $university = \App\Models\University::factory()->create();
+        $university = University::factory()->create();
 
         $adminRole = Role::firstOrCreate(['name' => Role::ADMIN_KAMPUS], ['display_name' => 'Admin Kampus']);
         $adminKampus = User::factory()->create(['role_id' => $adminRole->id, 'university_id' => $university->id]);
@@ -51,13 +54,13 @@ class ProposalNavigationTest extends TestCase
         $dosenRole = Role::firstOrCreate(['name' => Role::USER], ['display_name' => 'User']);
         $dosen = User::factory()->create(['role_id' => $dosenRole->id, 'university_id' => $university->id]);
 
-        $schema = \App\Models\ResearchSchema::create(['name' => 'Skema Test']);
-        $proposal = \App\Models\Proposal::create([
+        $schema = ResearchSchema::create(['name' => 'Skema Test']);
+        $proposal = Proposal::create([
             'title' => 'Proposal Admin Kampus Test',
             'description' => 'Deskripsi Test',
             'user_id' => $dosen->id,
             'research_schema_id' => $schema->id,
-            'status_proposal' => \App\Models\Proposal::STATUS_SUBMITTED,
+            'status_proposal' => Proposal::STATUS_SUBMITTED,
         ]);
 
         $response = $this->actingAs($adminKampus)->post("/admin/proposals/{$proposal->id}/approve");
@@ -65,7 +68,7 @@ class ProposalNavigationTest extends TestCase
         $response->assertRedirect(route('admin.proposals.index'));
         $this->assertDatabaseHas('proposals', [
             'id' => $proposal->id,
-            'status_proposal' => \App\Models\Proposal::STATUS_ADMINISTRASI_VALID,
+            'status_proposal' => Proposal::STATUS_ADMINISTRASI_VALID,
         ]);
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Models\Contract;
 use App\Models\JournalOutput;
+use App\Models\Proposal;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
@@ -29,7 +30,7 @@ beforeEach(function () {
         'is_active' => true,
     ]);
 
-    $proposal = \App\Models\Proposal::factory()->create(['user_id' => $this->dosen->id]);
+    $proposal = Proposal::factory()->create(['user_id' => $this->dosen->id]);
 
     $this->contract = Contract::factory()->create([
         'proposal_id' => $proposal->id,

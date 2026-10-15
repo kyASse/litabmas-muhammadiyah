@@ -2,6 +2,7 @@
 
 use App\Models\Submission;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -9,7 +10,7 @@ use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
 
 // Mengaktifkan fitur reset database otomatis untuk setiap pengujian
-uses(\Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 /**
  * Setup Interseptor Pengaman Lingkungan SQLite Memori.
@@ -23,7 +24,7 @@ beforeEach(function () {
         // Bersihkan nama index kembar global sebelum skema tabel essay_questions dieksekusi
         try {
             DB::statement('DROP INDEX IF EXISTS unique_code_per_category');
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
         }
     }
 });

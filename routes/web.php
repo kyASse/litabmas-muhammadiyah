@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssignController as AdminAssignController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -13,7 +12,6 @@ use App\Http\Controllers\Admin\OutputReportController as AdminOutputReportContro
 use App\Http\Controllers\Admin\OutputVerifyCtrl as AdminOutputVerifyCtrl;
 use App\Http\Controllers\Admin\ProposalController as AdminProposalController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
-use App\Http\Controllers\Admin\ReviewerController as AdminReviewerController;
 use App\Http\Controllers\Admin\ScheduleController as AdminScheduleController;
 use App\Http\Controllers\Admin\SettingsCtrl as AdminSettingsCtrl;
 use App\Http\Controllers\Admin\UniversityController as AdminUniversityController;
@@ -65,7 +63,7 @@ Route::get('/storage/{path}', function (string $path) {
         }
 
         return response()->file(Storage::disk('public')->path($path));
-    } catch (\Throwable $e) {
+    } catch (Throwable $e) {
         abort(404);
     }
 })->where('path', '.+')->name('storage.serve');

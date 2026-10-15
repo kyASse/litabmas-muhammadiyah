@@ -152,10 +152,7 @@ export function AppSidebar() {
 
     // Reviewer has their own dedicated "Dashboard Reviewer" item
     const isReviewerOnly =
-        !hasRole(ROLE_NAMES.SUPER_ADMIN) &&
-        !hasRole(ROLE_NAMES.ADMIN_KAMPUS) &&
-        !hasRole(ROLE_NAMES.ADMIN_KEUANGAN) &&
-        hasRole(ROLE_NAMES.REVIEWER);
+        !hasRole(ROLE_NAMES.SUPER_ADMIN) && !hasRole(ROLE_NAMES.ADMIN_KAMPUS) && !hasRole(ROLE_NAMES.ADMIN_KEUANGAN) && hasRole(ROLE_NAMES.REVIEWER);
 
     const baseNavItems: NavItem[] = isReviewerOnly
         ? []

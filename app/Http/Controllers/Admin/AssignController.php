@@ -3,8 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Proposal;
+use App\Models\Review;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class AssignController extends Controller
 {
@@ -16,28 +21,28 @@ class AssignController extends Controller
             abort(403);
         }
 
-        $proposals = \App\Models\Proposal::whereIn('status_proposal', [
-            \App\Models\Proposal::STATUS_ADMINISTRASI_VALID,
-            \App\Models\Proposal::STATUS_SUBMITTED,
+        $proposals = Proposal::whereIn('status_proposal', [
+            Proposal::STATUS_ADMINISTRASI_VALID,
+            Proposal::STATUS_SUBMITTED,
             'Submitted',
             'Administrasi_Valid',
         ])
             ->select('id', 'title')
             ->get();
 
-        $reviewerRole = \App\Models\Role::where('name', \App\Models\Role::REVIEWER)->first();
+        $reviewerRole = Role::where('name', Role::REVIEWER)->first();
 
-        $reviewersQuery = \App\Models\User::query();
+        $reviewersQuery = User::query();
         if ($reviewerRole) {
             $reviewersQuery->where(function ($q) use ($reviewerRole) {
                 $q->where('role_id', $reviewerRole->id)
-                    ->orWhereHas('roles', fn ($r) => $r->where('name', \App\Models\Role::REVIEWER));
+                    ->orWhereHas('roles', fn ($r) => $r->where('name', Role::REVIEWER));
             });
         }
 
         $reviewers = $reviewersQuery->select('id', 'name')->get();
 
-        return \Inertia\Inertia::render('Admin/Reviewer/Assign', [
+        return Inertia::render('Admin/Reviewer/Assign', [
             'proposals' => $proposals,
             'reviewers' => $reviewers,
             'selectedProposalId' => $request->query('proposal_id'),
@@ -57,7 +62,7 @@ class AssignController extends Controller
             'reviewer_id' => 'required|integer',
         ]);
 
-        \App\Models\Review::create([
+        Review::create([
             'proposal_id' => $validated['proposal_id'],
             'reviewer_id' => $validated['reviewer_id'],
         ]);
@@ -76,7 +81,7 @@ class AssignController extends Controller
             abort(403);
         }
 
-        $review = \App\Models\Review::findOrFail($id);
+        $review = Review::findOrFail($id);
 
         $review->delete();
 

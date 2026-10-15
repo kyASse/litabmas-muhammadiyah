@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Proposal;
 use App\Models\ResearchSchema;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Proposal>
+ * @extends Factory<Proposal>
  */
 class ProposalFactory extends Factory
 {
