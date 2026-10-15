@@ -5,12 +5,13 @@ Dokumentasi proyek Jurnal MU telah diorganisir ke dalam beberapa folder untuk me
 ## 📋 Struktur Folder
 
 ### [technical](./technical/)
-Dokumentasi teknis komprehensif Sistem Penelitian Terintegrasi Standalone (arsitektur, skema database, sistem desain antarmuka, dan aturan bisnis).
+Dokumentasi teknis komprehensif Sistem Penelitian Terintegrasi Standalone (arsitektur, skema database, sistem desain antarmuka, aturan bisnis, dan roadmap pengembangan).
 - `README.md` - Pusat navigasi dan indeks dokumentasi teknis (*Technical Documentation Hub*).
 - `architecture.md` - Cetak biru arsitektur sistem, isolasi multi-tenancy, otorisasi RBAC, dan alur siklus hidup riset.
 - `schema.md` - Kamus data 21 tabel bersih, diagram ERD Mermaid, integritas kunci asing, dan strategi pengindeksan.
 - `design.md` - Sistem desain antarmuka *Hybrid Scholarly Enterprise*, token desain, tipografi ganda, dan pratinjau komponen.
 - `rules.md` - Logika bisnis transaksional 6 fase riset, penanganan defensif 11 kasus batas (*edge cases*), dan standar kualitas.
+- `stages.md` - Tahapan pengembangan & roadmap rilis 5 hari (15-20 Oktober 2026) dengan pendekatan *Vertical Slice*.
 
 ### 📅 [guidence rpl 2026](./guidence%20rpl%202026/)
 Dokumen panduan utama, roadmap, dan spesifikasi proyek (perencanaan sistem penelitian).

@@ -36,7 +36,7 @@ Platform ini mengadopsi model multi-institusi (*multi-tenancy*) berbasis entitas
 
 ## 3. Matriks Navigasi Dokumentasi Teknis
 
-Dokumentasi teknis diorganisasi ke dalam 4 berkas spesifikasi modular di bawah direktori `docs/technical/`:
+Dokumentasi teknis diorganisasi ke dalam 5 berkas spesifikasi modular di bawah direktori `docs/technical/`:
 
 | Dokumen | Berkas Sumber | Fokus & Cakupan Utama | Sasaran Pengembang |
 |---------|---------------|----------------------|-------------------|
@@ -44,8 +44,9 @@ Dokumentasi teknis diorganisasi ke dalam 4 berkas spesifikasi modular di bawah d
 | **Kamus Data & Skema Basis Data** | [schema.md](./schema.md) | Kamus data 21 tabel aplikasi bersih, Diagram Relasi Entitas (ERD Mermaid), integritas kunci asing (`CASCADE`, `RESTRICT`, `SET NULL`), batasan keunikan, komposit indeks performa, dan pemetaan Model Eloquent. | Backend Developer, Database Administrator |
 | **Sistem Desain Antarmuka & UX** | [design.md](./design.md) | Sistem desain *Hybrid Scholarly Enterprise*, palet warna Cool Slate, tipografi ganda (Serif untuk judul/abstrak dan Sans untuk form/UI), token elevation, cetak biru antarmuka 6 fase, serta standar wajib *Design System Component Preview Gate*. | Frontend Developer, UI/UX Designer |
 | **Aturan Bisnis & Penanganan Kasus Batas** | [rules.md](./rules.md) | Validasi transaksional 6 fase riset, penanganan defensif 11 kasus batas kritis (*edge cases*), invarian keamanan sistem (Dual-Layer Guard, verifikasi PDF, CSRF), dan standar kualitas koding (FormRequest, PHPUnit). | Fullstack Developer, QA Test Engineer |
+| **Tahapan Pengembangan & Roadmap Rilis** | [stages.md](./stages.md) | Strategi sprint 5 hari (15-20 Oktober 2026) dengan pendekatan *Vertical Slice per Siklus Riset*, analisis jalur kritis, breakdown harian (Hari 1 s.d. 5), matriks cakupan RBAC, protokol kontinjensi, dan kriteria rilis final. | Project Manager, Tech Lead, Fullstack Developer, QA |
 
-Selain keempat dokumen di atas, kebutuhan fungsional dan landasan perombakan sistem merujuk pada:
+Selain kelima dokumen di atas, kebutuhan fungsional dan landasan perombakan sistem merujuk pada:
 - **Spesifikasi Kebutuhan Produk Lengkap**: [PRD Sistem Penelitian Terintegrasi Standalone](../PRD_Sistem_Penelitian_Terintegrasi_Standalone.md)
 
 ---
@@ -76,6 +77,12 @@ Menjelaskan aturan logika bisnis defensif untuk menjamin integritas data:
 - **Aturan Transaksional 6 Fase**: Batasan tahapan riset yang tidak dapat dilewati secara sepihak, konsistensi termin pembayaran, dan prasyarat kelulusan evaluasi akhir.
 - **11 Kasus Batas Kritis**: Penanganan pencegahan IDOR lintas kampus, eliminasi konflik kepentingan reviewer, proteksi kampus nonaktif, batas waktu tenggat skema, pencegahan kirim ganda (*double submission*), mitigasi reviewer mangkir, rekonsiliasi diskrepansi skor ekstrem antar-penilai, penyesuaian pemotongan anggaran (*budget cut*), blokade pencairan termin sebelum monev lulus, pencegahan klaim luaran ganda, dan prosedur riset gagal (*force majeure*).
 - **Invarian Keamanan**: Ekstensi file wajib `.pdf` (maks. 10MB), verifikasi CSRF penuh, dan logging jejak audit lengkap.
+
+### 4.5 Tahapan Pengembangan & Roadmap Rilis (`stages.md`)
+Menetapkan strategi eksekusi rekayasa perangkat lunak untuk mencapai kesiapan produksi pada 20 Oktober 2026:
+- **Pendekatan Eksekusi**: *Vertical Slice per Siklus Riset* yang membagi pekerjaan ke dalam 5 hari kerja intensif dari fondasi hingga rilis final.
+- **Rincian Harian**: Hari 1 (Pondasi Tenancy & Design System Preview Gate), Hari 2 (Modul 1 Usulan & Modul 2 Reviewer CoI), Hari 3 (Modul 3 Kontrak 70:30 & Modul 4 Monev Gatekeeper Lock), Hari 4 (Modul 5 Luaran & Modul 6 SKTS Archive Lock), dan Hari 5 (Audit 11 Kasus Batas Kritis, QA E2E, & Rilis Final).
+- **Penjaminan Mutu & Kontinjensi**: Matriks cakupan pengujian 5 peran RBAC, protokol mitigasi bottleneck teknis, dan gerbang pengujian kualitas harian (*daily quality gates*).
 
 ---
 
