@@ -21,6 +21,8 @@ class Role extends Model
 
     public const REVIEWER = 'Reviewer';
 
+    public const PENELITI = 'Peneliti';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -28,6 +30,7 @@ class Role extends Model
      */
     protected $fillable = [
         'name',
+        'guard_name',
         'display_name',
         'description',
     ];
@@ -53,7 +56,7 @@ class Role extends Model
      */
     public function users()
     {
-        return $this->belongsToMany(User::class, 'user_roles')
+        return $this->belongsToMany(User::class, 'role_user')
             ->withPivot('assigned_at', 'assigned_by');
     }
 

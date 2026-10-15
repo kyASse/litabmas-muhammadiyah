@@ -150,4 +150,32 @@ class FundingController extends Controller
         // Tampilkan PDF di browser
         return $pdf->stream('Kwitansi_Termin_'.$funding->id.'.pdf');
     }
+
+    /**
+     * Menampilkan daftar pendanaan riset (Finance).
+     */
+    public function index(Request $request)
+    {
+        $fundings = Funding::with(['contract.university', 'contract.proposal'])
+            ->latest()
+            ->paginate(10);
+
+        return Inertia::render('Finance/Funding/Index', [
+            'fundings' => $fundings,
+        ]);
+    }
+
+    /**
+     * Pencairan dana termin riset (Disburse).
+     */
+    public function disburse(Request $request, $id)
+    {
+        $funding = Funding::findOrFail($id);
+        $funding->update([
+            'status' => Funding::STATUS_DISBURSED,
+            'paid_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Dana termin berhasil dicairkan.');
+    }
 }

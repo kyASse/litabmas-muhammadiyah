@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Proposal;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -118,13 +120,13 @@ class ProposalController extends Controller
             'documents',
         ]);
 
-        $reviewerRole = \App\Models\Role::where('name', \App\Models\Role::REVIEWER)->first();
+        $reviewerRole = Role::where('name', Role::REVIEWER)->first();
 
-        $reviewersQuery = \App\Models\User::query();
+        $reviewersQuery = User::query();
         if ($reviewerRole) {
             $reviewersQuery->where(function ($q) use ($reviewerRole) {
                 $q->where('role_id', $reviewerRole->id)
-                    ->orWhereHas('roles', fn ($r) => $r->where('name', \App\Models\Role::REVIEWER));
+                    ->orWhereHas('roles', fn ($r) => $r->where('name', Role::REVIEWER));
             });
         }
         $availableReviewers = $reviewersQuery->select('id', 'name', 'email')->get();

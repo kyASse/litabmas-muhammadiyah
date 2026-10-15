@@ -2,44 +2,35 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Seed the application's database with 21 clean research tables initial data.
      */
     public function run(): void
     {
-        $this->command->info('🌱 Starting Database Seeding...');
+        $this->command->info('Starting LITABMAS Database Seeding...');
         $this->command->info('');
 
-        // Order matters! Sesuaikan dengan foreign key dependencies
+        // Seeder execution order respects foreign key constraints
         $this->call([
-            RoleSeeder::class,              // 1. Roles (no dependencies)
-            ScientificFieldSeeder::class,   // 2. Scientific Fields (no dependencies)
-            UniversitySeeder::class,        // 3. Universities (no dependencies)
-            UserSeeder::class,              // 4. Users (depends on: roles, universities)
-            EvaluationIndicatorSeeder::class, // 5. Evaluation Indicators (v1.0 legacy data)
-
-            // === NEW v1.1: Hierarchical Borang Structure ===
-            AccreditationTemplateSeeder::class, // 6. Templates (2 templates: BAN-PT, Scopus)
-            DataMigrationSeeder::class,         // 7. Migrate v1.0 → v1.1 (categories, sub-categories)
-            EssayQuestionSeeder::class,         // 8. Essay Questions (6 samples)
-
-            JournalSeeder::class,           // 9. Journals (depends on: universities, users, scientific_fields)
-            EmailTemplateSeeder::class,     // Email templates (depends on journals, optional)
-            AssessmentSeeder::class,        // 10. Assessments with Journal Metadata (depends on: journals, users, indicators)
-            PembinaanSeeder::class,         // 11. Pembinaan System (depends on: journals, users, templates)
-            Module1And2Seeder::class,       // 12. Modul 1 & Modul 2 Proposal & Review System
+            RoleSeeder::class,               // 1. 5 Standard research roles
+            UniversitySeeder::class,         // 2. Default universities (UMY, etc.)
+            UserSeeder::class,               // 3. Default testing accounts for all 5 roles
+            AssessmentCriteriaSeeder::class, // 4. Standard LPPM proposal evaluation rubric
+            ResearchSchemaSeeder::class,     // 5. Default research schemes
         ]);
 
         $this->command->info('');
-        $this->command->info('✨ Database seeding completed successfully!');
+        $this->command->info('Database seeding completed successfully!');
         $this->command->info('');
-        $this->command->info('🔐 You can now login with:');
-        $this->command->info('   Email: superadmin@ajm.ac.id');
-        $this->command->info('   Password: password123');
+        $this->command->info('Default test login accounts (password: password):');
+        $this->command->info('   - Super Admin   : superadmin@litabmas.ac.id');
+        $this->command->info('   - Admin Kampus  : adminkampus@litabmas.ac.id');
+        $this->command->info('   - Admin Keuangan: finance@litabmas.ac.id');
+        $this->command->info('   - Reviewer      : reviewer@litabmas.ac.id');
+        $this->command->info('   - Peneliti      : dosen@litabmas.ac.id');
     }
 }

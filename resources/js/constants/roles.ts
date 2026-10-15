@@ -1,16 +1,14 @@
 /**
  * Role name constants
- * These must match the role names in the database and the Role model constants
+ * Strictly contains the 5 standard research roles
  * @see App\Models\Role
  */
 export const ROLE_NAMES = {
     SUPER_ADMIN: 'Super Admin',
     ADMIN_KAMPUS: 'Admin Kampus',
     ADMIN_KEUANGAN: 'Admin Keuangan',
-    USER: 'User',
-    PENGELOLA_JURNAL: 'Pengelola Jurnal',
     REVIEWER: 'Reviewer',
-    DOSEN: 'Dosen',
+    PENELITI: 'Peneliti',
 } as const;
 
 /**

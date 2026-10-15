@@ -38,7 +38,8 @@ export default function AssignModal({ open, onClose, onConfirm, loading = false,
 
                 <div className="space-y-4 py-2">
                     <p className="text-sm text-muted-foreground">
-                        Apakah Anda yakin ingin menunjuk reviewer untuk proposal{proposalTitle ? <span className="font-semibold text-foreground"> "{proposalTitle}"</span> : ''}?
+                        Apakah Anda yakin ingin menunjuk reviewer untuk proposal
+                        {proposalTitle ? <span className="font-semibold text-foreground"> "{proposalTitle}"</span> : ''}?
                     </p>
 
                     {reviewers && reviewers.length > 0 && (
@@ -65,11 +66,7 @@ export default function AssignModal({ open, onClose, onConfirm, loading = false,
                         Batal
                     </Button>
 
-                    <Button
-                        type="button"
-                        onClick={handleConfirm}
-                        disabled={loading || (!!reviewers && reviewers.length > 0 && !selectedReviewerId)}
-                    >
+                    <Button type="button" onClick={handleConfirm} disabled={loading || (!!reviewers && reviewers.length > 0 && !selectedReviewerId)}>
                         {loading ? 'Memproses...' : 'Ya, Tunjuk Reviewer'}
                     </Button>
                 </DialogFooter>

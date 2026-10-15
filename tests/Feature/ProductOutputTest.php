@@ -4,6 +4,7 @@ use App\Models\ResearchOutput;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
+use App\Policies\ResearchOutputPolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -242,30 +243,30 @@ it('forbids non-owner from deleting another user\'s output (403)', function () {
 
 it('policy: owner can update their own output', function () {
     $output = ResearchOutput::make(['user_id' => $this->user->id, 'status' => 'draft']);
-    $policy = new \App\Policies\ResearchOutputPolicy;
+    $policy = new ResearchOutputPolicy;
     expect($policy->update($this->user, $output))->toBeTrue();
 });
 
 it('policy: non-owner cannot update output', function () {
     $output = ResearchOutput::make(['user_id' => $this->user->id, 'status' => 'draft']);
-    $policy = new \App\Policies\ResearchOutputPolicy;
+    $policy = new ResearchOutputPolicy;
     expect($policy->update($this->otherUser, $output))->toBeFalse();
 });
 
 it('policy: owner can delete their own draft output', function () {
     $output = ResearchOutput::make(['user_id' => $this->user->id, 'status' => 'draft']);
-    $policy = new \App\Policies\ResearchOutputPolicy;
+    $policy = new ResearchOutputPolicy;
     expect($policy->delete($this->user, $output))->toBeTrue();
 });
 
 it('policy: owner cannot delete a non-draft output', function () {
     $output = ResearchOutput::make(['user_id' => $this->user->id, 'status' => 'submitted']);
-    $policy = new \App\Policies\ResearchOutputPolicy;
+    $policy = new ResearchOutputPolicy;
     expect($policy->delete($this->user, $output))->toBeFalse();
 });
 
 it('policy: super admin can update any output', function () {
     $output = ResearchOutput::make(['user_id' => $this->user->id, 'status' => 'approved']);
-    $policy = new \App\Policies\ResearchOutputPolicy;
+    $policy = new ResearchOutputPolicy;
     expect($policy->update($this->superAdmin, $output))->toBeTrue();
 });

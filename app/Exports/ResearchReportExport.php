@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Proposal;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromView;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -20,7 +21,7 @@ class ResearchReportExport implements FromView, ShouldAutoSize, WithStyles
     public function view(): View
     {
         // Rekap penelitian = data proposal penelitian dari dosen pengusul
-        $query = \App\Models\Proposal::with(['user.university']);
+        $query = Proposal::with(['user.university']);
 
         if (! empty($this->filters['tahun'])) {
             $query->whereIn('tahun_pelaksanaan', $this->filters['tahun']);

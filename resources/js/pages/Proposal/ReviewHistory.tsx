@@ -126,12 +126,12 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules, isRevie
                                 </h1>
                                 <p className="mt-1 text-muted-foreground">
                                     {isReviewer
-                                        ? (dosen
+                                        ? dosen
                                             ? `Menampilkan riwayat review dari dosen: ${dosen.name}`
-                                            : 'Menampilkan riwayat review yang telah Anda lakukan')
-                                        : (dosen
-                                            ? `Menampilkan riwayat review untuk dosen: ${dosen.name}`
-                                            : 'Menampilkan riwayat review untuk proposal penelitian Anda')}
+                                            : 'Menampilkan riwayat review yang telah Anda lakukan'
+                                        : dosen
+                                          ? `Menampilkan riwayat review untuk dosen: ${dosen.name}`
+                                          : 'Menampilkan riwayat review untuk proposal penelitian Anda'}
                                 </p>
                             </div>
                         </div>
@@ -179,7 +179,8 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules, isRevie
                                     <>
                                         <div className="grid gap-4 md:grid-cols-2">
                                             {reviews.data.map((review) => {
-                                                const scoreToShow = review.score !== undefined && review.score !== null ? review.score : review.total_score;
+                                                const scoreToShow =
+                                                    review.score !== undefined && review.score !== null ? review.score : review.total_score;
                                                 return (
                                                     <Card key={review.id} className="flex flex-col">
                                                         <CardHeader>
@@ -194,7 +195,10 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules, isRevie
                                                                     </CardDescription>
                                                                 </div>
                                                                 {scoreToShow !== undefined && scoreToShow !== null && (
-                                                                    <Badge variant={getScoreBadgeVariant(Number(scoreToShow)) as any} className="text-sm">
+                                                                    <Badge
+                                                                        variant={getScoreBadgeVariant(Number(scoreToShow)) as any}
+                                                                        className="text-sm"
+                                                                    >
                                                                         Nilai: {scoreToShow}
                                                                     </Badge>
                                                                 )}
@@ -216,8 +220,8 @@ export default function ReviewHistory({ dosen, reviews, reviewSchedules, isRevie
                                                                     <span className="flex items-center gap-1">
                                                                         <UserIcon className="h-3 w-3" />
                                                                         {isReviewer
-                                                                            ? (review.proposal?.user?.name || '-')
-                                                                            : (review.reviewer?.name || '-')}
+                                                                            ? review.proposal?.user?.name || '-'
+                                                                            : review.reviewer?.name || '-'}
                                                                     </span>
                                                                 </div>
                                                             </div>

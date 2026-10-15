@@ -27,19 +27,8 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import {
-    Award,
-    BarChart3,
-    CheckCircle2,
-    Clock,
-    FileText,
-    Layers,
-    Search,
-    UserCheck,
-    X,
-    XCircle,
-} from 'lucide-react';
-import React, { useState, type FormEvent } from 'react';
+import { Award, BarChart3, CheckCircle2, Clock, FileText, Layers, Search, UserCheck, X, XCircle } from 'lucide-react';
+import { useState, type FormEvent } from 'react';
 
 // ─── Breadcrumbs ────────────────────────────────────────────────────────────
 
@@ -144,11 +133,7 @@ function ProposalStatusBadge({ status }: { status: string }) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function ReviewSummary({
-    proposalSummary,
-    filterOptions = {},
-    filters = {},
-}: Props) {
+export default function ReviewSummary({ proposalSummary, filterOptions = {}, filters = {} }: Props) {
     // Filters
     const [search, setSearch] = useState(filters.search ?? '');
     const [universityId, setUniversityId] = useState(filters.university_id ?? '');
@@ -162,11 +147,7 @@ export default function ReviewSummary({
 
     const handleSearchSubmit = (e: FormEvent) => {
         e.preventDefault();
-        router.get(
-            route('admin.reviews.summary'),
-            { search, university_id: universityId },
-            { preserveState: true }
-        );
+        router.get(route('admin.reviews.summary'), { search, university_id: universityId }, { preserveState: true });
     };
 
     const handleResetFilters = () => {
@@ -205,7 +186,7 @@ export default function ReviewSummary({
                 onError: () => {
                     setIsSubmitting(false);
                 },
-            }
+            },
         );
     };
 
@@ -243,7 +224,7 @@ export default function ReviewSummary({
                                 <Layers className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Total Proposal</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Total Proposal</p>
                                 <p className="text-2xl font-bold text-foreground">{propTotal}</p>
                             </div>
                         </CardContent>
@@ -255,7 +236,7 @@ export default function ReviewSummary({
                                 <CheckCircle2 className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Diterima / Lolos</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Diterima / Lolos</p>
                                 <p className="text-2xl font-bold text-foreground">{propApproved}</p>
                             </div>
                         </CardContent>
@@ -267,7 +248,7 @@ export default function ReviewSummary({
                                 <XCircle className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Ditolak / Revisi</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Ditolak / Revisi</p>
                                 <p className="text-2xl font-bold text-foreground">{propRejected}</p>
                             </div>
                         </CardContent>
@@ -279,7 +260,7 @@ export default function ReviewSummary({
                                 <Award className="h-6 w-6" />
                             </div>
                             <div>
-                                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Rata-rata Skor Review</p>
+                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Rata-rata Skor Review</p>
                                 <p className="text-2xl font-bold text-foreground">{formatScore(propAvgScore)}</p>
                             </div>
                         </CardContent>
@@ -333,9 +314,7 @@ export default function ReviewSummary({
                 <Card className="border-border bg-card shadow-sm">
                     <CardHeader className="pb-3">
                         <CardTitle className="text-lg font-bold text-foreground">Tabel Analitik Rekapitulasi Proposal</CardTitle>
-                        <CardDescription>
-                            Meringkas nilai rata-rata dari multi-reviewer beserta tombol eksekusi keputusan akhir LPPM.
-                        </CardDescription>
+                        <CardDescription>Meringkas nilai rata-rata dari multi-reviewer beserta tombol eksekusi keputusan akhir LPPM.</CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
                         <Table>
@@ -382,7 +361,7 @@ export default function ReviewSummary({
                                                             <Badge
                                                                 key={r.id}
                                                                 variant="secondary"
-                                                                className="text-[10px] py-0 px-1.5 font-normal"
+                                                                className="px-1.5 py-0 text-[10px] font-normal"
                                                                 title={r.notes ?? 'Reviewer'}
                                                             >
                                                                 {r.reviewer_name}
@@ -417,9 +396,7 @@ export default function ReviewSummary({
                                                             {item.recommendations['Ditolak']} Tolak
                                                         </span>
                                                     )}
-                                                    {item.completed_reviews === 0 && (
-                                                        <span className="text-muted-foreground">—</span>
-                                                    )}
+                                                    {item.completed_reviews === 0 && <span className="text-muted-foreground">—</span>}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-center">
@@ -449,18 +426,14 @@ export default function ReviewSummary({
             <Dialog open={isDecisionModalOpen} onOpenChange={setIsDecisionModalOpen}>
                 <DialogContent className="max-w-md rounded-xl border-border bg-card p-6 shadow-xl">
                     <DialogHeader>
-                        <DialogTitle className="text-lg font-bold text-foreground">
-                            Penetapan Keputusan LPPM
-                        </DialogTitle>
-                        <DialogDescription className="text-xs text-muted-foreground">
-                            {selectedProposal?.judul}
-                        </DialogDescription>
+                        <DialogTitle className="text-lg font-bold text-foreground">Penetapan Keputusan LPPM</DialogTitle>
+                        <DialogDescription className="text-xs text-muted-foreground">{selectedProposal?.judul}</DialogDescription>
                     </DialogHeader>
 
                     {selectedProposal && (
                         <form onSubmit={handleDecisionSubmit} className="space-y-4 pt-2">
                             {/* Summary of Reviewers */}
-                            <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2 text-xs">
+                            <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3 text-xs">
                                 <div className="flex justify-between">
                                     <span className="text-muted-foreground">Pengusul:</span>
                                     <span className="font-medium text-foreground">{selectedProposal.author_name}</span>
@@ -478,10 +451,7 @@ export default function ReviewSummary({
                                 <Label htmlFor="decision-select" className="text-sm font-medium text-foreground">
                                     Keputusan Akhir <span className="text-destructive">*</span>
                                 </Label>
-                                <Select
-                                    value={decisionValue}
-                                    onValueChange={(val: 'approved' | 'rejected') => setDecisionValue(val)}
-                                >
+                                <Select value={decisionValue} onValueChange={(val: 'approved' | 'rejected') => setDecisionValue(val)}>
                                     <SelectTrigger id="decision-select" className="border-border bg-background">
                                         <SelectValue placeholder="Pilih keputusan" />
                                     </SelectTrigger>
@@ -512,7 +482,7 @@ export default function ReviewSummary({
                             )}
 
                             {/* Actions */}
-                            <div className="flex justify-end gap-2 pt-2 border-t border-border">
+                            <div className="flex justify-end gap-2 border-t border-border pt-2">
                                 <Button type="button" variant="outline" onClick={() => setIsDecisionModalOpen(false)}>
                                     Batal
                                 </Button>

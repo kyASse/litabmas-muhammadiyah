@@ -20,7 +20,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
@@ -245,7 +244,9 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
             {flashMessage && (
                 <div
                     className={`fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm shadow-xl ${
-                        flashMessage.type === 'success' ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300' : 'border-destructive/30 bg-destructive/10 text-destructive'
+                        flashMessage.type === 'success'
+                            ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                            : 'border-destructive/30 bg-destructive/10 text-destructive'
                     }`}
                 >
                     {flashMessage.type === 'success' ? (
@@ -258,9 +259,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
             )}
 
             {/* Reject Modal */}
-            {showRejectModal && (
-                <RejectModal proposalId={proposal.id} proposalTitle={proposal.title} onClose={() => setShowRejectModal(false)} />
-            )}
+            {showRejectModal && <RejectModal proposalId={proposal.id} proposalTitle={proposal.title} onClose={() => setShowRejectModal(false)} />}
 
             {/* Assign Modal */}
             <AssignModal
@@ -275,7 +274,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <Link
                         href={route('admin.proposals.index')}
-                        className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                     >
                         <ArrowLeft className="h-4 w-4" />
                         Kembali ke Daftar Proposal
@@ -284,7 +283,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                     <div className="flex flex-wrap items-center gap-2">
                         {proposal.status_proposal === 'Submitted' && (
                             <>
-                                <Button onClick={handleApprove} className="gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
+                                <Button onClick={handleApprove} className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
                                     <CheckCircle2 className="h-4 w-4" />
                                     Validasi Administrasi
                                 </Button>
@@ -326,7 +325,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                     <CardHeader className="pb-4">
                         <div className="flex items-start justify-between gap-4">
                             <div className="space-y-1.5">
-                                <div className="flex items-center gap-2 flex-wrap">
+                                <div className="flex flex-wrap items-center gap-2">
                                     <StatusBadge status={proposal.status_proposal} />
                                     {proposal.research_schema && (
                                         <Badge variant="outline" className="gap-1 border-primary/20 text-primary">
@@ -335,9 +334,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                                         </Badge>
                                     )}
                                 </div>
-                                <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl leading-snug">
-                                    {proposal.title}
-                                </h1>
+                                <h1 className="text-xl leading-snug font-bold tracking-tight text-foreground sm:text-2xl">{proposal.title}</h1>
                             </div>
                         </div>
                     </CardHeader>
@@ -355,17 +352,17 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div>
-                                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+                                    <h4 className="mb-1.5 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Deskripsi / Abstrak
                                     </h4>
-                                    <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm leading-relaxed text-foreground whitespace-pre-wrap">
+                                    <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                                         {proposal.description || 'Tidak ada deskripsi yang dilampirkan.'}
                                     </div>
                                 </div>
 
                                 {proposal.rejection_reason && (
                                     <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
-                                        <h4 className="flex items-center gap-1.5 font-semibold text-red-800 dark:text-red-200 mb-1">
+                                        <h4 className="mb-1 flex items-center gap-1.5 font-semibold text-red-800 dark:text-red-200">
                                             <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" />
                                             Alasan Penolakan Proposal
                                         </h4>
@@ -393,11 +390,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                                                 <p className="text-xs text-muted-foreground">{proposal.file_dokumen_proposal}</p>
                                             </div>
                                         </div>
-                                        <a
-                                            href={`/storage/${proposal.file_dokumen_proposal}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
+                                        <a href={`/storage/${proposal.file_dokumen_proposal}`} target="_blank" rel="noopener noreferrer">
                                             <Button size="sm" variant="outline" className="gap-1.5">
                                                 <Download className="h-3.5 w-3.5" />
                                                 Unduh PDF
@@ -430,7 +423,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="space-y-1">
-                                            <p className="font-semibold text-foreground leading-none">{proposal.user.name}</p>
+                                            <p className="leading-none font-semibold text-foreground">{proposal.user.name}</p>
                                             <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                                 <Mail className="h-3 w-3 shrink-0" />
                                                 {proposal.user.email}
@@ -447,7 +440,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                                     <p className="text-xs text-muted-foreground">Data pengusul tidak tersedia.</p>
                                 )}
 
-                                <div className="border-t border-border pt-3 space-y-2 text-xs text-muted-foreground">
+                                <div className="space-y-2 border-t border-border pt-3 text-xs text-muted-foreground">
                                     <div className="flex justify-between">
                                         <span className="flex items-center gap-1">
                                             <Calendar className="h-3 w-3" /> Tanggal Pengajuan:
@@ -468,12 +461,15 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                         <Card className="border-border bg-card shadow-sm">
                             <CardHeader className="pb-3">
                                 <div className="flex items-center justify-between">
-                                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                                    <CardTitle className="flex items-center gap-2 text-base font-semibold">
                                         <UserCheck className="h-4 w-4 text-primary" />
                                         Reviewer Ditugaskan
                                     </CardTitle>
                                     {hasReviewers ? (
-                                        <Badge variant="outline" className="border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400">
+                                        <Badge
+                                            variant="outline"
+                                            className="border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                                        >
                                             Sudah Ditunjuk
                                         </Badge>
                                     ) : (
@@ -487,10 +483,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                                 {hasReviewers ? (
                                     <div className="space-y-3">
                                         {proposal.reviews.map((rev) => (
-                                            <div
-                                                key={rev.id}
-                                                className="flex flex-col gap-2 rounded-lg border border-border bg-muted/20 p-3"
-                                            >
+                                            <div key={rev.id} className="flex flex-col gap-2 rounded-lg border border-border bg-muted/20 p-3">
                                                 <div className="flex items-start justify-between gap-2">
                                                     <div className="flex items-center gap-2.5">
                                                         <Avatar className="h-8 w-8 border border-border">
@@ -499,7 +492,9 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                                                             </AvatarFallback>
                                                         </Avatar>
                                                         <div>
-                                                            <p className="text-sm font-semibold text-foreground">{rev.reviewer?.name ?? 'Reviewer'}</p>
+                                                            <p className="text-sm font-semibold text-foreground">
+                                                                {rev.reviewer?.name ?? 'Reviewer'}
+                                                            </p>
                                                             <p className="text-xs text-muted-foreground">{rev.reviewer?.email ?? '-'}</p>
                                                         </div>
                                                     </div>
@@ -516,7 +511,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                                                 </div>
 
                                                 {rev.score !== null && (
-                                                    <div className="mt-1 flex items-center justify-between text-xs border-t border-border pt-2">
+                                                    <div className="mt-1 flex items-center justify-between border-t border-border pt-2 text-xs">
                                                         <span className="text-muted-foreground">Skor Penilaian:</span>
                                                         <span className="font-semibold text-foreground">{rev.score} / 100</span>
                                                     </div>
@@ -525,11 +520,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                                         ))}
 
                                         {proposal.status_proposal === 'Administrasi_Valid' && (
-                                            <Button
-                                                onClick={() => setShowAssignModal(true)}
-                                                variant="outline"
-                                                className="w-full gap-1.5 text-xs"
-                                            >
+                                            <Button onClick={() => setShowAssignModal(true)} variant="outline" className="w-full gap-1.5 text-xs">
                                                 <RefreshCw className="h-3.5 w-3.5" />
                                                 Ganti / Reassign Reviewer
                                             </Button>
@@ -538,15 +529,9 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                                 ) : (
                                     <div className="space-y-3 py-2 text-center">
                                         <UserX className="mx-auto h-8 w-8 text-amber-500/60" />
-                                        <p className="text-xs text-muted-foreground">
-                                            Proposal ini belum ditugaskan kepada reviewer mana pun.
-                                        </p>
+                                        <p className="text-xs text-muted-foreground">Proposal ini belum ditugaskan kepada reviewer mana pun.</p>
                                         {proposal.status_proposal === 'Administrasi_Valid' && (
-                                            <Button
-                                                onClick={() => setShowAssignModal(true)}
-                                                size="sm"
-                                                className="w-full gap-1.5"
-                                            >
+                                            <Button onClick={() => setShowAssignModal(true)} size="sm" className="w-full gap-1.5">
                                                 <UserCheck className="h-4 w-4" />
                                                 Tunjuk Reviewer Sekarang
                                             </Button>

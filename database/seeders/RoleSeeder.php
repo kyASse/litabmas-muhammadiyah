@@ -15,33 +15,33 @@ class RoleSeeder extends Seeder
         $roles = [
             [
                 'name' => Role::SUPER_ADMIN,
+                'guard_name' => 'web',
                 'display_name' => 'Super Administrator',
-                'description' => 'Memiliki akses penuh ke seluruh sistem. Dapat mengelola semua PTM, Admin Kampus, dan melihat seluruh data jurnal.',
+                'description' => 'Memiliki akses penuh ke seluruh modul sistem LITABMAS tingkat pusat.',
             ],
             [
                 'name' => Role::ADMIN_KAMPUS,
-                'display_name' => 'Administrator Kampus',
-                'description' => 'Bertanggung jawab mengelola data jurnal di tingkat kampus. Dapat meninjau, menyetujui, atau menolak jurnal yang diajukan oleh PTM di kampusnya.',
+                'guard_name' => 'web',
+                'display_name' => 'Administrator LPPM Kampus',
+                'description' => 'Mengelola skema penelitian, verifikasi administrasi usulan, dan jadwal monev tingkat kampus.',
             ],
             [
                 'name' => Role::ADMIN_KEUANGAN,
+                'guard_name' => 'web',
                 'display_name' => 'Admin Keuangan',
-                'description' => 'Bertanggung jawab mengelola kontrak, pendanaan, dan monitoring realisasi pembayaran program.',
-            ],
-            [
-                'name' => Role::USER,
-                'display_name' => 'User',
-                'description' => 'User biasa yang dapat mengelola jurnal. Legacy role untuk backward compatibility.',
-            ],
-            [
-                'name' => Role::PENGELOLA_JURNAL,
-                'display_name' => 'Pengelola Jurnal',
-                'description' => 'Mengelola jurnal yang ditugaskan. Dapat melakukan self-assessment dan mengajukan pembinaan.',
+                'description' => 'Mengelola kontrak pendanaan hibah dan verifikasi pencairan termin.',
             ],
             [
                 'name' => Role::REVIEWER,
-                'display_name' => 'Reviewer',
-                'description' => 'Dapat melakukan review terhadap assessment jurnal dan memberikan feedback kepada pengelola jurnal.',
+                'guard_name' => 'web',
+                'display_name' => 'Reviewer Penelitian',
+                'description' => 'Melakukan penilaian substansi proposal dan monev kemajuan penelitian.',
+            ],
+            [
+                'name' => Role::PENELITI,
+                'guard_name' => 'web',
+                'display_name' => 'Dosen / Peneliti',
+                'description' => 'Mengajukan proposal penelitian, melaporkan kemajuan, dan mengunggah luaran riset.',
             ],
         ];
 
@@ -52,6 +52,6 @@ class RoleSeeder extends Seeder
             );
         }
 
-        $this->command->info('Roles seeded successfully.');
+        $this->command->info('5 Research Roles seeded successfully.');
     }
 }

@@ -6,8 +6,10 @@ use App\Models\EvaluationIndicator;
 use App\Models\Review;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReviewerController extends Controller
 {
@@ -138,7 +140,7 @@ class ReviewerController extends Controller
     /**
      * Download attachment from review record.
      */
-    public function downloadAttachment(Request $request, int $reviewId, int $attachmentId): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function downloadAttachment(Request $request, int $reviewId, int $attachmentId): StreamedResponse
     {
         $review = $this->findOwnReview($request, $reviewId);
 
@@ -148,7 +150,7 @@ class ReviewerController extends Controller
             abort(404, 'File not found.');
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('public')->download(
+        return Storage::disk('public')->download(
             $attachment->file_path,
             $attachment->file_name
         );

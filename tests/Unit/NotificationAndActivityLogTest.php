@@ -7,6 +7,7 @@ use App\Models\Notification;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class NotificationAndActivityLogTest extends TestCase
@@ -57,7 +58,7 @@ class NotificationAndActivityLogTest extends TestCase
         ]);
 
         $notification = Notification::create([
-            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'id' => (string) Str::uuid(),
             'type' => 'App\Notifications\DiscussionNotification',
             'notifiable_type' => User::class,
             'notifiable_id' => $user->id,

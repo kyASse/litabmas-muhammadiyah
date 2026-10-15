@@ -6,6 +6,7 @@ use App\Models\Announcement;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
+use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -26,7 +27,7 @@ class AnnouncementControllerTest extends TestCase
         parent::setUp();
 
         // Seed roles (required for tests)
-        $this->seed(\Database\Seeders\RoleSeeder::class);
+        $this->seed(RoleSeeder::class);
 
         // Create Super Admin user
         $this->superAdmin = User::factory()->create([

@@ -7,6 +7,7 @@ use App\Models\Announcement;
 use App\Models\University;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -254,8 +255,8 @@ class AnnouncementController extends Controller
         $thumbnailPath = $announcement->thumbnail;
         if ($request->hasFile('thumbnail')) {
             // Delete old thumbnail if exists
-            if ($announcement->thumbnail && \Illuminate\Support\Facades\Storage::disk('public')->exists($announcement->thumbnail)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($announcement->thumbnail);
+            if ($announcement->thumbnail && Storage::disk('public')->exists($announcement->thumbnail)) {
+                Storage::disk('public')->delete($announcement->thumbnail);
             }
 
             $thumbnailPath = $request->file('thumbnail')->store(
@@ -289,8 +290,8 @@ class AnnouncementController extends Controller
         $this->authorize('manage-announcements');
 
         // Delete thumbnail if exists
-        if ($announcement->thumbnail && \Illuminate\Support\Facades\Storage::disk('public')->exists($announcement->thumbnail)) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($announcement->thumbnail);
+        if ($announcement->thumbnail && Storage::disk('public')->exists($announcement->thumbnail)) {
+            Storage::disk('public')->delete($announcement->thumbnail);
         }
 
         // Soft delete announcement

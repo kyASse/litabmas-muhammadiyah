@@ -22,7 +22,7 @@ class ResearchOutputPolicyTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->policy = new ResearchOutputPolicy();
+        $this->policy = new ResearchOutputPolicy;
     }
 
     private function createContract(User $user, University $univ): Contract

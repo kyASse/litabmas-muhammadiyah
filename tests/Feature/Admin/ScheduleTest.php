@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\JournalAssessment;
+use App\Models\Proposal;
 use App\Models\ReviewSchedule;
 use App\Models\University;
 use App\Models\User;
@@ -446,7 +447,7 @@ test('search with partial reviewer name match returns correct results', function
 // ─── PROPOSAL MODEL ───────────────────────────────────────
 
 test('proposal model resolves to journal_assessments table', function () {
-    $proposal = new \App\Models\Proposal;
+    $proposal = new Proposal;
     expect($proposal->getTable())->toBe('journal_assessments');
 });
 
@@ -457,6 +458,6 @@ test('review schedule proposal relationship returns Proposal instance', function
     ]);
 
     $schedule->load('proposal');
-    expect($schedule->proposal)->toBeInstanceOf(\App\Models\Proposal::class);
+    expect($schedule->proposal)->toBeInstanceOf(Proposal::class);
     expect($schedule->proposal->id)->toBe($this->assessmentA->id);
 });

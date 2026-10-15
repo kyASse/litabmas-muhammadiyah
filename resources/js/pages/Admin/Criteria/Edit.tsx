@@ -19,6 +19,7 @@
  * @author JurnalMU Team
  */
 import { AnswerTypePreview } from '@/components/DynamicInput';
+import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,7 +32,6 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft, Paperclip, Pencil, Save } from 'lucide-react';
 import { toast } from 'sonner';
-import InputError from '@/components/input-error';
 
 interface SubCategory {
     id: number;
@@ -135,7 +135,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                         </div>
                         <div>
                             <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Edit Kriteria Penilaian</h1>
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <p className="mt-1 text-sm text-muted-foreground">
                                 Perbarui kriteria <span className="font-semibold text-foreground">{criterion.code}</span>
                             </p>
                         </div>
@@ -232,7 +232,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                     rows={3}
                                     className={errors.question ? 'border-destructive' : ''}
                                 />
-                               <InputError message={errors.question} />
+                                <InputError message={errors.question} />
                             </div>
 
                             <div className="space-y-2">
@@ -246,7 +246,7 @@ export default function CriteriaEdit({ criterion, subCategories }: Props) {
                                     className={errors.description ? 'border-destructive' : ''}
                                 />
                                 <p className="text-sm text-muted-foreground">Berikan penjelasan tambahan untuk membantu evaluator</p>
-                               <InputError message={errors.description} />
+                                <InputError message={errors.description} />
                             </div>
                         </CardContent>
                     </Card>

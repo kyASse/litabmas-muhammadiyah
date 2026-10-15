@@ -52,7 +52,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function AssignReviewer({ proposals = [], reviewers = [], selectedProposalId }: Props) {
     const queryParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
-    const initialProposalId = selectedProposalId ? String(selectedProposalId) : (queryParams?.get('proposal_id') || '');
+    const initialProposalId = selectedProposalId ? String(selectedProposalId) : queryParams?.get('proposal_id') || '';
 
     const { data, setData, post, processing, errors } = useForm({
         proposal_id: initialProposalId,
@@ -109,9 +109,7 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
                     <Card className="border-border bg-card shadow-sm">
                         <CardHeader>
                             <CardTitle className="text-lg font-semibold">Form Penunjukan Reviewer</CardTitle>
-                            <CardDescription>
-                                Pilih proposal yang siap direview dan tentukan reviewer yang sesuai.
-                            </CardDescription>
+                            <CardDescription>Pilih proposal yang siap direview dan tentukan reviewer yang sesuai.</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={submit} className="space-y-6">
@@ -159,9 +157,7 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
                                         </SelectTrigger>
                                         <SelectContent>
                                             {reviewers.length === 0 ? (
-                                                <div className="p-3 text-center text-sm text-muted-foreground">
-                                                    Belum ada reviewer terdaftar
-                                                </div>
+                                                <div className="p-3 text-center text-sm text-muted-foreground">Belum ada reviewer terdaftar</div>
                                             ) : (
                                                 reviewers.map((reviewer) => (
                                                     <SelectItem key={reviewer.id} value={String(reviewer.id)}>
@@ -205,11 +201,7 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
                                         <Link href="/admin/proposals">Batal</Link>
                                     </Button>
 
-                                    <Button
-                                        type="submit"
-                                        disabled={processing || !data.proposal_id || !data.reviewer_id}
-                                        className="gap-2"
-                                    >
+                                    <Button type="submit" disabled={processing || !data.proposal_id || !data.reviewer_id} className="gap-2">
                                         <UserCheck className="h-4 w-4" />
                                         {processing ? 'Menyimpan...' : 'Tugaskan Reviewer'}
                                     </Button>

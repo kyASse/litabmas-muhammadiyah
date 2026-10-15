@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\ProgressReport;
 use App\Models\Proposal;
+use App\Models\ResearchSchema;
 use App\Models\Review;
 use App\Models\Role;
 use App\Models\User;
@@ -20,13 +21,13 @@ class EvaluationControllerTest extends TestCase
 
     private Role $reviewerRole;
 
-    private \App\Models\ResearchSchema $schema;
+    private ResearchSchema $schema;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->schema = \App\Models\ResearchSchema::create([
+        $this->schema = ResearchSchema::create([
             'name' => 'Skema Dasar',
             'code' => 'SKM-DSR',
             'strata' => 'S1',

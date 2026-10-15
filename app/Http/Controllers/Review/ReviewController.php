@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\SubmitReviewRequest;
 use App\Models\Article;
 use App\Models\ReviewDecision;
+use App\Models\ReviewerAssignment;
+use App\Services\AnonymizeService;
 use Inertia\Inertia;
 
 class ReviewController extends Controller
 {
-    public function showManuscript(Article $article, \App\Services\AnonymizeService $anonymizeService)
+    public function showManuscript(Article $article, AnonymizeService $anonymizeService)
     {
         // Pemeriksaan otorisasi penugasan
-        $isAssigned = \App\Models\ReviewerAssignment::where('id_submission', $article->id)
+        $isAssigned = ReviewerAssignment::where('id_submission', $article->id)
             ->where('id_reviewer', auth()->id())
             ->exists();
 
@@ -33,10 +36,10 @@ class ReviewController extends Controller
         ]);
     }
 
-    public function submitReview(\App\Http\Requests\SubmitReviewRequest $request, Article $article)
+    public function submitReview(SubmitReviewRequest $request, Article $article)
     {
         // Pemeriksaan otorisasi penugasan
-        $isAssigned = \App\Models\ReviewerAssignment::where('id_submission', $article->id)
+        $isAssigned = ReviewerAssignment::where('id_submission', $article->id)
             ->where('id_reviewer', auth()->id())
             ->exists();
 
