@@ -2,17 +2,17 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Auth;
 
 class Contract extends Model
 {
-    use HasFactory, SoftDeletes;
+    use BelongsToTenant, HasFactory, SoftDeletes;
 
     public const STATUS_DRAFT = 'draft';
 
@@ -29,7 +29,14 @@ class Contract extends Model
      */
     protected $fillable = [
         'university_id',
-        'pembinaan_id',
+        'id_proposal',
+        'nomor_kontrak',
+        'judul_kontrak',
+        'dana_disetujui',
+        'tanggal_kontrak',
+        'file_dokumen_kontrak',
+        'status_kontrak',
+        // Virtual / legacy aliases
         'proposal_id',
         'contract_number',
         'title',
@@ -43,8 +50,7 @@ class Contract extends Model
         'signed_at',
         'document_path',
         'notes',
-        'created_by',
-        'updated_by',
+        'pembinaan_id',
     ];
 
     /**
@@ -53,7 +59,9 @@ class Contract extends Model
      * @var array<string, string>
      */
     protected $casts = [
+        'dana_disetujui' => 'decimal:2',
         'contract_value' => 'decimal:2',
+        'tanggal_kontrak' => 'date',
         'start_date' => 'date',
         'end_date' => 'date',
         'signed_at' => 'date',
@@ -66,6 +74,8 @@ class Contract extends Model
         'nomor_kontrak',
         'total_pendanaan_disetujui',
         'status_kontrak',
+        'title',
+        'status',
     ];
 
     /*
@@ -74,11 +84,6 @@ class Contract extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function university(): BelongsTo
-    {
-        return $this->belongsTo(University::class);
-    }
-
     public function pembinaan(): BelongsTo
     {
         return $this->belongsTo(Pembinaan::class);
@@ -86,7 +91,7 @@ class Contract extends Model
 
     public function proposal(): BelongsTo
     {
-        return $this->belongsTo(Proposal::class);
+        return $this->belongsTo(Proposal::class, 'id_proposal');
     }
 
     public function fundings(): HasMany
@@ -172,17 +177,152 @@ class Contract extends Model
 
     public function getNomorKontrakAttribute(): ?string
     {
-        return $this->contract_number;
+        return $this->attributes['nomor_kontrak'] ?? null;
+    }
+
+    public function setNomorKontrakAttribute($value): void
+    {
+        $this->attributes['nomor_kontrak'] = $value;
+    }
+
+    public function getContractNumberAttribute(): ?string
+    {
+        return $this->attributes['nomor_kontrak'] ?? null;
+    }
+
+    public function setContractNumberAttribute($value): void
+    {
+        $this->attributes['nomor_kontrak'] = $value;
+    }
+
+    public function getJudulKontrakAttribute(): ?string
+    {
+        return $this->attributes['judul_kontrak'] ?? null;
+    }
+
+    public function setJudulKontrakAttribute($value): void
+    {
+        $this->attributes['judul_kontrak'] = $value;
+    }
+
+    public function getTitleAttribute(): ?string
+    {
+        return $this->attributes['judul_kontrak'] ?? null;
+    }
+
+    public function setTitleAttribute($value): void
+    {
+        $this->attributes['judul_kontrak'] = $value;
+    }
+
+    public function getIdProposalAttribute(): ?int
+    {
+        return $this->attributes['id_proposal'] ?? null;
+    }
+
+    public function setIdProposalAttribute($value): void
+    {
+        $this->attributes['id_proposal'] = $value;
+    }
+
+    public function getProposalIdAttribute(): ?int
+    {
+        return $this->attributes['id_proposal'] ?? null;
+    }
+
+    public function setProposalIdAttribute($value): void
+    {
+        $this->attributes['id_proposal'] = $value;
+    }
+
+    public function getDanaDisetujuiAttribute(): ?string
+    {
+        return $this->attributes['dana_disetujui'] ?? null;
+    }
+
+    public function setDanaDisetujuiAttribute($value): void
+    {
+        $this->attributes['dana_disetujui'] = $value;
+    }
+
+    public function getContractValueAttribute(): ?string
+    {
+        return $this->attributes['dana_disetujui'] ?? null;
+    }
+
+    public function setContractValueAttribute($value): void
+    {
+        $this->attributes['dana_disetujui'] = $value;
     }
 
     public function getTotalPendanaanDisetujuiAttribute(): ?string
     {
-        return $this->contract_value;
+        return $this->attributes['dana_disetujui'] ?? null;
+    }
+
+    public function setTotalPendanaanDisetujuiAttribute($value): void
+    {
+        $this->attributes['dana_disetujui'] = $value;
+    }
+
+    public function getTanggalKontrakAttribute(): ?string
+    {
+        return $this->attributes['tanggal_kontrak'] ?? null;
+    }
+
+    public function setTanggalKontrakAttribute($value): void
+    {
+        $this->attributes['tanggal_kontrak'] = $value;
+    }
+
+    public function getStartDateAttribute(): ?string
+    {
+        return $this->attributes['tanggal_kontrak'] ?? null;
+    }
+
+    public function setStartDateAttribute($value): void
+    {
+        $this->attributes['tanggal_kontrak'] = $value;
+    }
+
+    public function getFileDokumenKontrakAttribute(): ?string
+    {
+        return $this->attributes['file_dokumen_kontrak'] ?? null;
+    }
+
+    public function setFileDokumenKontrakAttribute($value): void
+    {
+        $this->attributes['file_dokumen_kontrak'] = $value;
+    }
+
+    public function getDocumentPathAttribute(): ?string
+    {
+        return $this->attributes['file_dokumen_kontrak'] ?? null;
+    }
+
+    public function setDocumentPathAttribute($value): void
+    {
+        $this->attributes['file_dokumen_kontrak'] = $value;
     }
 
     public function getStatusKontrakAttribute(): ?string
     {
-        return $this->status;
+        return $this->attributes['status_kontrak'] ?? self::STATUS_DRAFT;
+    }
+
+    public function setStatusKontrakAttribute($value): void
+    {
+        $this->attributes['status_kontrak'] = $value;
+    }
+
+    public function getStatusAttribute(): ?string
+    {
+        return $this->attributes['status_kontrak'] ?? self::STATUS_DRAFT;
+    }
+
+    public function setStatusAttribute($value): void
+    {
+        $this->attributes['status_kontrak'] = $value;
     }
 
     /**
@@ -196,22 +336,5 @@ class Contract extends Model
             self::STATUS_COMPLETED => 'Selesai',
             self::STATUS_CANCELLED => 'Dibatalkan',
         ];
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::creating(function (Contract $contract) {
-            if (Auth::check() && ! $contract->created_by) {
-                $contract->created_by = Auth::id();
-            }
-        });
-
-        static::updating(function (Contract $contract) {
-            if (Auth::check()) {
-                $contract->updated_by = Auth::id();
-            }
-        });
     }
 }

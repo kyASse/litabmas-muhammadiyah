@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class Proposal extends Model
 {
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
     // ─── Status Constants ────────────────────────────────────────────────────
 
@@ -177,14 +178,6 @@ class Proposal extends Model
     }
 
     // ─── Relationships ───────────────────────────────────────────────────────
-
-    /**
-     * Relasi ke University.
-     */
-    public function university(): BelongsTo
-    {
-        return $this->belongsTo(University::class, 'university_id');
-    }
 
     /**
      * Relasi ke User (Dosen pengusul).

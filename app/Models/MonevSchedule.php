@@ -2,15 +2,24 @@
 
 namespace App\Models;
 
+use App\Models\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MonevSchedule extends Model
 {
-    use HasFactory;
+    use BelongsToTenant, HasFactory;
 
     protected $fillable = [
+        'university_id',
+        'nama_tahap',
+        'tanggal_mulai',
+        'tanggal_selesai',
+        'deskripsi',
+        'is_active',
+        // Legacy / compatibility aliases
         'contract_id',
         'evaluator_id',
         'date',
@@ -20,6 +29,9 @@ class MonevSchedule extends Model
     ];
 
     protected $casts = [
+        'tanggal_mulai' => 'date',
+        'tanggal_selesai' => 'date',
+        'is_active' => 'boolean',
         'date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -84,5 +96,13 @@ class MonevSchedule extends Model
             'cancelled' => 'Dibatalkan',
             default => (string) $this->status,
         };
+    }
+
+    /**
+     * Relasi ke rekaman laporan kemajuan (ProgressReport).
+     */
+    public function progressReports(): HasMany
+    {
+        return $this->hasMany(ProgressReport::class, 'id_monev_schedule');
     }
 }
