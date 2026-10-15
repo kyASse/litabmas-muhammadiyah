@@ -24,6 +24,9 @@ class UserSeeder extends Seeder
         $umy = University::where('code', 'UMY')->first();
         $umyId = $umy ? $umy->id : null;
 
+        $uad = University::where('code', 'UAD')->first();
+        $uadId = $uad ? $uad->id : null;
+
         $defaultPassword = Hash::make('password');
 
         $users = [
@@ -97,11 +100,39 @@ class UserSeeder extends Seeder
                 'is_reviewer' => false,
                 'email_verified_at' => now(),
             ],
+            [
+                'name' => 'Admin Kampus UAD',
+                'email' => 'adminkampus.uad@litabmas.ac.id',
+                'password' => $defaultPassword,
+                'role_id' => $adminKampusRole?->id,
+                'university_id' => $uadId,
+                'nidn' => '0512018001',
+                'phone' => '081200000006',
+                'faculty' => 'LPPM',
+                'study_program' => 'Manajemen Riset',
+                'is_active' => true,
+                'is_reviewer' => false,
+                'email_verified_at' => now(),
+            ],
+            [
+                'name' => 'Dosen Peneliti UAD',
+                'email' => 'dosen.uad@litabmas.ac.id',
+                'password' => $defaultPassword,
+                'role_id' => $penelitiRole?->id,
+                'university_id' => $uadId,
+                'nidn' => '0501018502',
+                'phone' => '081200000007',
+                'faculty' => 'Teknologi Industri',
+                'study_program' => 'Informatika',
+                'is_active' => true,
+                'is_reviewer' => false,
+                'email_verified_at' => now(),
+            ],
             // Backward compatibility user
             [
                 'name' => 'Legacy Super Admin',
                 'email' => 'superadmin@ajm.ac.id',
-                'password' => Hash::make('password123'),
+                'password' => $defaultPassword,
                 'role_id' => $superAdminRole?->id,
                 'university_id' => null,
                 'nidn' => null,
@@ -122,7 +153,9 @@ class UserSeeder extends Seeder
             );
 
             if ($roleId) {
-                $user->roles()->syncWithoutDetaching([$roleId]);
+                $user->roles()->syncWithoutDetaching([
+                    $roleId => ['assigned_at' => now()],
+                ]);
             }
         }
 

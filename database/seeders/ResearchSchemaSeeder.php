@@ -21,17 +21,17 @@ class ResearchSchemaSeeder extends Seeder
         $schemas = [
             [
                 'university_id' => $umy->id,
-                'nama_skema' => 'Penelitian Dasar Pengembangan IPTEK',
-                'deskripsi' => 'Skema penelitian berorientasi pada penjelasan dasar ilmiah dan eksplorasi teoritis keilmuan.',
-                'biaya_maksimal' => 25000000,
+                'nama_skema' => 'Penelitian Dosen Pemula (PDP) 2026',
+                'deskripsi' => 'Skema penelitian pembinaan untuk membina kemampuan meneliti dosen pemula pada perguruan tinggi.',
+                'biaya_maksimal' => 20000000,
                 'tanggal_mulai' => now()->startOfYear()->toDateString(),
                 'tanggal_selesai' => now()->endOfYear()->toDateString(),
                 'is_active' => true,
             ],
             [
                 'university_id' => $umy->id,
-                'nama_skema' => 'Penelitian Terapan Hilirisasi Produk',
-                'deskripsi' => 'Skema riset terapan yang bertujuan menghasilkan prototipe fungsional dan solusi praktis industri.',
+                'nama_skema' => 'Penelitian Terapan Unggulan Perguruan Tinggi (PTUPT) 2026',
+                'deskripsi' => 'Skema penelitian terapan yang berorientasi pada produk inovasi iptek yang memiliki tingkat kesiapan teknologi terukur.',
                 'biaya_maksimal' => 50000000,
                 'tanggal_mulai' => now()->startOfYear()->toDateString(),
                 'tanggal_selesai' => now()->endOfYear()->toDateString(),
