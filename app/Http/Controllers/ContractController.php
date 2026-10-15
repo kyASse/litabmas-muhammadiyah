@@ -4,9 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Contract;
 use App\Models\Funding;
-use App\Models\Journal;
-use App\Models\Pembinaan;
-use App\Models\PembinaanRegistration;
 use App\Models\University;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -117,12 +114,9 @@ class ContractController extends Controller
                 'outstanding_value' => max($contractValue - $disbursedValue, 0),
             ],
             'universities' => University::query()
-                ->where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']),
-            'pembinaanPrograms' => Pembinaan::query()
-                ->orderByDesc('created_at')
-                ->get(['id', 'name', 'category']),
+                ->get(['id', 'name', 'code']),
+            'pembinaanPrograms' => [],
             'statusOptions' => collect(Contract::getStatusOptions())
                 ->map(fn (string $label, string $value) => [
                     'value' => $value,
@@ -141,8 +135,6 @@ class ContractController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'pembinaan_registration_id' => ['nullable', 'integer', 'exists:pembinaan_registrations,id'],
-            'journal_id' => ['nullable', 'integer', 'exists:journals,id'],
             'university_id' => ['nullable', 'integer', 'exists:universities,id'],
             'start_date' => ['nullable', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
@@ -150,18 +142,6 @@ class ContractController extends Controller
             'notes' => ['nullable', 'string', 'max:1000'],
             'contract_value' => ['nullable', 'integer', 'min:0'],
         ]);
-
-        if (empty($validated['university_id'])) {
-            if (! empty($validated['journal_id'])) {
-                $journal = Journal::find($validated['journal_id']);
-                $validated['university_id'] = $journal?->university_id;
-            } elseif (! empty($validated['pembinaan_registration_id'])) {
-                $registration = PembinaanRegistration::with('journal')->find(
-                    $validated['pembinaan_registration_id']
-                );
-                $validated['university_id'] = $registration?->journal?->university_id;
-            }
-        }
 
         $contract = DB::transaction(function () use ($validated, $request) {
             $year = date('Y');
