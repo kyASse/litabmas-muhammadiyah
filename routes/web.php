@@ -114,12 +114,20 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:Peneliti,Dosen,User'])->group(function () {
         // Proposals CRUD
         Route::get('/proposals', [ProposalController::class, 'index'])->name('proposals.index');
+        Route::get('/proposal', [ProposalController::class, 'index'])->name('proposal.index');
         Route::get('/proposals/create', [ProposalController::class, 'create'])->name('proposals.create');
+        Route::get('/proposal/create', [ProposalController::class, 'create'])->name('proposal.create');
         Route::post('/proposals', [ProposalController::class, 'store'])->name('proposals.store');
+        Route::post('/proposal', [ProposalController::class, 'store'])->name('proposal.store');
         Route::get('/proposals/{proposal}', [ProposalController::class, 'show'])->name('proposals.show');
+        Route::get('/proposal/{proposal}', [ProposalController::class, 'show'])->name('proposal.show');
         Route::get('/proposals/{proposal}/edit', [ProposalController::class, 'edit'])->name('proposals.edit');
+        Route::get('/proposal/{proposal}/edit', [ProposalController::class, 'edit'])->name('proposal.edit');
         Route::put('/proposals/{proposal}', [ProposalController::class, 'update'])->name('proposals.update');
+        Route::put('/proposal/{proposal}', [ProposalController::class, 'update'])->name('proposal.update');
         Route::delete('/proposals/{proposal}', [ProposalController::class, 'destroy'])->name('proposals.destroy');
+        Route::delete('/proposal/{proposal}', [ProposalController::class, 'destroy'])->name('proposal.destroy');
+        Route::get('/proposal/documents/{document}/download', [DocumentController::class, 'download'])->name('proposal.documents.download');
 
         // Document Upload
         Route::post('/proposals/{proposal}/documents', [DocumentController::class, 'upload'])->name('documents.store');

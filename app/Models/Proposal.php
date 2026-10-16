@@ -19,6 +19,26 @@ class Proposal extends Model
 {
     use BelongsToTenant, HasFactory;
 
+    protected static function booted(): void
+    {
+        static::creating(function ($proposal) {
+            if (! $proposal->university_id) {
+                if (auth()->check() && auth()->user()->university_id) {
+                    $proposal->university_id = auth()->user()->university_id;
+                } else {
+                    $proposal->university_id = ($proposal->id_pengusul ? User::find($proposal->id_pengusul)?->university_id : null)
+                        ?? ($proposal->id_skema_pendanaan ? ResearchSchema::find($proposal->id_skema_pendanaan)?->university_id : null)
+                        ?? ($proposal->research_schema_id ? ResearchSchema::find($proposal->research_schema_id)?->university_id : null)
+                        ?? University::value('id')
+                        ?? University::create([
+                            'code' => 'UMT-DEFAULT',
+                            'name' => 'Universitas Muhammadiyah Default',
+                        ])->id;
+                }
+            }
+        });
+    }
+
     // ─── Status Constants ────────────────────────────────────────────────────
 
     public const STATUS_DRAFT = 'Draft';
@@ -47,6 +67,7 @@ class Proposal extends Model
         // Virtual / legacy aliases
         'title',
         'description',
+        'status',
         'judul',
         'deskripsi',
         'user_id',
@@ -69,6 +90,8 @@ class Proposal extends Model
         'status',
         'user_id',
         'research_schema_id',
+        'proposal_doc_path',
+        'rejection_reason',
     ];
 
     /*
@@ -137,6 +160,16 @@ class Proposal extends Model
         $this->attributes['latar_belakang'] = $value;
     }
 
+    public function getRejectionReasonAttribute(): ?string
+    {
+        return $this->attributes['catatan_administrasi'] ?? null;
+    }
+
+    public function setRejectionReasonAttribute($value): void
+    {
+        $this->attributes['catatan_administrasi'] = $value;
+    }
+
     public function getUserIdAttribute(): ?int
     {
         return $this->attributes['id_pengusul'] ?? null;
@@ -167,6 +200,21 @@ class Proposal extends Model
         $this->attributes['status_proposal'] = $value;
     }
 
+    protected ?string $virtualFileDokumenProposal = null;
+
+    public function getFileDokumenProposalAttribute(): ?string
+    {
+        return $this->virtualFileDokumenProposal
+            ?? ($this->attributes['file_dokumen_proposal'] ?? null)
+            ?? $this->documents()->where('tipe_dokumen', 'Proposal_Utama')->value('file_path')
+            ?? $this->documents()->value('file_path');
+    }
+
+    public function setFileDokumenProposalAttribute($value): void
+    {
+        $this->virtualFileDokumenProposal = $value;
+    }
+
     public function getProposalDocPathAttribute(): ?string
     {
         return $this->file_dokumen_proposal;
@@ -174,7 +222,7 @@ class Proposal extends Model
 
     public function setProposalDocPathAttribute($value): void
     {
-        $this->attributes['file_dokumen_proposal'] = $value;
+        $this->virtualFileDokumenProposal = $value;
     }
 
     // ─── Relationships ───────────────────────────────────────────────────────

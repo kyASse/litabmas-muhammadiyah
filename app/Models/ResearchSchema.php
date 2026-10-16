@@ -17,7 +17,12 @@ class ResearchSchema extends Model
                 if (auth()->check() && auth()->user()->university_id) {
                     $schema->university_id = auth()->user()->university_id;
                 } else {
-                    $schema->university_id = University::value('id');
+                    $schema->university_id = University::value('id') ?? University::create([
+                        'code' => 'UMT-DEFAULT',
+                        'name' => 'Universitas Muhammadiyah Default',
+                        'address' => 'Jl. Default',
+                        'contact_email' => 'default@kampus.ac.id',
+                    ])->id;
                 }
             }
             if (! $schema->tanggal_mulai) {
