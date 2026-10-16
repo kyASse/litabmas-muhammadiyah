@@ -21,32 +21,32 @@ class ProgressController extends Controller
     {
         $user = Auth::user();
 
-        $query = ProgressReport::where('user_id', $user->id)
-            ->with(['proposal', 'contract', 'evaluations.reviewer']);
+        $query = ProgressReport::whereHas('proposal', function ($q) use ($user) {
+            $q->where('id_pengusul', $user->id)
+                ->orWhere('user_id', $user->id);
+        })->with(['proposal', 'monevSchedule']);
 
-        // Search by title
+        // Search by title or summary
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('content', 'like', "%{$search}%");
+                $q->where('ringkasan_progres', 'like', "%{$search}%")
+                    ->orWhereHas('proposal', function ($pq) use ($search) {
+                        $pq->where('judul', 'like', "%{$search}%")
+                            ->orWhere('title', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Filter by status
         if ($status = $request->input('status')) {
-            $query->where('status', $status);
-        }
-
-        // Filter by report type
-        if ($reportType = $request->input('report_type')) {
-            $query->where('report_type', $reportType);
+            $query->byStatus($status);
         }
 
         $progressReports = $query->latest()->paginate(10)->withQueryString();
 
         return Inertia::render('Progress/Index', [
             'progressReports' => $progressReports,
-            'filters' => $request->only(['search', 'status', 'report_type']),
+            'filters' => $request->only(['search', 'status']),
         ]);
     }
 
@@ -55,12 +55,20 @@ class ProgressController extends Controller
      */
     public function create()
     {
-        $proposals = Proposal::where('user_id', Auth::id())
-            ->orderBy('title')
-            ->get(['id', 'title']);
+        $userId = Auth::id();
+        $proposals = Proposal::where(function ($q) use ($userId) {
+            $q->where('id_pengusul', $userId)->orWhere('user_id', $userId);
+        })
+            ->orderBy('judul')
+            ->get(['id', 'judul', 'nomor_proposal']);
+
+        $schedules = MonevSchedule::where('is_active', true)
+            ->orderBy('tanggal_mulai', 'desc')
+            ->get(['id', 'nama_tahap', 'tanggal_mulai', 'tanggal_selesai', 'deskripsi', 'is_active']);
 
         return Inertia::render('Progress/Create', [
             'proposals' => $proposals,
+            'schedules' => $schedules,
         ]);
     }
 

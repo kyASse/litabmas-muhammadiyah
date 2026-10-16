@@ -45,4 +45,34 @@ class MonevEvaluationController extends Controller
 
         return redirect()->back()->with('success', 'Evaluasi monev berhasil disimpan.');
     }
+
+    /**
+     * Menampilkan halaman formulir evaluasi monev bagi reviewer.
+     *
+     * @param int|ProgressReport $report
+     * @return \Inertia\Response
+     */
+    public function show(int|ProgressReport $report): \Inertia\Response
+    {
+        $progressReport = $report instanceof ProgressReport
+            ? $report
+            : ProgressReport::findOrFail($report);
+
+        $progressReport->loadMissing(['proposal.user', 'monevSchedule']);
+        $user = auth()->user();
+
+        // Multi-tenancy check
+        if (! $user->isSuperAdmin() && (int) $progressReport->proposal?->university_id !== (int) $user->university_id) {
+            abort(403, 'Akses lintas institusi tidak diizinkan.');
+        }
+
+        // Conflict of Interest (CoI) Guard
+        if ((int) $progressReport->proposal?->id_pengusul === (int) $user->id) {
+            abort(403, 'Reviewer memiliki konflik kepentingan langsung dengan usulan penelitian ini.');
+        }
+
+        return \Inertia\Inertia::render('Reviewer/Monev/Evaluate', [
+            'report' => $progressReport,
+        ]);
+    }
 }

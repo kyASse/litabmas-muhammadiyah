@@ -1,121 +1,101 @@
-/**
- * MonevSchedule Component
- *
- * @description
- * Management page for Monitoring & Evaluation (Monev) schedules.
- * Admin can view all scheduled Monev sessions, create new ones,
- * and view progress reports that are pending review.
- *
- * @route GET /admin/monev-schedules
- * @route GET /admin/monev-schedules/pending
- *
- * @features
- * - Tabbed view: Jadwal Monev & Laporan Pending
- * - Create new Monev Schedule via dialog form
- * - View pending progress reports needing review
- * - Status badges with color coding
- *
- * @author JurnalMU Team
- */
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { TabularFigure } from '@/components/ui/TabularFigure';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm } from '@inertiajs/react';
-import { CalendarDays, Clock, FileText, MapPin, Plus, UserCheck } from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Calendar, CalendarCheck, Clock, FileText, Plus, ShieldCheck } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { toast } from 'sonner';
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: route('dashboard'),
-    },
-    {
-        title: 'Monev Schedule',
-        href: route('admin.monev-schedules.index'),
-    },
-];
-
-interface Evaluator {
+interface MonevScheduleItem {
     id: number;
-    name: string;
-    email: string;
+    nama_tahap: string;
+    tanggal_mulai: string;
+    tanggal_selesai: string;
+    deskripsi?: string | null;
+    is_active: boolean;
+    status_label?: string;
+    created_at?: string;
 }
 
-interface Proposal {
+interface ProposalItem {
     id: number;
-    title?: string;
     judul?: string;
-    user?: {
-        id: number;
-        name: string;
-    };
-}
-
-interface Contract {
-    id: number;
-    contract_number?: string;
     title?: string;
-    proposal?: Proposal;
-}
-
-interface MonevSchedule {
-    id: number;
-    contract_id: number | null;
-    evaluator_id: number;
-    date: string;
-    time: string | null;
-    location: string | null;
-    status: 'scheduled' | 'done' | 'cancelled';
-    contract?: Contract;
-    evaluator?: Evaluator;
-    created_at: string;
-}
-
-interface ProgressReport {
-    id: number;
-    proposal_id: number;
-    user_id: number;
-    title: string;
-    content: string;
-    progress_percentage: number;
-    report_period: string;
-    status: string;
-    submitted_at: string | null;
-    proposal?: Proposal;
+    nomor_proposal?: string;
     user?: {
         id: number;
         name: string;
-        email: string;
     };
+}
+
+interface PendingReportItem {
+    id: number;
+    id_proposal?: number;
+    proposal_id?: number;
+    persentase_kemajuan: number;
+    ringkasan_progres: string;
+    catatan_kendala?: string | null;
+    file_laporan_kemajuan?: string | null;
+    file_logbook?: string | null;
+    skor_monev?: number | null;
+    status_laporan: string;
     created_at: string;
+    proposal?: ProposalItem;
+    user?: {
+        id: number;
+        name: string;
+        email?: string;
+    };
 }
 
 interface Props {
-    schedules: MonevSchedule[];
-    contracts: Contract[];
-    evaluators: Evaluator[];
-    pendingReports?: ProgressReport[];
+    schedules: MonevScheduleItem[];
+    pendingReports?: PendingReportItem[];
     activeTab?: string;
 }
 
-export default function Schedule({ schedules, contracts, evaluators, pendingReports = [], activeTab = 'schedules' }: Props) {
+export default function Schedule({
+    schedules = [],
+    pendingReports = [],
+    activeTab = 'schedules',
+}: Props) {
+    const { t, locale } = useTranslation();
     const [dialogOpen, setDialogOpen] = useState(false);
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t.navigation.dashboard,
+            href: route('dashboard'),
+        },
+        {
+            title: t.monev.schedulePageTitle,
+            href: route('admin.monev-schedules.index'),
+        },
+    ];
+
     const { data, setData, post, processing, errors, reset } = useForm({
-        contract_id: '',
-        evaluator_id: '',
-        date: '',
-        time: '',
-        location: '',
+        nama_tahap: '',
+        tanggal_mulai: '',
+        tanggal_selesai: '',
+        deskripsi: '',
     });
 
     const handleSubmit = (e: FormEvent) => {
@@ -126,10 +106,10 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
             onSuccess: () => {
                 setDialogOpen(false);
                 reset();
-                toast.success('Jadwal monev berhasil dibuat.');
+                toast.success(t.monev.scheduleSaved);
             },
             onError: () => {
-                toast.error('Gagal membuat jadwal. Periksa kembali form.');
+                toast.error('Gagal menyimpan jadwal monev. Periksa isian formulir.');
             },
         });
     };
@@ -142,406 +122,338 @@ export default function Schedule({ schedules, contracts, evaluators, pendingRepo
         }
     };
 
-    const getStatusBadge = (status: string) => {
-        const config: Record<string, { variant: 'default' | 'secondary' | 'outline' | 'destructive'; label: string }> = {
-            scheduled: { variant: 'default', label: 'Dijadwalkan' },
-            done: { variant: 'secondary', label: 'Selesai' },
-            cancelled: { variant: 'destructive', label: 'Dibatalkan' },
-        };
-        const { variant, label } = config[status] ?? { variant: 'outline' as const, label: status };
-        return <Badge variant={variant}>{label}</Badge>;
-    };
-
-    const getReportStatusBadge = (status: string) => {
-        const config: Record<string, { variant: 'default' | 'secondary' | 'outline' | 'destructive'; label: string }> = {
-            draft: { variant: 'outline', label: 'Draft' },
-            submitted: { variant: 'default', label: 'Menunggu Review' },
-            reviewed: { variant: 'secondary', label: 'Sudah Direview' },
-        };
-        const { variant, label } = config[status] ?? { variant: 'outline' as const, label: status };
-        return <Badge variant={variant}>{label}</Badge>;
-    };
-
-    const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString('id-ID', {
+    const formatDate = (dateStr?: string | null) => {
+        if (!dateStr) return '-';
+        return new Date(dateStr).toLocaleDateString(locale === 'en' ? 'en-US' : 'id-ID', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
         });
     };
 
-    const getContractLabel = (contract?: Contract) => {
-        if (!contract) return '-';
-        return contract.title || contract.contract_number || `Kontrak #${contract.id}`;
+    const isWindowOpen = (schedule: MonevScheduleItem) => {
+        if (!schedule.is_active || !schedule.tanggal_mulai || !schedule.tanggal_selesai) {
+            return false;
+        }
+        const today = new Date().toISOString().slice(0, 10);
+        const start = schedule.tanggal_mulai.slice(0, 10);
+        const end = schedule.tanggal_selesai.slice(0, 10);
+        return today >= start && today <= end;
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Jadwal Monev" />
+            <Head title={t.monev.schedulePageTitle} />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-                    {/* Header */}
-                    <div className="mb-6">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                            <div>
-                                <h1 className="text-3xl font-bold tracking-tight">Monitoring & Evaluasi</h1>
-                                <p className="mt-1 text-muted-foreground">Kelola jadwal monitoring dan evaluasi penelitian</p>
-                            </div>
-                            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                                <DialogTrigger asChild>
-                                    <Button className="flex items-center gap-2">
-                                        <Plus className="h-4 w-4" />
-                                        Buat Jadwal
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>Buat Jadwal Monev Baru</DialogTitle>
-                                        <DialogDescription>Isi detail jadwal monitoring dan evaluasi.</DialogDescription>
-                                    </DialogHeader>
-                                    <form onSubmit={handleSubmit} className="space-y-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="contract_id">Kontrak</Label>
-                                            <Select value={data.contract_id} onValueChange={(v) => setData('contract_id', v)}>
-                                                <SelectTrigger id="contract_id">
-                                                    <SelectValue placeholder="Pilih kontrak..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {contracts.map((c) => (
-                                                        <SelectItem key={c.id} value={String(c.id)}>
-                                                            {getContractLabel(c)}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            {errors.contract_id && <p className="mt-1 text-sm text-red-600">{errors.contract_id}</p>}
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="evaluator_id">Evaluator</Label>
-                                            <Select value={data.evaluator_id} onValueChange={(v) => setData('evaluator_id', v)}>
-                                                <SelectTrigger id="evaluator_id">
-                                                    <SelectValue placeholder="Pilih evaluator..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {evaluators.map((e) => (
-                                                        <SelectItem key={e.id} value={String(e.id)}>
-                                                            {e.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                            {errors.evaluator_id && <p className="mt-1 text-sm text-red-600">{errors.evaluator_id}</p>}
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="date">Tanggal</Label>
-                                                <Input
-                                                    id="date"
-                                                    type="date"
-                                                    required
-                                                    value={data.date}
-                                                    onChange={(e) => setData('date', e.target.value)}
-                                                />
-                                                {errors.date && <p className="mt-1 text-sm text-red-600">{errors.date}</p>}
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="time">Waktu</Label>
-                                                <Input id="time" type="time" value={data.time} onChange={(e) => setData('time', e.target.value)} />
-                                                {errors.time && <p className="mt-1 text-sm text-red-600">{errors.time}</p>}
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="location">Lokasi</Label>
-                                            <Input
-                                                id="location"
-                                                type="text"
-                                                placeholder="Misal: Ruang Rapat Lt.3, Zoom Meeting, dll."
-                                                value={data.location}
-                                                onChange={(e) => setData('location', e.target.value)}
-                                            />
-                                            {errors.location && <p className="mt-1 text-sm text-red-600">{errors.location}</p>}
-                                        </div>
-                                        <DialogFooter>
-                                            <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                                                Batal
-                                            </Button>
-                                            <Button type="submit" disabled={processing}>
-                                                {processing ? 'Menyimpan...' : 'Simpan Jadwal'}
-                                            </Button>
-                                        </DialogFooter>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
-                        </div>
+            <div className="flex h-full flex-1 flex-col gap-6 p-6">
+                {/* Header */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
+                    <div>
+                        <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">
+                            {t.monev.schedulePageTitle}
+                        </h1>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            {t.monev.schedulePageSubtitle}
+                        </p>
                     </div>
 
-                    {/* Tabs */}
-                    <Tabs value={activeTab} onValueChange={handleTabChange}>
-                        <TabsList className="mb-4">
-                            <TabsTrigger value="schedules">Jadwal Monev</TabsTrigger>
-                            <TabsTrigger value="pending">
-                                Laporan Pending
-                                {pendingReports.length > 0 && (
-                                    <Badge variant="destructive" className="ml-2 text-xs">
-                                        {pendingReports.length}
-                                    </Badge>
-                                )}
-                            </TabsTrigger>
-                        </TabsList>
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="flex items-center gap-2 bg-blue-900 text-white hover:bg-blue-800">
+                                <Plus className="h-4 w-4" />
+                                {t.monev.addScheduleBtn}
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-lg">
+                            <DialogHeader>
+                                <DialogTitle className="font-serif text-lg font-bold">
+                                    {t.monev.createScheduleTitle}
+                                </DialogTitle>
+                                <DialogDescription className="text-xs text-muted-foreground">
+                                    {t.monev.schedulePageSubtitle}
+                                </DialogDescription>
+                            </DialogHeader>
 
-                        {/* Tab: Jadwal Monev */}
-                        <TabsContent value="schedules">
-                            {/* Desktop Table */}
-                            <div className="hidden overflow-x-auto rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Kontrak</TableHead>
-                                            <TableHead>Evaluator</TableHead>
-                                            <TableHead>Tanggal</TableHead>
-                                            <TableHead>Waktu</TableHead>
-                                            <TableHead>Lokasi</TableHead>
-                                            <TableHead className="text-center">Status</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {schedules.length === 0 ? (
-                                            <TableRow>
-                                                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                                                    <div className="flex flex-col items-center justify-center">
-                                                        <CalendarDays className="mb-2 h-8 w-8" />
-                                                        <p>Belum ada jadwal monev</p>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ) : (
-                                            schedules.map((schedule) => (
-                                                <TableRow key={schedule.id}>
-                                                    <TableCell>
-                                                        <div>
-                                                            <div className="font-medium">{getContractLabel(schedule.contract)}</div>
-                                                            {schedule.contract?.proposal?.user && (
-                                                                <div className="text-sm text-muted-foreground">
-                                                                    {schedule.contract.proposal.user.name}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <UserCheck className="h-4 w-4 text-muted-foreground" />
-                                                            <span>{schedule.evaluator?.name ?? '-'}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-1 text-sm">
-                                                            <CalendarDays className="h-3 w-3" />
-                                                            <span>{formatDate(schedule.date)}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {schedule.time ? (
-                                                            <div className="flex items-center gap-1 text-sm">
-                                                                <Clock className="h-3 w-3" />
-                                                                <span>{schedule.time}</span>
-                                                            </div>
-                                                        ) : (
-                                                            <span className="text-muted-foreground">-</span>
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        {schedule.location ? (
-                                                            <div className="flex items-center gap-1 text-sm">
-                                                                <MapPin className="h-3 w-3" />
-                                                                <span>{schedule.location}</span>
-                                                            </div>
-                                                        ) : (
-                                                            <span className="text-muted-foreground">-</span>
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="text-center">{getStatusBadge(schedule.status)}</TableCell>
-                                                </TableRow>
-                                            ))
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="nama_tahap" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                                        {t.monev.scheduleName} <span className="text-rose-600">*</span>
+                                    </Label>
+                                    <Input
+                                        id="nama_tahap"
+                                        placeholder={t.monev.scheduleNamePlaceholder}
+                                        value={data.nama_tahap}
+                                        onChange={(e) => setData('nama_tahap', e.target.value)}
+                                        required
+                                    />
+                                    {errors.nama_tahap && (
+                                        <p className="text-xs text-rose-600 font-medium">{errors.nama_tahap}</p>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="tanggal_mulai" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                                            {t.monev.startDate} <span className="text-rose-600">*</span>
+                                        </Label>
+                                        <Input
+                                            id="tanggal_mulai"
+                                            type="date"
+                                            value={data.tanggal_mulai}
+                                            onChange={(e) => setData('tanggal_mulai', e.target.value)}
+                                            required
+                                        />
+                                        {errors.tanggal_mulai && (
+                                            <p className="text-xs text-rose-600 font-medium">{errors.tanggal_mulai}</p>
                                         )}
-                                    </TableBody>
-                                </Table>
-                            </div>
+                                    </div>
 
-                            {/* Mobile Cards */}
-                            <div className="space-y-4 md:hidden">
-                                {schedules.length === 0 ? (
-                                    <Card>
-                                        <CardContent className="flex flex-col items-center justify-center p-6 py-12 text-center text-muted-foreground">
-                                            <CalendarDays className="mb-2 h-12 w-12" />
-                                            <p>Belum ada jadwal monev</p>
-                                        </CardContent>
-                                    </Card>
-                                ) : (
-                                    schedules.map((schedule) => (
-                                        <Card key={schedule.id} className="overflow-hidden">
-                                            <CardContent className="space-y-3 p-4">
-                                                <div className="flex items-start justify-between">
-                                                    <div>
-                                                        <div className="font-medium">{getContractLabel(schedule.contract)}</div>
-                                                        {schedule.contract?.proposal?.user && (
-                                                            <div className="text-sm text-muted-foreground">
-                                                                {schedule.contract.proposal.user.name}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    {getStatusBadge(schedule.status)}
-                                                </div>
-                                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                                    <div>
-                                                        <span className="text-muted-foreground">Evaluator</span>
-                                                        <div className="mt-1 flex items-center gap-1">
-                                                            <UserCheck className="h-3 w-3" />
-                                                            <span>{schedule.evaluator?.name ?? '-'}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div>
-                                                        <span className="text-muted-foreground">Tanggal</span>
-                                                        <div className="mt-1 flex items-center gap-1">
-                                                            <CalendarDays className="h-3 w-3" />
-                                                            <span>{formatDate(schedule.date)}</span>
-                                                        </div>
-                                                    </div>
-                                                    {schedule.time && (
-                                                        <div>
-                                                            <span className="text-muted-foreground">Waktu</span>
-                                                            <div className="mt-1 flex items-center gap-1">
-                                                                <Clock className="h-3 w-3" />
-                                                                <span>{schedule.time}</span>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                    {schedule.location && (
-                                                        <div>
-                                                            <span className="text-muted-foreground">Lokasi</span>
-                                                            <div className="mt-1 flex items-center gap-1">
-                                                                <MapPin className="h-3 w-3" />
-                                                                <span>{schedule.location}</span>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))
-                                )}
-                            </div>
-                        </TabsContent>
-
-                        {/* Tab: Laporan Pending */}
-                        <TabsContent value="pending">
-                            {/* Desktop Table */}
-                            <div className="hidden overflow-x-auto rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Judul Laporan</TableHead>
-                                            <TableHead>Peneliti</TableHead>
-                                            <TableHead>Proposal</TableHead>
-                                            <TableHead>Periode</TableHead>
-                                            <TableHead className="text-center">Progres</TableHead>
-                                            <TableHead className="text-center">Status</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {pendingReports.length === 0 ? (
-                                            <TableRow>
-                                                <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
-                                                    <div className="flex flex-col items-center justify-center">
-                                                        <FileText className="mb-2 h-8 w-8" />
-                                                        <p>Tidak ada laporan yang menunggu review</p>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ) : (
-                                            pendingReports.map((report) => (
-                                                <TableRow key={report.id}>
-                                                    <TableCell>
-                                                        <div className="font-medium">{report.title}</div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <UserCheck className="h-4 w-4 text-muted-foreground" />
-                                                            <span>{report.user?.name ?? '-'}</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span className="text-sm">{report.proposal?.judul || report.proposal?.title || '-'}</span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span className="text-sm">{report.report_period}</span>
-                                                    </TableCell>
-                                                    <TableCell className="text-center">
-                                                        <div className="mx-auto flex w-16 items-center gap-1">
-                                                            <div className="h-2 flex-1 rounded-full bg-muted">
-                                                                <div
-                                                                    className="h-2 rounded-full bg-primary transition-all"
-                                                                    style={{ width: `${report.progress_percentage}%` }}
-                                                                />
-                                                            </div>
-                                                            <span className="text-xs text-muted-foreground">{report.progress_percentage}%</span>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="text-center">{getReportStatusBadge(report.status)}</TableCell>
-                                                </TableRow>
-                                            ))
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="tanggal_selesai" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                                            {t.monev.endDate} <span className="text-rose-600">*</span>
+                                        </Label>
+                                        <Input
+                                            id="tanggal_selesai"
+                                            type="date"
+                                            value={data.tanggal_selesai}
+                                            onChange={(e) => setData('tanggal_selesai', e.target.value)}
+                                            required
+                                        />
+                                        {errors.tanggal_selesai && (
+                                            <p className="text-xs text-rose-600 font-medium">{errors.tanggal_selesai}</p>
                                         )}
-                                    </TableBody>
-                                </Table>
-                            </div>
+                                    </div>
+                                </div>
 
-                            {/* Mobile Cards */}
-                            <div className="space-y-4 md:hidden">
-                                {pendingReports.length === 0 ? (
-                                    <Card>
-                                        <CardContent className="flex flex-col items-center justify-center p-6 py-12 text-center text-muted-foreground">
-                                            <FileText className="mb-2 h-12 w-12" />
-                                            <p>Tidak ada laporan yang menunggu review</p>
-                                        </CardContent>
-                                    </Card>
-                                ) : (
-                                    pendingReports.map((report) => (
-                                        <Card key={report.id} className="overflow-hidden">
-                                            <CardContent className="space-y-3 p-4">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="font-medium">{report.title}</div>
-                                                    {getReportStatusBadge(report.status)}
-                                                </div>
-                                                <div className="grid grid-cols-2 gap-3 text-sm">
-                                                    <div>
-                                                        <span className="text-muted-foreground">Peneliti</span>
-                                                        <div className="mt-1">{report.user?.name ?? '-'}</div>
-                                                    </div>
-                                                    <div>
-                                                        <span className="text-muted-foreground">Periode</span>
-                                                        <div className="mt-1">{report.report_period}</div>
-                                                    </div>
-                                                </div>
-                                                <div className="rounded-md border border-sidebar-border/50 bg-sidebar p-3">
-                                                    <div className="mb-1 text-center text-sm text-muted-foreground">Progres</div>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="h-2 flex-1 rounded-full bg-muted">
-                                                            <div
-                                                                className="h-2 rounded-full bg-primary transition-all"
-                                                                style={{ width: `${report.progress_percentage}%` }}
-                                                            />
-                                                        </div>
-                                                        <span className="text-sm font-medium">{report.progress_percentage}%</span>
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))
-                                )}
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="deskripsi" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                                        {t.monev.description}
+                                    </Label>
+                                    <Textarea
+                                        id="deskripsi"
+                                        rows={3}
+                                        placeholder={t.monev.descriptionPlaceholder}
+                                        value={data.deskripsi}
+                                        onChange={(e) => setData('deskripsi', e.target.value)}
+                                    />
+                                    {errors.deskripsi && (
+                                        <p className="text-xs text-rose-600 font-medium">{errors.deskripsi}</p>
+                                    )}
+                                </div>
+
+                                <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setDialogOpen(false)}
+                                    >
+                                        {t.common.cancel}
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="bg-blue-900 text-white hover:bg-blue-800"
+                                    >
+                                        {processing ? t.common.loading : t.common.save}
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
                 </div>
+
+                {/* Tabs */}
+                <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+                    <TabsList className="mb-4">
+                        <TabsTrigger value="schedules" className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            {t.monev.schedulePageTitle}
+                        </TabsTrigger>
+                        <TabsTrigger value="pending" className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            Laporan Pending
+                            {pendingReports.length > 0 && (
+                                <span className="ml-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-bold text-amber-700">
+                                    {pendingReports.length}
+                                </span>
+                            )}
+                        </TabsTrigger>
+                    </TabsList>
+
+                    {/* Schedules Content */}
+                    <TabsContent value="schedules">
+                        <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-slate-50 dark:bg-slate-900/40">
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
+                                            {t.monev.tableColScheduleName}
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
+                                            {t.monev.tableColStartDate}
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
+                                            {t.monev.tableColEndDate}
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
+                                            {t.monev.tableColStatus}
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
+                                            {t.monev.description}
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {schedules.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">
+                                                <CalendarCheck className="mx-auto mb-2 h-8 w-8 text-slate-300" />
+                                                <p className="text-sm">{t.monev.emptySchedules}</p>
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        schedules.map((schedule) => {
+                                            const open = isWindowOpen(schedule);
+                                            return (
+                                                <TableRow key={schedule.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-900/60">
+                                                    <TableCell className="font-medium text-foreground">
+                                                        <div className="flex items-center gap-2">
+                                                            <Calendar className="h-4 w-4 text-blue-900 shrink-0" />
+                                                            <span>{schedule.nama_tahap}</span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-sm font-mono text-muted-foreground">
+                                                        {formatDate(schedule.tanggal_mulai)}
+                                                    </TableCell>
+                                                    <TableCell className="text-sm font-mono text-muted-foreground">
+                                                        {formatDate(schedule.tanggal_selesai)}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {open ? (
+                                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                                                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                                                                {t.monev.statusActive}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-300 bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-700">
+                                                                {t.monev.statusClosed}
+                                                            </span>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-xs text-muted-foreground max-w-xs truncate">
+                                                        {schedule.deskripsi || '-'}
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </TabsContent>
+
+                    {/* Pending Reports Content */}
+                    <TabsContent value="pending">
+                        <div className="overflow-hidden rounded-lg border border-border bg-card shadow-sm">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-slate-50 dark:bg-slate-900/40">
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
+                                            {t.monev.tableColProposal}
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
+                                            Peneliti
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
+                                            {t.monev.tableColPercentage}
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
+                                            Berkas Dokumen
+                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
+                                            {t.monev.tableColReportStatus}
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {pendingReports.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">
+                                                <FileText className="mx-auto mb-2 h-8 w-8 text-slate-300" />
+                                                <p className="text-sm">Tidak ada laporan kemajuan yang menunggu evaluasi.</p>
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        pendingReports.map((report) => (
+                                            <TableRow key={report.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-900/60">
+                                                <TableCell>
+                                                    <div className="font-medium text-foreground">
+                                                        {report.proposal?.judul || report.proposal?.title || '-'}
+                                                    </div>
+                                                    {report.proposal?.nomor_proposal && (
+                                                        <div className="text-xs font-mono text-muted-foreground">
+                                                            {report.proposal.nomor_proposal}
+                                                        </div>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-sm text-foreground">
+                                                    {report.proposal?.user?.name || report.user?.name || '-'}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <TabularFigure
+                                                        value={report.persentase_kemajuan}
+                                                        type="percentage"
+                                                        weight="bold"
+                                                        align="left"
+                                                        className="text-primary"
+                                                    />
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-col gap-1 text-xs">
+                                                        {report.file_laporan_kemajuan && (
+                                                            <a
+                                                                href={`/storage/${report.file_laporan_kemajuan}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1 text-blue-900 hover:underline"
+                                                            >
+                                                                <FileText className="h-3.5 w-3.5" />
+                                                                {t.monev.tableColReportFile}
+                                                            </a>
+                                                        )}
+                                                        {report.file_logbook && (
+                                                            <a
+                                                                href={`/storage/${report.file_logbook}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1 text-slate-600 hover:underline"
+                                                            >
+                                                                <FileText className="h-3.5 w-3.5" />
+                                                                {t.monev.tableColLogbookFile}
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <StatusBadge
+                                                        status={
+                                                            report.status_laporan === 'Approved'
+                                                                ? 'Monev_Approved'
+                                                                : report.status_laporan === 'Revision'
+                                                                ? 'Revisi'
+                                                                : 'Submitted'
+                                                        }
+                                                        size="sm"
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </TabsContent>
+                </Tabs>
             </div>
         </AppLayout>
     );

@@ -183,6 +183,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/assessment/{id}', [ReviewController::class, 'updateAssessment'])->name('assessment.update');
 
         // Monev & Evaluation
+        Route::get('/monev/{report}/evaluate', [MonevEvaluationController::class, 'show'])->name('monev.show');
         Route::post('/monev/{report}/evaluate', [MonevEvaluationController::class, 'evaluate'])->name('monev.evaluate');
         Route::post('/monev/{id}', [MonevEvaluationController::class, 'evaluate'])->name('monev.evaluate.legacy');
         Route::get('/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
