@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Finance\DisburseFundingRequest;
 use App\Http\Requests\StoreFundingRequest;
 use App\Models\Contract;
 use App\Models\Funding;
+use App\Services\FundingDisbursementService;
 use App\Services\FundingService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
@@ -156,9 +158,18 @@ class FundingController extends Controller
      */
     public function index(Request $request)
     {
-        $fundings = Funding::with(['contract.university', 'contract.proposal'])
-            ->latest()
-            ->paginate(10);
+        $user = $request->user();
+        $query = Funding::with(['contract.university', 'contract.proposal']);
+
+        if ($user && ! $user->isSuperAdmin()) {
+            $query->whereHas('contract', function ($q) use ($user) {
+                if ($user->university_id) {
+                    $q->where('university_id', $user->university_id);
+                }
+            });
+        }
+
+        $fundings = $query->latest()->paginate(10);
 
         return Inertia::render('Finance/Funding/Index', [
             'fundings' => $fundings,
@@ -168,14 +179,19 @@ class FundingController extends Controller
     /**
      * Pencairan dana termin riset (Disburse).
      */
-    public function disburse(Request $request, $id)
+    public function disburse(DisburseFundingRequest $request, $id, FundingDisbursementService $service)
     {
-        $funding = Funding::findOrFail($id);
-        $funding->update([
-            'status' => Funding::STATUS_DISBURSED,
-            'paid_at' => now(),
-        ]);
+        $funding = $id instanceof Funding
+            ? $id
+            : Funding::with('contract.proposal.progressReports')->findOrFail($id);
 
-        return redirect()->back()->with('success', 'Dana termin berhasil dicairkan.');
+        $service->disburse(
+            $funding,
+            $request->file('bukti_transfer'),
+            $request->validated('tanggal_pencairan'),
+            $request->validated('catatan_keuangan')
+        );
+
+        return redirect()->back()->with('success', '[SUKSES] Dana termin berhasil dicairkan.');
     }
 }

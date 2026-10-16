@@ -293,19 +293,9 @@ class Funding extends Model
         $this->attributes['nominal_dana'] = $value;
     }
 
-    public function getTanggalPencairanAttribute(): ?string
-    {
-        return $this->attributes['tanggal_pencairan'] ?? null;
-    }
-
-    public function setTanggalPencairanAttribute($value): void
-    {
-        $this->attributes['tanggal_pencairan'] = $value;
-    }
-
     public function getFundingDateAttribute(): ?string
     {
-        return $this->getTanggalPencairanAttribute();
+        return $this->tanggal_pencairan?->toDateString();
     }
 
     public function setFundingDateAttribute($value): void
@@ -315,7 +305,7 @@ class Funding extends Model
 
     public function getPaidAtAttribute(): ?string
     {
-        return $this->getTanggalPencairanAttribute();
+        return $this->tanggal_pencairan?->toDateString();
     }
 
     public function setPaidAtAttribute($value): void
@@ -325,7 +315,7 @@ class Funding extends Model
 
     public function getCairAtAttribute(): ?string
     {
-        return $this->getTanggalPencairanAttribute();
+        return $this->tanggal_pencairan?->toDateString();
     }
 
     public function getBuktiTransferPathAttribute(): ?string

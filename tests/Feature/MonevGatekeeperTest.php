@@ -273,6 +273,66 @@ class MonevGatekeeperTest extends TestCase
         Storage::disk('public')->assertExists($termin2->bukti_transfer_path);
     }
 
+    public function test_termin_disbursement_fails_without_bank_transfer_proof(): void
+    {
+        Storage::fake('public');
+
+        [$contract, $termin1, $termin2] = $this->createContractWithTermins();
+
+        $payload = [
+            'tanggal_pencairan' => now()->toDateString(),
+            'catatan_keuangan' => 'Pencairan tanpa berkas bukti transfer.',
+        ];
+
+        $response = $this->actingAs($this->financeAdmin)
+            ->post("/finance/fundings/{$termin1->id}/disburse", $payload);
+
+        $response->assertSessionHasErrors('bukti_transfer');
+
+        $termin1->refresh();
+        $this->assertEquals(Funding::STATUS_PENDING, $termin1->status_pencairan);
+    }
+
+    public function test_termin_disbursement_enforces_tenant_isolation(): void
+    {
+        Storage::fake('public');
+
+        [$contract, $termin1, $termin2] = $this->createContractWithTermins();
+
+        // Buat institusi lain beserta user Admin Keuangan dari institusi tersebut
+        $otherUniversity = University::create([
+            'code' => 'UMS',
+            'name' => 'Universitas Muhammadiyah Surakarta',
+        ]);
+
+        $roleFinance = Role::where('name', Role::ADMIN_KEUANGAN)->firstOrFail();
+        /** @var User $otherFinanceAdmin */
+        $otherFinanceAdmin = User::factory()->create([
+            'university_id' => $otherUniversity->id,
+            'role_id' => $roleFinance->id,
+            'is_active' => true,
+        ]);
+        $otherFinanceAdmin->roles()->syncWithoutDetaching([$roleFinance->id]);
+
+        $pdfContent = "%PDF-1.5\n%Bukti transfer cross-tenant\n%%EOF";
+        $file = UploadedFile::fake()->createWithContent('bukti_transfer_cross.pdf', $pdfContent);
+
+        $payload = [
+            'bukti_transfer' => $file,
+            'tanggal_pencairan' => now()->toDateString(),
+            'catatan_keuangan' => 'Percobaan pencairan lintas universitas.',
+        ];
+
+        $response = $this->actingAs($otherFinanceAdmin)
+            ->post("/finance/fundings/{$termin1->id}/disburse", $payload);
+
+        // Akses lintas tenant wajib ditolak dengan HTTP 403 Forbidden
+        $response->assertStatus(403);
+
+        $termin1->refresh();
+        $this->assertEquals(Funding::STATUS_PENDING, $termin1->status_pencairan);
+    }
+
     public function test_progress_report_submission_rejected_outside_active_monev_schedule(): void
     {
         Storage::fake('public');

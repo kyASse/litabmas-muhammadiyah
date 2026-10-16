@@ -193,7 +193,7 @@ Route::middleware(['auth'])->group(function () {
     | Grup Admin Keuangan (PRD Bab 7.3)
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:'.Role::ADMIN_KEUANGAN])->prefix('finance')->name('finance.')->group(function () {
+    Route::middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::ADMIN_KAMPUS.','.Role::SUPER_ADMIN])->prefix('finance')->name('finance.')->group(function () {
         // Contracts
         Route::get('/contracts', [ContractController::class, 'index'])->name('contracts.index');
         Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
