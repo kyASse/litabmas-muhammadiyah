@@ -214,6 +214,14 @@ class Proposal extends Model
     }
 
     /**
+     * Relasi ke ProposalMember (anggota tim peneliti).
+     */
+    public function members(): HasMany
+    {
+        return $this->hasMany(ProposalMember::class, 'id_proposal');
+    }
+
+    /**
      * Relasi ke Review (penunjukan/penilaian reviewer).
      */
     public function reviews(): HasMany
