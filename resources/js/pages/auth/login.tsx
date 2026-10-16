@@ -2,6 +2,8 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { useTranslation } from '@/hooks/use-translation';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { GraduationCap } from 'lucide-react';
 import { FormEventHandler } from 'react';
@@ -13,6 +15,7 @@ type LoginForm = {
 };
 
 export default function Login() {
+    const { t } = useTranslation();
     const { data, setData, post, processing, errors } = useForm<LoginForm>({
         email: '',
         password: '',
@@ -30,7 +33,7 @@ export default function Login() {
 
     return (
         <>
-            <Head title="Masuk ke SIM-Penelitian" />
+            <Head title={`${t.common.appName} - ${t.auth.loginTitle}`} />
 
             <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
                 <div className="w-full max-w-md">
@@ -41,35 +44,38 @@ export default function Login() {
                                 <GraduationCap className="h-7 w-7" />
                             </div>
                             <h1 className="mt-3 font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                                SIM-Penelitian PTMA
+                                {t.common.appName}
                             </h1>
                             <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-                                Sistem Informasi Penelitian Terintegrasi Standalone
+                                {t.auth.portalSubtitle}
                             </p>
                         </Link>
                     </div>
 
                     {/* Login Card */}
                     <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-800 dark:bg-slate-900">
-                        <div className="mb-6 text-center">
-                            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Masuk Akun</h2>
-                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                Masukkan kredensial akun penelitian Anda
-                            </p>
+                        <div className="mb-6 flex items-start justify-between gap-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t.auth.loginTitle}</h2>
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                                    {t.auth.loginSubtitle}
+                                </p>
+                            </div>
+                            <LanguageSwitcher variant="segmented" />
                         </div>
 
                         <form onSubmit={submit} className="space-y-4">
                             {/* Email */}
                             <div>
                                 <Label htmlFor="email" className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                                    Alamat Email
+                                    {t.auth.emailLabel}
                                 </Label>
                                 <Input
                                     id="email"
                                     type="email"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
-                                    placeholder="nama@kampus.ac.id"
+                                    placeholder={t.auth.emailPlaceholder}
                                     required
                                     autoFocus
                                     className="mt-1.5 h-10 rounded-lg border-slate-200 text-xs focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-950"
@@ -81,13 +87,13 @@ export default function Login() {
                             <div>
                                 <div className="flex items-center justify-between">
                                     <Label htmlFor="password" className="text-xs font-medium text-slate-700 dark:text-slate-300">
-                                        Kata Sandi
+                                        {t.auth.passwordLabel}
                                     </Label>
                                     <Link
                                         href={route('password.request')}
                                         className="text-[11px] font-medium text-blue-900 hover:underline dark:text-blue-400"
                                     >
-                                        Lupa sandi?
+                                        {t.auth.forgotPassword}
                                     </Link>
                                 </div>
                                 <Input
@@ -109,7 +115,7 @@ export default function Login() {
                                     onCheckedChange={(checked) => setData('remember', checked as boolean)}
                                 />
                                 <Label htmlFor="remember" className="cursor-pointer text-xs text-slate-600 dark:text-slate-400">
-                                    Ingat sesi saya
+                                    {t.auth.rememberMe}
                                 </Label>
                             </div>
 
@@ -119,7 +125,7 @@ export default function Login() {
                                 disabled={processing}
                                 className="mt-2 h-10 w-full rounded-lg bg-blue-900 text-xs font-semibold text-white shadow-sm hover:bg-blue-800"
                             >
-                                {processing ? 'Memproses Masuk...' : 'Masuk ke Sistem'}
+                                {processing ? t.auth.processingSignIn : t.auth.signInButton}
                             </Button>
                         </form>
 
@@ -129,7 +135,7 @@ export default function Login() {
                                 <div className="w-full border-t border-slate-200 dark:border-slate-800"></div>
                             </div>
                             <div className="relative flex justify-center text-xs">
-                                <span className="bg-white px-2 text-slate-400 dark:bg-slate-900">atau</span>
+                                <span className="bg-white px-2 text-slate-400 dark:bg-slate-900">{t.auth.orDivider}</span>
                             </div>
                         </div>
 
@@ -158,14 +164,14 @@ export default function Login() {
                                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                 />
                             </svg>
-                            Masuk dengan Akun Google
+                            {t.auth.googleSignIn}
                         </Button>
 
                         {/* Register Link */}
                         <p className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
-                            Belum memiliki akun terdaftar?{' '}
+                            {t.auth.registerPrompt}{' '}
                             <Link href={route('register')} className="font-semibold text-blue-900 hover:underline dark:text-blue-400">
-                                Registrasi sekarang
+                                {t.auth.registerNow}
                             </Link>
                         </p>
                     </div>

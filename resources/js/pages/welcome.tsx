@@ -2,6 +2,8 @@ import { MetricCard } from '@/components/UI/MetricCard';
 import { StatusBadge } from '@/components/UI/StatusBadge';
 import { TabularFigure } from '@/components/UI/TabularFigure';
 import { Button } from '@/components/ui/button';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { useTranslation } from '@/hooks/use-translation';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
@@ -49,6 +51,7 @@ interface WelcomeProps extends SharedData {
 
 export default function Welcome() {
     const { auth, overallStats, activeSchemas } = usePage<WelcomeProps>().props;
+    const { t } = useTranslation();
     const [searchFilter, setSearchFilter] = useState('');
 
     const stats = overallStats || {
@@ -68,7 +71,7 @@ export default function Welcome() {
 
     return (
         <>
-            <Head title="SIM-Penelitian - Portal Riset Terintegrasi PTMA">
+            <Head title={`${t.common.appName} - ${t.welcome.heroTitle}`}>
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
                 <link
@@ -87,10 +90,10 @@ export default function Welcome() {
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-serif text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-                                    SIM-Penelitian
+                                    {t.common.appName}
                                 </span>
                                 <span className="text-[11px] font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
-                                    Litabmas PTMA Terintegrasi
+                                    {t.common.specTag}
                                 </span>
                             </div>
                         </div>
@@ -98,30 +101,31 @@ export default function Welcome() {
                         {/* Middle Links */}
                         <div className="hidden md:flex md:items-center md:gap-6 text-sm font-medium text-slate-600 dark:text-slate-300">
                             <a href="#statistik" className="transition-colors hover:text-blue-900 dark:hover:text-blue-400">
-                                Statistik
+                                {t.welcome.statsNav}
                             </a>
                             <a href="#skema-riset" className="transition-colors hover:text-blue-900 dark:hover:text-blue-400">
-                                Skema Riset
+                                {t.welcome.schemesNav}
                             </a>
                             <a href="#pilar-tata-kelola" className="transition-colors hover:text-blue-900 dark:hover:text-blue-400">
-                                Tata Kelola
+                                {t.welcome.governanceNav}
                             </a>
                             <Link
                                 href={route('design-system-preview')}
                                 className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                             >
                                 <Layers className="h-3.5 w-3.5 text-blue-900 dark:text-blue-400" />
-                                Katalog Sistem Desain
+                                {t.welcome.designSystemNav}
                             </Link>
                         </div>
 
-                        {/* Auth Navigation */}
+                        {/* Auth Navigation & LanguageSwitcher */}
                         <div className="flex items-center gap-3">
+                            <LanguageSwitcher variant="compact" />
                             {auth?.user ? (
                                 <Link href={route('dashboard')}>
                                     <Button className="h-9 gap-2 rounded-lg bg-blue-900 px-4 text-xs font-semibold text-white shadow hover:bg-blue-800">
                                         <LayoutDashboard className="h-4 w-4" />
-                                        <span>Buka Dashboard</span>
+                                        <span>{t.welcome.openDashboard}</span>
                                     </Button>
                                 </Link>
                             ) : (
@@ -131,12 +135,12 @@ export default function Welcome() {
                                             variant="ghost"
                                             className="h-9 rounded-lg px-4 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
                                         >
-                                            Masuk
+                                            {t.navigation.login}
                                         </Button>
                                     </Link>
                                     <Link href={route('register')}>
                                         <Button className="h-9 rounded-lg bg-blue-900 px-4 text-xs font-semibold text-white shadow-sm hover:bg-blue-800">
-                                            Daftar
+                                            {t.navigation.register}
                                         </Button>
                                     </Link>
                                 </>
@@ -152,22 +156,21 @@ export default function Welcome() {
                         <div className="mx-auto max-w-3xl text-center">
                             <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1 text-xs font-semibold text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/60 dark:text-blue-300">
                                 <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                                <span>Platform Penelitian Terintegrasi Standalone (RPL-2026)</span>
+                                <span>{t.welcome.platformBadge}</span>
                             </div>
 
                             <h1 className="mt-6 font-serif text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl dark:text-white">
-                                Tata Kelola Riset Akademik dan Monev Multi-Kampus PTMA
+                                {t.welcome.heroTitle}
                             </h1>
 
                             <p className="mt-6 text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-300">
-                                Sistem manajemen siklus riset mandiri: mulai dari pengusulan proposal terisolasi per institusi, penilaian
-                                independen berstandar akreditasi, pencairan dana berbasis gerbang Monev, hingga validasi luaran ilmiah nasional.
+                                {t.welcome.heroSubtitle}
                             </p>
 
                             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                                 <Link href={auth?.user ? route('dashboard') : route('login')}>
                                     <Button className="h-11 gap-2 rounded-lg bg-blue-900 px-6 text-sm font-semibold text-white shadow-sm hover:bg-blue-800">
-                                        <span>{auth?.user ? 'Buka Dashboard Riset' : 'Masuk ke SIM-Penelitian'}</span>
+                                        <span>{auth?.user ? t.welcome.dashboardCta : t.welcome.loginCta}</span>
                                         <ArrowRight className="h-4 w-4" />
                                     </Button>
                                 </Link>
@@ -178,7 +181,7 @@ export default function Welcome() {
                                         className="h-11 gap-2 rounded-lg border-slate-300 bg-white px-6 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                                     >
                                         <Layers className="h-4 w-4 text-blue-900 dark:text-blue-400" />
-                                        <span>Lihat Sistem Desain Internal</span>
+                                        <span>{t.welcome.previewDesignSystem}</span>
                                     </Button>
                                 </Link>
                             </div>
@@ -190,7 +193,7 @@ export default function Welcome() {
                 <section id="statistik" className="relative -mt-6 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <MetricCard
-                            title="Perguruan Tinggi Terintegrasi"
+                            title={t.welcome.participatingUniversities}
                             value={stats.totalUniversities || 0}
                             type="integer"
                             icon={Building2}
@@ -198,40 +201,40 @@ export default function Welcome() {
                             iconColorClass="text-blue-900"
                             badgeText="MULTI-TENANT"
                             badgeVariant="neutral"
-                            caption="Institusi kampus Muhammadiyah aktif"
+                            caption={t.welcome.participatingUniversitiesCaption}
                         />
                         <MetricCard
-                            title="Skema Riset Aktif"
+                            title={t.welcome.activeSchemesCount}
                             value={stats.totalSchemas || 0}
                             type="integer"
                             icon={BookOpen}
                             iconBgClass="bg-emerald-50"
                             iconColorClass="text-emerald-700"
-                            badgeText="KOMPETITIF"
+                            badgeText={t.welcome.competitiveBadge}
                             badgeVariant="success"
-                            caption="Hibah penelitian terbuka untuk dosen"
+                            caption={t.welcome.activeSchemesCaption}
                         />
                         <MetricCard
-                            title="Usulan Proposal"
+                            title={t.welcome.proposalsSubmitted}
                             value={stats.totalProposals || 0}
                             type="integer"
                             icon={FileText}
                             iconBgClass="bg-amber-50"
                             iconColorClass="text-amber-700"
-                            badgeText="TERDAFTAR"
+                            badgeText={t.welcome.registeredBadge}
                             badgeVariant="warning"
-                            caption="Proposal dalam siklus seleksi & monev"
+                            caption={t.welcome.proposalsCaption}
                         />
                         <MetricCard
-                            title="Luaran Terverifikasi"
+                            title={t.welcome.verifiedOutputs}
                             value={stats.totalOutputs || 0}
                             type="integer"
                             icon={Award}
                             iconBgClass="bg-purple-50"
                             iconColorClass="text-purple-700"
-                            badgeText="VALID"
+                            badgeText={t.welcome.validBadge}
                             badgeVariant="neutral"
-                            caption="Jurnal, buku, HKI, dan produk prototipe"
+                            caption={t.welcome.outputsCaption}
                         />
                     </div>
                 </section>
@@ -241,13 +244,13 @@ export default function Welcome() {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <span className="text-xs font-semibold tracking-wider text-emerald-700 uppercase dark:text-emerald-400">
-                                [SKEMA RISET TERBUKA]
+                                {t.welcome.openSchemesBadge}
                             </span>
                             <h2 className="mt-1 font-serif text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                                Skema Pendanaan Penelitian
+                                {t.welcome.schemesTitle}
                             </h2>
                             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                Daftar skema riset aktif yang dibuka untuk dosen dan peneliti di lingkungan PTMA.
+                                {t.welcome.schemesSubtitle}
                             </p>
                         </div>
 
@@ -256,7 +259,7 @@ export default function Welcome() {
                             <Search className="absolute top-2.5 left-3 h-4 w-4 text-slate-400" />
                             <input
                                 type="text"
-                                placeholder="Cari nama atau deskripsi skema..."
+                                placeholder={t.welcome.searchPlaceholder}
                                 value={searchFilter}
                                 onChange={(e) => setSearchFilter(e.target.value)}
                                 className="h-9 w-full rounded-lg border border-slate-200 bg-white pr-3 pl-9 text-xs text-slate-900 placeholder:text-slate-400 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
@@ -268,17 +271,17 @@ export default function Welcome() {
                         <div className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-900">
                             <BookOpen className="mx-auto h-10 w-10 text-slate-400" />
                             <h3 className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                Belum ada skema riset aktif yang cocok
+                                {t.welcome.noSchemesFound}
                             </h3>
                             <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                Silakan hubungi LPPM kampus terkait untuk jadwal pembukaan periode hibah berikutnya.
+                                {t.welcome.contactLppm}
                             </p>
                         </div>
                     ) : (
                         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {filteredSchemes.map((scheme) => {
-                                const title = scheme.nama_skema || scheme.name || 'Skema Riset';
-                                const description = scheme.deskripsi || scheme.description || 'Tidak ada deskripsi rinci.';
+                                const title = scheme.nama_skema || scheme.name || t.welcome.schemeFallback;
+                                const description = scheme.deskripsi || scheme.description || t.welcome.noDesc;
                                 const funding = Number(scheme.biaya_maksimal || scheme.max_funding || 0);
 
                                 return (
@@ -306,7 +309,7 @@ export default function Welcome() {
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
-                                                        Plafon Maksimal
+                                                        {t.welcome.maxFunding}
                                                     </span>
                                                     <div className="mt-0.5">
                                                         <TabularFigure value={funding} type="currency" className="text-base font-bold text-slate-900 dark:text-white" />
@@ -315,7 +318,7 @@ export default function Welcome() {
 
                                                 <Link href={auth?.user ? route('dashboard') : route('login')}>
                                                     <Button variant="outline" className="h-8 rounded-lg px-3 text-xs font-semibold text-blue-900 border-blue-200 hover:bg-blue-50 dark:text-blue-300 dark:border-blue-900">
-                                                        Ajukan
+                                                        {t.welcome.applyScheme}
                                                     </Button>
                                                 </Link>
                                             </div>
@@ -332,13 +335,13 @@ export default function Welcome() {
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="mx-auto max-w-2xl text-center">
                             <span className="text-xs font-semibold tracking-wider text-blue-900 uppercase dark:text-blue-400">
-                                [INVARIAN ARSITEKTUR REKAYASA]
+                                {t.welcome.architectureBadge}
                             </span>
                             <h2 className="mt-1 font-serif text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                                4 Pilar Tata Kelola Riset Akademik Terintegrasi
+                                {t.welcome.pillarsTitle}
                             </h2>
                             <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                                Dibangun berdasarkan rujukan baku RPL-2026 dan PRD Sistem Penelitian Terintegrasi Standalone.
+                                {t.welcome.pillarsSubtitle}
                             </p>
                         </div>
 
@@ -348,10 +351,10 @@ export default function Welcome() {
                                     <Building2 className="h-5 w-5" />
                                 </div>
                                 <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">
-                                    Isolasi Multi-Tenancy
+                                    {t.welcome.pillar1Title}
                                 </h3>
                                 <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-                                    Setiap transaksi dan data riset diisolasi ketat pada institusi terkait melalui kolom university_id dan TenantScope global Eloquent.
+                                    {t.welcome.pillar1Desc}
                                 </p>
                             </div>
 
@@ -360,10 +363,10 @@ export default function Welcome() {
                                     <Lock className="h-5 w-5" />
                                 </div>
                                 <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">
-                                    Monev Gatekeeper Lock
+                                    {t.welcome.pillar2Title}
                                 </h3>
                                 <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-                                    Pencairan dana Termin 2 (30%) diblokir secara absolut di level backend hingga laporan kemajuan Monev disetujui reviewer.
+                                    {t.welcome.pillar2Desc}
                                 </p>
                             </div>
 
@@ -372,10 +375,10 @@ export default function Welcome() {
                                     <ShieldCheck className="h-5 w-5" />
                                 </div>
                                 <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">
-                                    Conflict of Interest Guard
+                                    {t.welcome.pillar3Title}
                                 </h3>
                                 <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-                                    Penugasan reviewer menggagalkan plotting otomatis jika reviewer merupakan pengusul utama atau anggota tim usulan riset.
+                                    {t.welcome.pillar3Desc}
                                 </p>
                             </div>
 
@@ -384,10 +387,10 @@ export default function Welcome() {
                                     <CheckCircle2 className="h-5 w-5" />
                                 </div>
                                 <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">
-                                    Deduplikasi Luaran Ilmiah
+                                    {t.welcome.pillar4Title}
                                 </h3>
                                 <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-                                    Validasi keunikan nomor registrasi kanonikal (DOI, ISBN, nomor registrasi HKI) per institusi untuk mencegah klaim ganda.
+                                    {t.welcome.pillar4Desc}
                                 </p>
                             </div>
                         </div>
@@ -404,31 +407,31 @@ export default function Welcome() {
                                 </div>
                                 <div>
                                     <p className="font-serif text-sm font-bold text-slate-900 dark:text-white">
-                                        SIM-Penelitian PTMA
+                                        {t.common.appName}
                                     </p>
                                     <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                                        Majelis Pendidikan Tinggi Penelitian dan Pengembangan PP Muhammadiyah
+                                        {t.welcome.footerInstitution}
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-center gap-4 text-xs font-medium text-slate-500 dark:text-slate-400">
                                 <Link href={route('login')} className="hover:text-blue-900 dark:hover:text-white">
-                                    Masuk
+                                    {t.navigation.login}
                                 </Link>
                                 <span className="text-slate-300 dark:text-slate-700">|</span>
                                 <Link href={route('register')} className="hover:text-blue-900 dark:hover:text-white">
-                                    Registrasi
+                                    {t.navigation.register}
                                 </Link>
                                 <span className="text-slate-300 dark:text-slate-700">|</span>
                                 <Link href={route('design-system-preview')} className="hover:text-blue-900 dark:hover:text-white">
-                                    Sistem Desain
+                                    {t.welcome.designSystemNav}
                                 </Link>
                             </div>
                         </div>
 
                         <div className="mt-8 border-t border-slate-200/60 pt-6 text-center text-xs text-slate-400 dark:border-slate-800">
-                            RPL-2026 Sistem Penelitian Terintegrasi Standalone. Bebas 100% dari Modul Legacy OJS/JurnalMu.
+                            {t.welcome.footerNotice}
                         </div>
                     </div>
                 </footer>
