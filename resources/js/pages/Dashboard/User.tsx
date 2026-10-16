@@ -370,7 +370,7 @@ export default function UserDashboard({ stats: _stats, proposal_stats }: UserDas
                             Anda belum mengajukan proposal penelitian apapun. Mulai dengan membuat proposal pertama Anda.
                         </p>
                         <Link
-                            href={route('user.pembinaan.akreditasi')}
+                            href={route('proposals.create')}
                             id="btn-buat-proposal"
                             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
                         >
