@@ -553,6 +553,7 @@ export const en = {
     draftSavedMessage: 'Evaluation draft has been saved locally.',
     missingCriteriaNotice: 'Please ensure all evaluation criteria are scored.',
     noPdfAvailable: 'Proposal PDF document is not currently available.',
+    validationErrorTitle: 'Evaluation Submission Error',
   },
   reviewerAssign: {
     pageTitle: 'Reviewer Assignment',

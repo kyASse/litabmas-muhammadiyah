@@ -140,7 +140,7 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
     }, [aggregateScore, t]);
 
     // Inertia form submission
-    const { post, processing } = useForm();
+    const { post, processing, errors, transform } = useForm();
 
     const isNotesValid = notes.trim().length >= 50;
     const isFormComplete =
@@ -217,8 +217,8 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
             skor_total: aggregateScore,
         };
 
+        transform(() => payload);
         post(route('reviewer.assignments.submit-review', review.id), {
-            data: payload,
             onSuccess: () => {
                 localStorage.removeItem(`review_draft_${review.id}`);
             },
@@ -273,6 +273,23 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
     // Right pane: Interactive Evaluation Rubric Form Content
     const formContent = (
         <form onSubmit={handleSubmitFinal} className="space-y-6">
+            {/* Server-Side Validation Errors Banner */}
+            {Object.keys(errors).length > 0 && (
+                <div className="rounded-md border-2 border-rose-500 bg-rose-50 p-3.5 text-rose-900 shadow-xs space-y-1.5">
+                    <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-rose-800 font-sans">
+                            {t.reviewerWorkspace.validationErrorTitle}
+                        </h4>
+                    </div>
+                    <ul className="list-disc list-inside text-xs text-rose-700 pl-1 space-y-1 font-sans">
+                        {Object.entries(errors).map(([field, message]) => (
+                            <li key={field}>{message}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+
             {/* Header / Instructions */}
             <div className="border-b border-slate-200 pb-3">
                 <div className="flex items-center gap-2">

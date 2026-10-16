@@ -555,6 +555,7 @@ export const id: TranslationType = {
     draftSavedMessage: 'Draf penilaian berhasil disimpan secara lokal.',
     missingCriteriaNotice: 'Pastikan seluruh kriteria evaluasi telah diberikan nilai.',
     noPdfAvailable: 'Dokumen proposal PDF tidak tersedia saat ini.',
+    validationErrorTitle: 'Galat Pengiriman Evaluasi',
   },
   reviewerAssign: {
     pageTitle: 'Penunjukan Reviewer',
