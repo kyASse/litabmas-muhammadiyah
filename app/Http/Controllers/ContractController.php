@@ -50,6 +50,7 @@ class ContractController extends Controller
             ->with([
                 'university:id,name,short_name,code',
                 'proposal.user:id,name,email',
+                'proposal.researchSchema:id,nama_skema,biaya_maksimal',
                 'fundings',
             ])
             ->withCount('fundings')
@@ -101,6 +102,12 @@ class ContractController extends Controller
                         'id' => $contract->proposal->id,
                         'judul_penelitian' => $contract->proposal->judul_penelitian,
                         'status_proposal' => $contract->proposal->status_proposal,
+                        'biaya_yang_diusulkan' => (float) ($contract->proposal->biaya_yang_diusulkan ?? 0),
+                        'research_schema' => $contract->proposal->researchSchema ? [
+                            'id' => $contract->proposal->researchSchema->id,
+                            'nama_skema' => $contract->proposal->researchSchema->nama_skema,
+                            'biaya_maksimal' => (float) ($contract->proposal->researchSchema->biaya_maksimal ?? 0),
+                        ] : null,
                         'pengusul' => $contract->proposal->user ? [
                             'id' => $contract->proposal->user->id,
                             'name' => $contract->proposal->user->name,
@@ -111,6 +118,20 @@ class ContractController extends Controller
                     'pembinaan' => null,
                 ];
             });
+
+        $eligibleProposals = Proposal::query()
+            ->where('status_proposal', Proposal::STATUS_LOLOS_DIDANAI)
+            ->whereDoesntHave('contract')
+            ->with(['user:id,name,email', 'researchSchema:id,nama_skema,biaya_maksimal'])
+            ->get(['id', 'judul_penelitian', 'id_pengusul', 'id_skema_pendanaan', 'biaya_yang_diusulkan'])
+            ->map(fn (Proposal $p) => [
+                'id' => $p->id,
+                'judul_penelitian' => $p->judul_penelitian,
+                'pengusul_nama' => $p->user?->name,
+                'skema_nama' => $p->researchSchema?->nama_skema,
+                'biaya_diusulkan' => (float) ($p->biaya_yang_diusulkan ?? 0),
+                'pagu_maksimal' => (float) ($p->researchSchema?->biaya_maksimal ?? 0),
+            ]);
 
         return Inertia::render('Finance/Contract/Index', [
             'contracts' => $contracts,
@@ -124,6 +145,7 @@ class ContractController extends Controller
             'universities' => University::query()
                 ->orderBy('name')
                 ->get(['id', 'name', 'code']),
+            'eligibleProposals' => $eligibleProposals,
             'pembinaanPrograms' => [],
             'statusOptions' => collect(Contract::getStatusOptions())
                 ->map(fn (string $label, string $value) => [
@@ -162,10 +184,13 @@ class ContractController extends Controller
             'university',
             'proposal.user',
             'proposal.researchSchema',
+            'proposal.progressReports',
             'fundings',
             'creator',
             'updater',
         ]);
+
+        $isMonevApproved = (bool) ($contract->proposal?->progressReports?->contains(fn ($report) => $report->status_laporan === 'Approved'));
 
         return Inertia::render('Finance/Contract/Show', [
             'contract' => [
@@ -186,6 +211,7 @@ class ContractController extends Controller
                 'terms' => $contract->terms,
                 'notes' => $contract->notes,
                 'file_dokumen_kontrak' => $contract->file_dokumen_kontrak,
+                'is_monev_approved' => $isMonevApproved,
                 'university' => $contract->university ? [
                     'id' => $contract->university->id,
                     'name' => $contract->university->name,
@@ -195,6 +221,12 @@ class ContractController extends Controller
                     'id' => $contract->proposal->id,
                     'judul_penelitian' => $contract->proposal->judul_penelitian,
                     'status_proposal' => $contract->proposal->status_proposal,
+                    'biaya_yang_diusulkan' => (float) ($contract->proposal->biaya_yang_diusulkan ?? 0),
+                    'research_schema' => $contract->proposal->researchSchema ? [
+                        'id' => $contract->proposal->researchSchema->id,
+                        'nama_skema' => $contract->proposal->researchSchema->nama_skema,
+                        'biaya_maksimal' => (float) ($contract->proposal->researchSchema->biaya_maksimal ?? 0),
+                    ] : null,
                     'pengusul' => $contract->proposal->user ? [
                         'id' => $contract->proposal->user->id,
                         'name' => $contract->proposal->user->name,

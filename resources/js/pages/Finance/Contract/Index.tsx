@@ -1,15 +1,42 @@
-import { Badge } from '@/components/ui/badge';
+import React, { useState, FormEvent } from 'react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout';
+import PageHeader from '@/components/ui/PageHeader';
+import TabularFigure from '@/components/ui/TabularFigure';
+import StatusBadge, { BadgeStatusType } from '@/components/ui/StatusBadge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import AppLayout from '@/layouts/app-layout';
-import { cn } from '@/lib/utils';
-import { type BreadcrumbItem } from '@/types';
-import { Head, router } from '@inertiajs/react';
-import { Building2, CalendarDays, ChevronLeft, ChevronRight, ClipboardList, FileText, FilterX, Search } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
+import { BreadcrumbItem } from '@/types';
+import {
+    FileText,
+    Search,
+    FilterX,
+    PlusCircle,
+    Building2,
+    User,
+    CalendarDays,
+    ChevronLeft,
+    ChevronRight,
+    ArrowUpRight,
+    UploadCloud,
+    AlertTriangle,
+    Layers,
+    DollarSign,
+    CheckCircle2,
+} from 'lucide-react';
 
 interface PaginationLink {
     url: string | null;
@@ -33,19 +60,34 @@ interface University {
     code: string;
 }
 
-interface PembinaanProgram {
+interface ProposalItem {
     id: number;
-    name: string;
-    category: string;
+    judul_penelitian: string;
+    status_proposal: string;
+    biaya_yang_diusulkan?: number;
+    research_schema?: {
+        id: number;
+        nama_skema: string;
+        biaya_maksimal: number;
+    } | null;
+    pengusul?: {
+        id: number;
+        name: string;
+        email: string;
+    } | null;
 }
 
-interface Contract {
+interface ContractItem {
     id: number;
+    nomor_kontrak: string;
     contract_number: string;
+    judul_kontrak: string;
     title: string;
     status: string;
+    status_kontrak: string;
     status_label: string;
     status_color: string;
+    dana_disetujui: number;
     contract_value: number;
     party_1: string | null;
     party_2: string | null;
@@ -53,12 +95,22 @@ interface Contract {
     disbursed_total: number;
     funding_progress: number;
     fundings_count: number;
+    tanggal_kontrak?: string | null;
     start_date?: string | null;
     end_date?: string | null;
     signed_at?: string | null;
     created_at: string;
     university: University;
-    pembinaan?: PembinaanProgram | null;
+    proposal?: ProposalItem | null;
+}
+
+interface EligibleProposal {
+    id: number;
+    judul_penelitian: string;
+    pengusul_nama?: string | null;
+    skema_nama?: string | null;
+    biaya_diusulkan: number;
+    pagu_maksimal: number;
 }
 
 interface FilterOption {
@@ -67,12 +119,11 @@ interface FilterOption {
 }
 
 interface Props {
-    contracts: Paginated<Contract>;
+    contracts: Paginated<ContractItem>;
     filters: {
         search?: string;
         status?: string;
         university_id?: number | string;
-        pembinaan_id?: number | string;
     };
     summary: {
         total_contracts: number;
@@ -81,102 +132,95 @@ interface Props {
         outstanding_value: number;
     };
     universities: University[];
-    pembinaanPrograms: PembinaanProgram[];
+    eligibleProposals?: EligibleProposal[];
     statusOptions: FilterOption[];
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-    {
-        title: 'Keuangan',
-        href: '/finance/contracts',
-    },
-    {
-        title: 'Kontrak',
-        href: '/finance/contracts',
-    },
-];
-
-const currencyFormatter = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-});
-
-const dateFormatter = new Intl.DateTimeFormat('id-ID', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-});
-
-const statusClassNames: Record<string, string> = {
-    green: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300',
-    blue: 'border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-900 dark:bg-sky-950/50 dark:text-sky-300',
-    red: 'border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300',
-    gray: 'border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300',
-};
-
-function formatCurrency(value: number) {
-    return currencyFormatter.format(value || 0);
+function mapStatusToBadge(status: string): { type: BadgeStatusType; label: string } {
+    const s = status.toLowerCase();
+    if (s === 'draft') return { type: 'Draft', label: '[DRAFT]' };
+    if (s === 'active' || s === 'aktif') return { type: 'Contracted', label: '[ACTIVE]' };
+    if (s === 'signed' || s === 'ditandatangani') return { type: 'Contracted', label: '[SIGNED]' };
+    if (s === 'selesai' || s === 'completed') return { type: 'Completed_SKTS', label: '[SELESAI]' };
+    if (s === 'dibatalkan' || s === 'terminated') return { type: 'Terminated', label: '[DIBATALKAN]' };
+    return { type: 'Draft', label: `[${status.toUpperCase()}]` };
 }
 
-function formatDate(value?: string | null) {
-    if (!value) {
-        return '-';
-    }
+export default function ContractIndex({
+    contracts,
+    filters,
+    summary,
+    universities,
+    eligibleProposals = [],
+    statusOptions,
+}: Props) {
+    const { t } = useTranslation();
 
-    return dateFormatter.format(new Date(`${value}T00:00:00`));
-}
-
-function formatCategory(category?: string) {
-    if (!category) {
-        return null;
-    }
-
-    return category === 'akreditasi' ? 'Akreditasi' : 'Indeksasi';
-}
-
-function formatPeriod(startDate?: string | null, endDate?: string | null) {
-    if (!startDate && !endDate) {
-        return 'Belum ditentukan';
-    }
-
-    if (!startDate) {
-        return `Sampai ${formatDate(endDate)}`;
-    }
-
-    if (!endDate) {
-        return `Mulai ${formatDate(startDate)}`;
-    }
-
-    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
-}
-
-function cleanPaginationLabel(label: string) {
-    return label.replace('&laquo;', '').replace('&raquo;', '').trim();
-}
-
-export default function ContractIndex({ contracts, filters, summary, universities, pembinaanPrograms, statusOptions }: Props) {
     const [search, setSearch] = useState(filters.search || '');
     const [status, setStatus] = useState(filters.status || '');
     const [universityId, setUniversityId] = useState(filters.university_id?.toString() || '');
-    const [pembinaanId, setPembinaanId] = useState(filters.pembinaan_id?.toString() || '');
+    const [issueModalOpen, setIssueModalOpen] = useState(false);
 
-    const hasActiveFilters = Boolean(search || status || universityId || pembinaanId);
+    // Form Penerbitan Kontrak dengan Budget Cut Adjustment
+    const {
+        data: issueData,
+        setData: setIssueData,
+        post: postIssue,
+        processing: issueProcessing,
+        errors: issueErrors,
+        reset: resetIssue,
+    } = useForm({
+        id_proposal: '',
+        dana_disetujui: '',
+        tanggal_kontrak: new Date().toISOString().split('T')[0],
+        nomor_kontrak: '',
+    });
+
+    const selectedProposal = eligibleProposals.find((p) => p.id.toString() === issueData.id_proposal);
+
+    const handleProposalChange = (proposalId: string) => {
+        setIssueData((prev) => {
+            const found = eligibleProposals.find((p) => p.id.toString() === proposalId);
+            return {
+                ...prev,
+                id_proposal: proposalId,
+                dana_disetujui: found ? found.biaya_diusulkan.toString() : '',
+            };
+        });
+    };
+
+    const handleIssueSubmit = (e: FormEvent) => {
+        e.preventDefault();
+        postIssue(route('contracts.store'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIssueModalOpen(false);
+                resetIssue();
+            },
+        });
+    };
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t.navigation.dashboard,
+            href: '/dashboard',
+        },
+        {
+            title: t.contracts.pageTitle,
+            href: '/contracts',
+        },
+    ];
+
+    const hasActiveFilters = Boolean(search || status || universityId);
 
     const submitFilters = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
         router.get(
-            route('finance.contracts.index'),
+            route('contracts.index'),
             {
                 search,
                 status,
                 university_id: universityId,
-                pembinaan_id: pembinaanId,
             },
             {
                 preserveScroll: true,
@@ -189,137 +233,158 @@ export default function ContractIndex({ contracts, filters, summary, universitie
         setSearch('');
         setStatus('');
         setUniversityId('');
-        setPembinaanId('');
-        router.get(route('finance.contracts.index'));
+        router.get(route('contracts.index'));
     };
 
-    const summaryItems = [
-        {
-            label: 'Total Kontrak',
-            value: summary.total_contracts.toLocaleString('id-ID'),
-            detail: `${contracts.total.toLocaleString('id-ID')} sesuai filter`,
-            icon: FileText,
-            tone: 'border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900/60',
-        },
-        {
-            label: 'Nilai Kontrak',
-            value: formatCurrency(summary.contract_value),
-            detail: 'Akumulasi kontrak',
-            icon: ClipboardList,
-            tone: 'border-sky-200 bg-sky-50 dark:border-sky-900 dark:bg-sky-950/40',
-        },
-        {
-            label: 'Dana Dicairkan',
-            value: formatCurrency(summary.disbursed_value),
-            detail: 'Funding status dicairkan',
-            icon: Building2,
-            tone: 'border-emerald-200 bg-emerald-50 dark:border-emerald-900 dark:bg-emerald-950/40',
-        },
-        {
-            label: 'Outstanding',
-            value: formatCurrency(summary.outstanding_value),
-            detail: 'Belum terealisasi',
-            icon: CalendarDays,
-            tone: 'border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/40',
-        },
-    ];
+    const cleanPaginationLabel = (label: string) => {
+        return label.replace('&laquo;', '').replace('&raquo;', '').trim();
+    };
+
+    // Kalkulasi pemotongan anggaran (Budget Cut)
+    const proposedNum = selectedProposal?.biaya_diusulkan || 0;
+    const approvedNum = parseFloat(issueData.dana_disetujui) || 0;
+    const paguNum = selectedProposal?.pagu_maksimal || 0;
+    const isPaguExceeded = paguNum > 0 && approvedNum > paguNum;
+    const budgetCutAmount = proposedNum - approvedNum;
+    const budgetCutPercent = proposedNum > 0 ? ((budgetCutAmount / proposedNum) * 100).toFixed(1) : '0';
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Manajemen Kontrak" />
+            <Head title={t.contracts.pageTitle} />
 
-            <div className="flex h-full flex-1 flex-col gap-5 overflow-x-auto p-4">
-                <header className="flex flex-col gap-4 border-b border-sidebar-border/70 pb-5 lg:flex-row lg:items-center lg:justify-between dark:border-sidebar-border">
-                    <div>
-                        <div className="flex items-center gap-3">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-800 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100">
-                                <FileText className="h-5 w-5" />
-                            </div>
-                            <div>
-                                <h1 className="text-2xl font-semibold tracking-normal text-foreground">Manajemen Kontrak</h1>
-                                <p className="text-sm text-muted-foreground">Monitoring kontrak dan realisasi pendanaan untuk Admin Keuangan.</p>
-                            </div>
+            <div className="flex h-full flex-1 flex-col gap-6 p-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <PageHeader
+                        title={t.contracts.pageTitle}
+                        subtitle={t.contracts.pageSubtitle}
+                    />
+                    <div className="flex items-center gap-2">
+                        <Button
+                            onClick={() => setIssueModalOpen(true)}
+                            className="bg-slate-900 text-white hover:bg-slate-800 gap-2 font-medium"
+                        >
+                            <PlusCircle className="h-4 w-4" />
+                            {t.contracts.issueContractBtn}
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Ringkasan Finansial Kontrak */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+                            Total Kontrak
+                        </span>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <span className="font-mono text-2xl font-bold text-slate-900">
+                                {summary.total_contracts}
+                            </span>
+                            <span className="text-xs text-slate-500 font-mono">
+                                {contracts.total} sesuai filter
+                            </span>
                         </div>
                     </div>
-                </header>
 
-                <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                    {summaryItems.map((item) => {
-                        const Icon = item.icon;
+                    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+                            Nilai Kontrak Disetujui
+                        </span>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <TabularFigure
+                                value={summary.contract_value}
+                                type="currency"
+                                size="xl"
+                                weight="bold"
+                                className="text-slate-900 font-semibold"
+                            />
+                            <span className="text-xs text-slate-500 font-mono">
+                                Akumulasi nilai
+                            </span>
+                        </div>
+                    </div>
 
-                        return (
-                            <div key={item.label} className={cn('rounded-lg border p-4', item.tone)}>
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <p className="text-sm font-medium text-muted-foreground">{item.label}</p>
-                                        <p className="mt-2 truncate text-xl font-semibold text-foreground">{item.value}</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>
-                                    </div>
-                                    <Icon className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                </div>
-                            </div>
-                        );
-                    })}
-                </section>
+                    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+                            Dana Terealisasi
+                        </span>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <TabularFigure
+                                value={summary.disbursed_value}
+                                type="currency"
+                                size="xl"
+                                weight="bold"
+                                className="text-emerald-700 font-semibold"
+                            />
+                            <span className="text-xs text-emerald-600 font-mono">
+                                Cair ke peneliti
+                            </span>
+                        </div>
+                    </div>
 
-                <section className="rounded-lg border border-sidebar-border/70 bg-card p-4 dark:border-sidebar-border">
-                    <form onSubmit={submitFilters} className="grid gap-3 lg:grid-cols-[minmax(220px,1fr)_180px_240px_240px_auto]">
+                    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
+                            Outstanding Dana
+                        </span>
+                        <div className="mt-2 flex items-baseline justify-between">
+                            <TabularFigure
+                                value={summary.outstanding_value}
+                                type="currency"
+                                size="xl"
+                                weight="bold"
+                                className="text-amber-700 font-semibold"
+                            />
+                            <span className="text-xs text-amber-600 font-mono">
+                                Belum terealisasi
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filter Bar */}
+                <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+                    <form onSubmit={submitFilters} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_200px_240px_auto]">
                         <div className="relative">
-                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
                             <Input
                                 value={search}
-                                onChange={(event) => setSearch(event.target.value)}
-                                placeholder="Cari nomor kontrak, judul, atau PTMA"
-                                className="pl-9"
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder={t.contracts.searchPlaceholder}
+                                className="pl-9 text-sm font-sans"
                             />
                         </div>
 
-                        <Select value={status || 'all'} onValueChange={(value) => setStatus(value === 'all' ? '' : value)}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Semua status" />
+                        <Select value={status || 'all'} onValueChange={(val) => setStatus(val === 'all' ? '' : val)}>
+                            <SelectTrigger className="text-sm font-sans">
+                                <SelectValue placeholder={t.contracts.filterStatus} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Semua status</SelectItem>
-                                {statusOptions.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                        {option.label}
+                                <SelectItem value="all">{t.contracts.allStatuses}</SelectItem>
+                                {statusOptions.map((opt) => (
+                                    <SelectItem key={opt.value} value={opt.value}>
+                                        {opt.label}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
 
-                        <Select value={universityId || 'all'} onValueChange={(value) => setUniversityId(value === 'all' ? '' : value)}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Semua PTMA" />
+                        <Select value={universityId || 'all'} onValueChange={(val) => setUniversityId(val === 'all' ? '' : val)}>
+                            <SelectTrigger className="text-sm font-sans">
+                                <SelectValue placeholder="Semua Perguruan Tinggi" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Semua PTMA</SelectItem>
-                                {universities.map((university) => (
-                                    <SelectItem key={university.id} value={university.id.toString()}>
-                                        {university.short_name || university.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-
-                        <Select value={pembinaanId || 'all'} onValueChange={(value) => setPembinaanId(value === 'all' ? '' : value)}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Semua program" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Semua program</SelectItem>
-                                {pembinaanPrograms.map((program) => (
-                                    <SelectItem key={program.id} value={program.id.toString()}>
-                                        {program.name}
+                                <SelectItem value="all">Semua Perguruan Tinggi</SelectItem>
+                                {universities.map((u) => (
+                                    <SelectItem key={u.id} value={u.id.toString()}>
+                                        {u.short_name || u.name}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
 
                         <div className="flex gap-2">
-                            <Button type="submit" className="gap-2">
+                            <Button type="submit" variant="default" className="gap-2 bg-slate-900 hover:bg-slate-800">
                                 <Search className="h-4 w-4" />
-                                Filter
+                                {t.common.filter}
                             </Button>
                             {hasActiveFilters && (
                                 <Button type="button" variant="outline" size="icon" onClick={clearFilters} aria-label="Reset filter">
@@ -328,156 +393,156 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                             )}
                         </div>
                     </form>
-                </section>
+                </div>
 
-                <section className="hidden overflow-hidden rounded-lg border border-sidebar-border/70 bg-card lg:block dark:border-sidebar-border">
+                {/* Tabel Kontrak */}
+                <div className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
                     <Table>
                         <TableHeader>
-                            <TableRow>
-                                <TableHead>Kontrak</TableHead>
-                                <TableHead>PTMA</TableHead>
-                                <TableHead>Program</TableHead>
-                                <TableHead>Pihak</TableHead>
-                                <TableHead>Periode</TableHead>
-                                <TableHead className="text-right">Nilai</TableHead>
-                                <TableHead>Realisasi</TableHead>
-                                <TableHead>Status</TableHead>
+                            <TableRow className="bg-slate-50/80">
+                                <TableHead className="w-12 text-center">{t.contracts.tableColNo}</TableHead>
+                                <TableHead>{t.contracts.tableColNumber} & {t.contracts.tableColProposal}</TableHead>
+                                <TableHead>{t.contracts.institution} & {t.contracts.leadResearcher}</TableHead>
+                                <TableHead className="text-right">Pagu / Usulan</TableHead>
+                                <TableHead className="text-right">{t.contracts.tableColApprovedBudget}</TableHead>
+                                <TableHead className="min-w-44">Realisasi Pencairan</TableHead>
+                                <TableHead>{t.contracts.tableColStatus}</TableHead>
+                                <TableHead className="text-center">{t.contracts.tableColActions}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {contracts.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="py-12 text-center">
-                                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                                            <FileText className="h-10 w-10 text-muted-foreground/50" />
-                                            <p className="font-medium">Belum ada kontrak yang cocok dengan filter.</p>
-                                        </div>
+                                    <TableCell colSpan={8} className="py-12 text-center text-slate-500">
+                                        <FileText className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+                                        <p className="font-medium">{t.contracts.emptyList}</p>
+                                        <p className="text-xs text-slate-400 mt-1">{t.contracts.emptySubtitle}</p>
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                contracts.data.map((contract) => (
-                                    <TableRow key={contract.id}>
-                                        <TableCell className="min-w-72">
-                                            <div className="space-y-1">
-                                                <p className="font-medium text-foreground">{contract.title}</p>
-                                                <p className="text-xs text-muted-foreground">{contract.contract_number}</p>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="space-y-1">
-                                                <p className="font-medium">{contract.university.short_name || contract.university.code}</p>
-                                                <p className="max-w-56 truncate text-xs text-muted-foreground">{contract.university.name}</p>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            {contract.pembinaan ? (
+                                contracts.data.map((contract, index) => {
+                                    const badgeInfo = mapStatusToBadge(contract.status_kontrak || contract.status);
+                                    const maxBudget = contract.proposal?.research_schema?.biaya_maksimal || 0;
+                                    const proposedBudget = contract.proposal?.biaya_yang_diusulkan || 0;
+
+                                    return (
+                                        <TableRow key={contract.id} className="hover:bg-slate-50/60">
+                                            <TableCell className="text-center font-mono text-xs text-slate-500">
+                                                {(contracts.current_page - 1) * contracts.per_page + index + 1}
+                                            </TableCell>
+                                            <TableCell className="min-w-64 max-w-sm">
                                                 <div className="space-y-1">
-                                                    <p className="max-w-56 truncate font-medium">{contract.pembinaan.name}</p>
-                                                    <p className="text-xs text-muted-foreground">{formatCategory(contract.pembinaan.category)}</p>
+                                                    <Link
+                                                        href={route('contracts.show', contract.id)}
+                                                        className="font-mono text-xs font-semibold text-sky-800 hover:underline block"
+                                                    >
+                                                        {contract.nomor_kontrak || contract.contract_number}
+                                                    </Link>
+                                                    <p className="font-medium text-xs text-slate-900 line-clamp-2">
+                                                        {contract.judul_kontrak || contract.title}
+                                                    </p>
+                                                    {contract.proposal?.research_schema && (
+                                                        <span className="inline-block text-[11px] font-sans px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                                                            {contract.proposal.research_schema.nama_skema}
+                                                        </span>
+                                                    )}
                                                 </div>
-                                            ) : (
-                                                <span className="text-muted-foreground">-</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="space-y-1 text-sm">
-                                                <p className="font-medium">{contract.party_1 || '-'}</p>
-                                                <p className="text-xs text-muted-foreground">{contract.party_2 || '-'}</p>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="text-sm whitespace-nowrap">
-                                            {formatPeriod(contract.start_date, contract.end_date)}
-                                        </TableCell>
-                                        <TableCell className="text-right font-medium">{formatCurrency(contract.contract_value)}</TableCell>
-                                        <TableCell className="min-w-56">
-                                            <div className="space-y-2">
-                                                <div className="flex items-center justify-between gap-3 text-xs">
-                                                    <span className="text-muted-foreground">{formatCurrency(contract.disbursed_total)}</span>
-                                                    <span className="font-medium">{contract.funding_progress}%</span>
+                                            </TableCell>
+                                            <TableCell className="min-w-44">
+                                                <div className="space-y-1 text-xs">
+                                                    <p className="font-medium text-slate-800 flex items-center gap-1.5">
+                                                        <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                        <span className="truncate">{contract.proposal?.pengusul?.name || contract.party_2 || '-'}</span>
+                                                    </p>
+                                                    <p className="text-slate-500 flex items-center gap-1.5">
+                                                        <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                        <span className="truncate">{contract.university.short_name || contract.university.name}</span>
+                                                    </p>
                                                 </div>
-                                                <Progress value={contract.funding_progress} className="h-2" />
-                                                <p className="text-xs text-muted-foreground">{contract.fundings_count} pencatatan funding</p>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant="outline"
-                                                className={cn('border', statusClassNames[contract.status_color] || statusClassNames.gray)}
-                                            >
-                                                {contract.status_label}
-                                            </Badge>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="space-y-1">
+                                                    <div>
+                                                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Pagu</span>
+                                                        <TabularFigure
+                                                            value={maxBudget}
+                                                            type="currency"
+                                                            size="sm"
+                                                            className="text-slate-600 font-medium"
+                                                        />
+                                                    </div>
+                                                    {proposedBudget > 0 && (
+                                                        <div>
+                                                            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Usulan</span>
+                                                            <TabularFigure
+                                                                value={proposedBudget}
+                                                                type="currency"
+                                                                size="sm"
+                                                                className="text-slate-500 text-xs"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <TabularFigure
+                                                    value={contract.dana_disetujui || contract.contract_value}
+                                                    type="currency"
+                                                    size="sm"
+                                                    weight="bold"
+                                                    className="text-slate-900"
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <div className="space-y-1.5">
+                                                    <div className="flex items-center justify-between text-xs">
+                                                        <TabularFigure
+                                                            value={contract.disbursed_total}
+                                                            type="currency"
+                                                            size="sm"
+                                                            className="text-slate-600"
+                                                        />
+                                                        <span className="font-mono text-xs font-semibold text-slate-700">
+                                                            {contract.funding_progress}%
+                                                        </span>
+                                                    </div>
+                                                    <Progress value={contract.funding_progress} className="h-1.5" />
+                                                    <p className="text-[11px] text-slate-500 font-mono">
+                                                        {contract.fundings_count} termin pencairan (70:30)
+                                                    </p>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <StatusBadge
+                                                    status={badgeInfo.type}
+                                                    labelOverride={badgeInfo.label}
+                                                    size="sm"
+                                                />
+                                            </TableCell>
+                                            <TableCell className="text-center">
+                                                <Link
+                                                    href={route('contracts.show', contract.id)}
+                                                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+                                                >
+                                                    <span>{t.contracts.viewDetailBtn}</span>
+                                                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
+                                                </Link>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })
                             )}
                         </TableBody>
                     </Table>
-                </section>
+                </div>
 
-                <section className="grid gap-3 lg:hidden">
-                    {contracts.data.length === 0 ? (
-                        <div className="rounded-lg border border-sidebar-border/70 bg-card p-8 text-center dark:border-sidebar-border">
-                            <FileText className="mx-auto h-10 w-10 text-muted-foreground/50" />
-                            <p className="mt-3 font-medium text-muted-foreground">Belum ada kontrak yang cocok dengan filter.</p>
-                        </div>
-                    ) : (
-                        contracts.data.map((contract) => (
-                            <article key={contract.id} className="rounded-lg border border-sidebar-border/70 bg-card p-4 dark:border-sidebar-border">
-                                <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                        <p className="font-semibold text-foreground">{contract.title}</p>
-                                        <p className="mt-1 text-xs text-muted-foreground">{contract.contract_number}</p>
-                                    </div>
-                                    <Badge
-                                        variant="outline"
-                                        className={cn('shrink-0 border', statusClassNames[contract.status_color] || statusClassNames.gray)}
-                                    >
-                                        {contract.status_label}
-                                    </Badge>
-                                </div>
-
-                                <div className="mt-4 grid gap-3 text-sm">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <span className="text-muted-foreground">PTMA</span>
-                                        <span className="text-right font-medium">{contract.university.short_name || contract.university.name}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between gap-3">
-                                        <span className="text-muted-foreground">Pihak 1</span>
-                                        <span className="text-right font-medium">{contract.party_1 || '-'}</span>
-                                    </div>
-
-                                    <div className="flex items-center justify-between gap-3">
-                                        <span className="text-muted-foreground">Pihak 2</span>
-                                        <span className="text-right font-medium">{contract.party_2 || '-'}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between gap-3">
-                                        <span className="text-muted-foreground">Nilai</span>
-                                        <span className="text-right font-medium">{formatCurrency(contract.contract_value)}</span>
-                                    </div>
-                                    <div className="flex items-center justify-between gap-3">
-                                        <span className="text-muted-foreground">Periode</span>
-                                        <span className="text-right font-medium">{formatPeriod(contract.start_date, contract.end_date)}</span>
-                                    </div>
-                                </div>
-
-                                <div className="mt-4 space-y-2">
-                                    <div className="flex items-center justify-between text-xs">
-                                        <span className="text-muted-foreground">Realisasi {formatCurrency(contract.disbursed_total)}</span>
-                                        <span className="font-medium">{contract.funding_progress}%</span>
-                                    </div>
-                                    <Progress value={contract.funding_progress} className="h-2" />
-                                </div>
-                            </article>
-                        ))
-                    )}
-                </section>
-
+                {/* Pagination */}
                 {contracts.last_page > 1 && (
-                    <div className="flex flex-col gap-3 border-t border-sidebar-border/70 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-sidebar-border">
-                        <p className="text-sm text-muted-foreground">
-                            Halaman {contracts.current_page} dari {contracts.last_page}
+                    <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                        <p className="text-xs font-mono text-slate-500">
+                            Halaman {contracts.current_page} dari {contracts.last_page} (Total {contracts.total} kontrak)
                         </p>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-1.5">
                             {contracts.links.map((link, index) => {
                                 if (link.label === '&laquo; Previous') {
                                     return (
@@ -488,9 +553,10 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                             size="sm"
                                             disabled={!link.url}
                                             onClick={() => link.url && router.visit(link.url)}
+                                            className="text-xs h-8"
                                         >
-                                            <ChevronLeft className="h-4 w-4" />
-                                            Previous
+                                            <ChevronLeft className="h-3.5 w-3.5 mr-1" />
+                                            Prev
                                         </Button>
                                     );
                                 }
@@ -504,9 +570,10 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                             size="sm"
                                             disabled={!link.url}
                                             onClick={() => link.url && router.visit(link.url)}
+                                            className="text-xs h-8"
                                         >
                                             Next
-                                            <ChevronRight className="h-4 w-4" />
+                                            <ChevronRight className="h-3.5 w-3.5 ml-1" />
                                         </Button>
                                     );
                                 }
@@ -519,6 +586,7 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                         size="sm"
                                         disabled={!link.url}
                                         onClick={() => link.url && router.visit(link.url)}
+                                        className="text-xs h-8 px-3"
                                     >
                                         {cleanPaginationLabel(link.label)}
                                     </Button>
@@ -528,6 +596,230 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                     </div>
                 )}
             </div>
+
+            {/* Modal Penerbitan Kontrak dengan Budget Cut Adjustment */}
+            <Dialog open={issueModalOpen} onOpenChange={setIssueModalOpen}>
+                <DialogContent className="max-w-2xl sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-serif font-bold text-slate-900 tracking-tight">
+                            {t.contracts.createTitle}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-slate-600">
+                            {t.contracts.createSubtitle}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleIssueSubmit} className="space-y-4 pt-2">
+                        {/* Pilih Proposal Lolos Didanai */}
+                        <div className="grid gap-2">
+                            <Label htmlFor="id_proposal" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                                {t.contracts.selectProposalPrompt} <span className="text-rose-500">*</span>
+                            </Label>
+                            {eligibleProposals.length === 0 ? (
+                                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+                                    [INFORMASI] Saat ini belum ada usulan berstatus [LOLOS DIDANAI] yang belum memiliki kontrak.
+                                </div>
+                            ) : (
+                                <Select value={issueData.id_proposal} onValueChange={handleProposalChange}>
+                                    <SelectTrigger className="text-sm">
+                                        <SelectValue placeholder="Pilih usulan penelitian yang lolos didanai..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {eligibleProposals.map((p) => (
+                                            <SelectItem key={p.id} value={p.id.toString()}>
+                                                <span className="font-medium">{p.judul_penelitian}</span>
+                                                <span className="text-xs text-slate-500 block">
+                                                    {p.pengusul_nama} | {p.skema_nama}
+                                                </span>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                            {issueErrors.id_proposal && (
+                                <p className="text-xs text-rose-600 font-medium">{issueErrors.id_proposal}</p>
+                            )}
+                        </div>
+
+                        {/* Rincian Pagu & Usulan Pasca Pemilihan Proposal */}
+                        {selectedProposal && (
+                            <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+                                <div className="flex items-start justify-between gap-4 text-xs">
+                                    <div>
+                                        <span className="text-slate-500 uppercase tracking-wider block">Skema Penelitian</span>
+                                        <span className="font-semibold text-slate-800">{selectedProposal.skema_nama || '-'}</span>
+                                    </div>
+                                    <div>
+                                        <span className="text-slate-500 uppercase tracking-wider block">Ketua Pengusul</span>
+                                        <span className="font-semibold text-slate-800">{selectedProposal.pengusul_nama || '-'}</span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-200">
+                                    <div>
+                                        <span className="text-xs text-slate-500 uppercase tracking-wider block">
+                                            {t.contracts.proposedBudget}
+                                        </span>
+                                        <TabularFigure
+                                            value={selectedProposal.biaya_diusulkan}
+                                            type="currency"
+                                            size="base"
+                                            weight="bold"
+                                            className="text-slate-800"
+                                        />
+                                    </div>
+                                    <div className="text-right">
+                                        <span className="text-xs text-slate-500 uppercase tracking-wider block">
+                                            Batas Pagu Skema
+                                        </span>
+                                        <TabularFigure
+                                            value={selectedProposal.pagu_maksimal}
+                                            type="currency"
+                                            size="base"
+                                            weight="bold"
+                                            className="text-slate-800"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Input Nominal Dana Disetujui (Budget Cut Adjustment) */}
+                        <div className="grid gap-2">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="dana_disetujui" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                                    {t.contracts.approvedBudget} (Budget Cut Adjustment) <span className="text-rose-500">*</span>
+                                </Label>
+                                {selectedProposal && (
+                                    <div className="flex gap-1.5 text-xs">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIssueData('dana_disetujui', selectedProposal.biaya_diusulkan.toString())}
+                                            className="text-sky-700 hover:underline font-mono text-[11px]"
+                                        >
+                                            Samakan Usulan
+                                        </button>
+                                        <span className="text-slate-300">|</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIssueData('dana_disetujui', selectedProposal.pagu_maksimal.toString())}
+                                            className="text-sky-700 hover:underline font-mono text-[11px]"
+                                        >
+                                            Gunakan Pagu
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                            <Input
+                                id="dana_disetujui"
+                                type="number"
+                                min={1000000}
+                                step={50000}
+                                value={issueData.dana_disetujui}
+                                onChange={(e) => setIssueData('dana_disetujui', e.target.value)}
+                                placeholder="Masukkan nominal dana disetujui (contoh: 20000000)"
+                                className="font-mono text-sm bg-white"
+                                required
+                            />
+                            {issueErrors.dana_disetujui && (
+                                <p className="text-xs text-rose-600 font-medium">{issueErrors.dana_disetujui}</p>
+                            )}
+
+                            {/* Peringatan Pagu Skema Melebihi */}
+                            {isPaguExceeded && (
+                                <div className="rounded border border-rose-300 bg-rose-50 p-2.5 text-xs text-rose-700 flex items-center gap-2">
+                                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                                    <span>{t.contracts.contractValueMismatchNotice}</span>
+                                </div>
+                            )}
+
+                            {/* Info Pemotongan Anggaran (Budget Cut Calculation) */}
+                            {selectedProposal && approvedNum > 0 && !isPaguExceeded && (
+                                <div className="rounded border border-slate-200 bg-slate-50 p-3 space-y-2 text-xs">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-slate-600">{t.contracts.budgetCut}:</span>
+                                        <span className={`font-mono font-bold ${budgetCutAmount > 0 ? 'text-amber-700' : 'text-slate-800'}`}>
+                                            {budgetCutAmount > 0
+                                                ? `Dipotong Rp ${budgetCutAmount.toLocaleString('id-ID')} (-${budgetCutPercent}%)`
+                                                : budgetCutAmount === 0
+                                                ? 'Sesuai Usulan (0% Pemotongan)'
+                                                : `Penambahan Rp ${Math.abs(budgetCutAmount).toLocaleString('id-ID')}`}
+                                        </span>
+                                    </div>
+                                    <div className="pt-2 border-t border-slate-200 grid grid-cols-2 gap-2 text-[11px] text-slate-500 font-mono">
+                                        <div>
+                                            <span>Termin 1 (70%): </span>
+                                            <span className="font-semibold text-slate-700">
+                                                Rp {Math.round(approvedNum * 0.7).toLocaleString('id-ID')}
+                                            </span>
+                                        </div>
+                                        <div className="text-right">
+                                            <span>Termin 2 (30%): </span>
+                                            <span className="font-semibold text-slate-700">
+                                                Rp {Math.round(approvedNum * 0.3).toLocaleString('id-ID')}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Tanggal Kontrak */}
+                        <div className="grid gap-2">
+                            <Label htmlFor="tanggal_kontrak" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                                {t.contracts.contractDate} <span className="text-rose-500">*</span>
+                            </Label>
+                            <Input
+                                id="tanggal_kontrak"
+                                type="date"
+                                value={issueData.tanggal_kontrak}
+                                onChange={(e) => setIssueData('tanggal_kontrak', e.target.value)}
+                                className="font-mono text-sm bg-white"
+                                required
+                            />
+                            {issueErrors.tanggal_kontrak && (
+                                <p className="text-xs text-rose-600 font-medium">{issueErrors.tanggal_kontrak}</p>
+                            )}
+                        </div>
+
+                        {/* Nomor Kontrak (Opsional / Otomatis) */}
+                        <div className="grid gap-2">
+                            <Label htmlFor="nomor_kontrak" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                                {t.contracts.contractNumber} (Opsional)
+                            </Label>
+                            <Input
+                                id="nomor_kontrak"
+                                type="text"
+                                value={issueData.nomor_kontrak}
+                                onChange={(e) => setIssueData('nomor_kontrak', e.target.value)}
+                                placeholder="Kosongkan untuk penomoran kanonikal otomatis (KTR/YYYY/KMP/0001)"
+                                className="font-mono text-sm bg-white"
+                            />
+                            {issueErrors.nomor_kontrak && (
+                                <p className="text-xs text-rose-600 font-medium">{issueErrors.nomor_kontrak}</p>
+                            )}
+                        </div>
+
+                        <DialogFooter className="gap-2 sm:gap-0 pt-3 border-t border-slate-200">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIssueModalOpen(false)}
+                                disabled={issueProcessing}
+                            >
+                                {t.common.cancel}
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={issueProcessing || isPaguExceeded || !issueData.id_proposal || !issueData.dana_disetujui}
+                                className="bg-slate-900 hover:bg-slate-800 text-white font-medium"
+                            >
+                                {issueProcessing ? t.contracts.issuingContract : t.contracts.issueContractBtn}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }

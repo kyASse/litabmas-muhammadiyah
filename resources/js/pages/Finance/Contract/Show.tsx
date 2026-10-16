@@ -1,24 +1,13 @@
-/**
- * ContractShow Component
- *
- * @description
- * Detail view page for a research contract draft.
- * Displays contract metadata, related entities, terms, financial information,
- * audit trail, and allows status transitions (draft → active → selesai / dibatalkan).
- *
- * @route GET /admin/contracts/{contract}
- *
- * @features
- * - Contract header with number & status badge
- * - Related journal / pembinaan registration / university info
- * - Contract period, terms, and notes
- * - Financial section: contract value & disbursement schedule (PRD Modul 3)
- * - Status transition actions with confirmation dialog
- * - Audit trail (created by, updated by)
- *
- * @author GILANG JA'FAR PRASETYA
- */
-import StatusBadge from '@/components/StatusBadge';
+import React, { useState } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout';
+import PageHeader from '@/components/ui/PageHeader';
+import TabularFigure from '@/components/ui/TabularFigure';
+import StatusBadge, { BadgeStatusType } from '@/components/ui/StatusBadge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -29,102 +18,112 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { useTranslation } from '@/hooks/use-translation';
+import { BreadcrumbItem } from '@/types';
+import DisburseModal, { FundingDisburseTarget } from '../Funding/DisburseModal';
 import {
     ArrowLeft,
-    BookOpen,
     Building2,
     CalendarDays,
     CheckCircle2,
     CircleDollarSign,
-    ClipboardList,
+    Clock,
+    Download,
+    FileCheck,
     FileText,
     Hash,
-    Info,
     Layers,
+    Lock,
+    Printer,
+    Unlock,
+    User,
     User2,
     XCircle,
 } from 'lucide-react';
-import { useState } from 'react';
 import { toast } from 'sonner';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface User {
-    id: number;
-    name: string;
-    email: string;
-}
 
 interface University {
     id: number;
     name: string;
     short_name?: string;
+    code?: string;
 }
 
-interface Journal {
+interface ProposalItem {
     id: number;
-    title: string;
-    issn: string;
-    university?: University;
+    judul_penelitian: string;
+    status_proposal: string;
+    biaya_yang_diusulkan?: number;
+    research_schema?: {
+        id: number;
+        nama_skema: string;
+        biaya_maksimal?: number;
+    } | null;
+    pengusul?: {
+        id: number;
+        name: string;
+        email: string;
+    } | null;
 }
 
-interface Pembinaan {
+interface FundingItem {
     id: number;
-    name: string;
-    category: string;
+    termin_ke: number;
+    persentase_dana: number;
+    nominal_dana: number;
+    status_pencairan: string;
+    status_label?: string;
+    tanggal_pencairan?: string | null;
+    bukti_transfer_path?: string | null;
+    catatan_keuangan?: string | null;
 }
-
-interface PembinaanRegistration {
-    id: number;
-    pembinaan?: Pembinaan;
-    journal?: Journal;
-}
-
-type ContractStatus = 'draft' | 'active' | 'selesai' | 'dibatalkan';
 
 interface Contract {
     id: number;
+    nomor_kontrak: string;
     contract_number: string;
+    judul_kontrak: string;
     title: string;
-    status: ContractStatus;
-    start_date?: string;
-    end_date?: string;
-    terms?: string;
-    notes?: string;
-    /** Total nilai kontrak / pendanaan yang disetujui (IDR). PRD Modul 3. */
-    contract_value?: number | null;
-    pembinaan_registration?: PembinaanRegistration;
-    journal?: Journal;
-    university?: University;
-    creator?: User;
-    updater?: User;
-    created_at: string;
-    updated_at: string;
+    status: string;
+    status_kontrak: string;
     status_label: string;
     status_color: string;
+    dana_disetujui: number;
+    contract_value: number;
+    tanggal_kontrak?: string | null;
+    start_date?: string | null;
+    end_date?: string | null;
+    terms?: string | null;
+    notes?: string | null;
+    file_dokumen_kontrak?: string | null;
+    is_monev_approved?: boolean;
+    university?: University | null;
+    proposal?: ProposalItem | null;
+    fundings: FundingItem[];
+    creator?: {
+        id: number;
+        name: string;
+    } | null;
+    created_at: string;
+    updated_at: string;
 }
 
 interface Props {
     contract: Contract;
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+function mapStatusToBadge(status: string): { type: BadgeStatusType; label: string } {
+    const s = (status || '').toLowerCase();
+    if (s === 'draft') return { type: 'Draft', label: '[DRAFT]' };
+    if (s === 'active' || s === 'aktif') return { type: 'Contracted', label: '[ACTIVE]' };
+    if (s === 'signed' || s === 'ditandatangani') return { type: 'Contracted', label: '[SIGNED]' };
+    if (s === 'selesai' || s === 'completed') return { type: 'Completed_SKTS', label: '[SELESAI]' };
+    if (s === 'dibatalkan' || s === 'terminated') return { type: 'Terminated', label: '[DIBATALKAN]' };
+    return { type: 'Draft', label: `[${(status || 'DRAFT').toUpperCase()}]` };
+}
 
-const STATUS_LABEL: Record<ContractStatus, string> = {
-    draft: 'Draft',
-    active: 'Aktif',
-    selesai: 'Selesai',
-    dibatalkan: 'Dibatalkan',
-};
-
-function formatDate(dateStr?: string): string {
-    if (!dateStr) return '—';
+function formatDate(dateStr?: string | null): string {
+    if (!dateStr) return '-';
     return new Date(dateStr).toLocaleDateString('id-ID', {
         day: 'numeric',
         month: 'long',
@@ -132,112 +131,74 @@ function formatDate(dateStr?: string): string {
     });
 }
 
-function formatDateTime(dateStr?: string): string {
-    if (!dateStr) return '—';
-    return new Date(dateStr).toLocaleString('id-ID', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-}
-
-/** Format currency as Indonesian Rupiah. */
-function formatIDR(value?: number | null): string {
-    if (value === null || value === undefined) return '—';
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-    }).format(value);
-}
-
-/**
- * Compute a simple 3-termin disbursement schedule based on contract value.
- * PRD Modul 3 standard split: 40% – 40% – 20%.
- */
-function computeDisbursementSchedule(
-    contractValue: number,
-    startDate?: string,
-    endDate?: string,
-): { label: string; percentage: number; amount: number; dueDate: string }[] {
-    const splits = [
-        { label: 'Termin 1 (Muka)', percentage: 40 },
-        { label: 'Termin 2 (Tengah)', percentage: 40 },
-        { label: 'Termin 3 (Akhir)', percentage: 20 },
-    ];
-
-    // Distribute duration equally across termins if dates are available
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
-    const durationMs = start && end ? end.getTime() - start.getTime() : null;
-
-    return splits.map((split, index) => {
-        let dueDate = '—';
-        if (start && durationMs) {
-            const fraction = (index + 1) / splits.length;
-            const due = new Date(start.getTime() + durationMs * fraction);
-            dueDate = due.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-        }
-        return {
-            ...split,
-            amount: Math.round((contractValue * split.percentage) / 100),
-            dueDate,
-        };
-    });
-}
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
 function DetailRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: React.ReactNode }) {
     return (
         <div className="flex items-start gap-3">
-            <Icon className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            <Icon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
             <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{label}</p>
-                <div className="mt-0.5 text-sm font-medium">{value}</div>
+                <p className="text-xs font-mono font-medium tracking-wider text-slate-500 uppercase">{label}</p>
+                <div className="mt-0.5 text-sm font-medium text-slate-900">{value}</div>
             </div>
         </div>
     );
 }
 
-// ─── Page Component ───────────────────────────────────────────────────────────
-
 export default function ContractShow({ contract }: Props) {
+    const { t } = useTranslation();
+    const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+    const [processing, setProcessing] = useState(false);
+    const [selectedFunding, setSelectedFunding] = useState<FundingDisburseTarget | null>(null);
+    const [disburseModalOpen, setDisburseModalOpen] = useState(false);
+
+    const contractNumber = contract.nomor_kontrak || contract.contract_number;
+    const contractTitle = contract.judul_kontrak || contract.title || contract.proposal?.judul_penelitian;
+    const contractValue = contract.dana_disetujui || contract.contract_value || 0;
+    const currentStatus = contract.status_kontrak || contract.status || 'draft';
+    const isMonevApproved = Boolean(contract.is_monev_approved);
+
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Kontrak', href: '#' },
-        { title: contract.contract_number, href: route('admin.contracts.show', contract.id) },
+        { title: t.navigation.dashboard, href: '/dashboard' },
+        { title: t.contracts.pageTitle, href: route('contracts.index') },
+        { title: contractNumber, href: route('contracts.show', contract.id) },
     ];
 
-    const [pendingStatus, setPendingStatus] = useState<ContractStatus | null>(null);
-    const [processing, setProcessing] = useState(false);
+    const badgeInfo = mapStatusToBadge(currentStatus);
 
-    // ── Allowed transitions based on current status
-    const allowedTransitions: Record<ContractStatus, ContractStatus[]> = {
-        draft: ['active', 'dibatalkan'],
-        active: ['selesai', 'dibatalkan'],
-        selesai: [],
-        dibatalkan: [],
+    // Filter fundings termin 1 and termin 2
+    const termin1 = contract.fundings.find((f) => f.termin_ke === 1) || {
+        id: 0,
+        termin_ke: 1,
+        persentase_dana: 70,
+        nominal_dana: Math.round(contractValue * 0.7),
+        status_pencairan: 'Planned',
     };
-    const transitions = allowedTransitions[contract.status];
-    const isTerminal = transitions.length === 0;
 
-    // ── Status transition handler
-    const handleUpdateStatus = (newStatus: ContractStatus) => {
+    const termin2 = contract.fundings.find((f) => f.termin_ke === 2) || {
+        id: 0,
+        termin_ke: 2,
+        persentase_dana: 30,
+        nominal_dana: Math.round(contractValue * 0.3),
+        status_pencairan: 'Planned',
+    };
+
+    const isT1Disbursed = termin1.status_pencairan === 'Disbursed' || termin1.status_pencairan === 'disbursed';
+    const isT2Disbursed = termin2.status_pencairan === 'Disbursed' || termin2.status_pencairan === 'disbursed';
+
+    const totalDisbursed = (isT1Disbursed ? termin1.nominal_dana : 0) + (isT2Disbursed ? termin2.nominal_dana : 0);
+    const progressPercent = contractValue > 0 ? Math.min(100, Math.round((totalDisbursed / contractValue) * 100)) : 0;
+
+    const handleUpdateStatus = (newStatus: string) => {
         setProcessing(true);
         router.post(
-            route('admin.contracts.update-status', contract.id),
+            route('contracts.update-status', contract.id),
             { status: newStatus },
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    toast.success(`Status kontrak berhasil diubah ke "${STATUS_LABEL[newStatus]}".`);
+                    toast.success(`[SUKSES] Status kontrak diperbarui ke [${newStatus.toUpperCase()}].`);
                 },
                 onError: () => {
-                    toast.error('Gagal mengubah status kontrak.');
+                    toast.error('[GALAT] Gagal memperbarui status kontrak.');
                 },
                 onFinish: () => {
                     setProcessing(false);
@@ -247,364 +208,471 @@ export default function ContractShow({ contract }: Props) {
         );
     };
 
-    const confirmLabel: Record<ContractStatus, string> = {
-        draft: '',
-        active: 'Aktifkan',
-        selesai: 'Tandai Selesai',
-        dibatalkan: 'Batalkan Kontrak',
-    } as any;
+    const openDisburse = (fundingItem: FundingItem) => {
+        setSelectedFunding({
+            id: fundingItem.id,
+            termin_ke: fundingItem.termin_ke,
+            persentase_dana: fundingItem.persentase_dana,
+            nominal_dana: fundingItem.nominal_dana,
+            status_pencairan: fundingItem.status_pencairan,
+            is_monev_approved: isMonevApproved,
+            contract: {
+                id: contract.id,
+                nomor_kontrak: contractNumber,
+                judul_kontrak: contractTitle || '',
+                dana_disetujui: contractValue,
+                university: contract.university,
+                proposal: contract.proposal,
+            },
+        });
+        setDisburseModalOpen(true);
+    };
 
-    // ── Related journal (may come from direct link or via registration)
-    const relatedJournal = contract.journal ?? contract.pembinaan_registration?.journal;
-    const relatedUniversity = contract.university ?? relatedJournal?.university;
-    const relatedPembinaan = contract.pembinaan_registration?.pembinaan;
-
-    // ── Financial calculations
-    const hasContractValue = contract.contract_value !== null && contract.contract_value !== undefined;
-    const disbursementSchedule = hasContractValue
-        ? computeDisbursementSchedule(contract.contract_value!, contract.start_date, contract.end_date)
-        : [];
+    const proposedBudget = contract.proposal?.biaya_yang_diusulkan || 0;
+    const maxBudget = contract.proposal?.research_schema?.biaya_maksimal || 0;
+    const budgetCut = proposedBudget > 0 ? proposedBudget - contractValue : 0;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Kontrak ${contract.contract_number}`} />
+            <Head title={`${t.contracts.detailTitle} - ${contractNumber}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-                    {/* ── Back button ─────────────────────────────────────── */}
-                    <div className="mb-6">
-                        <Button variant="ghost" size="sm" className="h-auto justify-start gap-2 p-0" asChild>
-                            <Link href="/dashboard">
-                                <ArrowLeft className="h-4 w-4" />
-                                Kembali ke Dashboard
-                            </Link>
-                        </Button>
+            <div className="flex h-full flex-1 flex-col gap-6 p-6">
+                {/* Header Navigasi & Aksi */}
+                <div className="flex items-center justify-between">
+                    <Button variant="ghost" size="sm" asChild className="gap-2">
+                        <Link href={route('contracts.index')}>
+                            <ArrowLeft className="h-4 w-4" />
+                            Kembali ke Daftar Kontrak
+                        </Link>
+                    </Button>
+                    <div className="flex items-center gap-2">
+                        {contract.file_dokumen_kontrak && (
+                            <a
+                                href={`/storage/${contract.file_dokumen_kontrak}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-sm"
+                            >
+                                <Download className="w-3.5 h-3.5 text-slate-500" />
+                                {t.contracts.downloadContractPdf}
+                            </a>
+                        )}
+                        <StatusBadge
+                            status={badgeInfo.type}
+                            labelOverride={badgeInfo.label}
+                            size="md"
+                        />
                     </div>
+                </div>
 
-                    {/* ── Header ──────────────────────────────────────────── */}
-                    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                {/* Header Judul Kontrak */}
+                <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+                    <div className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2 text-xs font-mono text-slate-500">
+                            <Hash className="h-3.5 w-3.5 text-slate-400" />
+                            <span className="font-semibold text-slate-700">{contractNumber}</span>
+                            <span>•</span>
+                            <span>Tanggal: {formatDate(contract.tanggal_kontrak || contract.start_date)}</span>
+                        </div>
+                        <h1 className="text-xl sm:text-2xl font-serif font-bold text-slate-900 tracking-tight">
+                            {contractTitle}
+                        </h1>
+                        <p className="text-xs text-slate-500">
+                            Institusi: <strong className="text-slate-700">{contract.university?.name || '-'}</strong>
+                            {contract.creator && ` | Diterbitkan oleh: ${contract.creator.name}`}
+                        </p>
+                    </div>
+                </div>
+
+                {/* Linier Progress Pencairan Termin 70:30 (Monev Gatekeeper Lock) */}
+                <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
-                            <div className="mb-1 flex items-center gap-2 text-sm text-muted-foreground">
-                                <Hash className="h-3.5 w-3.5" />
-                                <span className="font-mono">{contract.contract_number}</span>
-                            </div>
-                            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{contract.title}</h1>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                                Dibuat {formatDateTime(contract.created_at)}
-                                {contract.creator && ` oleh ${contract.creator.name}`}
+                            <h2 className="text-base font-serif font-bold text-slate-900">
+                                Alur Termin Pencairan Dana Riset (70:30)
+                            </h2>
+                            <p className="text-xs text-slate-500">
+                                Tahapan pencairan dana hibah sesuai formula Cetak Biru Arsitektur Standalone.
                             </p>
                         </div>
-
-                        {/* Status badge */}
-                        <div className="shrink-0">
-                            <StatusBadge status={contract.status} className="px-3 py-1 text-sm" />
+                        <div className="text-right">
+                            <span className="text-xs font-mono text-slate-500 uppercase tracking-wider block">
+                                Realisasi Pendanaan
+                            </span>
+                            <div className="flex items-baseline gap-2">
+                                <TabularFigure
+                                    value={totalDisbursed}
+                                    type="currency"
+                                    size="lg"
+                                    weight="bold"
+                                    className="text-emerald-700"
+                                />
+                                <span className="font-mono text-xs text-slate-500">
+                                    dari <TabularFigure value={contractValue} type="currency" size="sm" className="text-slate-700" /> ({progressPercent}%)
+                                </span>
+                            </div>
                         </div>
                     </div>
 
-                    {/* ── Status Actions ───────────────────────────────────── */}
-                    {!isTerminal && (
-                        <div className="mb-6 flex flex-wrap gap-2">
-                            {transitions.includes('active') && (
-                                <Button id="btn-activate-contract" className="gap-2" disabled={processing} onClick={() => setPendingStatus('active')}>
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    Aktifkan Kontrak
-                                </Button>
-                            )}
-                            {transitions.includes('selesai') && (
-                                <Button
-                                    id="btn-complete-contract"
-                                    variant="outline"
-                                    className="gap-2"
-                                    disabled={processing}
-                                    onClick={() => setPendingStatus('selesai')}
-                                >
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    Tandai Selesai
-                                </Button>
-                            )}
-                            {transitions.includes('dibatalkan') && (
-                                <Button
-                                    id="btn-cancel-contract"
-                                    variant="destructive"
-                                    className="gap-2"
-                                    disabled={processing}
-                                    onClick={() => setPendingStatus('dibatalkan')}
-                                >
-                                    <XCircle className="h-4 w-4" />
-                                    Batalkan Kontrak
-                                </Button>
-                            )}
-                        </div>
-                    )}
+                    <Progress value={progressPercent} className="h-2.5 bg-slate-100" />
 
-                    {/* ── Terminal state info banner ───────────────────────── */}
-                    {isTerminal && (
-                        <div className="mb-6 flex items-start gap-3 rounded-lg border border-dashed bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-                            <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                            <span>
-                                Kontrak ini berstatus <strong>{STATUS_LABEL[contract.status]}</strong> dan tidak dapat diubah lagi.
-                            </span>
-                        </div>
-                    )}
-
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        {/* ── LEFT column (2/3) ────────────────────────────── */}
-                        <div className="space-y-6 lg:col-span-2">
-                            {/* Contract detail card */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <FileText className="h-4 w-4" />
-                                        Detail Kontrak
-                                    </CardTitle>
-                                    <CardDescription>Informasi dasar kontrak penelitian</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-5">
-                                    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                                        <DetailRow icon={CalendarDays} label="Tanggal Mulai" value={formatDate(contract.start_date)} />
-                                        <DetailRow icon={CalendarDays} label="Tanggal Berakhir" value={formatDate(contract.end_date)} />
+                    {/* Dua Kartu Termin Linier */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+                        {/* TERMIN 1 (70%) */}
+                        <div className={`rounded-lg border p-5 transition-colors ${
+                            isT1Disbursed
+                                ? 'border-emerald-200 bg-emerald-50/40'
+                                : 'border-slate-200 bg-white'
+                        }`}>
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-teal-100 text-teal-800">
+                                            TERMIN 1 (70%)
+                                        </span>
+                                        {isT1Disbursed ? (
+                                            <StatusBadge status="Disbursed_T1" labelOverride="[CAIR TERMIN 1]" size="sm" />
+                                        ) : (
+                                            <StatusBadge status="Draft" labelOverride="[MENUNGGU PENCAIRAN]" size="sm" />
+                                        )}
                                     </div>
+                                    <h3 className="font-serif font-bold text-slate-900 text-base pt-1">
+                                        Pencairan Dana Tahap Pertama
+                                    </h3>
+                                    <p className="text-xs text-slate-600">
+                                        Dialokasikan 70% dari nilai kontrak setelah penandatanganan dokumen perjanjian.
+                                    </p>
+                                </div>
+                                <TabularFigure
+                                    value={termin1.nominal_dana}
+                                    type="currency"
+                                    size="xl"
+                                    weight="bold"
+                                    className={isT1Disbursed ? 'text-emerald-700' : 'text-slate-900'}
+                                />
+                            </div>
 
-                                    {contract.start_date && contract.end_date && (
-                                        <div className="rounded-lg border bg-muted/30 px-4 py-3">
-                                            <p className="text-xs text-muted-foreground">Periode Kontrak</p>
-                                            <p className="mt-0.5 text-sm font-medium">
-                                                {formatDate(contract.start_date)} — {formatDate(contract.end_date)}
-                                            </p>
-                                        </div>
-                                    )}
-
-                                    {contract.terms && (
-                                        <>
-                                            <Separator />
-                                            <div>
-                                                <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                                                    Syarat & Ketentuan
-                                                </p>
-                                                <div className="rounded-lg border bg-muted/20 p-4 text-sm leading-relaxed whitespace-pre-wrap">
-                                                    {contract.terms}
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-
-                                    {contract.notes && (
-                                        <>
-                                            <Separator />
-                                            <div>
-                                                <p className="mb-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">Catatan</p>
-                                                <p className="text-sm leading-relaxed text-muted-foreground">{contract.notes}</p>
-                                            </div>
-                                        </>
-                                    )}
-
-                                    {!contract.terms && !contract.notes && (
-                                        <p className="text-sm text-muted-foreground italic">
-                                            Belum ada syarat, ketentuan, atau catatan yang ditambahkan.
-                                        </p>
-                                    )}
-                                </CardContent>
-                            </Card>
-
-                            {/* ── Financial Card (PRD Modul 3) ─────────────── */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2">
-                                        <CircleDollarSign className="h-4 w-4" />
-                                        Informasi Keuangan
-                                    </CardTitle>
-                                    <CardDescription>Nilai kontrak dan rencana termin pencairan dana</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-5">
-                                    {/* Contract value display */}
-                                    <DetailRow
-                                        icon={CircleDollarSign}
-                                        label="Total Nilai Kontrak (Pendanaan Disetujui)"
-                                        value={
-                                            hasContractValue ? (
-                                                <span className="text-base font-bold text-primary">{formatIDR(contract.contract_value)}</span>
-                                            ) : (
-                                                <span className="text-sm text-muted-foreground italic">Belum ditentukan</span>
-                                            )
-                                        }
-                                    />
-
-                                    {/* Disbursement schedule — shown only when contract_value is set */}
-                                    {hasContractValue && disbursementSchedule.length > 0 && (
-                                        <>
-                                            <Separator />
-                                            <div>
-                                                <div className="mb-3 flex items-center gap-2">
-                                                    <Layers className="h-4 w-4 text-muted-foreground" />
-                                                    <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                                                        Rencana Termin Pencairan Dana
-                                                    </p>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    {disbursementSchedule.map((termin) => (
-                                                        <div
-                                                            key={termin.label}
-                                                            className="flex items-center justify-between rounded-lg border bg-muted/20 px-4 py-3"
-                                                        >
-                                                            <div className="min-w-0">
-                                                                <p className="text-sm font-medium">{termin.label}</p>
-                                                                <p className="text-xs text-muted-foreground">
-                                                                    {termin.percentage}% · Estimasi: {termin.dueDate}
-                                                                </p>
-                                                            </div>
-                                                            <span className="ml-4 shrink-0 font-semibold text-primary">
-                                                                {formatIDR(termin.amount)}
-                                                            </span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                {/* Total verification row */}
-                                                <div className="mt-3 flex items-center justify-between rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
-                                                    <p className="text-sm font-semibold">Total</p>
-                                                    <span className="font-bold text-primary">{formatIDR(contract.contract_value)}</span>
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
-
-                                    {!hasContractValue && (
-                                        <div className="flex items-start gap-3 rounded-lg border border-dashed bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
-                                            <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                                            <span>
-                                                Nilai kontrak belum dicatat. Rencana termin pencairan akan tampil otomatis setelah nilai kontrak
-                                                diisi.
-                                            </span>
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-
-                            {/* Pembinaan Registration card */}
-                            {contract.pembinaan_registration && (
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-2">
-                                            <ClipboardList className="h-4 w-4" />
-                                            Registrasi Pembinaan Terkait
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="space-y-4">
-                                        {relatedPembinaan && (
-                                            <DetailRow
-                                                icon={ClipboardList}
-                                                label="Program Pembinaan"
-                                                value={
-                                                    <span>
-                                                        {relatedPembinaan.name}
-                                                        <span className="ml-2 text-xs text-muted-foreground capitalize">
-                                                            ({relatedPembinaan.category})
-                                                        </span>
-                                                    </span>
-                                                }
-                                            />
-                                        )}
-                                        {relatedJournal && (
-                                            <DetailRow
-                                                icon={BookOpen}
-                                                label="Jurnal"
-                                                value={
-                                                    <span>
-                                                        {relatedJournal.title}
-                                                        <span className="ml-2 font-mono text-xs text-muted-foreground">
-                                                            ISSN: {relatedJournal.issn}
-                                                        </span>
-                                                    </span>
-                                                }
-                                            />
-                                        )}
-                                    </CardContent>
-                                </Card>
-                            )}
-                        </div>
-
-                        {/* ── RIGHT column (1/3) ───────────────────────────── */}
-                        <div className="space-y-6">
-                            {/* Parties card */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-base">
-                                        <Building2 className="h-4 w-4" />
-                                        Pihak Terkait
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {relatedUniversity ? (
-                                        <DetailRow
-                                            icon={Building2}
-                                            label="Universitas"
-                                            value={relatedUniversity.short_name ?? relatedUniversity.name}
-                                        />
+                            <div className="mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs">
+                                <div className="text-slate-500">
+                                    {isT1Disbursed ? (
+                                        <span>Dicairkan pada: <strong className="font-mono text-slate-700">{formatDate(termin1.tanggal_pencairan)}</strong></span>
                                     ) : (
-                                        <p className="text-sm text-muted-foreground italic">Belum ada universitas terkait.</p>
+                                        <span>Status: Siap dicairkan oleh Admin Keuangan</span>
                                     )}
-
-                                    {relatedJournal && !contract.pembinaan_registration && (
-                                        <DetailRow
-                                            icon={BookOpen}
-                                            label="Jurnal"
-                                            value={
-                                                <span>
-                                                    {relatedJournal.title}
-                                                    <br />
-                                                    <span className="font-mono text-xs text-muted-foreground">ISSN: {relatedJournal.issn}</span>
-                                                </span>
-                                            }
-                                        />
-                                    )}
-                                </CardContent>
-                            </Card>
-
-                            {/* Audit trail card */}
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-base">
-                                        <User2 className="h-4 w-4" />
-                                        Riwayat
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    <DetailRow
-                                        icon={User2}
-                                        label="Dibuat oleh"
-                                        value={
-                                            <span>
-                                                {contract.creator?.name ?? '—'}
-                                                <br />
-                                                <span className="text-xs font-normal text-muted-foreground">
-                                                    {formatDateTime(contract.created_at)}
-                                                </span>
-                                            </span>
-                                        }
-                                    />
-                                    {contract.updater && (
-                                        <DetailRow
-                                            icon={User2}
-                                            label="Terakhir diubah oleh"
-                                            value={
-                                                <span>
-                                                    {contract.updater.name}
-                                                    <br />
-                                                    <span className="text-xs font-normal text-muted-foreground">
-                                                        {formatDateTime(contract.updated_at)}
-                                                    </span>
-                                                </span>
-                                            }
-                                        />
-                                    )}
-                                </CardContent>
-                            </Card>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {isT1Disbursed && termin1.bukti_transfer_path ? (
+                                        <a
+                                            href={`/storage/${termin1.bukti_transfer_path}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1 text-sky-700 hover:underline font-medium"
+                                        >
+                                            <Download className="w-3.5 h-3.5" />
+                                            Bukti Transfer
+                                        </a>
+                                    ) : !isT1Disbursed && termin1.id > 0 ? (
+                                        <Button
+                                            size="sm"
+                                            onClick={() => openDisburse(termin1)}
+                                            className="bg-slate-900 text-white hover:bg-slate-800 text-xs h-7 gap-1"
+                                        >
+                                            <FileCheck className="w-3.5 h-3.5" />
+                                            Cairkan Termin 1
+                                        </Button>
+                                    ) : null}
+                                </div>
+                            </div>
                         </div>
+
+                        {/* TERMIN 2 (30%) - MONEV GATEKEEPER LOCK */}
+                        <div className={`rounded-lg border p-5 transition-colors ${
+                            isT2Disbursed
+                                ? 'border-emerald-200 bg-emerald-50/40'
+                                : !isMonevApproved
+                                ? 'border-rose-200 bg-rose-50/30'
+                                : 'border-amber-200 bg-amber-50/30'
+                        }`}>
+                            <div className="flex items-start justify-between gap-3">
+                                <div className="space-y-1">
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                                            TERMIN 2 (30%)
+                                        </span>
+                                        {isT2Disbursed ? (
+                                            <StatusBadge status="Disbursed_T2" labelOverride="[CAIR TERMIN 2]" size="sm" />
+                                        ) : !isMonevApproved ? (
+                                            <StatusBadge status="Monev_Locked" labelOverride="[TERKUNCI MONEV]" size="sm" />
+                                        ) : (
+                                            <StatusBadge status="Monev_Approved" labelOverride="[MONEV DISETUJUI]" size="sm" />
+                                        )}
+                                    </div>
+                                    <h3 className="font-serif font-bold text-slate-900 text-base pt-1">
+                                        Pencairan Dana Tahap Kedua
+                                    </h3>
+                                    <p className="text-xs text-slate-600">
+                                        Dialokasikan 30% dari nilai kontrak setelah laporan kemajuan Monev disetujui reviewer.
+                                    </p>
+                                </div>
+                                <TabularFigure
+                                    value={termin2.nominal_dana}
+                                    type="currency"
+                                    size="xl"
+                                    weight="bold"
+                                    className={isT2Disbursed ? 'text-emerald-700' : 'text-slate-900'}
+                                />
+                            </div>
+
+                            {/* Warning Banner if Monev Locked */}
+                            {!isT2Disbursed && !isMonevApproved && (
+                                <div className="mt-3 rounded border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-800 space-y-1">
+                                    <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider">
+                                        <Lock className="w-3.5 h-3.5 text-rose-700 shrink-0" />
+                                        <span>[TERKUNCI MONEV] Gembok Pencairan Aktif</span>
+                                    </div>
+                                    <p className="text-[11px] leading-relaxed text-rose-700">
+                                        Termin 2 tidak dapat dicairkan sebelum laporan kemajuan Monev diunggah oleh peneliti dan disetujui (Approved) oleh reviewer.
+                                    </p>
+                                </div>
+                            )}
+
+                            <div className="mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs">
+                                <div className="text-slate-500">
+                                    {isT2Disbursed ? (
+                                        <span>Dicairkan pada: <strong className="font-mono text-slate-700">{formatDate(termin2.tanggal_pencairan)}</strong></span>
+                                    ) : !isMonevApproved ? (
+                                        <span className="text-rose-700 font-mono text-[11px]">[GEMBOK MONEV: DIBLOKIR HTTP 422]</span>
+                                    ) : (
+                                        <span className="text-emerald-700 font-mono text-[11px]">[MONEV APPROVED: SIAP CAIR]</span>
+                                    )}
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {isT2Disbursed && termin2.bukti_transfer_path ? (
+                                        <a
+                                            href={`/storage/${termin2.bukti_transfer_path}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1 text-sky-700 hover:underline font-medium"
+                                        >
+                                            <Download className="w-3.5 h-3.5" />
+                                            Bukti Transfer
+                                        </a>
+                                    ) : !isT2Disbursed && termin2.id > 0 ? (
+                                        <Button
+                                            size="sm"
+                                            variant={isMonevApproved ? 'default' : 'secondary'}
+                                            onClick={() => openDisburse(termin2)}
+                                            className={`text-xs h-7 gap-1 ${
+                                                isMonevApproved
+                                                    ? 'bg-slate-900 text-white hover:bg-slate-800'
+                                                    : 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
+                                            }`}
+                                        >
+                                            {isMonevApproved ? (
+                                                <>
+                                                    <FileCheck className="w-3.5 h-3.5" />
+                                                    Cairkan Termin 2
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Lock className="w-3.5 h-3.5" />
+                                                    [TERKUNCI MONEV]
+                                                </>
+                                            )}
+                                        </Button>
+                                    ) : null}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Detail Usulan Penelitian & Anggaran Realisasi (Budget Cut Adjustment) */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="lg:col-span-2 space-y-6">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-base font-serif font-bold text-slate-900 flex items-center gap-2">
+                                    <FileText className="w-4 h-4 text-slate-500" />
+                                    Informasi Usulan & Ketetapan Hibah
+                                </CardTitle>
+                                <CardDescription className="text-xs text-slate-500">
+                                    Rincian proposal yang disetujui beserta analisis pemotongan anggaran pasca-review.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <DetailRow
+                                    icon={FileText}
+                                    label="Judul Penelitian"
+                                    value={contract.proposal?.judul_penelitian || contractTitle}
+                                />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
+                                    <DetailRow
+                                        icon={Layers}
+                                        label="Skema Riset"
+                                        value={contract.proposal?.research_schema?.nama_skema || '-'}
+                                    />
+                                    <DetailRow
+                                        icon={User}
+                                        label="Ketua Pengusul"
+                                        value={contract.proposal?.pengusul?.name || '-'}
+                                    />
+                                </div>
+
+                                <Separator />
+
+                                {/* Tabular Anggaran & Budget Cut */}
+                                <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-4 space-y-3">
+                                    <p className="text-xs font-mono font-medium text-slate-500 uppercase tracking-wider">
+                                        Komparasi Anggaran & Budget Cut Adjustment
+                                    </p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                        <div>
+                                            <span className="text-xs text-slate-500 block">Pagu Maksimal Skema</span>
+                                            <TabularFigure
+                                                value={maxBudget}
+                                                type="currency"
+                                                size="base"
+                                                weight="semibold"
+                                                className="text-slate-700"
+                                            />
+                                        </div>
+                                        <div>
+                                            <span className="text-xs text-slate-500 block">Anggaran Diusulkan</span>
+                                            <TabularFigure
+                                                value={proposedBudget}
+                                                type="currency"
+                                                size="base"
+                                                weight="semibold"
+                                                className="text-slate-700"
+                                            />
+                                        </div>
+                                        <div>
+                                            <span className="text-xs text-slate-500 block">Dana Disetujui (Kontrak)</span>
+                                            <TabularFigure
+                                                value={contractValue}
+                                                type="currency"
+                                                size="base"
+                                                weight="bold"
+                                                className="text-emerald-700 font-semibold"
+                                            />
+                                        </div>
+                                    </div>
+                                    {budgetCut > 0 && (
+                                        <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between text-xs text-amber-800">
+                                            <span>Penyesuaian Anggaran (Budget Cut):</span>
+                                            <span className="font-mono font-bold">
+                                                Dipotong <TabularFigure value={budgetCut} type="currency" size="sm" className="text-amber-800" />
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {contract.terms && (
+                                    <>
+                                        <Separator />
+                                        <div>
+                                            <p className="text-xs font-mono font-medium text-slate-500 uppercase tracking-wider mb-1">
+                                                Syarat & Ketentuan Khusus
+                                            </p>
+                                            <div className="rounded border bg-slate-50/50 p-3 text-xs leading-relaxed text-slate-700 whitespace-pre-wrap">
+                                                {contract.terms}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    <div className="space-y-6">
+                        {/* Status Kontrak & Aksi */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-base font-serif font-bold text-slate-900">
+                                    Otoritas Kontrak
+                                </CardTitle>
+                                <CardDescription className="text-xs text-slate-500">
+                                    Status formalisasi perjanjian kerja sama.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <span className="text-xs font-mono text-slate-500 uppercase tracking-wider block">
+                                        Status Saat Ini
+                                    </span>
+                                    <StatusBadge
+                                        status={badgeInfo.type}
+                                        labelOverride={badgeInfo.label}
+                                        size="md"
+                                    />
+                                </div>
+
+                                {currentStatus === 'draft' && (
+                                    <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+                                        <Button
+                                            onClick={() => setPendingStatus('active')}
+                                            disabled={processing}
+                                            className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs gap-1.5"
+                                        >
+                                            <CheckCircle2 className="w-3.5 h-3.5" />
+                                            Aktifkan Kontrak
+                                        </Button>
+                                    </div>
+                                )}
+
+                                {currentStatus === 'active' && (
+                                    <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setPendingStatus('selesai')}
+                                            disabled={processing}
+                                            className="w-full text-xs gap-1.5 font-medium"
+                                        >
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                            Tandai Selesai
+                                        </Button>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Audit Trail Card */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-base font-serif font-bold text-slate-900">
+                                    Riwayat Audit
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-3 text-xs">
+                                <div>
+                                    <span className="text-slate-500 uppercase tracking-wider block font-mono text-[11px]">
+                                        Diterbitkan Oleh
+                                    </span>
+                                    <p className="font-medium text-slate-800">{contract.creator?.name || 'Administrator'}</p>
+                                    <p className="text-slate-400 font-mono text-[11px]">{contract.created_at}</p>
+                                </div>
+                                <div className="pt-2 border-t border-slate-100">
+                                    <span className="text-slate-500 uppercase tracking-wider block font-mono text-[11px]">
+                                        Pembaruan Terakhir
+                                    </span>
+                                    <p className="text-slate-600 font-mono text-[11px]">{contract.updated_at}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
                     </div>
                 </div>
             </div>
 
-            {/* ── Status Transition Confirmation Dialog ──────────────────── */}
+            {/* Modal Pencairan Dana */}
+            <DisburseModal
+                funding={selectedFunding}
+                open={disburseModalOpen}
+                onOpenChange={setDisburseModalOpen}
+                onSuccess={() => router.reload()}
+            />
+
+            {/* Dialog Konfirmasi Perubahan Status Kontrak */}
             <AlertDialog
                 open={pendingStatus !== null}
                 onOpenChange={(open) => {
@@ -613,39 +681,22 @@ export default function ContractShow({ contract }: Props) {
             >
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{pendingStatus && confirmLabel[pendingStatus]}?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {pendingStatus === 'active' && (
-                                <>
-                                    Kontrak <strong>{contract.contract_number}</strong> akan diubah statusnya menjadi <strong>Aktif</strong>. Pastikan
-                                    semua data sudah benar sebelum mengaktifkan.
-                                </>
-                            )}
-                            {pendingStatus === 'selesai' && (
-                                <>
-                                    Kontrak <strong>{contract.contract_number}</strong> akan ditandai sebagai <strong>Selesai</strong>. Tindakan ini
-                                    tidak dapat dibatalkan.
-                                </>
-                            )}
-                            {pendingStatus === 'dibatalkan' && (
-                                <>
-                                    Kontrak <strong>{contract.contract_number}</strong> akan <strong>dibatalkan</strong>. Tindakan ini tidak dapat
-                                    dibatalkan.
-                                </>
-                            )}
+                        <AlertDialogTitle className="font-serif font-bold text-slate-900">
+                            Konfirmasi Perubahan Status Kontrak
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-xs text-slate-600">
+                            Apakah Anda yakin ingin mengubah status kontrak <strong>{contractNumber}</strong> menjadi{' '}
+                            <strong>[{pendingStatus?.toUpperCase()}]</strong>?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={processing}>Batal</AlertDialogCancel>
                         <AlertDialogAction
-                            id="btn-confirm-status"
                             disabled={processing}
-                            className={
-                                pendingStatus === 'dibatalkan' ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90' : undefined
-                            }
                             onClick={() => pendingStatus && handleUpdateStatus(pendingStatus)}
+                            className="bg-slate-900 hover:bg-slate-800 text-white"
                         >
-                            {processing ? 'Memproses...' : pendingStatus && confirmLabel[pendingStatus]}
+                            {processing ? 'Memproses...' : 'Ya, Perbarui Status'}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
