@@ -28,7 +28,12 @@ class MonevScheduleCtrl extends Controller
      */
     public function store(StoreMonevScheduleRequest $request)
     {
-        MonevSchedule::create($request->validated());
+        $data = $request->validated();
+        if ($request->user() && $request->user()->university_id) {
+            $data['university_id'] = $request->user()->university_id;
+        }
+
+        MonevSchedule::create($data);
 
         return redirect()->route('admin.monev-schedules.index')
             ->with('success', 'Jadwal monev berhasil dibuat.');

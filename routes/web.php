@@ -36,6 +36,7 @@ use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\Review\ReviewSummaryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewDocumentController;
+use App\Http\Controllers\Reviewer\MonevEvaluationController;
 use App\Http\Controllers\ReviewerController;
 use App\Http\Controllers\ReviewHistoryController;
 use App\Http\Controllers\SchemaController;
@@ -182,7 +183,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/assessment/{id}', [ReviewController::class, 'updateAssessment'])->name('assessment.update');
 
         // Monev & Evaluation
-        Route::post('/monev/{id}', [ProgressController::class, 'evaluateMonev'])->name('monev.evaluate');
+        Route::post('/monev/{report}/evaluate', [MonevEvaluationController::class, 'evaluate'])->name('monev.evaluate');
+        Route::post('/monev/{id}', [MonevEvaluationController::class, 'evaluate'])->name('monev.evaluate.legacy');
         Route::get('/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
         Route::get('/evaluations/{report}', [EvaluationController::class, 'showProgress'])->name('evaluations.show');
         Route::post('/evaluations/{id}', [EvaluationController::class, 'evaluateFinal'])->name('evaluations.evaluate-final');

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Progress\StoreProgressReportRequest;
+use App\Http\Requests\Reviewer\EvaluateMonevRequest;
 use App\Models\Contract;
 use App\Models\ProgressReport;
 use App\Models\Proposal;
@@ -65,71 +67,30 @@ class ProgressController extends Controller
     /**
      * Store a newly created progress report.
      */
-    public function store(Request $request)
+    public function store(StoreProgressReportRequest $request)
     {
-        $user = Auth::user();
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'proposal_id' => [
-                'required',
-                Rule::exists('proposals', 'id')->where('user_id', $user->id),
-            ],
-            'title' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-            'report_type' => ['required', Rule::in(['logbook', 'laporan_kemajuan', 'laporan_akhir'])],
-            'report_date' => ['required', 'date'],
-            'progress_percentage' => ['required', 'integer', 'min:0', 'max:100'],
-            'report_period' => ['required', 'string', 'max:255'],
-            'attachment' => ['required_unless:report_type,logbook', 'nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'status' => ['required', Rule::in(['draft', 'submitted'])],
-        ], [
-            'proposal_id.required' => 'Proposal wajib dipilih.',
-            'title.required' => 'Judul laporan wajib diisi.',
-            'content.required' => 'Deskripsi kegiatan wajib diisi.',
-            'report_type.required' => 'Jenis laporan wajib dipilih.',
-            'report_date.required' => 'Tanggal pelaporan wajib diisi.',
-            'progress_percentage.min' => 'Nilai progres harus antara rentang 0 hingga 100.',
-            'progress_percentage.max' => 'Nilai progres harus antara rentang 0 hingga 100.',
-            'attachment.required_unless' => 'Bukti file dokumentasi laporan wajib dilampirkan.',
-            'attachment.max' => 'Dokumen lampiran maksimal 5MB.',
-        ]);
+        $fileLaporanPath = $request->file('file_laporan_kemajuan')->store('progress-reports', 'public');
 
-        // Validasi logis (PRD Modul 4): progres tidak boleh mundur dari laporan sebelumnya
-        $lastPercentage = ProgressReport::where('user_id', $user->id)
-            ->where('proposal_id', $validated['proposal_id'])
-            ->max('progress_percentage');
-
-        if ($lastPercentage !== null && $validated['progress_percentage'] < $lastPercentage) {
-            return back()->withErrors([
-                'progress_percentage' => "Persentase progres tidak boleh lebih kecil dari laporan sebelumnya ({$lastPercentage}%).",
-            ])->withInput();
-        }
-
-        // Ambil kontrak yang terhubung dengan proposal (jika sudah ada)
-        $contract = Contract::where('proposal_id', $validated['proposal_id'])->first();
-
-        $attachmentPath = null;
-        if ($request->hasFile('attachment')) {
-            $attachmentPath = $request->file('attachment')->store('progress-attachments', 'public');
+        $fileLogbookPath = null;
+        if ($request->hasFile('file_logbook')) {
+            $fileLogbookPath = $request->file('file_logbook')->store('progress-logbooks', 'public');
         }
 
         ProgressReport::create([
-            'proposal_id' => $validated['proposal_id'],
-            'contract_id' => $contract?->id,
-            'user_id' => $user->id,
-            'title' => $validated['title'],
-            'content' => $validated['content'],
-            'report_type' => $validated['report_type'],
-            'report_date' => $validated['report_date'],
-            'progress_percentage' => $validated['progress_percentage'],
-            'report_period' => $validated['report_period'],
-            'attachment_path' => $attachmentPath,
-            'status' => $validated['status'],
-            'submitted_at' => $validated['status'] === 'submitted' ? now() : null,
+            'id_proposal' => $validated['id_proposal'],
+            'id_monev_schedule' => $validated['id_monev_schedule'],
+            'persentase_kemajuan' => $validated['persentase_kemajuan'],
+            'ringkasan_progres' => $validated['ringkasan_progres'],
+            'catatan_kendala' => $validated['catatan_kendala'] ?? null,
+            'file_laporan_kemajuan' => $fileLaporanPath,
+            'file_logbook' => $fileLogbookPath,
+            'status_laporan' => ProgressReport::STATUS_SUBMITTED,
         ]);
 
         return redirect()
-            ->route('user.progress.index')
+            ->route('progress.index')
             ->with('success', 'Laporan kemajuan berhasil disimpan.');
     }
 
@@ -150,8 +111,17 @@ class ProgressController extends Controller
     /**
      * Evaluasi laporan monev oleh reviewer.
      */
-    public function evaluateMonev(Request $request, $id)
+    public function evaluateMonev(EvaluateMonevRequest $request, $id)
     {
+        $report = ProgressReport::findOrFail($id);
+        $validated = $request->validated();
+
+        $report->update([
+            'skor_monev' => $validated['skor_monev'],
+            'status_laporan' => $validated['status_laporan'],
+            'catatan_reviewer_monev' => $validated['catatan_reviewer_monev'],
+        ]);
+
         return redirect()->back()->with('success', 'Evaluasi monev berhasil disimpan.');
     }
 }
