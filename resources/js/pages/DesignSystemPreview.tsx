@@ -38,10 +38,14 @@ import {
   TabularFigure, 
   MetricCard, 
   PageHeader, 
-  SplitScreenViewer 
+  SplitScreenViewer,
+  LanguageSwitcher 
 } from '@/components/ui';
+import { useTranslation } from '@/hooks/use-translation';
 
 export default function DesignSystemPreview() {
+  const { t, locale } = useTranslation();
+
   // Navigation active anchor
   const [activeSection, setActiveSection] = useState<string>('colors');
 
@@ -78,20 +82,20 @@ export default function DesignSystemPreview() {
     phase: string;
     rule: string;
   }[] = [
-    { status: 'Draft', label: '[DRAFT]', phase: 'Fase 1: Pengusulan', rule: 'Dapat diedit bebas oleh pengusul' },
-    { status: 'Submitted', label: '[DIAJUKAN]', phase: 'Fase 1: Pengusulan', rule: 'Terkunci dari penyuntingan' },
-    { status: 'In_Review', label: '[SEDANG DIREVIEW]', phase: 'Fase 2: Penilaian', rule: 'Plotting 2 reviewer aktif (Bebas CoI)' },
-    { status: 'Lolos_Didanai', label: '[LOLOS DIDANAI]', phase: 'Fase 2: Penilaian', rule: 'Persetujuan pleno penetapan penerima' },
-    { status: 'Ditolak', label: '[DITOLAK]', phase: 'Fase 2: Penilaian', rule: 'Tidak memenuhi ambang batas passing grade' },
-    { status: 'Revisi', label: '[PERLU REVISI]', phase: 'Fase 2: Penilaian', rule: 'Memerlukan perbaikan dokumen dalam batas waktu' },
-    { status: 'Contracted', label: '[TERKONTRAK]', phase: 'Fase 3: Kontrak', rule: 'Penandatanganan perjanjian riset resmi' },
-    { status: 'Disbursed_T1', label: '[CAIR TERMIN 1]', phase: 'Fase 4: Pendanaan', rule: 'Penyaluran 70% pagu dana riset' },
-    { status: 'Disbursed_T2', label: '[CAIR TERMIN 2]', phase: 'Fase 4: Pendanaan', rule: 'Monev Gatekeeper: Wajib Monev Approved' },
-    { status: 'Monev_Approved', label: '[MONEV DISETUJUI]', phase: 'Fase 5: Monev', rule: 'Laporan kemajuan dinilai memenuhi syarat' },
-    { status: 'Monev_Locked', label: '[TERKUNCI MONEV]', phase: 'Fase 5: Monev', rule: 'Batas akhir unggah monev telah berakhir' },
-    { status: 'Output_Verified', label: '[LUARAN TERVERIFIKASI]', phase: 'Fase 6: Luaran', rule: 'Verifikasi DOI / ISBN / Nomor HKI unik' },
-    { status: 'Completed_SKTS', label: '[SELESAI (SKTS)]', phase: 'Fase 6: Luaran', rule: 'Read-Only Archive: Terkunci permanen' },
-    { status: 'Terminated', label: '[FORCE MAJEURE / DIBATALKAN]', phase: 'Kasus Batas', rule: 'Riset dihentikan resmi oleh keputusan LPPM' },
+    { status: 'Draft', label: t.statuses.Draft, phase: t.designSystem.phaseProposal, rule: t.statusDescriptions.Draft },
+    { status: 'Submitted', label: t.statuses.Submitted, phase: t.designSystem.phaseProposal, rule: t.statusDescriptions.Submitted },
+    { status: 'In_Review', label: t.statuses.In_Review, phase: t.designSystem.phaseReview, rule: t.statusDescriptions.In_Review },
+    { status: 'Lolos_Didanai', label: t.statuses.Lolos_Didanai, phase: t.designSystem.phaseReview, rule: t.statusDescriptions.Lolos_Didanai },
+    { status: 'Ditolak', label: t.statuses.Ditolak, phase: t.designSystem.phaseReview, rule: t.statusDescriptions.Ditolak },
+    { status: 'Revisi', label: t.statuses.Revisi, phase: t.designSystem.phaseReview, rule: t.statusDescriptions.Revisi },
+    { status: 'Contracted', label: t.statuses.Contracted, phase: t.designSystem.phaseContract, rule: t.statusDescriptions.Contracted },
+    { status: 'Disbursed_T1', label: t.statuses.Disbursed_T1, phase: t.designSystem.phaseDisbursement, rule: t.statusDescriptions.Disbursed_T1 },
+    { status: 'Disbursed_T2', label: t.statuses.Disbursed_T2, phase: t.designSystem.phaseDisbursement, rule: t.statusDescriptions.Disbursed_T2 },
+    { status: 'Monev_Approved', label: t.statuses.Monev_Approved, phase: t.designSystem.phaseMonev, rule: t.statusDescriptions.Monev_Approved },
+    { status: 'Monev_Locked', label: t.statuses.Monev_Locked, phase: t.designSystem.phaseMonev, rule: t.statusDescriptions.Monev_Locked },
+    { status: 'Output_Verified', label: t.statuses.Output_Verified, phase: t.designSystem.phaseOutput, rule: t.statusDescriptions.Output_Verified },
+    { status: 'Completed_SKTS', label: t.statuses.Completed_SKTS, phase: t.designSystem.phaseOutput, rule: t.statusDescriptions.Completed_SKTS },
+    { status: 'Terminated', label: t.statuses.Terminated, phase: t.designSystem.phaseEdgeCase, rule: t.statusDescriptions.Terminated },
   ];
 
   const [statusFilter, setStatusFilter] = useState<'all' | 'usulan' | 'kontrak' | 'monev' | 'selesai'>('all');
@@ -106,18 +110,18 @@ export default function DesignSystemPreview() {
   });
 
   const navItems = [
-    { id: 'colors', label: '1. Palet Warna', icon: Palette },
-    { id: 'typography', label: '2. Tipografi Ganda', icon: Type },
-    { id: 'badges', label: '3. StatusBadge (14 Status)', icon: Tag },
-    { id: 'uploader', label: '4. PDFUploader (10 MB)', icon: UploadCloud },
-    { id: 'figures', label: '5. TabularFigure (Anti-CLS)', icon: Hash },
-    { id: 'metrics', label: '6. MetricCard (Bento Grid)', icon: LayoutDashboard },
-    { id: 'splitscreen', label: '7. SplitScreenViewer', icon: Columns },
+    { id: 'colors', label: t.designSystem.nav.colors, icon: Palette },
+    { id: 'typography', label: t.designSystem.nav.typography, icon: Type },
+    { id: 'badges', label: t.designSystem.nav.badges, icon: Tag },
+    { id: 'uploader', label: t.designSystem.nav.uploader, icon: UploadCloud },
+    { id: 'figures', label: t.designSystem.nav.figures, icon: Hash },
+    { id: 'metrics', label: t.designSystem.nav.metrics, icon: LayoutDashboard },
+    { id: 'splitscreen', label: t.designSystem.nav.splitscreen, icon: Columns },
   ];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-100 selection:text-blue-900">
-      <Head title="Katalog Sistem Desain: Hybrid Scholarly Enterprise" />
+      <Head title={t.designSystem.pageTitle} />
 
       {/* Top Banner Navigation */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
@@ -129,32 +133,36 @@ export default function DesignSystemPreview() {
               </div>
               <div>
                 <span className="text-xs font-mono uppercase tracking-widest text-slate-500 block">
-                  STANDALONE SPEC 2026
+                  {t.designSystem.catalogSpecTag}
                 </span>
                 <span className="text-sm font-sans font-bold text-slate-900 tracking-tight">
-                  Design System Preview Gate
+                  {t.designSystem.previewGate}
                 </span>
               </div>
             </div>
 
-            <div className="hidden md:flex items-center space-x-1.5 text-xs font-medium">
+            <div className="hidden md:flex items-center space-x-2 text-xs font-medium">
               <span className="inline-flex items-center px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono">
-                [WCAG AAA]
+                {t.designSystem.wcagTag}
               </span>
               <span className="inline-flex items-center px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200 font-mono">
-                [ZERO EMOJI]
+                {t.designSystem.zeroEmojiTag}
               </span>
+              <LanguageSwitcher variant="segmented" />
               <span className="inline-flex items-center px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-300 font-mono">
-                [21 TABEL BERSIH]
+                {t.designSystem.cleanTablesTag}
               </span>
             </div>
 
             <div className="flex items-center space-x-2">
+              <div className="md:hidden">
+                <LanguageSwitcher variant="segmented" />
+              </div>
               <a
                 href="#splitscreen"
                 className="inline-flex items-center text-xs font-semibold px-3 py-1.5 rounded-md bg-blue-900 text-white hover:bg-blue-800 transition-colors shadow-xs"
               >
-                <span>Uji Ruang Telaah</span>
+                <span>{t.designSystem.testSplitScreen}</span>
                 <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
               </a>
             </div>
@@ -189,17 +197,17 @@ export default function DesignSystemPreview() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
         {/* Page Header Component Showcase */}
         <PageHeader
-          title="Katalog Sistem Desain: Hybrid Scholarly Enterprise"
+          title={t.designSystem.title}
           isEditorialSerif={true}
           breadcrumbs={[
-            { label: 'SIM-Penelitian', href: '/' },
-            { label: 'Pusat Arsitektur', href: '#' },
-            { label: 'Katalog Komponen Terstandarisasi' },
+            { label: t.common.appName, href: '/' },
+            { label: t.designSystem.breadcrumbsArch, href: '#' },
+            { label: t.designSystem.breadcrumbsCatalog },
           ]}
-          subtitle="Verifikasi Gerbang Sistem Desain (Design System Preview Gate) sesuai Cetak Biru docs/technical/design.md. Seluruh komponen mematuhi kontras WCAG AAA, tipografi ganda editorial-enterprise, dan Strict Zero Emoji Invariant."
+          subtitle={t.designSystem.subtitle}
           badge={
             <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-sans font-bold bg-blue-900 text-white tracking-wider uppercase">
-              Baseline v2.0
+              {t.designSystem.badgeBaseline}
             </span>
           }
           actions={
@@ -208,17 +216,17 @@ export default function DesignSystemPreview() {
                 type="button"
                 onClick={() => copyToClipboard('docs/technical/design.md')}
                 className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 transition-colors"
-                title="Salin path dokumen spesifikasi"
+                title={t.designSystem.copySpecTooltip}
               >
                 {copiedToken === 'docs/technical/design.md' ? (
                   <>
                     <Check className="w-3.5 h-3.5 text-emerald-600 mr-1.5" />
-                    <span>Path Disalin</span>
+                    <span>{t.designSystem.pathCopied}</span>
                   </>
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5 text-slate-500 mr-1.5" />
-                    <span>Spesifikasi Desain</span>
+                    <span>{t.designSystem.designSpecBtn}</span>
                   </>
                 )}
               </button>
@@ -234,28 +242,28 @@ export default function DesignSystemPreview() {
                 <Palette className="w-4 h-4" />
               </div>
               <h2 className="text-lg font-sans font-bold text-slate-900">
-                1. Palet Warna Semantik & Cool Slate Tokens
+                {t.designSystem.section1Title}
               </h2>
             </div>
-            <span className="text-xs font-mono text-slate-500">[WCAG AAA COMPLIANT]</span>
+            <span className="text-xs font-mono text-slate-500">{t.designSystem.wcagCompliantTag}</span>
           </div>
 
           <p className="text-sm text-slate-600">
-            Palet Cool Slate dirancang untuk keheningan kognitif saat membaca dokumen tebal dan ketegasan garis batas operasional. Dilarang menggunakan gradien ungu/pink liar atau teks abu-abu di atas abu-abu.
+            {t.designSystem.section1Description}
           </p>
 
           {/* Group 1: Cool Slate Surfaces */}
           <div className="space-y-3">
             <h3 className="text-xs font-sans font-bold text-slate-700 uppercase tracking-wider">
-              Token Permukaan (Cool Slate Foundation)
+              {t.designSystem.colorGroupSurfaces}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
               {[
-                { token: 'surface-base', hex: '#F8FAFC', tailwind: 'bg-slate-50', role: 'Kanvas utama seluruh viewport' },
-                { token: 'surface-card', hex: '#FFFFFF', tailwind: 'bg-white', role: 'Permukaan kartu & modal' },
-                { token: 'surface-elevated', hex: '#F1F5F9', tailwind: 'bg-slate-100', role: 'Header tabel & panel filter' },
-                { token: 'surface-muted', hex: '#E2E8F0', tailwind: 'bg-slate-200', role: 'Placeholder & kondisi disable' },
-                { token: 'surface-sidebar', hex: '#0F172A', tailwind: 'bg-slate-900', role: 'Bilah navigasi institusional' },
+                { token: 'surface-base', hex: '#F8FAFC', tailwind: 'bg-slate-50', role: t.designSystem.surfaceBaseRole },
+                { token: 'surface-card', hex: '#FFFFFF', tailwind: 'bg-white', role: t.designSystem.surfaceCardRole },
+                { token: 'surface-elevated', hex: '#F1F5F9', tailwind: 'bg-slate-100', role: t.designSystem.surfaceElevatedRole },
+                { token: 'surface-muted', hex: '#E2E8F0', tailwind: 'bg-slate-200', role: t.designSystem.surfaceMutedRole },
+                { token: 'surface-sidebar', hex: '#0F172A', tailwind: 'bg-slate-900', role: t.designSystem.surfaceSidebarRole },
               ].map((swatch) => (
                 <div
                   key={swatch.token}
@@ -284,16 +292,16 @@ export default function DesignSystemPreview() {
           {/* Group 2: Brand Identity */}
           <div className="space-y-3">
             <h3 className="text-xs font-sans font-bold text-slate-700 uppercase tracking-wider">
-              Token Identitas Brand Institusi (Academic Navy & Emerald)
+              {t.designSystem.colorGroupBrand}
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
               {[
-                { token: 'brand-primary', hex: '#1E3A8A', tailwind: 'bg-blue-900 text-white', label: 'Primary Navy' },
-                { token: 'brand-primary-hover', hex: '#1E40AF', tailwind: 'bg-blue-800 text-white', label: 'Primary Hover' },
-                { token: 'brand-primary-light', hex: '#EFF6FF', tailwind: 'bg-blue-50 text-blue-900', label: 'Primary Light' },
-                { token: 'brand-accent', hex: '#059669', tailwind: 'bg-emerald-600 text-white', label: 'Academic Emerald' },
-                { token: 'brand-accent-hover', hex: '#047857', tailwind: 'bg-emerald-700 text-white', label: 'Emerald Hover' },
-                { token: 'brand-accent-light', hex: '#ECFDF5', tailwind: 'bg-emerald-50 text-emerald-800', label: 'Emerald Light' },
+                { token: 'brand-primary', hex: '#1E3A8A', tailwind: 'bg-blue-900 text-white', label: t.designSystem.brandPrimaryLabel },
+                { token: 'brand-primary-hover', hex: '#1E40AF', tailwind: 'bg-blue-800 text-white', label: t.designSystem.brandPrimaryHoverLabel },
+                { token: 'brand-primary-light', hex: '#EFF6FF', tailwind: 'bg-blue-50 text-blue-900', label: t.designSystem.brandPrimaryLightLabel },
+                { token: 'brand-accent', hex: '#059669', tailwind: 'bg-emerald-600 text-white', label: t.designSystem.brandAccentLabel },
+                { token: 'brand-accent-hover', hex: '#047857', tailwind: 'bg-emerald-700 text-white', label: t.designSystem.brandAccentHoverLabel },
+                { token: 'brand-accent-light', hex: '#ECFDF5', tailwind: 'bg-emerald-50 text-emerald-800', label: t.designSystem.brandAccentLightLabel },
               ].map((swatch) => (
                 <div
                   key={swatch.token}
@@ -318,15 +326,15 @@ export default function DesignSystemPreview() {
           {/* Group 3: Semantic System States */}
           <div className="space-y-3">
             <h3 className="text-xs font-sans font-bold text-slate-700 uppercase tracking-wider">
-              Token Keadaan Sistem (System Semantic States)
+              {t.designSystem.colorGroupSystem}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
               {[
-                { name: 'Sukses / Lolos / Verified', classes: 'bg-emerald-50 text-emerald-800 border-emerald-200', hexText: '#059669', hexBg: '#ECFDF5' },
-                { name: 'Info / Submitted / Kontrak', classes: 'bg-sky-50 text-sky-800 border-sky-200', hexText: '#0284C7', hexBg: '#F0F9FF' },
-                { name: 'Warning / Review / Revisi', classes: 'bg-amber-50 text-amber-800 border-amber-200', hexText: '#D97706', hexBg: '#FFFBEB' },
-                { name: 'Danger / Ditolak / Overdue', classes: 'bg-rose-50 text-rose-800 border-rose-200', hexText: '#E11D48', hexBg: '#FFF1F2' },
-                { name: 'Neutral / Draft / Arsip', classes: 'bg-slate-100 text-slate-800 border-slate-300', hexText: '#475569', hexBg: '#F1F5F9' },
+                { name: t.designSystem.semanticSuccessName, classes: 'bg-emerald-50 text-emerald-800 border-emerald-200', hexText: '#059669', hexBg: '#ECFDF5' },
+                { name: t.designSystem.semanticInfoName, classes: 'bg-sky-50 text-sky-800 border-sky-200', hexText: '#0284C7', hexBg: '#F0F9FF' },
+                { name: t.designSystem.semanticWarningName, classes: 'bg-amber-50 text-amber-800 border-amber-200', hexText: '#D97706', hexBg: '#FFFBEB' },
+                { name: t.designSystem.semanticDangerName, classes: 'bg-rose-50 text-rose-800 border-rose-200', hexText: '#E11D48', hexBg: '#FFF1F2' },
+                { name: t.designSystem.semanticNeutralName, classes: 'bg-slate-100 text-slate-800 border-slate-300', hexText: '#475569', hexBg: '#F1F5F9' },
               ].map((state) => (
                 <div
                   key={state.name}
@@ -336,8 +344,8 @@ export default function DesignSystemPreview() {
                     {state.name}
                   </div>
                   <div className="mt-3 pt-2 border-t border-current/15 font-mono text-xs flex justify-between">
-                    <span>Teks: {state.hexText}</span>
-                    <span>Bg: {state.hexBg}</span>
+                    <span>{t.designSystem.textPrefix}{state.hexText}</span>
+                    <span>{t.designSystem.bgPrefix}{state.hexBg}</span>
                   </div>
                 </div>
               ))}
@@ -353,10 +361,10 @@ export default function DesignSystemPreview() {
                 <Type className="w-4 h-4" />
               </div>
               <h2 className="text-lg font-sans font-bold text-slate-900">
-                2. Disiplin Tipografi Hibrida (Dual-Personality Typography Scale)
+                {t.designSystem.section2Title}
               </h2>
             </div>
-            <span className="text-xs font-mono text-slate-500">[NEWSREADER &bull; PLUS JAKARTA &bull; JETBRAINS]</span>
+            <span className="text-xs font-mono text-slate-500">{t.designSystem.section2FontsTag}</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -364,27 +372,27 @@ export default function DesignSystemPreview() {
             <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4 shadow-xs">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-blue-900">
-                  DIMENSI SCHOLARLY
+                  {t.designSystem.typoScholarly}
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded bg-slate-100 font-mono text-slate-600">
-                  Newsreader Serif
+                  {t.designSystem.typoScholarlyFont}
                 </span>
               </div>
               <div className="space-y-3">
                 <div>
-                  <span className="text-xs font-sans text-slate-400 block mb-1">Judul Skema / Proposal Riset (H1)</span>
+                  <span className="text-xs font-sans text-slate-400 block mb-1">{t.designSystem.typoScholarlyHeading}</span>
                   <h3 className="font-serif text-2xl font-semibold text-slate-900 leading-snug">
-                    Rancang Bangun Kecerdasan Artifisial untuk Deteksi Penyakit Padi Multi-Situs
+                    {t.designSystem.typoScholarlySampleTitle}
                   </h3>
                 </div>
                 <div>
-                  <span className="text-xs font-sans text-slate-400 block mb-1">Substansi Abstrak & Narasi Ilmiah</span>
+                  <span className="text-xs font-sans text-slate-400 block mb-1">{t.designSystem.typoScholarlyAbstractLabel}</span>
                   <p className="font-serif text-sm text-slate-800 leading-relaxed italic border-l-2 border-blue-900 pl-3">
-                    "Penelitian ini merumuskan metodologi evaluasi berbasis citra multispektral UAV dan model transformer terdistribusi antar institusi pendidikan tinggi Muhammadiyah guna meningkatkan ketahanan pangan berkelanjutan."
+                    {t.designSystem.typoScholarlySampleAbstract}
                   </p>
                 </div>
                 <div className="pt-2 text-xs font-sans text-slate-500">
-                  Penggunaan: Judul riset, abstrak, sitasi jurnal ilmiah, sertifikat SKTS.
+                  {t.designSystem.typoScholarlyUsage}
                 </div>
               </div>
             </div>
@@ -393,23 +401,23 @@ export default function DesignSystemPreview() {
             <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4 shadow-xs">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-700">
-                  DIMENSI ENTERPRISE
+                  {t.designSystem.typoEnterprise}
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded bg-slate-100 font-mono text-slate-600">
-                  Plus Jakarta Sans
+                  {t.designSystem.typoEnterpriseFont}
                 </span>
               </div>
               <div className="space-y-3">
                 <div>
-                  <span className="text-xs font-sans text-slate-400 block mb-1">Heading Operasional Modul</span>
+                  <span className="text-xs font-sans text-slate-400 block mb-1">{t.designSystem.typoEnterpriseHeading}</span>
                   <h4 className="font-sans text-base font-bold text-slate-900">
-                    Formulir Evaluasi Usulan dan Pelaporan Capaian Luaran
+                    {t.designSystem.typoEnterpriseSampleHeading}
                   </h4>
                 </div>
                 <div>
-                  <span className="text-xs font-sans text-slate-400 block mb-1">Label Input Berbobot</span>
+                  <span className="text-xs font-sans text-slate-400 block mb-1">{t.designSystem.typoEnterpriseInputLabel}</span>
                   <label className="block text-xs font-sans font-semibold text-slate-700 uppercase tracking-wider">
-                    NOMOR INDUK DOSEN NASIONAL (NIDN) <span className="text-rose-600">*</span>
+                    {t.designSystem.typoEnterpriseInputLabel} <span className="text-rose-600">*</span>
                   </label>
                   <div className="mt-1 px-3 py-1.5 bg-slate-50 border border-slate-300 rounded text-xs font-sans text-slate-800">
                     0612088501 - Dr. Ir. Hendra Prasetyo, M.T.
@@ -417,14 +425,14 @@ export default function DesignSystemPreview() {
                 </div>
                 <div className="flex items-center space-x-2 pt-2">
                   <button className="px-3 py-1.5 bg-blue-900 text-white text-xs font-sans font-semibold rounded hover:bg-blue-800">
-                    Simpan Perubahan
+                    {t.designSystem.typoEnterpriseSaveBtn}
                   </button>
                   <button className="px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-xs font-sans font-medium rounded hover:bg-slate-50">
-                    Batal
+                    {t.designSystem.typoEnterpriseCancelBtn}
                   </button>
                 </div>
                 <div className="pt-2 text-xs font-sans text-slate-500">
-                  Penggunaan: Form wizards, tabel, tombol CTA, navigasi, dialog modal.
+                  {t.designSystem.typoEnterpriseUsage}
                 </div>
               </div>
             </div>
@@ -433,35 +441,35 @@ export default function DesignSystemPreview() {
             <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4 shadow-xs">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-800">
-                  DIMENSI TABULAR (ANTI-CLS)
+                  {t.designSystem.typoTabular}
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded bg-slate-100 font-mono text-slate-600">
-                  JetBrains Mono
+                  {t.designSystem.typoTabularFont}
                 </span>
               </div>
               <div className="space-y-3">
                 <div>
-                  <span className="text-xs font-sans text-slate-400 block mb-1">Nominal Anggaran Riset</span>
+                  <span className="text-xs font-sans text-slate-400 block mb-1">{t.designSystem.typoTabularHeading}</span>
                   <div className="font-mono text-2xl font-bold text-slate-900 tabular-nums">
-                    Rp75.000.000,00
+                    {locale === 'en' ? 'IDR 75,000,000.00' : 'Rp75.000.000,00'}
                   </div>
                 </div>
                 <div className="bg-slate-50 border border-slate-200 rounded p-3 space-y-1.5 font-mono text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Termin 1 (70%):</span>
-                    <span className="font-semibold text-slate-900 tabular-nums">Rp52.500.000,00</span>
+                    <span className="text-slate-500">{t.designSystem.typoTabularTermin1}</span>
+                    <span className="font-semibold text-slate-900 tabular-nums">{locale === 'en' ? 'IDR 52,500,000.00' : 'Rp52.500.000,00'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Termin 2 (30%):</span>
-                    <span className="font-semibold text-slate-900 tabular-nums">Rp22.500.000,00</span>
+                    <span className="text-slate-500">{t.designSystem.typoTabularTermin2}</span>
+                    <span className="font-semibold text-slate-900 tabular-nums">{locale === 'en' ? 'IDR 22,500,000.00' : 'Rp22.500.000,00'}</span>
                   </div>
                   <div className="flex justify-between pt-1 border-t border-slate-200">
-                    <span className="text-slate-500">Passing Score:</span>
+                    <span className="text-slate-500">{t.designSystem.typoTabularPassing}</span>
                     <span className="font-bold text-emerald-700 tabular-nums">87.50 / 100.00</span>
                   </div>
                 </div>
                 <div className="pt-2 text-xs font-sans text-slate-500">
-                  Penggunaan: Keuangan rupiah, passing score, persentase, kode hash DOI/ISBN.
+                  {t.designSystem.typoTabularUsage}
                 </div>
               </div>
             </div>
@@ -477,10 +485,10 @@ export default function DesignSystemPreview() {
               </div>
               <div>
                 <h2 className="text-lg font-sans font-bold text-slate-900">
-                  3. Komponen StatusBadge (14 State Siklus Hidup Penelitian)
+                  {t.designSystem.section3Title}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Format teks terstruktur [STATUS] dengan mikro-ikon semantik dan aturan pembatasan alur.
+                  {t.designSystem.statusDescription}
                 </p>
               </div>
             </div>
@@ -488,11 +496,11 @@ export default function DesignSystemPreview() {
             {/* Filter buttons */}
             <div className="flex items-center space-x-1 overflow-x-auto text-xs">
               {[
-                { id: 'all', label: 'Semua (14)' },
-                { id: 'usulan', label: 'Usulan & Review (6)' },
-                { id: 'kontrak', label: 'Kontrak & Dana (3)' },
-                { id: 'monev', label: 'Monev & Luaran (3)' },
-                { id: 'selesai', label: 'Penyelesaian (2)' },
+                { id: 'all', label: `${t.designSystem.filterAll} (14)` },
+                { id: 'usulan', label: `${t.designSystem.filterProposal} (6)` },
+                { id: 'kontrak', label: `${t.designSystem.filterContract} (3)` },
+                { id: 'monev', label: `${t.designSystem.filterMonev} (3)` },
+                { id: 'selesai', label: `${t.designSystem.filterCompletion} (2)` },
               ].map((f) => (
                 <button
                   key={f.id}
@@ -514,11 +522,11 @@ export default function DesignSystemPreview() {
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-sans font-semibold uppercase tracking-wider">
                   <tr>
-                    <th className="py-3 px-4">Status Key</th>
-                    <th className="py-3 px-4">Ukuran Small (`sm`)</th>
-                    <th className="py-3 px-4">Ukuran Medium (`md`)</th>
-                    <th className="py-3 px-4">Fase Siklus Hidup</th>
-                    <th className="py-3 px-4">Aturan Rekayasa Sistem</th>
+                    <th className="py-3 px-4">{t.designSystem.statusColKey}</th>
+                    <th className="py-3 px-4">{t.designSystem.statusColSmall}</th>
+                    <th className="py-3 px-4">{t.designSystem.statusColMedium}</th>
+                    <th className="py-3 px-4">{t.designSystem.statusColPhase}</th>
+                    <th className="py-3 px-4">{t.designSystem.statusColRule}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 font-sans">
@@ -556,14 +564,14 @@ export default function DesignSystemPreview() {
               </div>
               <div>
                 <h2 className="text-lg font-sans font-bold text-slate-900">
-                  4. Komponen PDFUploader (Validasi Format .pdf & Batas 10 MB)
+                  {t.designSystem.section4Title}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Komponen drag-and-drop khusus berkas tunggal .pdf (10.485.760 bytes) dengan feedback status interaktif.
+                  {t.designSystem.section4Description}
                 </p>
               </div>
             </div>
-            <span className="text-xs font-mono text-slate-500">[UPLOAD GUARD AKTIF]</span>
+            <span className="text-xs font-mono text-slate-500">{t.designSystem.uploadGuardTag}</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -571,28 +579,28 @@ export default function DesignSystemPreview() {
             <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4 shadow-xs">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <span className="text-xs font-sans font-bold text-blue-900 uppercase tracking-wider">
-                  Uji Coba Unggah Interaktif
+                  {t.designSystem.uploaderInteractiveTitle}
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-mono">
-                  [SIAP INPUT]
+                  {t.designSystem.uploaderReadyBadge}
                 </span>
               </div>
               <PDFUploader
                 value={demoFile}
                 onChange={(file) => setDemoFile(file)}
                 maxSizeMB={10}
-                label="Dokumen Proposal Riset"
+                label={t.designSystem.uploaderProposalLabel}
                 required={true}
-                helperText="Coba unggah berkas PDF asli Anda di sini (maks 10 MB)."
+                helperText={t.designSystem.uploaderProposalHelper}
               />
               {demoFile && (
                 <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded text-xs text-emerald-800 space-y-1">
                   <div className="font-semibold flex items-center space-x-1.5">
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Berkas Terverifikasi Klien</span>
+                    <span>{t.designSystem.uploaderFileVerified}</span>
                   </div>
                   <div className="font-mono text-[11px] text-emerald-700">
-                    Ukuran: {(demoFile.size / (1024 * 1024)).toFixed(2)} MB &bull; MIME: {demoFile.type || 'application/pdf'}
+                    {t.designSystem.uploaderSize}: {(demoFile.size / (1024 * 1024)).toFixed(2)} MB &bull; MIME: {demoFile.type || 'application/pdf'}
                   </div>
                 </div>
               )}
@@ -602,10 +610,10 @@ export default function DesignSystemPreview() {
             <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4 shadow-xs">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <span className="text-xs font-sans font-bold text-slate-700 uppercase tracking-wider">
-                  Kondisi Berkas Tersimpan
+                  {t.designSystem.uploaderPrefilledTitle}
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono">
-                  [PRE-FILLED]
+                  {t.designSystem.uploaderPrefilledBadge}
                 </span>
               </div>
               <PDFUploader
@@ -613,11 +621,11 @@ export default function DesignSystemPreview() {
                 existingFileUrl="/sample-proposal.pdf"
                 onChange={() => {}}
                 maxSizeMB={10}
-                label="Laporan Kemajuan Monev"
-                helperText="Berkas yang telah diunggah tersimpan aman di cloud storage."
+                label={t.designSystem.uploaderMonevLabel}
+                helperText={t.designSystem.uploaderMonevHelper}
               />
               <p className="text-xs text-slate-500 font-sans">
-                Menampilkan tampilan berkas proposal yang sebelumnya telah diunggah dan tersimpan pada basis data.
+                {t.designSystem.uploaderPrefilledDesc}
               </p>
             </div>
 
@@ -625,10 +633,10 @@ export default function DesignSystemPreview() {
             <div className="bg-white border border-slate-200 rounded-lg p-5 space-y-4 shadow-xs">
               <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                 <span className="text-xs font-sans font-bold text-slate-700 uppercase tracking-wider">
-                  Kondisi Terkunci (Read-Only)
+                  {t.designSystem.uploaderLockedTitle}
                 </span>
                 <span className="text-xs px-2 py-0.5 rounded bg-rose-50 text-rose-700 font-mono">
-                  [TERKUNCI]
+                  {t.designSystem.uploaderLockedBadge}
                 </span>
               </div>
               <PDFUploader
@@ -636,11 +644,11 @@ export default function DesignSystemPreview() {
                 onChange={() => {}}
                 maxSizeMB={10}
                 disabled={true}
-                label="Dokumen Kontrak Perjanjian Riset"
-                helperText="Periode pengunggahan berkas telah ditutup oleh LPPM."
+                label={t.designSystem.uploaderContractLabel}
+                helperText={t.designSystem.uploaderContractHelper}
               />
               <p className="text-xs text-slate-500 font-sans">
-                Kondisi nonaktif otomatis diterapkan saat usulan telah disetujui, monev terkunci, atau terbit SKTS.
+                {t.designSystem.uploaderLockedDesc}
               </p>
             </div>
           </div>
@@ -655,66 +663,66 @@ export default function DesignSystemPreview() {
               </div>
               <div>
                 <h2 className="text-lg font-sans font-bold text-slate-900">
-                  5. Komponen TabularFigure (Anti-CLS Monospace Numbers)
+                  {t.designSystem.section5Title}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Penyajian presisi angka keuangan Rupiah, passing score penilai, persentase, dan bilangan bulat tanpa pergeseran layout (*Zero Cumulative Layout Shift*).
+                  {t.designSystem.section5Description}
                 </p>
               </div>
             </div>
-            <span className="text-xs font-mono text-slate-500">[INTL.NUMBERFORMAT ID-ID]</span>
+            <span className="text-xs font-mono text-slate-500">{t.designSystem.intlNumberFormatTag}</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Card Currency */}
             <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-2 shadow-xs">
               <span className="text-xs font-sans font-semibold text-slate-500 uppercase tracking-wider block">
-                Format Mata Uang (IDR)
+                {t.designSystem.figureCurrencyLabel}
               </span>
               <div className="py-2">
                 <TabularFigure value={125000000} type="currency" size="xl" weight="bold" align="left" />
               </div>
               <p className="text-xs text-slate-500 font-sans">
-                Pagu total skema riset kompetitif universitas tahun 2026.
+                {t.designSystem.figureCurrencyCaption}
               </p>
             </div>
 
             {/* Card Score */}
             <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-2 shadow-xs">
               <span className="text-xs font-sans font-semibold text-slate-500 uppercase tracking-wider block">
-                Nilai / Skor Evaluasi (Score)
+                {t.designSystem.figureScoreLabel}
               </span>
               <div className="py-2">
                 <TabularFigure value={91.75} type="score" size="xl" weight="bold" align="left" suffix=" / 100.00" />
               </div>
               <p className="text-xs text-slate-500 font-sans">
-                Rata-rata rubrik penilaian dari 2 penilai independen.
+                {t.designSystem.figureScoreCaption}
               </p>
             </div>
 
             {/* Card Percentage */}
             <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-2 shadow-xs">
               <span className="text-xs font-sans font-semibold text-slate-500 uppercase tracking-wider block">
-                Persentase Termin (Percentage)
+                {t.designSystem.figurePercentageLabel}
               </span>
               <div className="py-2">
-                <TabularFigure value={70.0} type="percentage" size="xl" weight="bold" align="left" prefix="Alokasi " />
+                <TabularFigure value={70.0} type="percentage" size="xl" weight="bold" align="left" prefix={t.designSystem.figurePercentagePrefix} />
               </div>
               <p className="text-xs text-slate-500 font-sans">
-                Formula pencairan Termin 1 pasca kontrak resmi diteken.
+                {t.designSystem.figurePercentageCaption}
               </p>
             </div>
 
             {/* Card Integer */}
             <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-2 shadow-xs">
               <span className="text-xs font-sans font-semibold text-slate-500 uppercase tracking-wider block">
-                Kuantitas Data (Integer)
+                {t.designSystem.figureIntegerLabel}
               </span>
               <div className="py-2">
-                <TabularFigure value={1420} type="integer" size="xl" weight="bold" align="left" suffix=" Usulan" />
+                <TabularFigure value={1420} type="integer" size="xl" weight="bold" align="left" suffix={t.designSystem.figureIntegerSuffix} />
               </div>
               <p className="text-xs text-slate-500 font-sans">
-                Total rekapan usulan masuk pada periode penerimaan 2026.
+                {t.designSystem.figureIntegerCaption}
               </p>
             </div>
           </div>
@@ -724,32 +732,32 @@ export default function DesignSystemPreview() {
             <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <div>
                 <h4 className="text-xs font-sans font-bold text-slate-800 uppercase tracking-wider">
-                  Matriks Anggaran & Termin Pendanaan (Tabel Uji Tabular-Nums)
+                  {t.designSystem.matrixTitle}
                 </h4>
                 <p className="text-xs text-slate-500">
-                  Perhatikan kolom nominal dan persentase yang sejajar presisi ke kanan tanpa layout jitter.
+                  {t.designSystem.matrixSubtitle}
                 </p>
               </div>
               <span className="text-xs px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">
-                [ZERO CLS PASSED]
+                {t.designSystem.zeroClsBadge}
               </span>
             </div>
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-100 border-b border-slate-200 text-slate-700 font-sans font-semibold uppercase">
                 <tr>
-                  <th className="py-2.5 px-4">Komponen Anggaran</th>
-                  <th className="py-2.5 px-4 text-center">Porsi (%)</th>
-                  <th className="py-2.5 px-4 text-right">Alokasi Rupiah</th>
-                  <th className="py-2.5 px-4 text-right">Realisasi Lapangan</th>
-                  <th className="py-2.5 px-4 text-center">Status Pencairan</th>
+                  <th className="py-2.5 px-4">{t.designSystem.matrixColBudget}</th>
+                  <th className="py-2.5 px-4 text-center">{t.designSystem.matrixColShare}</th>
+                  <th className="py-2.5 px-4 text-right">{t.designSystem.matrixColAllocation}</th>
+                  <th className="py-2.5 px-4 text-right">{t.designSystem.matrixColRealization}</th>
+                  <th className="py-2.5 px-4 text-center">{t.designSystem.matrixColStatus}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 font-sans">
                 {[
-                  { name: 'Termin 1 (Pencairan Awal)', porsi: 70.0, alokasi: 35000000, realisasi: 35000000, status: 'Disbursed_T1' as BadgeStatusType },
-                  { name: 'Termin 2 (Monev Gatekeeper)', porsi: 30.0, alokasi: 15000000, realisasi: 0, status: 'Monev_Locked' as BadgeStatusType },
-                  { name: 'Honorarium Pembantu Peneliti', porsi: 20.0, alokasi: 10000000, realisasi: 10000000, status: 'Disbursed_T1' as BadgeStatusType },
-                  { name: 'Belanja Bahan Habis Pakai', porsi: 40.0, alokasi: 20000000, realisasi: 18450000, status: 'Disbursed_T1' as BadgeStatusType },
+                  { name: t.designSystem.matrixRow1, porsi: 70.0, alokasi: 35000000, realisasi: 35000000, status: 'Disbursed_T1' as BadgeStatusType },
+                  { name: t.designSystem.matrixRow2, porsi: 30.0, alokasi: 15000000, realisasi: 0, status: 'Monev_Locked' as BadgeStatusType },
+                  { name: t.designSystem.matrixRow3, porsi: 20.0, alokasi: 10000000, realisasi: 10000000, status: 'Disbursed_T1' as BadgeStatusType },
+                  { name: t.designSystem.matrixRow4, porsi: 40.0, alokasi: 20000000, realisasi: 18450000, status: 'Disbursed_T1' as BadgeStatusType },
                 ].map((row, idx) => (
                   <tr key={idx} className="hover:bg-slate-50 transition-colors">
                     <td className="py-2.5 px-4 font-medium text-slate-900">{row.name}</td>
@@ -781,59 +789,59 @@ export default function DesignSystemPreview() {
               </div>
               <div>
                 <h2 className="text-lg font-sans font-bold text-slate-900">
-                  6. Komponen MetricCard (Bento Grid Dasbor Riset)
+                  {t.designSystem.section6Title}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Visualisasi indikator kinerja utama penelitian dengan mikro-ikon tematik dan lencana kontekstual.
+                  {t.designSystem.section6Description}
                 </p>
               </div>
             </div>
-            <span className="text-xs font-mono text-slate-500">[BENTO 4-KOLOM]</span>
+            <span className="text-xs font-mono text-slate-500">{t.designSystem.bentoTag}</span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <MetricCard
-              title="Pagu Anggaran Skema"
+              title={t.designSystem.metric1Title}
               value={750000000}
               type="currency"
               icon={Calculator}
               iconBgClass="bg-blue-50"
               iconColorClass="text-blue-900"
-              caption="Total alokasi dana kompetitif tahun 2026"
-              badgeText="PAGU RESMI"
+              caption={t.designSystem.metric1Caption}
+              badgeText={t.designSystem.metric1Badge}
               badgeVariant="neutral"
             />
             <MetricCard
-              title="Total Usulan Proposal"
+              title={t.designSystem.metric2Title}
               value={142}
               type="integer"
               icon={FileText}
               iconBgClass="bg-sky-50"
               iconColorClass="text-sky-700"
-              caption="Masuk pada periode gelombang 1"
-              badgeText="+18% DARI 2025"
+              caption={t.designSystem.metric2Caption}
+              badgeText={t.designSystem.metric2Badge}
               badgeVariant="success"
             />
             <MetricCard
-              title="Reviewer Aktif Terplotting"
+              title={t.designSystem.metric3Title}
               value={28}
               type="integer"
               icon={UserCheck}
               iconBgClass="bg-amber-50"
               iconColorClass="text-amber-800"
-              caption="100% bebas dari benturan kepentingan (CoI)"
-              badgeText="SIAP MONEV"
+              caption={t.designSystem.metric3Caption}
+              badgeText={t.designSystem.metric3Badge}
               badgeVariant="warning"
             />
             <MetricCard
-              title="Dana Disetujui Termin 1"
+              title={t.designSystem.metric4Title}
               value={315000000}
               type="currency"
               icon={CreditCard}
               iconBgClass="bg-emerald-50"
               iconColorClass="text-emerald-700"
-              caption="Alokasi 70% setelah penandatanganan kontrak"
-              badgeText="70% CAIR"
+              caption={t.designSystem.metric4Caption}
+              badgeText={t.designSystem.metric4Badge}
               badgeVariant="success"
             />
           </div>
@@ -848,14 +856,14 @@ export default function DesignSystemPreview() {
               </div>
               <div>
                 <h2 className="text-lg font-sans font-bold text-slate-900">
-                  7. Komponen SplitScreenViewer (Ruang Telaah Penilai & Verifikasi)
+                  {t.designSystem.section7Title}
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Rasio layar 60% pembaca PDF di sisi kiri dan 40% rubrik penilaian interaktif di sisi kanan. Mendukung pembesaran layar penuh (*Full Width Toggle*).
+                  {t.designSystem.section7Description}
                 </p>
               </div>
             </div>
-            <span className="text-xs font-mono text-slate-500">[RASIO 60:40 &bull; INTERAKTIF]</span>
+            <span className="text-xs font-mono text-slate-500">{t.designSystem.splitScreenRatioTag}</span>
           </div>
 
           <div className="bg-white border border-slate-300 rounded-lg overflow-hidden shadow-sm">
@@ -867,17 +875,17 @@ export default function DesignSystemPreview() {
                 headerActions={
                   <div className="flex items-center space-x-2 mr-2">
                     <StatusBadge status="In_Review" size="sm" />
-                    <span className="text-xs font-mono text-slate-500">Plotting Reviewer 1</span>
+                    <span className="text-xs font-mono text-slate-500">{t.designSystem.reviewer1Assignment}</span>
                   </div>
                 }
                 formContent={
                   <div className="space-y-5">
                     <div>
                       <h3 className="font-sans text-sm font-bold text-slate-900 uppercase tracking-wide">
-                        Rubrik Penilaian Usulan Riset
+                        {t.components.splitScreen.rubricTitle}
                       </h3>
                       <p className="text-xs text-slate-500 mt-0.5">
-                        Isikan skor per kriteria berikut berdasarkan substansi dokumen proposal di sebelah kiri.
+                        {t.components.splitScreen.rubricSubtitle}
                       </p>
                     </div>
 
@@ -885,7 +893,7 @@ export default function DesignSystemPreview() {
                     <div className="space-y-1.5 p-3 bg-slate-50 rounded-md border border-slate-200">
                       <div className="flex justify-between items-center text-xs">
                         <label className="font-semibold text-slate-700">
-                          1. Urgensi & Kebaruan Riset (Bobot 35%)
+                          {t.components.splitScreen.criteriaUrgency}
                         </label>
                         <TabularFigure value={scoreUrgensi} type="score" size="sm" weight="bold" />
                       </div>
@@ -901,9 +909,9 @@ export default function DesignSystemPreview() {
                         className="w-full accent-blue-900 cursor-pointer"
                       />
                       <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-                        <span>0 (Kurang)</span>
-                        <span>50 (Cukup)</span>
-                        <span>100 (Sangat Baik)</span>
+                        <span>{t.components.splitScreen.scoreRangePoor}</span>
+                        <span>{t.components.splitScreen.scoreRangeFair}</span>
+                        <span>{t.components.splitScreen.scoreRangeExcellent}</span>
                       </div>
                     </div>
 
@@ -911,7 +919,7 @@ export default function DesignSystemPreview() {
                     <div className="space-y-1.5 p-3 bg-slate-50 rounded-md border border-slate-200">
                       <div className="flex justify-between items-center text-xs">
                         <label className="font-semibold text-slate-700">
-                          2. Metode & Peta Jalan Riset (Bobot 35%)
+                          {t.components.splitScreen.criteriaMethodology}
                         </label>
                         <TabularFigure value={scoreMetode} type="score" size="sm" weight="bold" />
                       </div>
@@ -927,9 +935,9 @@ export default function DesignSystemPreview() {
                         className="w-full accent-blue-900 cursor-pointer"
                       />
                       <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-                        <span>0 (Kurang)</span>
-                        <span>50 (Cukup)</span>
-                        <span>100 (Sangat Baik)</span>
+                        <span>{t.components.splitScreen.scoreRangePoor}</span>
+                        <span>{t.components.splitScreen.scoreRangeFair}</span>
+                        <span>{t.components.splitScreen.scoreRangeExcellent}</span>
                       </div>
                     </div>
 
@@ -937,7 +945,7 @@ export default function DesignSystemPreview() {
                     <div className="space-y-1.5 p-3 bg-slate-50 rounded-md border border-slate-200">
                       <div className="flex justify-between items-center text-xs">
                         <label className="font-semibold text-slate-700">
-                          3. Kelayakan Anggaran & Target Luaran (Bobot 30%)
+                          {t.components.splitScreen.criteriaFeasibility}
                         </label>
                         <TabularFigure value={scoreKelayakan} type="score" size="sm" weight="bold" />
                       </div>
@@ -953,9 +961,9 @@ export default function DesignSystemPreview() {
                         className="w-full accent-blue-900 cursor-pointer"
                       />
                       <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-                        <span>0 (Kurang)</span>
-                        <span>50 (Cukup)</span>
-                        <span>100 (Sangat Baik)</span>
+                        <span>{t.components.splitScreen.scoreRangePoor}</span>
+                        <span>{t.components.splitScreen.scoreRangeFair}</span>
+                        <span>{t.components.splitScreen.scoreRangeExcellent}</span>
                       </div>
                     </div>
 
@@ -963,10 +971,10 @@ export default function DesignSystemPreview() {
                     <div className="p-3.5 bg-blue-50/75 border border-blue-200 rounded-md flex items-center justify-between">
                       <div>
                         <span className="text-xs font-sans font-semibold text-blue-900 block">
-                          Skor Tertimbang Akhir:
+                          {t.components.splitScreen.aggregateScoreLabel}
                         </span>
                         <span className="text-[11px] text-slate-600 font-sans">
-                          Passing Grade Minimum: 70.00
+                          {t.designSystem.rubricPassingGrade}
                         </span>
                       </div>
                       <TabularFigure
@@ -981,7 +989,7 @@ export default function DesignSystemPreview() {
                     {/* Recommendation Select */}
                     <div className="space-y-1">
                       <label className="block text-xs font-sans font-semibold text-slate-700 uppercase tracking-wider">
-                        Rekomendasi Penilai <span className="text-rose-600">*</span>
+                        {t.components.splitScreen.recommendationLabel} <span className="text-rose-600">*</span>
                       </label>
                       <select
                         value={recommendation}
@@ -991,16 +999,16 @@ export default function DesignSystemPreview() {
                         }}
                         className="w-full text-xs font-sans rounded border-slate-300 bg-white py-1.5 px-2.5 focus:border-blue-900 focus:ring-1 focus:ring-blue-900"
                       >
-                        <option value="Lolos_Didanai">Rekomendasi Lolos Didanai Penuh</option>
-                        <option value="Revisi">Perlu Revisi Dokumen Proposal</option>
-                        <option value="Ditolak">Tidak Direkomendasikan (Ditolak)</option>
+                        <option value="Lolos_Didanai">{t.designSystem.recFunded}</option>
+                        <option value="Revisi">{t.designSystem.recRevision}</option>
+                        <option value="Ditolak">{t.designSystem.recRejected}</option>
                       </select>
                     </div>
 
                     {/* Reviewer Qualitative Feedback */}
                     <div className="space-y-1">
                       <label className="block text-xs font-sans font-semibold text-slate-700 uppercase tracking-wider">
-                        Catatan Evaluasi Kualitatif
+                        {t.components.splitScreen.reviewerNotesLabel}
                       </label>
                       <textarea
                         rows={3}
@@ -1010,7 +1018,7 @@ export default function DesignSystemPreview() {
                           setFormSaved(false);
                         }}
                         className="w-full text-xs font-sans rounded border-slate-300 p-2.5 focus:border-blue-900 focus:ring-1 focus:ring-blue-900"
-                        placeholder="Berikan masukan substansial mengenai metodologi dan anggaran..."
+                        placeholder={t.designSystem.reviewerNotesPlaceholder}
                       />
                     </div>
 
@@ -1024,7 +1032,7 @@ export default function DesignSystemPreview() {
                         className="mt-0.5 rounded border-slate-300 text-blue-900 focus:ring-blue-900"
                       />
                       <label htmlFor="coi_ack" className="text-[11px] text-slate-700 font-sans leading-tight cursor-pointer">
-                        Saya menyatakan secara jujur tidak memiliki benturan kepentingan (Conflict of Interest) dengan pengusul dan tim peneliti usulan ini.
+                        {t.components.splitScreen.coiAgreement}
                       </label>
                     </div>
 
@@ -1035,17 +1043,17 @@ export default function DesignSystemPreview() {
                         onClick={() => setFormSaved(true)}
                         className="flex-1 py-2 px-3 bg-blue-900 hover:bg-blue-800 text-white rounded text-xs font-sans font-semibold transition-colors shadow-xs"
                       >
-                        {formSaved ? 'Tersimpan [DRAF PENILAIAN]' : 'Simpan Draf Penilaian'}
+                        {formSaved ? t.designSystem.draftSavedBtn : t.components.splitScreen.saveDraftButton}
                       </button>
                       <button
                         type="button"
                         onClick={() => {
                           setFormSaved(true);
-                          alert('Penilaian resmi berhasil dikirim ke LPPM.');
+                          alert(t.designSystem.evaluationSubmittedAlert);
                         }}
                         className="py-2 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-xs font-sans font-semibold transition-colors shadow-xs"
                       >
-                        Kirim Nilai
+                        {t.components.splitScreen.finalSubmitButton}
                       </button>
                     </div>
                   </div>
@@ -1059,14 +1067,14 @@ export default function DesignSystemPreview() {
         <footer className="pt-8 pb-12 border-t border-slate-200 text-xs text-slate-500 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 font-sans">
           <div className="space-y-1">
             <p className="font-semibold text-slate-700">
-              Sistem Penelitian Terintegrasi Multi-Kampus (SIM-Penelitian Standalone)
+              {t.designSystem.footerTitle}
             </p>
             <p>
-              Design System Preview Gate &bull; Mematuhi Aturan RPL-2026 dan Bebas 100% Simbol Emoji.
+              {t.designSystem.footerSubtitle}
             </p>
           </div>
           <div className="font-mono text-[11px] text-slate-400">
-            Build: Oct 2026 &bull; Baseline: docs/technical/design.md
+            {t.designSystem.footerBaseline}
           </div>
         </footer>
       </main>
