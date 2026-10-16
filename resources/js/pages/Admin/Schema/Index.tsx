@@ -31,7 +31,6 @@ import AppLayout from '@/layouts/app-layout';
 import PageHeader from '@/components/ui/PageHeader';
 import TabularFigure from '@/components/ui/TabularFigure';
 import StatusBadge from '@/components/ui/StatusBadge';
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import { useTranslation } from '@/hooks/use-translation';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
@@ -333,27 +332,19 @@ export default function SchemaIndex({ schemas, filters }: Props) {
             <Head title="Manajemen Skema Penelitian" />
 
             <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
-                {/* ── PageHeader with LanguageSwitcher ─────────────────────────────────────────── */}
+                {/* ── PageHeader ─────────────────────────────────────────────────────────────── */}
                 <PageHeader
                     title={t.adminSchema.pageTitle}
                     subtitle={t.adminSchema.pageSubtitle}
                     isEditorialSerif={true}
                     actions={
-                        <div className="flex items-center gap-3">
-                            <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs shadow-2xs sm:flex font-mono dark:border-sidebar-border dark:bg-neutral-900">
-                                <FileText className="h-3.5 w-3.5 text-blue-900 dark:text-blue-400" />
-                                <span className="font-bold text-slate-900 dark:text-slate-100">{schemas.total}</span>
-                                <span className="text-slate-500">Skema</span>
-                            </div>
-                            <LanguageSwitcher variant="segmented" />
-                            <Button
-                                onClick={handleOpenCreate}
-                                className="flex items-center gap-2 bg-blue-900 text-white font-semibold shadow-sm hover:bg-blue-800"
-                            >
-                                <Plus className="h-4 w-4" />
-                                {t.adminSchema.addSchemeBtn}
-                            </Button>
-                        </div>
+                        <Button
+                            onClick={handleOpenCreate}
+                            className="flex items-center gap-2 bg-blue-900 text-white font-semibold shadow-sm hover:bg-blue-800"
+                        >
+                            <Plus className="h-4 w-4" />
+                            {t.adminSchema.addSchemeBtn}
+                        </Button>
                     }
                 />
 
