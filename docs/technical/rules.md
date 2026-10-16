@@ -1305,6 +1305,18 @@ Berdasarkan ketentuan **Project Rules for RPL-2026** (.agents/AGENTS.md):
 
 ---
 
+### 5.5 Penegakan Standar Internasionalisasi Antarmuka & Larangan Teks Statis Hardcoded (i18n & Zero Hardcoded Static Text Invariant)
+
+Berdasarkan ketentuan **Project Rules for RPL-2026** (.agents/AGENTS.md Bagian 1 Poin 8):
+- **Larangan Teks Statis Hardcoded**: Seluruh penambahan fitur baru, halaman baru (*view/page*), komponen antarmuka, dialog modal, pesan notifikasi, label formulir, maupun *placeholder* teks **DILARANG KERAS** ditulis secara *hardcoded* langsung di dalam berkas TSX/React.
+- **Kewajiban Pengaturan Kamus Bahasa (`.ts`)**: Seluruh teks antarmuka (*copy*) **WAJIB** didaftarkan ke dalam berkas kamus bahasa:
+  - `resources/js/lang/en.ts` sebagai bahasa bawaan (*default*) dan rujukan utama sistem (*single source of truth*).
+  - `resources/js/lang/id.ts` sebagai bahasa pilihan opsional dengan penegakan tipe `TranslationType = typeof en` untuk menjamin paritas kunci kamus 100% pada tingkat waktu kompilasi (*compile-time type safety*).
+- **Penggunaan Hook Terstandarisasi**: Seluruh teks antarmuka wajib dikonsumsi melalui hook `useTranslation()` (`const { t, format, locale } = useTranslation();`) dari `@/hooks/use-translation`.
+- **Dukungan Alih Bahasa Dinamis**: Setiap halaman atau layout baru wajib menyematkan atau mendukung komponen `<LanguageSwitcher />` (baik varian `segmented` maupun `compact`) agar pengguna dapat beralih antara Bahasa Inggris dan Bahasa Indonesia secara mulus dan reaktif (*zero-reload*).
+
+---
+
 ## 6. Ringkasan & Kepatuhan Arsitektur
 
 Dokumen panduan operasional teknis `docs/technical/rules.md` ini mengikat seluruh implementasi kode pada sistem:
@@ -1322,6 +1334,7 @@ Dokumen panduan operasional teknis `docs/technical/rules.md` ini mengikat seluru
 | Validasi Berkas & Aliran Data      | Format PDF tunggal, maks 10MB, streaming controller private  |
 | Standar Koding & Pengujian         | FormRequest terpisah, strict types, accessors, PHPUnit tests |
 | Larangan Emoji Mutlak              | Nol emoji pada kode, respon, log, dan antarmuka sistem       |
+| Internasionalisasi & Anti-Hardcode | Kamus .ts (en.ts default, id.ts opsional), useTranslation()  |
 +------------------------------------+--------------------------------------------------------------+
 ```
 

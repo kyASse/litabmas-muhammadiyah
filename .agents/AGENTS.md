@@ -45,6 +45,14 @@ Dokumen ini merupakan aturan baku rekayasa perangkat lunak yang **WAJIB DIPATUHI
 - Seluruh teks pada kode sumber, komponen antarmuka React/TypeScript, pesan kesalahan validasi backend, respons notifikasi sistem, data seeder, respons percakapan chat, commit git, dan berkas dokumentasi/laporan **WAJIB BEBAS 100% DARI SIMBOL EMOJI**.
 - Seluruh indikator visual wajib menggunakan penanda teks terstruktur standar seperti `[WAJIB]`, `[KRITIS]`, `[PASSED]`, `[SUKSES]`, `[TERKUNCI]`, `[REVISI]`, dsb., yang didampingi mikro-ikon SVG semantik (Lucide React 1.5-2.0px stroke).
 
+### 8. Invarian Internasionalisasi Antarmuka & Larangan Teks Statis Hardcoded (i18n & Zero Hardcoded Static Text Invariant)
+- **Larangan Teks Statis Hardcoded**: Setiap pembuatan fitur baru, halaman baru (*view/page*), komponen antarmuka, dialog modal, pesan notifikasi, label formulir, maupun *placeholder* teks **DILARANG KERAS** menggunakan teks statis *hardcoded* langsung di dalam berkas TSX/React.
+- **Kewajiban Pengaturan Kamus Bahasa (`.ts`)**: Seluruh salinan teks antarmuka (*copy*) **WAJIB** didaftarkan ke dalam berkas kamus bahasa:
+  - `resources/js/lang/en.ts` sebagai bahasa bawaan (*default*) dan rujukan utama sistem (*single source of truth*).
+  - `resources/js/lang/id.ts` sebagai bahasa pilihan opsional dengan penegakan tipe `TranslationType = typeof en` untuk menjamin paritas kunci kamus 100% pada tingkat waktu kompilasi (*compile-time type safety*).
+- **Penggunaan Hook Terstandarisasi**: Seluruh teks antarmuka wajib dikonsumsi melalui hook `useTranslation()` (`const { t, format, locale } = useTranslation();`) yang bersumber dari `@/hooks/use-translation`.
+- **Dukungan Alih Bahasa Dinamis**: Setiap halaman atau layout baru wajib menyematkan atau mendukung komponen `<LanguageSwitcher />` (baik varian `segmented` maupun `compact`) agar pengguna dapat beralih antara Bahasa Inggris dan Bahasa Indonesia secara mulus dan reaktif (*zero-reload*).
+
 ---
 
 ## Bagian 2: Panduan Peninjauan Kode & Pull Request (Code Review Guidelines)
@@ -57,6 +65,7 @@ Dokumen ini merupakan aturan baku rekayasa perangkat lunak yang **WAJIB DIPATUHI
   - Inkonsistensi termin pendanaan di luar formula 70% (Termin 1) dan 30% (Termin 2).
   - Melewati mekanisme *Monev Gatekeeper Lock* pada pencairan dana Termin 2.
   - Komponen antarmuka yang mengabaikan sistem desain *Hybrid Scholarly Enterprise* atau menyertakan simbol emoji.
+  - Teks statis *hardcoded* pada berkas antarmuka/halaman baru tanpa pendaftaran kunci kamus di `resources/js/lang/en.ts` dan `resources/js/lang/id.ts`.
   - Pelanggaran tahapan kerja yang ditetapkan pada `stages.md`.
 
 ### 2. Sinkronisasi Cabang (Branch Sync Invariant)
