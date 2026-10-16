@@ -1,6 +1,6 @@
-import { MetricCard } from '@/components/UI/MetricCard';
-import { StatusBadge } from '@/components/UI/StatusBadge';
-import { TabularFigure } from '@/components/UI/TabularFigure';
+import { MetricCard } from '@/components/ui/MetricCard';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { TabularFigure } from '@/components/ui/TabularFigure';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { useTranslation } from '@/hooks/use-translation';
@@ -291,7 +291,7 @@ export default function Welcome() {
                                     >
                                         <div>
                                             <div className="flex items-center justify-between gap-2">
-                                                <StatusBadge status="Approved" size="sm" />
+                                                <StatusBadge status="Lolos_Didanai" size="sm" />
                                                 {scheme.university && (
                                                     <span className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                                                         {scheme.university.code}

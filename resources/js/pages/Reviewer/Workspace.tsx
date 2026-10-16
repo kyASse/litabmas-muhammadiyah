@@ -284,7 +284,7 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
                     </div>
                     <ul className="list-disc list-inside text-xs text-rose-700 pl-1 space-y-1 font-sans">
                         {Object.entries(errors).map(([field, message]) => (
-                            <li key={field}>{message}</li>
+                            <li key={field}>{String(message)}</li>
                         ))}
                     </ul>
                 </div>

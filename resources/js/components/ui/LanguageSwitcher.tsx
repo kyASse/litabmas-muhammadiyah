@@ -4,6 +4,7 @@ import { useTranslation } from '@/hooks/use-translation';
 
 export interface LanguageSwitcherProps {
   variant?: 'segmented' | 'compact';
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
 
