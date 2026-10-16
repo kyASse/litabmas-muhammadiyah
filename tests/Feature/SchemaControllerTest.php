@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\SchemaController;
 use App\Models\Proposal;
 use App\Models\ResearchSchema;
 use App\Models\Role;
+use App\Models\University;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\CoversClass;
 use Tests\TestCase;
 
 /**
@@ -14,12 +17,13 @@ use Tests\TestCase;
  *
  * Feature test untuk memverifikasi fungsionalitas CRUD
  * Skema Penelitian (ResearchSchema) melalui SchemaController.
- *
- * @covers \App\Http\Controllers\SchemaController
  */
+#[CoversClass(SchemaController::class)]
 class SchemaControllerTest extends TestCase
 {
     use RefreshDatabase;
+
+    private University $university;
 
     private User $superAdmin;
 
@@ -32,6 +36,12 @@ class SchemaControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
+        // Arrange: Create university
+        $this->university = University::create([
+            'code' => 'UMTEST',
+            'name' => 'Universitas Muhammadiyah Test',
+        ]);
 
         // Arrange: Create roles
         $this->superAdminRole = Role::create([
@@ -52,6 +62,7 @@ class SchemaControllerTest extends TestCase
             'email' => 'superadmin@test.com',
             'password' => bcrypt('password'),
             'role_id' => $this->superAdminRole->id,
+            'university_id' => $this->university->id,
             'is_active' => true,
         ]);
 
@@ -60,6 +71,7 @@ class SchemaControllerTest extends TestCase
             'email' => 'user@test.com',
             'password' => bcrypt('password'),
             'role_id' => $this->userRole->id,
+            'university_id' => $this->university->id,
             'is_active' => true,
         ]);
     }
@@ -194,8 +206,8 @@ class SchemaControllerTest extends TestCase
 
         // Assert: Data tersimpan di database
         $this->assertDatabaseHas('research_schemas', [
-            'name' => 'Penelitian Dasar',
-            'description' => 'Skema untuk penelitian dasar',
+            'nama_skema' => 'Penelitian Dasar',
+            'deskripsi' => 'Skema untuk penelitian dasar',
         ]);
     }
 
@@ -213,7 +225,7 @@ class SchemaControllerTest extends TestCase
 
         // Assert: Berhasil
         $response->assertRedirect(route('admin.schema.index'));
-        $this->assertDatabaseHas('research_schemas', ['name' => 'PDUPT', 'description' => null]);
+        $this->assertDatabaseHas('research_schemas', ['nama_skema' => 'PDUPT', 'deskripsi' => null]);
     }
 
     /**
@@ -259,15 +271,15 @@ class SchemaControllerTest extends TestCase
     }
 
     /**
-     * Test: Validasi - deskripsi maksimal 1000 karakter
+     * Test: Validasi - deskripsi maksimal 5000 karakter
      */
     public function test_store_validates_description_max_length(): void
     {
-        // Act: Submit deskripsi yang melebihi 1000 karakter
+        // Act: Submit deskripsi yang melebihi 5000 karakter
         $response = $this->actingAs($this->superAdmin)
             ->post(route('admin.schema.store'), [
                 'name' => 'Skema Valid',
-                'description' => str_repeat('a', 1001),
+                'description' => str_repeat('a', 5001),
             ]);
 
         // Assert: Error validasi max pada description
@@ -285,7 +297,7 @@ class SchemaControllerTest extends TestCase
 
         // Assert: Ditolak
         $response->assertForbidden();
-        $this->assertDatabaseMissing('research_schemas', ['name' => 'Skema Baru']);
+        $this->assertDatabaseMissing('research_schemas', ['nama_skema' => 'Skema Baru']);
     }
 
     // =========================================================================
@@ -354,8 +366,8 @@ class SchemaControllerTest extends TestCase
         // Assert: Data terupdate di database
         $this->assertDatabaseHas('research_schemas', [
             'id' => $schema->id,
-            'name' => 'Penelitian Dasar (Diperbarui)',
-            'description' => 'Deskripsi Baru',
+            'nama_skema' => 'Penelitian Dasar (Diperbarui)',
+            'deskripsi' => 'Deskripsi Baru',
         ]);
     }
 
@@ -378,7 +390,7 @@ class SchemaControllerTest extends TestCase
         $response->assertRedirect(route('admin.schema.index'));
         $this->assertDatabaseHas('research_schemas', [
             'id' => $schema->id,
-            'description' => 'Deskripsi Diperbarui',
+            'deskripsi' => 'Deskripsi Diperbarui',
         ]);
     }
 
@@ -413,7 +425,7 @@ class SchemaControllerTest extends TestCase
 
         // Assert
         $response->assertForbidden();
-        $this->assertDatabaseMissing('research_schemas', ['name' => 'Diubah']);
+        $this->assertDatabaseMissing('research_schemas', ['nama_skema' => 'Diubah']);
     }
 
     // =========================================================================
@@ -451,6 +463,7 @@ class SchemaControllerTest extends TestCase
         Proposal::create([
             'research_schema_id' => $schema->id,
             'user_id' => $this->superAdmin->id,
+            'university_id' => $this->university->id,
             'title' => 'Proposal Test',
             'description' => 'Deskripsi proposal test',
             'status' => 'draft',

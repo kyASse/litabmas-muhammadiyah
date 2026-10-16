@@ -10,6 +10,28 @@ class ResearchSchema extends Model
 {
     use BelongsToTenant, HasFactory;
 
+    protected static function booted(): void
+    {
+        static::creating(function ($schema) {
+            if (! $schema->university_id) {
+                if (auth()->check() && auth()->user()->university_id) {
+                    $schema->university_id = auth()->user()->university_id;
+                } else {
+                    $schema->university_id = University::value('id');
+                }
+            }
+            if (! $schema->tanggal_mulai) {
+                $schema->tanggal_mulai = now()->toDateString();
+            }
+            if (! $schema->tanggal_selesai) {
+                $schema->tanggal_selesai = now()->addMonths(12)->toDateString();
+            }
+            if (! isset($schema->biaya_maksimal)) {
+                $schema->biaya_maksimal = 10000000;
+            }
+        });
+    }
+
     protected $fillable = [
         'university_id',
         'nama_skema',
