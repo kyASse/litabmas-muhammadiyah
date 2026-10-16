@@ -8,6 +8,7 @@ use App\Models\Proposal;
 use App\Models\ProposalDocument;
 use App\Models\ProposalMember;
 use App\Models\ResearchSchema;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -52,10 +53,24 @@ class ProposalController extends Controller
      */
     public function create(): Response
     {
-        $schemas = ResearchSchema::select('id', 'nama_skema', 'deskripsi', 'biaya_maksimal')->get();
+        $user = auth()->user();
+        $universityId = $user?->university_id;
+
+        $schemas = ResearchSchema::select('id', 'nama_skema', 'deskripsi', 'biaya_maksimal', 'tanggal_mulai', 'tanggal_selesai', 'is_active')
+            ->where(function ($q) {
+                $q->where('is_active', true)->orWhereNull('is_active');
+            })
+            ->get();
+
+        $lecturers = User::select('id', 'name', 'email', 'nidn', 'study_program')
+            ->when($universityId, fn ($q) => $q->where('university_id', $universityId))
+            ->when($user, fn ($q) => $q->where('id', '!=', $user->id))
+            ->orderBy('name')
+            ->get();
 
         return Inertia::render('Proposal/Create', [
             'schemas' => $schemas,
+            'lecturers' => $lecturers,
         ]);
     }
 
