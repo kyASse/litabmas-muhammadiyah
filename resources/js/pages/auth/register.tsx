@@ -151,8 +151,8 @@ export default function Register({ universities }: Props) {
                                 <div className="mt-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
                                     <p className="text-xs text-blue-700 dark:text-blue-300">
                                         {roleType === 'lppm'
-                                            ? '⚠️ Akun LPPM akan disetujui oleh Dikti (Super Admin)'
-                                            : 'ℹ️ Akun User akan disetujui oleh Admin LPPM universitas Anda'}
+                                            ? '[PERHATIAN] Akun LPPM akan disetujui oleh Dikti (Super Admin)'
+                                            : '[INFORMASI] Akun User akan disetujui oleh Admin LPPM universitas Anda'}
                                     </p>
                                 </div>
                             </div>

@@ -33,6 +33,7 @@
  * @filepath /resources/js/components/IssueCard.tsx
  */
 import { Link, router } from '@inertiajs/react';
+import { Calendar, FileText } from 'lucide-react';
 
 interface Issue {
     id: number;
@@ -112,17 +113,19 @@ export default function ProductionIssueCard({ issue }: Props) {
                             issue.status === 'Published' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
                         }`}
                     >
-                        {issue.status === 'Published' ? '✓ Terbit' : '✎ Draft'}
+                        {issue.status === 'Published' ? 'Terbit' : 'Draft'}
                     </span>
                 </div>
 
                 {issue.description && <p className="mb-3 line-clamp-2 text-sm text-gray-600">{issue.description}</p>}
 
                 <div className="mb-4 flex items-center gap-4 text-xs text-gray-500">
-                    <span>📄 {issue.galleys_count ?? 0} artikel</span>
+                    <span className="flex items-center gap-1">
+                        <FileText className="h-3.5 w-3.5" /> {issue.galleys_count ?? 0} artikel
+                    </span>
                     {issue.published_at && (
-                        <span>
-                            📅{' '}
+                        <span className="flex items-center gap-1">
+                            <Calendar className="h-3.5 w-3.5" />
                             {new Date(issue.published_at).toLocaleDateString('id-ID', {
                                 day: 'numeric',
                                 month: 'long',

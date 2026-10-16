@@ -8,6 +8,7 @@
  */
 
 import { useForm } from '@inertiajs/react';
+import { X } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 interface Editor {
@@ -51,7 +52,7 @@ export default function AssignEditorModal({ submissionId, editors, open, onClose
                 <div className="mb-4 flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-foreground">Tugaskan Section Editor</h2>
                     <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
-                        ✕
+                        <X className="h-4 w-4" />
                     </button>
                 </div>
 

@@ -171,7 +171,7 @@ export default function UserDashboard({ stats: _stats, proposal_stats }: UserDas
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">
-                            Selamat datang, <span className="text-primary">{user.name}</span> 👋
+                            Selamat datang, <span className="text-primary">{user.name}</span>
                         </h1>
                         <p className="mt-0.5 text-sm text-muted-foreground">Berikut ringkasan proposal riset dan pendanaan penelitian Anda.</p>
                     </div>

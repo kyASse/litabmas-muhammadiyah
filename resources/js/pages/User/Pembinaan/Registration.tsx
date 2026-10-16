@@ -49,6 +49,7 @@ import {
     CheckCircle2,
     Clock,
     Download,
+    FileImage,
     FileText,
     Trash2,
     Upload,
@@ -136,9 +137,9 @@ export default function PembinaanRegistrationShow({ registration, category }: Pr
     const getFileIcon = (filename: string) => {
         const ext = filename.split('.').pop()?.toLowerCase();
         if (['jpg', 'jpeg', 'png'].includes(ext || '')) {
-            return '🖼️';
+            return <FileImage className="h-4 w-4 text-muted-foreground" />;
         }
-        return '📄';
+        return <FileText className="h-4 w-4 text-muted-foreground" />;
     };
 
     const handleCancelRegistration = () => {

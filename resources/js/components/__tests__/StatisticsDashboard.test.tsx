@@ -3,18 +3,27 @@ import { describe, expect, it, vi } from 'vitest';
 import StatisticsDashboard from '../StatisticsDashboard';
 
 // Mock ApexCharts
+let mockCustomRenderer: ((props: any) => any) | null = null;
+
 vi.mock('react-apexcharts', () => ({
-    default: vi.fn(({ options, series, type }) => (
-        <div data-testid={`chart-${type}`} data-options={JSON.stringify(options)} data-series={JSON.stringify(series)}>
-            Mocked Chart
-        </div>
-    )),
+    default: (props: any) => {
+        if (mockCustomRenderer) {
+            return mockCustomRenderer(props);
+        }
+        return (
+            <div data-testid={`chart-${props.type}`} data-options={JSON.stringify(props.options)} data-series={JSON.stringify(props.series)}>
+                Mocked Chart
+            </div>
+        );
+    },
 }));
 
 // Mock next-themes useTheme hook
+let mockTheme = 'light';
+
 vi.mock('next-themes', () => ({
     useTheme: () => ({
-        resolvedTheme: 'light',
+        resolvedTheme: mockTheme,
     }),
 }));
 
@@ -60,7 +69,7 @@ describe('StatisticsDashboard', () => {
             renderWithProviders(<StatisticsDashboard statistics={emptyData} />);
 
             expect(screen.getByText('Total Jurnal')).toBeInTheDocument();
-            expect(screen.getByText('0')).toBeInTheDocument();
+            expect(screen.getAllByText('0').length).toBeGreaterThan(0);
             expect(screen.getAllByText('Tidak ada data')).toHaveLength(3); // Three "Tidak ada data" messages
         });
 
@@ -79,7 +88,6 @@ describe('StatisticsDashboard', () => {
             renderWithProviders(<StatisticsDashboard statistics={mockData} />);
 
             await waitFor(() => {
-                expect(screen.getByTestId('chart-bar')).toBeInTheDocument(); // Indexation chart
                 expect(screen.getByTestId('chart-donut')).toBeInTheDocument(); // Accreditation chart
                 expect(screen.getAllByTestId('chart-bar')).toHaveLength(2); // Indexation + Scientific Field
             });
@@ -215,11 +223,7 @@ describe('StatisticsDashboard', () => {
         });
 
         it('applies different chart colors for dark mode', async () => {
-            vi.mock('next-themes', () => ({
-                useTheme: () => ({
-                    resolvedTheme: 'dark',
-                }),
-            }));
+            mockTheme = 'dark';
 
             const mockData = createMockStatistics();
             renderWithProviders(<StatisticsDashboard statistics={mockData} />, { theme: 'dark' });
@@ -230,6 +234,8 @@ describe('StatisticsDashboard', () => {
                 // In dark mode, chart should use different color scheme
                 // Actual color validation would require deeper chart options inspection
             });
+
+            mockTheme = 'light';
         });
     });
 
@@ -276,12 +282,9 @@ describe('StatisticsDashboard', () => {
 
     describe('Error Boundary', () => {
         it('shows error message when chart fails to render', async () => {
-            // Mock Chart component to throw error
-            vi.mock('react-apexcharts', () => ({
-                default: vi.fn(() => {
-                    throw new Error('Chart rendering failed');
-                }),
-            }));
+            mockCustomRenderer = () => {
+                throw new Error('Chart rendering failed');
+            };
 
             const mockData = createMockStatistics();
             const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -290,10 +293,11 @@ describe('StatisticsDashboard', () => {
 
             await waitFor(() => {
                 // Error boundary should catch and display fallback
-                expect(screen.getByText(/chart failed to load/i)).toBeInTheDocument();
+                expect(screen.getAllByText(/chart failed to load/i).length).toBeGreaterThan(0);
             });
 
             consoleError.mockRestore();
+            mockCustomRenderer = null;
         });
     });
 
@@ -332,7 +336,7 @@ describe('StatisticsDashboard', () => {
 
             renderWithProviders(<StatisticsDashboard statistics={singleJournal} />);
 
-            expect(screen.getByText('1')).toBeInTheDocument();
+            expect(screen.getAllByText('1').length).toBeGreaterThan(0);
             expect(screen.getByText('100% dari total')).toBeInTheDocument();
         });
 
