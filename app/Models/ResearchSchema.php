@@ -87,6 +87,16 @@ class ResearchSchema extends Model
         $this->attributes['biaya_maksimal'] = $value;
     }
 
+    public function getAnggaranMaksimalAttribute()
+    {
+        return $this->attributes['biaya_maksimal'] ?? 0;
+    }
+
+    public function setAnggaranMaksimalAttribute($value): void
+    {
+        $this->attributes['biaya_maksimal'] = $value;
+    }
+
     public function proposals()
     {
         return $this->hasMany(Proposal::class, 'id_skema_pendanaan');

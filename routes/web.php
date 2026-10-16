@@ -196,7 +196,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:'.Role::ADMIN_KEUANGAN])->prefix('finance')->name('finance.')->group(function () {
         // Contracts
         Route::get('/contracts', [ContractController::class, 'index'])->name('contracts.index');
-        Route::post('/contracts', [ContractController::class, 'generate'])->name('contracts.store');
+        Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
         Route::post('/contracts/generate', [ContractController::class, 'generate'])->name('contracts.generate');
         Route::get('/contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
         Route::post('/contracts/{contract}/update-status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
