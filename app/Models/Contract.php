@@ -10,17 +10,28 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Model Kontrak Penelitian
+ *
+ * Menangani dokumen kontrak perjanjian kerja penelitian berpenomoran unik institusional.
+ * Merujuk pada Skema 21 Tabel Bersih (Klaster 4: Modul 3).
+ */
 class Contract extends Model
 {
     use BelongsToTenant, HasFactory, SoftDeletes;
 
-    public const STATUS_DRAFT = 'draft';
+    public const STATUS_DRAFT = 'Draft';
 
-    public const STATUS_ACTIVE = 'active';
+    public const STATUS_SIGNED = 'Signed';
 
-    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_ACTIVE = 'Active';
 
-    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_CLOSED = 'Closed';
+
+    // Legacy status aliases for backward compatibility
+    public const STATUS_COMPLETED = 'Closed';
+
+    public const STATUS_CANCELLED = 'Closed';
 
     /**
      * The attributes that are mass assignable.
@@ -43,6 +54,7 @@ class Contract extends Model
         'description',
         'status',
         'contract_value',
+        'total_pendanaan_disetujui',
         'party_1',
         'party_2',
         'start_date',
@@ -50,7 +62,12 @@ class Contract extends Model
         'signed_at',
         'document_path',
         'notes',
+        'terms',
         'pembinaan_id',
+        'pembinaan_registration_id',
+        'journal_id',
+        'created_by',
+        'updated_by',
     ];
 
     /**
@@ -63,20 +80,30 @@ class Contract extends Model
         'contract_value' => 'decimal:2',
         'tanggal_kontrak' => 'date',
         'start_date' => 'date',
-        'end_date' => 'date',
-        'signed_at' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
 
     protected $appends = [
-        'nomor_kontrak',
-        'total_pendanaan_disetujui',
-        'status_kontrak',
         'title',
+        'contract_number',
         'status',
+        'contract_value',
+        'status_label',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Contract $contract) {
+            if (! $contract->status_kontrak) {
+                $contract->status_kontrak = self::STATUS_DRAFT;
+            }
+            if (! $contract->tanggal_kontrak) {
+                $contract->tanggal_kontrak = now()->toDateString();
+            }
+        });
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -84,39 +111,49 @@ class Contract extends Model
     |--------------------------------------------------------------------------
     */
 
-    public function pembinaan(): BelongsTo
-    {
-        return $this->belongsTo(Pembinaan::class);
-    }
-
+    /**
+     * Relasi ke proposal penelitian induk (1:1).
+     */
     public function proposal(): BelongsTo
     {
         return $this->belongsTo(Proposal::class, 'id_proposal');
     }
 
+    /**
+     * Relasi ke tahapan termin pendanaan (1:N).
+     */
     public function fundings(): HasMany
     {
-        return $this->hasMany(Funding::class);
+        return $this->hasMany(Funding::class, 'id_contract');
     }
 
+    /**
+     * Relasi ke lampiran dokumen kontrak (legacy support).
+     */
     public function documents(): HasMany
     {
         return $this->hasMany(ContractDocument::class);
     }
 
     /**
-     * Get all monev schedules for this contract.
+     * Relasi ke pembinaan (legacy support).
      */
-    public function monevSchedules(): HasMany
+    public function pembinaan(): BelongsTo
     {
-        return $this->hasMany(MonevSchedule::class, 'contract_id');
+        return $this->belongsTo(Pembinaan::class);
     }
 
+    /**
+     * User pembuat kontrak (legacy support).
+     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * User pengubah kontrak (legacy support).
+     */
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
@@ -135,11 +172,10 @@ class Contract extends Model
         }
 
         return $query->where(function (Builder $q) use ($search) {
-            $q->where('contract_number', 'like', "%{$search}%")
-                ->orWhere('title', 'like', "%{$search}%")
+            $q->where('nomor_kontrak', 'like', "%{$search}%")
+                ->orWhere('judul_kontrak', 'like', "%{$search}%")
                 ->orWhereHas('university', function (Builder $universityQuery) use ($search) {
                     $universityQuery->where('name', 'like', "%{$search}%")
-                        ->orWhere('short_name', 'like', "%{$search}%")
                         ->orWhere('code', 'like', "%{$search}%");
                 });
         });
@@ -151,27 +187,38 @@ class Contract extends Model
             return $query;
         }
 
-        return $query->where('status', $status);
+        $map = [
+            'draft' => self::STATUS_DRAFT,
+            'signed' => self::STATUS_SIGNED,
+            'active' => self::STATUS_ACTIVE,
+            'closed' => self::STATUS_CLOSED,
+            'completed' => self::STATUS_CLOSED,
+            'cancelled' => self::STATUS_CLOSED,
+        ];
+
+        $val = is_string($status) ? ($map[strtolower($status)] ?? $status) : $status;
+
+        return $query->where('status_kontrak', $val);
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Accessors & Helpers
+    | Accessors, Mutators & Helpers
     |--------------------------------------------------------------------------
     */
 
     public function getStatusLabelAttribute(): string
     {
-        return self::getStatusOptions()[$this->status] ?? $this->status;
+        return self::getStatusOptions()[$this->status_kontrak] ?? (string) $this->status_kontrak;
     }
 
     public function getStatusColorAttribute(): string
     {
-        return match ($this->status) {
+        return match ($this->status_kontrak) {
             self::STATUS_ACTIVE => 'green',
-            self::STATUS_COMPLETED => 'blue',
-            self::STATUS_CANCELLED => 'red',
-            default => 'gray',
+            self::STATUS_SIGNED => 'blue',
+            self::STATUS_CLOSED => 'gray',
+            default => 'yellow',
         };
     }
 
@@ -217,7 +264,7 @@ class Contract extends Model
 
     public function getIdProposalAttribute(): ?int
     {
-        return $this->attributes['id_proposal'] ?? null;
+        return isset($this->attributes['id_proposal']) ? (int) $this->attributes['id_proposal'] : null;
     }
 
     public function setIdProposalAttribute($value): void
@@ -227,7 +274,7 @@ class Contract extends Model
 
     public function getProposalIdAttribute(): ?int
     {
-        return $this->attributes['id_proposal'] ?? null;
+        return $this->getIdProposalAttribute();
     }
 
     public function setProposalIdAttribute($value): void
@@ -237,7 +284,7 @@ class Contract extends Model
 
     public function getDanaDisetujuiAttribute(): ?string
     {
-        return $this->attributes['dana_disetujui'] ?? null;
+        return isset($this->attributes['dana_disetujui']) ? (string) $this->attributes['dana_disetujui'] : null;
     }
 
     public function setDanaDisetujuiAttribute($value): void
@@ -247,7 +294,7 @@ class Contract extends Model
 
     public function getContractValueAttribute(): ?string
     {
-        return $this->attributes['dana_disetujui'] ?? null;
+        return $this->getDanaDisetujuiAttribute();
     }
 
     public function setContractValueAttribute($value): void
@@ -257,7 +304,7 @@ class Contract extends Model
 
     public function getTotalPendanaanDisetujuiAttribute(): ?string
     {
-        return $this->attributes['dana_disetujui'] ?? null;
+        return $this->getDanaDisetujuiAttribute();
     }
 
     public function setTotalPendanaanDisetujuiAttribute($value): void
@@ -312,7 +359,16 @@ class Contract extends Model
 
     public function setStatusKontrakAttribute($value): void
     {
-        $this->attributes['status_kontrak'] = $value;
+        $map = [
+            'draft' => self::STATUS_DRAFT,
+            'signed' => self::STATUS_SIGNED,
+            'active' => self::STATUS_ACTIVE,
+            'closed' => self::STATUS_CLOSED,
+            'completed' => self::STATUS_CLOSED,
+            'cancelled' => self::STATUS_CLOSED,
+        ];
+        $val = is_string($value) ? ($map[strtolower($value)] ?? $value) : $value;
+        $this->attributes['status_kontrak'] = $val;
     }
 
     public function getStatusAttribute(): ?string
@@ -322,7 +378,52 @@ class Contract extends Model
 
     public function setStatusAttribute($value): void
     {
-        $this->attributes['status_kontrak'] = $value;
+        $this->setStatusKontrakAttribute($value);
+    }
+
+    // Virtual mutators for legacy columns to prevent SQL insert errors
+    public function setParty1Attribute($value): void {}
+
+    public function setParty2Attribute($value): void {}
+
+    public function setEndDateAttribute($value): void {}
+
+    public function setSignedAtAttribute($value): void {}
+
+    public function setNotesAttribute($value): void {}
+
+    public function setTermsAttribute($value): void {}
+
+    public function setDescriptionAttribute($value): void {}
+
+    public function setPembinaanIdAttribute($value): void {}
+
+    public function setPembinaanRegistrationIdAttribute($value): void {}
+
+    public function setJournalIdAttribute($value): void {}
+
+    public function setCreatedByAttribute($value): void {}
+
+    public function setUpdatedByAttribute($value): void {}
+
+    public function getParty1Attribute(): ?string
+    {
+        return null;
+    }
+
+    public function getParty2Attribute(): ?string
+    {
+        return null;
+    }
+
+    public function getEndDateAttribute(): ?string
+    {
+        return null;
+    }
+
+    public function getNotesAttribute(): ?string
+    {
+        return null;
     }
 
     /**
@@ -332,9 +433,9 @@ class Contract extends Model
     {
         return [
             self::STATUS_DRAFT => 'Draft',
+            self::STATUS_SIGNED => 'Tertanda Tangan',
             self::STATUS_ACTIVE => 'Aktif',
-            self::STATUS_COMPLETED => 'Selesai',
-            self::STATUS_CANCELLED => 'Dibatalkan',
+            self::STATUS_CLOSED => 'Selesai',
         ];
     }
 }
