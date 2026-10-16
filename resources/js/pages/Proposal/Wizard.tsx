@@ -18,7 +18,6 @@ import {
 } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import PageHeader from '@/components/ui/PageHeader';
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import TabularFigure from '@/components/ui/TabularFigure';
 import PDFUploader from '@/components/ui/PDFUploader';
 import { Button } from '@/components/ui/button';
@@ -369,13 +368,12 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
     <AppLayout breadcrumbs={breadcrumbs}>
       <Head title={t.proposalWizard.pageTitle} />
 
-      <div className="container mx-auto max-w-5xl space-y-6 pb-24 px-4 sm:px-6">
+      <div className="container mx-auto max-w-5xl space-y-6 p-4 sm:p-6 lg:p-8 pb-24">
         {/* Page Header */}
         <PageHeader
           title={t.proposalWizard.pageTitle}
           subtitle={t.proposalWizard.pageSubtitle}
           isEditorialSerif={true}
-          actions={<LanguageSwitcher variant="segmented" />}
         />
 
         {/* 4-Step Stepper */}
