@@ -26,8 +26,8 @@ class EvaluationController extends Controller
         $reviewerId = Auth::id();
 
         // Ambil proposal_id yang ditugaskan ke reviewer ini
-        $assignedProposalIds = Review::where('reviewer_id', $reviewerId)
-            ->pluck('proposal_id');
+        $assignedProposalIds = Review::where('id_reviewer', $reviewerId)
+            ->pluck('id_proposal');
 
         $pendingEvaluations = ProgressReport::with(['proposal.user'])
             ->where('status', 'submitted')
@@ -61,8 +61,8 @@ class EvaluationController extends Controller
         $reviewerId = Auth::id();
 
         // Otorisasi: pastikan reviewer ditugaskan ke proposal ini
-        $isAssigned = Review::where('reviewer_id', $reviewerId)
-            ->where('proposal_id', $report->proposal_id)
+        $isAssigned = Review::where('id_reviewer', $reviewerId)
+            ->where('id_proposal', $report->proposal_id)
             ->exists();
 
         if (! $isAssigned) {

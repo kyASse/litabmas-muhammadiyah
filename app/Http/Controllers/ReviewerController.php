@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreReviewScoreRequest;
-use App\Models\EvaluationIndicator;
+use App\Models\AssessmentCriteria;
 use App\Models\Review;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -32,7 +32,7 @@ class ReviewerController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $masterCriteria = EvaluationIndicator::active()->ordered()->get();
+        $masterCriteria = AssessmentCriteria::orderBy('urutan')->get();
 
         return Inertia::render('Reviewer/index', [
             'tasks' => $reviews,
@@ -49,9 +49,9 @@ class ReviewerController extends Controller
     public function show(Request $request, int $reviewId): Response
     {
         $review = $this->findOwnReview($request, $reviewId);
-        $review->load(['proposal', 'assessmentCriteria']);
+        $review->load(['proposal']);
 
-        $masterCriteria = EvaluationIndicator::active()->ordered()->get();
+        $masterCriteria = AssessmentCriteria::orderBy('urutan')->get();
 
         return Inertia::render('Reviewer/index', [
             'tasks' => $this->reviewerReviewsQuery($request)
@@ -155,17 +155,11 @@ class ReviewerController extends Controller
     private function reviewerReviewsQuery(Request $request)
     {
         $query = Review::query()
-            ->where(function ($q) use ($request) {
-                $q->where('id_reviewer', $request->user()->id)
-                    ->orWhere('reviewer_id', $request->user()->id);
-            })
-            ->with(['proposal', 'assessmentCriteria']);
+            ->where('id_reviewer', $request->user()->id)
+            ->with(['proposal']);
 
         if ($request->filled('status')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('status_review', $request->status)
-                    ->orWhere('status', $request->status);
-            });
+            $query->where('status_review', $request->status);
         }
 
         return $query;
@@ -173,9 +167,7 @@ class ReviewerController extends Controller
 
     private function findOwnReview(Request $request, int|string $reviewId): Review
     {
-        return Review::where(function ($q) use ($request) {
-            $q->where('id_reviewer', $request->user()->id)
-                ->orWhere('reviewer_id', $request->user()->id);
-        })->findOrFail((int) $reviewId);
+        return Review::where('id_reviewer', $request->user()->id)
+            ->findOrFail((int) $reviewId);
     }
 }
