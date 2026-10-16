@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Maximize2, Minimize2, Download, ExternalLink } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 export interface SplitScreenViewerProps {
   pdfUrl: string;
@@ -14,6 +15,7 @@ export const SplitScreenViewer: React.FC<SplitScreenViewerProps> = ({
   formContent,
   headerActions,
 }) => {
+  const { t } = useTranslation();
   const [isPdfExpanded, setIsPdfExpanded] = useState(false);
 
   return (
@@ -22,7 +24,7 @@ export const SplitScreenViewer: React.FC<SplitScreenViewerProps> = ({
       <div className="h-12 bg-white border-b border-slate-200 px-4 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center space-x-3 truncate">
           <span className="text-xs font-sans font-bold uppercase tracking-wider text-slate-500">
-            Telaah Berkas:
+            {t.components.splitScreen.reviewTitle}
           </span>
           <span className="text-sm font-serif font-semibold text-slate-900 truncate max-w-md">
             {documentTitle}
@@ -35,7 +37,7 @@ export const SplitScreenViewer: React.FC<SplitScreenViewerProps> = ({
             target="_blank"
             rel="noopener noreferrer"
             className="p-1.5 text-slate-600 hover:text-blue-900 rounded border border-slate-200 hover:bg-slate-50 transition-colors"
-            title="Buka Dokumen di Tab Baru"
+            title={t.components.splitScreen.openNewTab}
           >
             <ExternalLink className="w-4 h-4" />
           </a>
@@ -43,7 +45,7 @@ export const SplitScreenViewer: React.FC<SplitScreenViewerProps> = ({
             href={pdfUrl}
             download
             className="p-1.5 text-slate-600 hover:text-blue-900 rounded border border-slate-200 hover:bg-slate-50 transition-colors"
-            title="Unduh Berkas PDF"
+            title={t.components.splitScreen.downloadPdf}
           >
             <Download className="w-4 h-4" />
           </a>
@@ -51,7 +53,7 @@ export const SplitScreenViewer: React.FC<SplitScreenViewerProps> = ({
             type="button"
             onClick={() => setIsPdfExpanded(!isPdfExpanded)}
             className="p-1.5 text-slate-600 hover:text-blue-900 rounded border border-slate-200 hover:bg-slate-50 transition-colors"
-            title={isPdfExpanded ? 'Kembalikan Tampilan Terbagi' : 'Perluas Tampilan PDF'}
+            title={isPdfExpanded ? t.components.splitScreen.collapsePdf : t.components.splitScreen.expandPdf}
           >
             {isPdfExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
           </button>
@@ -68,7 +70,7 @@ export const SplitScreenViewer: React.FC<SplitScreenViewerProps> = ({
         >
           <iframe
             src={`${pdfUrl}#toolbar=1&navpanes=0`}
-            title="Pratinjau Dokumen Usulan Riset"
+            title={documentTitle || t.components.splitScreen.reviewTitle}
             className="w-full h-full border-0"
           />
         </div>

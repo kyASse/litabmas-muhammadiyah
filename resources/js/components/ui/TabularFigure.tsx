@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from '@/hooks/use-translation';
 
 export interface TabularFigureProps {
   value: number | string | null | undefined;
@@ -23,23 +24,24 @@ export const TabularFigure: React.FC<TabularFigureProps> = ({
   align = 'right',
   className = '',
 }) => {
+  const { locale } = useTranslation();
   const numValue = typeof value === 'string' ? parseFloat(value) : value;
 
   let formatted = '-';
   if (numValue !== null && numValue !== undefined && !isNaN(numValue)) {
     if (type === 'currency') {
-      formatted = new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
+      const isEn = locale === 'en';
+      const numberFormatted = new Intl.NumberFormat(isEn ? 'en-US' : 'id-ID', {
         minimumFractionDigits: decimals ?? 0,
         maximumFractionDigits: decimals ?? 0,
       }).format(numValue);
+      formatted = `${isEn ? 'IDR ' : 'Rp '}${numberFormatted}`;
     } else if (type === 'percentage') {
       formatted = `${numValue.toFixed(decimals ?? 1)}%`;
     } else if (type === 'score') {
       formatted = numValue.toFixed(decimals ?? 2);
     } else {
-      formatted = new Intl.NumberFormat('id-ID', {
+      formatted = new Intl.NumberFormat(locale === 'en' ? 'en-US' : 'id-ID', {
         minimumFractionDigits: decimals ?? 0,
         maximumFractionDigits: decimals ?? 0,
       }).format(numValue);

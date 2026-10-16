@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { UploadCloud, FileText, CheckCircle2, AlertCircle, X } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 export interface PDFUploaderProps {
   value: File | null;
@@ -18,24 +19,33 @@ export const PDFUploader: React.FC<PDFUploaderProps> = ({
   onChange,
   maxSizeMB = 10,
   disabled = false,
-  helperText = 'Format dokumen wajib PDF, ukuran berkas maksimal 10 MB.',
-  label = 'Unggah Dokumen Proposal (PDF)',
+  helperText,
+  label,
   required = false,
 }) => {
+  const { t, format } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const displayLabel = label ?? t.components.pdfUploader.defaultLabel;
+  const displayHelperText = helperText ?? t.components.pdfUploader.helperText;
+
   const validateAndSet = (file: File) => {
     setErrorMessage(null);
     if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      setErrorMessage('Berkas tidak valid. Hanya berkas berformat .pdf yang diperbolehkan.');
+      setErrorMessage(t.components.pdfUploader.invalidFormat);
       return;
     }
     const maxBytes = maxSizeMB * 1024 * 1024;
     if (file.size > maxBytes) {
       const actualMB = (file.size / (1024 * 1024)).toFixed(2);
-      setErrorMessage(`Ukuran berkas (${actualMB} MB) melebihi batas maksimal ${maxSizeMB} MB.`);
+      setErrorMessage(
+        format(t.components.pdfUploader.sizeExceeded, {
+          actual: actualMB,
+          max: maxSizeMB,
+        })
+      );
       return;
     }
     onChange(file);
@@ -54,9 +64,11 @@ export const PDFUploader: React.FC<PDFUploaderProps> = ({
     <div className="w-full space-y-2">
       <div className="flex justify-between items-center">
         <label className="block text-xs font-sans font-semibold text-slate-700 uppercase tracking-wider">
-          {label} {required && <span className="text-rose-600">*</span>}
+          {displayLabel} {required && <span className="text-rose-600">*</span>}
         </label>
-        <span className="text-xs text-slate-500 font-mono">Batas: {maxSizeMB} MB</span>
+        <span className="text-xs text-slate-500 font-mono">
+          {t.components.pdfUploader.limitPrefix} {maxSizeMB} MB
+        </span>
       </div>
 
       {!value && !existingFileUrl ? (
@@ -81,9 +93,9 @@ export const PDFUploader: React.FC<PDFUploaderProps> = ({
           />
           <UploadCloud className="w-8 h-8 text-slate-400 mx-auto mb-2" strokeWidth={1.5} />
           <p className="text-sm font-medium text-slate-800">
-            Seret dan lepas dokumen PDF di sini, atau <span className="text-blue-900 underline">pilih dari komputer</span>
+            {t.components.pdfUploader.dragDropText} <span className="text-blue-900 underline">{t.components.pdfUploader.browseText}</span>
           </p>
-          <p className="text-xs text-slate-500 mt-1">{helperText}</p>
+          <p className="text-xs text-slate-500 mt-1">{displayHelperText}</p>
         </div>
       ) : (
         <div className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-lg">
@@ -96,7 +108,7 @@ export const PDFUploader: React.FC<PDFUploaderProps> = ({
                 {value ? value.name : 'Dokumen-Usulan-Tersimpan.pdf'}
               </p>
               <p className="text-xs text-slate-500 font-mono">
-                {value ? `${(value.size / (1024 * 1024)).toFixed(2)} MB` : 'Berkas Tersimpan'}
+                {value ? `${(value.size / (1024 * 1024)).toFixed(2)} MB` : t.components.pdfUploader.fileSaved}
               </p>
             </div>
           </div>
@@ -105,7 +117,7 @@ export const PDFUploader: React.FC<PDFUploaderProps> = ({
               type="button"
               onClick={() => { onChange(null); setErrorMessage(null); }}
               className="p-1.5 text-slate-400 hover:text-rose-600 rounded-md hover:bg-white transition-colors"
-              title="Hapus berkas"
+              title={t.components.pdfUploader.removeFile}
             >
               <X className="w-4 h-4" />
             </button>

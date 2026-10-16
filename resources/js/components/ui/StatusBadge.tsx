@@ -4,6 +4,7 @@ import {
   AlertTriangle, FileCheck, Lock, Unlock, ShieldCheck, 
   Archive, LucideIcon 
 } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 export type BadgeStatusType = 
   | 'Draft' 
@@ -115,6 +116,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   showIcon = true,
   className = '',
 }) => {
+  const { t } = useTranslation();
   const config = statusMap[status] || statusMap.Draft;
   const Icon = config.icon;
 
@@ -122,12 +124,14 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
     ? 'px-2 py-0.5 text-xs gap-1' 
     : 'px-2.5 py-1 text-xs gap-1.5';
 
+  const localizedLabel = labelOverride || (t.statuses && t.statuses[status]) || config.label;
+
   return (
     <span
       className={`inline-flex items-center font-sans font-medium rounded-md border tracking-wide uppercase ${sizeClasses} ${config.classes} ${className}`}
     >
       {showIcon && <Icon className={size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5'} strokeWidth={2} />}
-      <span>{labelOverride || config.label}</span>
+      <span>{localizedLabel}</span>
     </span>
   );
 };
