@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Proposal Model
@@ -91,6 +92,7 @@ class Proposal extends Model
         'user_id',
         'research_schema_id',
         'proposal_doc_path',
+        'proposal_doc_url',
         'rejection_reason',
     ];
 
@@ -223,6 +225,18 @@ class Proposal extends Model
     public function setProposalDocPathAttribute($value): void
     {
         $this->virtualFileDokumenProposal = $value;
+    }
+
+    public function getProposalDocUrlAttribute(): ?string
+    {
+        $path = $this->proposal_doc_path ?? $this->file_dokumen_proposal;
+        if (! $path) {
+            return null;
+        }
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+        return Storage::disk('public')->url($path);
     }
 
     // ─── Relationships ───────────────────────────────────────────────────────

@@ -30,8 +30,14 @@ class AssignController extends Controller
             Proposal::STATUS_SUBMITTED,
             'Submitted',
             'Administrasi_Valid',
+            'In_Review',
         ])
-            ->select('id', 'title', 'judul_penelitian')
+            ->with([
+                'pengusul:id,name',
+                'members.user:id,name',
+                'reviews:id,id_proposal,id_reviewer,skor_total,status_review',
+            ])
+            ->select('id', 'judul_penelitian', 'id_pengusul', 'status_proposal')
             ->get();
 
         $reviewerRole = Role::where('name', Role::REVIEWER)->first();

@@ -277,4 +277,46 @@ class ReviewAssignmentCoITest extends TestCase
         $this->assertFalse($normalResult['requires_third_reviewer']);
         $this->assertEquals(85.00, (float) $normalResult['final_score']);
     }
+
+    public function test_reviewer_workspace_route_renders_workspace_component(): void
+    {
+        $author = $this->createReviewer();
+        $reviewer = $this->createReviewer();
+        $proposal = $this->createProposal($author);
+
+        $review = Review::create([
+            'id_proposal' => $proposal->id,
+            'id_reviewer' => $reviewer->id,
+            'tanggal_mulai_review' => now()->toDateString(),
+            'tanggal_selesai_review' => now()->addDays(14)->toDateString(),
+            'status_review' => 'Assigned',
+        ]);
+
+        $response = $this->actingAs($reviewer)->get("/reviewer/assignments/{$review->id}/review");
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('Reviewer/Workspace')
+            ->has('review')
+            ->has('proposal')
+        );
+    }
+
+    public function test_admin_can_view_assign_page_with_proposals_and_reviewers(): void
+    {
+        $admin = $this->createAdminKampus();
+        $author = $this->createReviewer();
+        $proposal = $this->createProposal($author);
+        $reviewer = $this->createReviewer();
+
+        $response = $this->actingAs($admin)->get('/admin/reviewer/assign?proposal_id=' . $proposal->id);
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('Admin/Reviewer/Assign')
+            ->has('proposals')
+            ->has('reviewers')
+            ->where('selectedProposalId', (string) $proposal->id)
+        );
+    }
 }

@@ -69,17 +69,16 @@ class ReviewerController extends Controller
     public function reviewForm(Request $request, int $reviewId): Response
     {
         $review = $this->findOwnReview($request, $reviewId);
-        $review->load(['proposal', 'assessmentCriteria']);
+        $review->load([
+            'proposal.pengusul',
+            'proposal.members.user',
+            'proposal.documents',
+            'proposal.skemaPendanaan',
+        ]);
 
-        $masterCriteria = EvaluationIndicator::active()->ordered()->get();
-
-        return Inertia::render('Reviewer/index', [
-            'tasks' => $this->reviewerReviewsQuery($request)
-                ->latest('created_at')
-                ->paginate(15)
-                ->withQueryString(),
-            'selectedReview' => $review,
-            'masterCriteria' => $masterCriteria,
+        return Inertia::render('Reviewer/Workspace', [
+            'review' => $review,
+            'proposal' => $review->proposal,
         ]);
     }
 
