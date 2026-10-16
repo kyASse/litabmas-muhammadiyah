@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Funding;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 
 class FundingDisbursementService
 {
@@ -34,21 +35,23 @@ class FundingDisbursementService
             }
         }
 
-        // Simpan berkas bukti transfer resmi ke disk publik
-        $path = $file->store('receipts/fundings', 'public');
+        return DB::transaction(function () use ($funding, $file, $tanggalPencairan, $catatanKeuangan) {
+            // Simpan berkas bukti transfer resmi ke disk publik
+            $path = $file->store('receipts/fundings', 'public');
 
-        // Perbarui data pencairan dana
-        $funding->update([
-            'status_pencairan' => Funding::STATUS_DISBURSED,
-            'status' => Funding::STATUS_DISBURSED,
-            'tanggal_pencairan' => $tanggalPencairan,
-            'bukti_transfer_path' => $path,
-            'proof_document_path' => $path,
-            'catatan_keuangan' => $catatanKeuangan,
-            'notes' => $catatanKeuangan,
-            'paid_at' => now(),
-        ]);
+            // Perbarui data pencairan dana
+            $funding->update([
+                'status_pencairan' => Funding::STATUS_DISBURSED,
+                'status' => Funding::STATUS_DISBURSED,
+                'tanggal_pencairan' => $tanggalPencairan,
+                'bukti_transfer_path' => $path,
+                'proof_document_path' => $path,
+                'catatan_keuangan' => $catatanKeuangan,
+                'notes' => $catatanKeuangan,
+                'paid_at' => now(),
+            ]);
 
-        return $funding;
+            return $funding;
+        });
     }
 }
