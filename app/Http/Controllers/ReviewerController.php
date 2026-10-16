@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreReviewScoreRequest;
 use App\Models\EvaluationIndicator;
 use App\Models\Review;
 use Illuminate\Http\RedirectResponse;
@@ -83,58 +84,54 @@ class ReviewerController extends Controller
     }
 
     /**
-     * Submit or update a review record.
+     * Submit or update a review record using weighted rubric evaluation.
      */
-    public function submitReview(Request $request, int $reviewId): RedirectResponse
+    public function submitReview(StoreReviewScoreRequest $request, $assignment): RedirectResponse
     {
+        $reviewId = (int) $assignment;
         $review = $this->findOwnReview($request, $reviewId);
 
-        $validated = $request->validate([
-            'score' => 'nullable|numeric|min:0|max:100',
-            'total_score' => 'nullable|numeric|min:0|max:100',
-            'feedback' => 'nullable|string|max:2000',
-            'notes' => 'nullable|string|max:2000',
-            'status' => 'nullable|string|max:50',
-            'recommendation' => 'nullable|string|max:1000',
-            'assessment_criteria' => 'nullable|array',
-            'assessment_criteria.*.criterion' => 'required|string',
-            'assessment_criteria.*.score' => 'required|numeric|min:0|max:100',
-            'assessment_criteria.*.notes' => 'nullable|string',
-        ]);
+        $validated = $request->validated();
+        $komponenPenilaian = $validated['komponen_penilaian'] ?? [];
 
-        if ($request->has('assessment_criteria') && is_array($request->assessment_criteria)) {
-            $review->assessmentCriteria()->delete();
-            $sumScore = 0;
-            $count = 0;
-            foreach ($request->assessment_criteria as $item) {
-                if (! empty($item['criterion'])) {
-                    $review->assessmentCriteria()->create([
-                        'criterion' => $item['criterion'],
-                        'score' => (float) ($item['score'] ?? 0),
-                        'notes' => $item['notes'] ?? null,
-                    ]);
-                    $sumScore += (float) ($item['score'] ?? 0);
-                    $count++;
-                }
+        $totalWeight = 0;
+        $weightedScore = 0;
+        $simpleSum = 0;
+
+        foreach ($komponenPenilaian as $item) {
+            if (! is_array($item)) {
+                continue;
             }
-            if ($count > 0 && empty($validated['score']) && empty($validated['total_score'])) {
-                $calculatedAverage = round($sumScore / $count, 2);
-                $review->score = $calculatedAverage;
-                $review->total_score = $calculatedAverage;
+            $bobot = (float) ($item['bobot'] ?? $item['weight'] ?? 0);
+            $skor = (float) ($item['skor'] ?? $item['score'] ?? $item['nilai'] ?? 0);
+
+            if ($bobot > 0) {
+                $weightedScore += ($skor * $bobot);
+                $totalWeight += $bobot;
             }
+            $simpleSum += $skor;
         }
 
-        $review->fill([
-            'status' => $validated['status'] ?? 'completed',
-            'notes' => $validated['notes'] ?? $validated['feedback'] ?? $review->notes,
-            'total_score' => $validated['total_score'] ?? $validated['score'] ?? $review->total_score,
-            'recommendation' => $validated['recommendation'] ?? $review->recommendation,
-            'end_date' => now(),
-        ])->save();
+        if ($totalWeight > 0) {
+            $calculatedScore = round($weightedScore / $totalWeight, 2);
+        } elseif (count($komponenPenilaian) > 0) {
+            $calculatedScore = round($simpleSum / count($komponenPenilaian), 2);
+        } else {
+            $calculatedScore = (float) ($request->input('skor_total') ?? $request->input('score') ?? 0);
+        }
+
+        $review->update([
+            'komponen_penilaian' => $komponenPenilaian,
+            'skor_total' => $calculatedScore,
+            'catatan_evaluasi' => $validated['catatan_evaluasi'],
+            'keputusan_rekomendasi' => $validated['keputusan_rekomendasi'],
+            'status_review' => 'Completed',
+            'tanggal_selesai_review' => now()->toDateString(),
+        ]);
 
         return redirect()
             ->route('reviewer.assignments.index')
-            ->with('success', 'Review updated successfully.');
+            ->with('success', '[SUKSES] Penilaian review berhasil disimpan.');
     }
 
     /**
@@ -159,19 +156,27 @@ class ReviewerController extends Controller
     private function reviewerReviewsQuery(Request $request)
     {
         $query = Review::query()
-            ->where('reviewer_id', $request->user()->id)
+            ->where(function ($q) use ($request) {
+                $q->where('id_reviewer', $request->user()->id)
+                    ->orWhere('reviewer_id', $request->user()->id);
+            })
             ->with(['proposal', 'assessmentCriteria']);
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where(function ($q) use ($request) {
+                $q->where('status_review', $request->status)
+                    ->orWhere('status', $request->status);
+            });
         }
 
         return $query;
     }
 
-    private function findOwnReview(Request $request, int $reviewId): Review
+    private function findOwnReview(Request $request, int|string $reviewId): Review
     {
-        return Review::where('reviewer_id', $request->user()->id)
-            ->findOrFail($reviewId);
+        return Review::where(function ($q) use ($request) {
+            $q->where('id_reviewer', $request->user()->id)
+                ->orWhere('reviewer_id', $request->user()->id);
+        })->findOrFail((int) $reviewId);
     }
 }

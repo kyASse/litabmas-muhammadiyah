@@ -178,6 +178,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/proposals/{id}', [ReviewController::class, 'show'])->name('proposals.show');
         Route::post('/proposals/{id}/assessment', [ReviewController::class, 'storeAssessment'])->name('proposals.assessment');
         Route::put('/proposals/{id}/assessment', [ReviewController::class, 'updateAssessment'])->name('proposals.assessment.update');
+        Route::post('/assessment', [ReviewController::class, 'storeAssessment'])->name('assessment.store');
+        Route::put('/assessment/{id}', [ReviewController::class, 'updateAssessment'])->name('assessment.update');
 
         // Monev & Evaluation
         Route::post('/monev/{id}', [ProgressController::class, 'evaluateMonev'])->name('monev.evaluate');
@@ -244,6 +246,7 @@ Route::middleware(['auth'])->group(function () {
         // Reviewer Assignment
         Route::get('reviewer/assign', [AdminAssignController::class, 'index'])->name('reviewer.assign');
         Route::post('assign', [AdminAssignController::class, 'assign'])->name('assign.store');
+        Route::post('assign/{id}/reassign', [AdminAssignController::class, 'reassign'])->name('assign.reassign');
         Route::delete('assign/{id}', [AdminAssignController::class, 'unassign'])->name('assign.unassign');
 
         // Decision

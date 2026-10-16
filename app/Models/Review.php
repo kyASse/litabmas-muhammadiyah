@@ -43,6 +43,7 @@ class Review extends Model
         'total_score',
         'feedback',
         'notes',
+        'comments',
         'recommendation',
         'status',
         'start_date',
@@ -62,6 +63,7 @@ class Review extends Model
         'total_score',
         'feedback',
         'notes',
+        'comments',
         'recommendation',
         'status',
         'start_date',
@@ -193,6 +195,16 @@ class Review extends Model
     }
 
     public function setNotesAttribute($value): void
+    {
+        $this->attributes['catatan_evaluasi'] = $value;
+    }
+
+    public function getCommentsAttribute(): ?string
+    {
+        return $this->attributes['catatan_evaluasi'] ?? null;
+    }
+
+    public function setCommentsAttribute($value): void
     {
         $this->attributes['catatan_evaluasi'] = $value;
     }
