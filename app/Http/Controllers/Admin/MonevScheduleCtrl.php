@@ -28,10 +28,20 @@ class MonevScheduleCtrl extends Controller
      */
     public function store(StoreMonevScheduleRequest $request)
     {
-        $data = $request->validated();
-        if ($request->user() && $request->user()->university_id) {
-            $data['university_id'] = $request->user()->university_id;
+        $user = $request->user();
+        $universityId = $user->isSuperAdmin()
+            ? ($request->input('university_id') ?? $user->university_id)
+            : $user->university_id;
+
+        if (! $universityId) {
+            return back()->withErrors([
+                'university_id' => 'Institusi universitas wajib ditentukan.',
+            ])->withInput();
         }
+
+        $data = array_merge($request->validated(), [
+            'university_id' => $universityId,
+        ]);
 
         MonevSchedule::create($data);
 

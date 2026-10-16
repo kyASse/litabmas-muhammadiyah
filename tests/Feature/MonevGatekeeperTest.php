@@ -500,4 +500,72 @@ class MonevGatekeeperTest extends TestCase
         $this->assertEquals(85.50, (float) $report->skor_monev);
         $this->assertEquals($payload['catatan_reviewer_monev'], $report->catatan_reviewer_monev);
     }
+
+    public function test_reviewer_evaluation_blocked_when_conflict_of_interest(): void
+    {
+        $proposal = $this->createProposal();
+        $schedule = $this->createActiveMonevSchedule();
+
+        $report = ProgressReport::create([
+            'id_proposal' => $proposal->id,
+            'id_monev_schedule' => $schedule->id,
+            'persentase_kemajuan' => 70,
+            'ringkasan_progres' => 'Tahap pengujian lapangan dan pengumpulan data selesai.',
+            'file_laporan_kemajuan' => 'reports/progress_testing.pdf',
+            'status_laporan' => ProgressReport::STATUS_SUBMITTED,
+        ]);
+
+        $payload = [
+            'skor_monev' => 90.00,
+            'status_laporan' => 'Approved',
+            'catatan_reviewer_monev' => 'Reviewer mengevaluasi usulan miliknya sendiri.',
+        ];
+
+        // Reviewer juga merangkap sebagai pengusul proposal ini ($this->researcher)
+        $roleReviewer = Role::where('name', Role::REVIEWER)->firstOrFail();
+        $this->researcher->roles()->syncWithoutDetaching([$roleReviewer->id]);
+
+        $response = $this->actingAs($this->researcher)
+            ->post("/reviewer/monev/{$report->id}/evaluate", $payload);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_reviewer_evaluation_blocked_across_tenants(): void
+    {
+        $proposal = $this->createProposal();
+        $schedule = $this->createActiveMonevSchedule();
+
+        $report = ProgressReport::create([
+            'id_proposal' => $proposal->id,
+            'id_monev_schedule' => $schedule->id,
+            'persentase_kemajuan' => 70,
+            'ringkasan_progres' => 'Tahap pengujian lapangan dan pengumpulan data selesai.',
+            'file_laporan_kemajuan' => 'reports/progress_testing.pdf',
+            'status_laporan' => ProgressReport::STATUS_SUBMITTED,
+        ]);
+
+        $otherUniversity = University::create([
+            'code' => 'UMY',
+            'name' => 'Universitas Muhammadiyah Yogyakarta',
+        ]);
+        $roleReviewer = Role::where('name', Role::REVIEWER)->firstOrFail();
+        $otherReviewer = User::factory()->create([
+            'university_id' => $otherUniversity->id,
+            'role_id' => $roleReviewer->id,
+            'is_active' => true,
+        ]);
+        $otherReviewer->roles()->syncWithoutDetaching([$roleReviewer->id]);
+
+        $payload = [
+            'skor_monev' => 80.00,
+            'status_laporan' => 'Approved',
+            'catatan_reviewer_monev' => 'Evaluasi monev lintas tenant.',
+        ];
+
+        $response = $this->actingAs($otherReviewer)
+            ->post("/reviewer/monev/{$report->id}/evaluate", $payload);
+
+        $response->assertStatus(403);
+    }
 }

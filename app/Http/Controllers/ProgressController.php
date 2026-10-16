@@ -114,6 +114,19 @@ class ProgressController extends Controller
     public function evaluateMonev(EvaluateMonevRequest $request, $id)
     {
         $report = ProgressReport::findOrFail($id);
+        $report->loadMissing('proposal');
+        $user = $request->user();
+
+        // Multi-tenancy check
+        if (! $user->isSuperAdmin() && (int) $report->proposal?->university_id !== (int) $user->university_id) {
+            abort(403, 'Akses lintas institusi tidak diizinkan.');
+        }
+
+        // Conflict of Interest (CoI) Guard
+        if ((int) $report->proposal?->id_pengusul === (int) $user->id) {
+            abort(403, 'Reviewer memiliki konflik kepentingan langsung dengan usulan penelitian ini.');
+        }
+
         $validated = $request->validated();
 
         $report->update([

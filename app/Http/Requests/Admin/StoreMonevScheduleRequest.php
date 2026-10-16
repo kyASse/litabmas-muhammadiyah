@@ -31,12 +31,18 @@ class StoreMonevScheduleRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'nama_tahap' => ['required', 'string', 'max:255'],
             'tanggal_mulai' => ['required', 'date'],
             'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
             'deskripsi' => ['nullable', 'string'],
         ];
+
+        if ($this->user()?->isSuperAdmin()) {
+            $rules['university_id'] = ['nullable', 'integer', 'exists:universities,id'];
+        }
+
+        return $rules;
     }
 
     /**
@@ -51,6 +57,7 @@ class StoreMonevScheduleRequest extends FormRequest
             'tanggal_mulai' => 'tanggal mulai',
             'tanggal_selesai' => 'tanggal selesai',
             'deskripsi' => 'deskripsi tahap monev',
+            'university_id' => 'institusi universitas',
         ];
     }
 

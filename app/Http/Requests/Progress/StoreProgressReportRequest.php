@@ -87,30 +87,36 @@ class StoreProgressReportRequest extends FormRequest
     public function withValidator(Validator $validator): void
     {
         $validator->after(function (Validator $v) {
-            // 1. Verifikasi Jendela Waktu Monev Aktif
+            // 1. Verifikasi Jendela Waktu Monev Aktif & Multi-tenancy
             if ($this->id_monev_schedule) {
                 $schedule = MonevSchedule::find($this->id_monev_schedule);
-                if ($schedule) {
-                    if (! $schedule->isOpenForSubmission()) {
-                        $v->errors()->add(
-                            'id_monev_schedule',
-                            '[TENGGAT_LEWAT] Periode unggah laporan kemajuan untuk tahap ini belum dibuka atau telah berakhir.'
-                        );
-                    }
+                if (! $schedule) {
+                    $v->errors()->add(
+                        'id_monev_schedule',
+                        'Jadwal monev tidak ditemukan pada institusi Anda.'
+                    );
+                } elseif (! $schedule->isOpenForSubmission()) {
+                    $v->errors()->add(
+                        'id_monev_schedule',
+                        '[TENGGAT_LEWAT] Periode unggah laporan kemajuan untuk tahap ini belum dibuka atau telah berakhir.'
+                    );
                 }
             }
 
-            // 2. Verifikasi Kepemilikan Proposal oleh Peneliti
+            // 2. Verifikasi Kepemilikan Proposal oleh Peneliti & Multi-tenancy
             if ($this->id_proposal) {
                 $proposal = Proposal::find($this->id_proposal);
-                if ($proposal) {
-                    $user = $this->user();
-                    if ($user && ! $user->isSuperAdmin() && (int) $proposal->id_pengusul !== (int) $user->id) {
-                        $v->errors()->add(
-                            'id_proposal',
-                            'Anda tidak memiliki hak akses untuk mengunggah laporan pada proposal ini.'
-                        );
-                    }
+                $user = $this->user();
+                if (! $proposal) {
+                    $v->errors()->add(
+                        'id_proposal',
+                        'Proposal riset tidak ditemukan pada institusi Anda.'
+                    );
+                } elseif ($user && ! $user->isSuperAdmin() && (int) $proposal->id_pengusul !== (int) $user->id) {
+                    $v->errors()->add(
+                        'id_proposal',
+                        'Anda tidak memiliki hak akses untuk mengunggah laporan pada proposal ini.'
+                    );
                 }
             }
 

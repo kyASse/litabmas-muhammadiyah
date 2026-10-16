@@ -401,6 +401,11 @@ class ProgressReport extends Model
         };
     }
 
+    public function getUserIdAttribute(): ?int
+    {
+        return $this->proposal?->id_pengusul;
+    }
+
     // Virtual mutators for legacy columns
     public function setContractIdAttribute($value): void {}
 
