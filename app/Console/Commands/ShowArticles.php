@@ -16,7 +16,7 @@ class ShowArticles extends Command
         $journalId = $this->argument('journal_id');
 
         $total = DB::table('articles')->count();
-        $this->info("📚 Total articles in database: $total");
+        $this->info("[ARTIKEL] Total articles in database: $total");
         $this->newLine();
 
         if ($journalId) {
@@ -35,18 +35,18 @@ class ShowArticles extends Command
 
             foreach ($articles as $article) {
                 $this->line("<fg=cyan>• {$article->title}</>");
-                $this->line("  📅 Published: {$article->publication_date}");
+                $this->line("  [TANGGAL] Published: {$article->publication_date}");
                 if ($article->doi) {
-                    $this->line("  🔗 DOI: {$article->doi}");
+                    $this->line("  [DOI] DOI: {$article->doi}");
                 }
                 if ($article->article_url) {
-                    $this->line("  🌐 URL: {$article->article_url}");
+                    $this->line("  [URL] URL: {$article->article_url}");
                 }
 
                 // Show authors
                 $authors = json_decode($article->authors);
                 if ($authors && is_array($authors)) {
-                    $this->line('  ✍️  Authors: '.implode(', ', array_slice($authors, 0, 3)));
+                    $this->line('  [PENULIS] Authors: '.implode(', ', array_slice($authors, 0, 3)));
                 }
 
                 $this->newLine();
@@ -68,7 +68,7 @@ class ShowArticles extends Command
                 $this->newLine();
             }
 
-            $this->info('💡 Tip: Run with journal ID to see article details');
+            $this->info('[TIP] Tip: Run with journal ID to see article details');
             $this->line('   Example: php artisan articles:show 1');
         }
 

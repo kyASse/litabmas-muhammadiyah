@@ -197,10 +197,24 @@ class Proposal extends Model
         return $this->status_proposal ?? self::STATUS_DRAFT;
     }
 
+    public function setStatusProposalAttribute($value): void
+    {
+        $map = [
+            'draft' => self::STATUS_DRAFT,
+            'submitted' => self::STATUS_SUBMITTED,
+            'administrasi_valid' => self::STATUS_ADMINISTRASI_VALID,
+            'ditolak' => self::STATUS_DITOLAK,
+            'lolos_didanai' => self::STATUS_LOLOS_DIDANAI,
+        ];
+        $normalized = is_string($value) ? ($map[strtolower($value)] ?? $value) : $value;
+        $this->attributes['status_proposal'] = $normalized;
+    }
+
     public function setStatusAttribute($value): void
     {
-        $this->attributes['status_proposal'] = $value;
+        $this->setStatusProposalAttribute($value);
     }
+
 
     protected ?string $virtualFileDokumenProposal = null;
 
