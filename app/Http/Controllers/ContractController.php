@@ -48,7 +48,7 @@ class ContractController extends Controller
 
         $contracts = $baseQuery
             ->with([
-                'university:id,name,short_name,code',
+                'university:id,name,code',
                 'proposal.user:id,name,email',
                 'proposal.researchSchema:id,nama_skema,biaya_maksimal',
                 'fundings',

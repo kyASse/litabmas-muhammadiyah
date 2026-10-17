@@ -67,7 +67,7 @@ class PublicEventController extends Controller
      */
     public function show(string $slug): Response
     {
-        $agenda = Agenda::with('university:id,name,short_name,logo_url,website')
+        $agenda = Agenda::with('university:id,name,code,logo,contact_email')
             ->active()
             ->where('slug', $slug)
             ->firstOrFail();

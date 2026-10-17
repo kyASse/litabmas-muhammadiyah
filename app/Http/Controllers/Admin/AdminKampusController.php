@@ -73,7 +73,7 @@ class AdminKampusController extends Controller
         $universities = Cache::remember('universities.active.list', 3600, function () {
             return University::where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+                ->get(['id', 'name', 'code']);
         });
 
         // Query pending LPPM registrations (role_id is null and approval_status is pending)
@@ -250,7 +250,7 @@ class AdminKampusController extends Controller
         $universities = University::query()
             ->where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'name', 'short_name', 'code']);
+            ->get(['id', 'name', 'code']);
 
         return Inertia::render('Admin/AdminKampus/Create', [
             'universities' => $universities,
@@ -363,7 +363,7 @@ class AdminKampusController extends Controller
         // Get all active universities
         $universities = University::active()
             ->orderBy('name')
-            ->get(['id', 'name', 'short_name', 'code']);
+            ->get(['id', 'name', 'code']);
 
         return Inertia::render('Admin/AdminKampus/Edit', [
             'adminKampus' => [

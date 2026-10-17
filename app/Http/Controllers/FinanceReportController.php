@@ -47,7 +47,7 @@ class FinanceReportController extends Controller
             : 'all';
 
         $contracts = Contract::query()
-            ->with(['university:id,name,short_name,code'])
+            ->with(['university:id,name,code'])
             ->when(auth()->check() && auth()->user()->isAdminKampus(), function (Builder $query) {
                 $query->where('university_id', auth()->user()->university_id);
             })

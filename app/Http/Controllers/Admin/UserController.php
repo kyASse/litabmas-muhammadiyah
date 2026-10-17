@@ -109,7 +109,7 @@ class UserController extends Controller
         $universities = Cache::remember('universities.active.list', 3600, function () {
             return University::where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+                ->get(['id', 'name', 'code']);
         });
 
         return Inertia::render('Admin/Users/Index', [
@@ -130,7 +130,7 @@ class UserController extends Controller
         $universities = Cache::remember('universities.active.list', 3600, function () {
             return University::where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+                ->get(['id', 'name', 'code']);
         });
 
         // Get assignable roles (not Super Admin)
@@ -275,7 +275,7 @@ class UserController extends Controller
         // Get all active universities
         $universities = University::active()
             ->orderBy('name')
-            ->get(['id', 'name', 'short_name', 'code']);
+            ->get(['id', 'name', 'code']);
 
         // Get assignable roles (not Super Admin)
         $roles = Role::query()

@@ -27,7 +27,7 @@ class RegisteredUserController extends Controller
         $universities = Cache::remember('universities.active.registration', 3600, function () {
             return University::where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+                ->get(['id', 'name', 'code']);
         });
 
         return Inertia::render('auth/register', [
