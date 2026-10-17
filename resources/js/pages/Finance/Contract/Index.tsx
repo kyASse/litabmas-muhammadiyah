@@ -191,7 +191,7 @@ export default function ContractIndex({
 
     const handleIssueSubmit = (e: FormEvent) => {
         e.preventDefault();
-        postIssue(route('contracts.store'), {
+        postIssue(route('finance.contracts.store'), {
             preserveScroll: true,
             onSuccess: () => {
                 setIssueModalOpen(false);
@@ -216,7 +216,7 @@ export default function ContractIndex({
     const submitFilters = (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         router.get(
-            route('contracts.index'),
+            route('finance.contracts.index'),
             {
                 search,
                 status,
@@ -233,7 +233,7 @@ export default function ContractIndex({
         setSearch('');
         setStatus('');
         setUniversityId('');
-        router.get(route('contracts.index'));
+        router.get(route('finance.contracts.index'));
     };
 
     const cleanPaginationLabel = (label: string) => {
@@ -433,7 +433,7 @@ export default function ContractIndex({
                                             <TableCell className="min-w-64 max-w-sm">
                                                 <div className="space-y-1">
                                                     <Link
-                                                        href={route('contracts.show', contract.id)}
+                                                        href={route('finance.contracts.show', contract.id)}
                                                         className="font-mono text-xs font-semibold text-sky-800 hover:underline block"
                                                     >
                                                         {contract.nomor_kontrak || contract.contract_number}
@@ -521,7 +521,7 @@ export default function ContractIndex({
                                             </TableCell>
                                             <TableCell className="text-center">
                                                 <Link
-                                                    href={route('contracts.show', contract.id)}
+                                                    href={route('finance.contracts.show', contract.id)}
                                                     className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
                                                 >
                                                     <span>{t.contracts.viewDetailBtn}</span>

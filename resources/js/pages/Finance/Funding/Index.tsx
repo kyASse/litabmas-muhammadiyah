@@ -239,7 +239,7 @@ export default function FundingIndex({ fundings }: Props) {
                                             <TableCell className="min-w-64 max-w-sm">
                                                 <div className="space-y-1">
                                                     <Link
-                                                        href={funding.contract ? route('contracts.show', funding.contract.id) : '#'}
+                                                        href={funding.contract ? route('finance.contracts.show', funding.contract.id) : '#'}
                                                         className="font-mono text-xs font-semibold text-sky-800 hover:underline block"
                                                     >
                                                         {funding.contract?.nomor_kontrak || '-'}
@@ -321,7 +321,7 @@ export default function FundingIndex({ fundings }: Props) {
                                                                 </a>
                                                             )}
                                                             <a
-                                                                href={route('funding.print-kwitansi', funding.id)}
+                                                                href={route('finance.funding.print-kwitansi', funding.id)}
                                                                 target="_blank"
                                                                 rel="noreferrer"
                                                                 className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors"

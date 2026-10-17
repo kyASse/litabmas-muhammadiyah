@@ -226,6 +226,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reports/filter', [FinanceReportController::class, 'filter'])->name('reports.filter');
     });
 
+    // Contract & Funding Route Aliases (Ziggy & Backward Compatibility)
+    Route::middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::ADMIN_KAMPUS.','.Role::SUPER_ADMIN])->group(function () {
+        Route::get('/contracts', [ContractController::class, 'index'])->name('contracts.index');
+        Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
+        Route::get('/contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
+        Route::post('/contracts/{contract}/update-status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
+        Route::post('/funding/{id}/disburse', [FundingController::class, 'disburse'])->name('funding.disburse');
+        Route::post('/funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])->name('funding.upload-bukti');
+        Route::get('/funding/{id}/print', [FundingController::class, 'printKwitansi'])->name('funding.print-kwitansi');
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Grup Admin Kampus / LPPM (PRD Bab 7.4)

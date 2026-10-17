@@ -82,7 +82,7 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
         e.preventDefault();
         if (!funding || isLocked) return;
 
-        post(route('funding.disburse', funding.id), {
+        post(route('finance.funding.disburse', funding.id), {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {

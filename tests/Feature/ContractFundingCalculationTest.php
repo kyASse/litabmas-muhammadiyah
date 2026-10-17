@@ -234,4 +234,20 @@ class ContractFundingCalculationTest extends TestCase
             'university_id' => $this->otherUniversity->id,
         ]);
     }
+
+    public function test_contract_and_funding_routes_are_registered_for_ziggy(): void
+    {
+        // Pastikan nama rute kanonikal finance.* terdaftar di sistem
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('finance.contracts.index'));
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('finance.contracts.store'));
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('finance.contracts.show'));
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('finance.funding.disburse'));
+
+        // Pastikan alias rute tanpa prefix finance.* juga terdaftar untuk kompatibilitas Ziggy frontend
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('contracts.index'));
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('contracts.store'));
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('contracts.show'));
+        $this->assertTrue(\Illuminate\Support\Facades\Route::has('funding.disburse'));
+    }
 }
+

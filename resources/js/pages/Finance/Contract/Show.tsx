@@ -158,8 +158,8 @@ export default function ContractShow({ contract }: Props) {
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t.navigation.dashboard, href: '/dashboard' },
-        { title: t.contracts.pageTitle, href: route('contracts.index') },
-        { title: contractNumber, href: route('contracts.show', contract.id) },
+        { title: t.contracts.pageTitle, href: route('finance.contracts.index') },
+        { title: contractNumber, href: route('finance.contracts.show', contract.id) },
     ];
 
     const badgeInfo = mapStatusToBadge(currentStatus);
@@ -190,7 +190,7 @@ export default function ContractShow({ contract }: Props) {
     const handleUpdateStatus = (newStatus: string) => {
         setProcessing(true);
         router.post(
-            route('contracts.update-status', contract.id),
+            route('finance.contracts.update-status', contract.id),
             { status: newStatus },
             {
                 preserveScroll: true,
@@ -240,7 +240,7 @@ export default function ContractShow({ contract }: Props) {
                 {/* Header Navigasi & Aksi */}
                 <div className="flex items-center justify-between">
                     <Button variant="ghost" size="sm" asChild className="gap-2">
-                        <Link href={route('contracts.index')}>
+                        <Link href={route('finance.contracts.index')}>
                             <ArrowLeft className="h-4 w-4" />
                             Kembali ke Daftar Kontrak
                         </Link>
