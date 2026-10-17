@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 
 interface Proposal {
     id: number;
+    judul_penelitian?: string;
     judul?: string;
     title?: string;
     nomor_proposal?: string;
@@ -159,7 +160,7 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                         ) : (
                                             proposals.map((p) => (
                                                 <SelectItem key={p.id} value={String(p.id)}>
-                                                    <span className="font-medium">{p.judul || p.title || `Proposal #${p.id}`}</span>
+                                                    <span className="font-medium">{p.judul_penelitian || p.judul || p.title || `Proposal #${p.id}`}</span>
                                                     {p.nomor_proposal && (
                                                         <span className="ml-2 font-mono text-xs text-muted-foreground">
                                                             ({p.nomor_proposal})

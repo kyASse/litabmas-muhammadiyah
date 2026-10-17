@@ -23,8 +23,7 @@ class ProgressController extends Controller
         $user = Auth::user();
 
         $query = ProgressReport::whereHas('proposal', function ($q) use ($user) {
-            $q->where('id_pengusul', $user->id)
-                ->orWhere('user_id', $user->id);
+            $q->where('id_pengusul', $user->id);
         })->with(['proposal', 'monevSchedule']);
 
         // Search by title or summary
@@ -56,9 +55,7 @@ class ProgressController extends Controller
     public function create()
     {
         $userId = Auth::id();
-        $proposals = Proposal::where(function ($q) use ($userId) {
-            $q->where('id_pengusul', $userId)->orWhere('user_id', $userId);
-        })
+        $proposals = Proposal::where('id_pengusul', $userId)
             ->where('status_proposal', Proposal::STATUS_LOLOS_DIDANAI)
             ->orderBy('judul_penelitian')
             ->get(['id', 'judul_penelitian']);

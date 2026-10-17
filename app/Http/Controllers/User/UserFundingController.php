@@ -18,10 +18,7 @@ class UserFundingController extends Controller
 
         $baseQuery = Contract::query()
             ->whereHas('proposal', function ($q) use ($user) {
-                $q->where(function ($sub) use ($user) {
-                    $sub->where('id_pengusul', $user->id)
-                        ->orWhere('user_id', $user->id);
-                });
+                $q->where('id_pengusul', $user->id);
             });
 
         $fundingStats = [

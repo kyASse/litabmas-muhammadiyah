@@ -568,4 +568,24 @@ class MonevGatekeeperTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+    public function test_researcher_can_view_progress_report_creation_form(): void
+    {
+        $proposal = $this->createProposal();
+        $proposal->update(['status_proposal' => Proposal::STATUS_LOLOS_DIDANAI]);
+
+        $schedule = $this->createActiveMonevSchedule();
+
+        $response = $this->actingAs($this->researcher)
+            ->get(route('progress.create'));
+
+        $response->assertOk();
+        $response->assertInertia(fn ($page) => $page
+            ->component('Progress/Create')
+            ->has('proposals', 1)
+            ->has('schedules', 1)
+            ->where('proposals.0.id', $proposal->id)
+            ->where('proposals.0.judul_penelitian', $proposal->judul_penelitian)
+        );
+    }
 }
