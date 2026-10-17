@@ -88,11 +88,11 @@ class ContractController extends Controller
                         ? min(100, round(($disbursedTotal / $contractValue) * 100, 2))
                         : 0,
                     'fundings_count' => $contract->fundings_count,
-                    'tanggal_kontrak' => $this->formatDate($contract->tanggal_kontrak),
-                    'start_date' => $this->formatDate($contract->tanggal_kontrak),
-                    'end_date' => $this->formatDate($contract->end_date),
-                    'signed_at' => $this->formatDate($contract->signed_at),
-                    'created_at' => $this->formatDate($contract->created_at),
+                    'tanggal_kontrak' => self::formatDate($contract->tanggal_kontrak),
+                    'start_date' => self::formatDate($contract->tanggal_kontrak),
+                    'end_date' => self::formatDate($contract->end_date),
+                    'signed_at' => self::formatDate($contract->signed_at),
+                    'created_at' => self::formatDate($contract->created_at),
                     'university' => $contract->university ? [
                         'id' => $contract->university->id,
                         'name' => $contract->university->name,
@@ -206,9 +206,9 @@ class ContractController extends Controller
                 'status_color' => $contract->getStatusColorAttribute(),
                 'dana_disetujui' => (float) $contract->dana_disetujui,
                 'contract_value' => (float) $contract->dana_disetujui,
-                'tanggal_kontrak' => $this->formatDate($contract->tanggal_kontrak),
-                'start_date' => $this->formatDate($contract->tanggal_kontrak),
-                'end_date' => $this->formatDate($contract->end_date),
+                'tanggal_kontrak' => self::formatDate($contract->tanggal_kontrak),
+                'start_date' => self::formatDate($contract->tanggal_kontrak),
+                'end_date' => self::formatDate($contract->end_date),
                 'terms' => $contract->terms,
                 'notes' => $contract->notes,
                 'file_dokumen_kontrak' => $contract->file_dokumen_kontrak,
@@ -241,15 +241,15 @@ class ContractController extends Controller
                     'nominal_dana' => (float) $f->nominal_dana,
                     'status_pencairan' => $f->status_pencairan,
                     'status_label' => $f->status_label,
-                    'tanggal_pencairan' => $this->formatDate($f->tanggal_pencairan),
+                    'tanggal_pencairan' => self::formatDate($f->tanggal_pencairan),
                     'bukti_transfer_path' => $f->bukti_transfer_path,
                 ]),
                 'creator' => $contract->creator ? [
                     'id' => $contract->creator->id,
                     'name' => $contract->creator->name,
                 ] : null,
-                'created_at' => $this->formatDate($contract->created_at, 'Y-m-d H:i:s'),
-                'updated_at' => $this->formatDate($contract->updated_at, 'Y-m-d H:i:s'),
+                'created_at' => self::formatDate($contract->created_at, 'Y-m-d H:i:s'),
+                'updated_at' => self::formatDate($contract->updated_at, 'Y-m-d H:i:s'),
             ],
         ]);
     }
@@ -333,7 +333,7 @@ class ContractController extends Controller
     /**
      * Format tanggal secara aman dari Carbon, string, atau null.
      */
-    private function formatDate(mixed $date, string $format = 'Y-m-d'): ?string
+    public static function formatDate(mixed $date, string $format = 'Y-m-d'): ?string
     {
         if (! $date) {
             return null;

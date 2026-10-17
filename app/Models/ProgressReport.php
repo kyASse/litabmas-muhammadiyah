@@ -36,6 +36,7 @@ class ProgressReport extends Model
         'catatan_kendala',
         'file_laporan_kemajuan',
         'file_logbook',
+        'logbook',
         'skor_monev',
         'catatan_reviewer_monev',
         'status_laporan',
@@ -112,6 +113,21 @@ class ProgressReport extends Model
     }
 
     /**
+     * Relasi ke Dosen Pengusul melalui proposal (legacy compatibility).
+     */
+    public function user(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    {
+        return $this->hasOneThrough(
+            User::class,
+            Proposal::class,
+            'id',          // Foreign key on proposals table
+            'id',          // Foreign key on users table
+            'id_proposal', // Local key on progress_reports table
+            'id_pengusul'  // Local key on proposals table
+        );
+    }
+
+    /**
      * Relasi ke jadwal tahapan monev (N:1).
      */
     public function monevSchedule(): BelongsTo
@@ -120,11 +136,18 @@ class ProgressReport extends Model
     }
 
     /**
-     * Relasi kontrak (legacy compatibility).
+     * Relasi kontrak melalui proposal (legacy compatibility).
      */
-    public function contract(): BelongsTo
+    public function contract(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
     {
-        return $this->belongsTo(Contract::class, 'id_proposal');
+        return $this->hasOneThrough(
+            Contract::class,
+            Proposal::class,
+            'id',          // Foreign key on proposals table
+            'id_proposal', // Foreign key on contracts table
+            'id_proposal', // Local key on progress_reports table
+            'id'           // Local key on proposals table
+        );
     }
 
     /*
@@ -324,6 +347,37 @@ class ProgressReport extends Model
     public function setLogbookFileAttribute($value): void
     {
         $this->attributes['file_logbook'] = $value;
+    }
+
+    public function getLogbookAttribute(): ?string
+    {
+        return $this->getFileLogbookAttribute();
+    }
+
+    public function setLogbookAttribute($value): void
+    {
+        $this->attributes['file_logbook'] = $value;
+    }
+
+    public function getEvaluationsAttribute(): array
+    {
+        if (! $this->skor_monev && ! $this->catatan_reviewer_monev) {
+            return [];
+        }
+
+        return [
+            [
+                'id' => $this->id,
+                'score' => (float) $this->skor_monev,
+                'notes' => $this->catatan_reviewer_monev,
+                'status' => $this->status_laporan === 'Approved' ? 'reviewed' : ($this->status_laporan === 'Revision' ? 'revised' : 'pending'),
+                'evaluated_at' => $this->updated_at?->toIso8601String(),
+                'reviewer' => [
+                    'id' => 0,
+                    'name' => 'Reviewer Monev',
+                ],
+            ],
+        ];
     }
 
     public function getSkorMonevAttribute(): ?string

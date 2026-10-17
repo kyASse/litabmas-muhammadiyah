@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Progress\StoreProgressReportRequest;
 use App\Http\Requests\Reviewer\EvaluateMonevRequest;
 use App\Models\Contract;
+use App\Models\MonevSchedule;
 use App\Models\ProgressReport;
 use App\Models\Proposal;
 use Illuminate\Http\Request;
@@ -31,8 +32,7 @@ class ProgressController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('ringkasan_progres', 'like', "%{$search}%")
                     ->orWhereHas('proposal', function ($pq) use ($search) {
-                        $pq->where('judul', 'like', "%{$search}%")
-                            ->orWhere('title', 'like', "%{$search}%");
+                        $pq->where('judul_penelitian', 'like', "%{$search}%");
                     });
             });
         }
@@ -59,8 +59,9 @@ class ProgressController extends Controller
         $proposals = Proposal::where(function ($q) use ($userId) {
             $q->where('id_pengusul', $userId)->orWhere('user_id', $userId);
         })
-            ->orderBy('judul')
-            ->get(['id', 'judul', 'nomor_proposal']);
+            ->where('status_proposal', Proposal::STATUS_LOLOS_DIDANAI)
+            ->orderBy('judul_penelitian')
+            ->get(['id', 'judul_penelitian']);
 
         $schedules = MonevSchedule::where('is_active', true)
             ->orderBy('tanggal_mulai', 'desc')
@@ -107,12 +108,37 @@ class ProgressController extends Controller
      */
     public function show(ProgressReport $progressReport)
     {
-        abort_if($progressReport->user_id !== Auth::id(), 403);
+        $progressReport->loadMissing('proposal');
+        abort_if((int) $progressReport->user_id !== (int) Auth::id(), 403);
 
-        $progressReport->load(['proposal', 'contract', 'evaluations.reviewer']);
+        $progressReport->loadMissing(['proposal.contract', 'monevSchedule']);
+
+        $reportData = array_merge($progressReport->toArray(), [
+            'id' => $progressReport->id,
+            'title' => $progressReport->proposal?->judul_penelitian ?? 'Laporan Kemajuan',
+            'content' => $progressReport->ringkasan_progres,
+            'report_type' => 'laporan_kemajuan',
+            'report_date' => $progressReport->created_at?->format('Y-m-d') ?? now()->format('Y-m-d'),
+            'progress_percentage' => (int) $progressReport->persentase_kemajuan,
+            'report_period' => $progressReport->monevSchedule?->nama_tahap ?? 'Monev Kemajuan',
+            'attachment_path' => $progressReport->file_laporan_kemajuan,
+            'status' => strtolower($progressReport->status_laporan ?? 'submitted'),
+            'submitted_at' => $progressReport->created_at?->toIso8601String() ?? now()->toIso8601String(),
+            'created_at' => $progressReport->created_at?->toIso8601String() ?? now()->toIso8601String(),
+            'proposal' => [
+                'id' => $progressReport->proposal?->id,
+                'title' => $progressReport->proposal?->judul_penelitian,
+            ],
+            'contract' => $progressReport->proposal?->contract ? [
+                'id' => $progressReport->proposal->contract->id,
+                'contract_number' => $progressReport->proposal->contract->nomor_kontrak,
+                'title' => $progressReport->proposal->contract->judul_kontrak,
+            ] : null,
+            'evaluations' => $progressReport->evaluations,
+        ]);
 
         return Inertia::render('Progress/Show', [
-            'progressReport' => $progressReport,
+            'progressReport' => $reportData,
         ]);
     }
 

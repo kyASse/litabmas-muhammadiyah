@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Funding;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -16,57 +17,63 @@ class UserFundingController extends Controller
         $user = $request->user();
 
         $baseQuery = Contract::query()
-            ->whereHas('proposal', fn ($q) => $q->where('user_id', $user->id));
+            ->whereHas('proposal', function ($q) use ($user) {
+                $q->where(function ($sub) use ($user) {
+                    $sub->where('id_pengusul', $user->id)
+                        ->orWhere('user_id', $user->id);
+                });
+            });
 
         $fundingStats = [
-            'total_approved' => (float) (clone $baseQuery)->sum('contract_value'),
+            'total_approved' => (float) (clone $baseQuery)->sum('dana_disetujui'),
             'total_disbursed' => (float) Funding::query()
-                ->whereIn('contract_id', (clone $baseQuery)->select('contracts.id'))
+                ->whereIn('id_contract', (clone $baseQuery)->select('contracts.id'))
                 ->disbursed()
-                ->sum('amount'),
-            'active_contracts' => (clone $baseQuery)->where('status', Contract::STATUS_ACTIVE)->count(),
+                ->sum('nominal_dana'),
+            'active_contracts' => (clone $baseQuery)->where('status_kontrak', Contract::STATUS_ACTIVE)->count(),
         ];
         $fundingStats['total_remaining'] = $fundingStats['total_approved'] - $fundingStats['total_disbursed'];
 
         $contracts = $baseQuery
-            ->with(['proposal:id,title', 'fundings' => fn ($q) => $q->orderBy('funding_number')])
+            ->with(['proposal:id,judul_penelitian', 'fundings' => fn ($q) => $q->orderBy('termin_ke')])
             ->orderByDesc('created_at')
             ->paginate(10)
             ->withQueryString();
 
         $formattedContracts = $contracts->through(function (Contract $contract) {
-            $totalDisbursed = $contract->fundings->where('status', Funding::STATUS_DISBURSED)->sum('amount');
-            $disbursementPercentage = $contract->contract_value > 0
-                ? round(($totalDisbursed / $contract->contract_value) * 100, 2)
+            $totalDisbursed = (float) $contract->fundings->where('status_pencairan', Funding::STATUS_DISBURSED)->sum('nominal_dana');
+            $contractValue = (float) $contract->dana_disetujui;
+            $disbursementPercentage = $contractValue > 0
+                ? round(($totalDisbursed / $contractValue) * 100, 2)
                 : 0;
 
             return [
                 'id' => $contract->id,
-                'contract_number' => $contract->contract_number,
-                'title' => $contract->title ?? $contract->proposal?->title,
-                'start_date' => $contract->start_date?->format('Y-m-d'),
-                'contract_value' => (float) $contract->contract_value,
+                'contract_number' => $contract->nomor_kontrak,
+                'title' => $contract->judul_kontrak ?? $contract->proposal?->judul_penelitian,
+                'start_date' => self::formatDate($contract->tanggal_kontrak),
+                'contract_value' => $contractValue,
                 'status' => $contract->status,
-                'status_label' => Contract::getStatusOptions()[$contract->status] ?? ucfirst($contract->status),
-                'total_disbursed' => (float) $totalDisbursed,
-                'remaining_funding' => (float) ($contract->contract_value - $totalDisbursed),
+                'status_label' => Contract::getStatusOptions()[$contract->status_kontrak] ?? ucfirst($contract->status_kontrak),
+                'total_disbursed' => $totalDisbursed,
+                'remaining_funding' => max($contractValue - $totalDisbursed, 0),
                 'disbursement_percentage' => $disbursementPercentage,
                 'fundings' => $contract->fundings->map(fn (Funding $funding) => [
                     'id' => $funding->id,
-                    'funding_number' => $funding->funding_number,
-                    'description' => $funding->description,
-                    'amount' => (float) $funding->amount,
-                    'percentage' => (float) $funding->percentage,
-                    'status' => $funding->status,
+                    'funding_number' => $funding->termin_ke,
+                    'description' => $funding->description ?? "Termin {$funding->termin_ke}",
+                    'amount' => (float) $funding->nominal_dana,
+                    'percentage' => (float) $funding->persentase_dana,
+                    'status' => $funding->status_pencairan,
                     'status_label' => $funding->getStatusLabelAttribute(),
                     'status_color' => $funding->getStatusColorAttribute(),
-                    'funding_date' => $funding->funding_date?->format('Y-m-d'),
-                    'paid_at' => $funding->paid_at?->format('Y-m-d'),
+                    'funding_date' => self::formatDate($funding->tanggal_pencairan),
+                    'paid_at' => self::formatDate($funding->tanggal_pencairan),
                     'reference_number' => $funding->reference_number,
-                    'proof_document_path' => $funding->proof_document_path,
-                    'notes' => $funding->notes,
+                    'proof_document_path' => $funding->bukti_transfer_path,
+                    'notes' => $funding->catatan_keuangan,
                 ])->values()->toArray(),
-                'created_at' => $contract->created_at?->format('Y-m-d H:i:s'),
+                'created_at' => self::formatDate($contract->created_at, 'Y-m-d H:i:s'),
             ];
         });
 
@@ -75,5 +82,25 @@ class UserFundingController extends Controller
             'fundingStats' => $fundingStats,
             'filters' => $request->only(['search']),
         ]);
+    }
+
+    /**
+     * Format tanggal secara aman dari Carbon, string, atau null.
+     */
+    public static function formatDate(mixed $date, string $format = 'Y-m-d'): ?string
+    {
+        if (! $date) {
+            return null;
+        }
+
+        if ($date instanceof \DateTimeInterface) {
+            return $date->format($format);
+        }
+
+        try {
+            return Carbon::parse($date)->format($format);
+        } catch (\Throwable) {
+            return is_string($date) ? $date : null;
+        }
     }
 }

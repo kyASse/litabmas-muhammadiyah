@@ -189,7 +189,7 @@ class FundingController extends Controller
                 'status_pencairan' => $f->status_pencairan ?? $f->status ?? Funding::STATUS_PLANNED,
                 'status_label' => $f->status_label,
                 'status_color' => $f->status_color,
-                'tanggal_pencairan' => $this->formatDate($f->tanggal_pencairan) ?? $this->formatDate($f->paid_at),
+                'tanggal_pencairan' => self::formatDate($f->tanggal_pencairan) ?? self::formatDate($f->paid_at),
                 'bukti_transfer_path' => $f->bukti_transfer_path ?? $f->proof_document_path,
                 'catatan_keuangan' => $f->catatan_keuangan ?? $f->notes,
                 'reference_number' => $f->reference_number,
@@ -249,7 +249,7 @@ class FundingController extends Controller
     /**
      * Format tanggal secara aman dari Carbon, string, atau null.
      */
-    private function formatDate(mixed $date, string $format = 'Y-m-d'): ?string
+    public static function formatDate(mixed $date, string $format = 'Y-m-d'): ?string
     {
         if (! $date) {
             return null;

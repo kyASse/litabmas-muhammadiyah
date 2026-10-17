@@ -160,6 +160,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Funding Info for Peneliti
         Route::get('/funding', [UserFundingController::class, 'index'])->name('funding.index');
+        Route::get('/user/funding', [UserFundingController::class, 'index'])->name('user.funding.index');
     });
 
     /*
