@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 /**
  * Model Kontrak Penelitian
@@ -312,24 +313,28 @@ class Contract extends Model
         $this->attributes['dana_disetujui'] = $value;
     }
 
-    public function getTanggalKontrakAttribute(): ?string
+    public function getTanggalKontrakAttribute($value): ?Carbon
     {
-        return $this->attributes['tanggal_kontrak'] ?? null;
+        $val = $value ?? $this->attributes['tanggal_kontrak'] ?? null;
+
+        return $val ? Carbon::parse($val) : null;
     }
 
     public function setTanggalKontrakAttribute($value): void
     {
-        $this->attributes['tanggal_kontrak'] = $value;
+        $this->attributes['tanggal_kontrak'] = $value instanceof \DateTimeInterface
+            ? $value->format('Y-m-d')
+            : $value;
     }
 
-    public function getStartDateAttribute(): ?string
+    public function getStartDateAttribute(): ?Carbon
     {
-        return $this->attributes['tanggal_kontrak'] ?? null;
+        return $this->getTanggalKontrakAttribute($this->attributes['tanggal_kontrak'] ?? null);
     }
 
     public function setStartDateAttribute($value): void
     {
-        $this->attributes['tanggal_kontrak'] = $value;
+        $this->setTanggalKontrakAttribute($value);
     }
 
     public function getFileDokumenKontrakAttribute(): ?string

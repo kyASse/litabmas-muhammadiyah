@@ -6,6 +6,7 @@ use App\Models\Contract;
 use App\Models\Funding;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
 /**
@@ -94,7 +95,7 @@ class FinanceReportController extends Controller
                     'remaining_balance' => max($contractValue - $disbursedTotal, 0),
                     'status' => $contract->status,
                     'status_label' => Contract::getStatusOptions()[$contract->status] ?? $contract->status,
-                    'signed_at' => $contract->signed_at?->format('Y-m-d'),
+                    'signed_at' => $contract->signed_at ? ($contract->signed_at instanceof \DateTimeInterface ? $contract->signed_at->format('Y-m-d') : Carbon::parse($contract->signed_at)->format('Y-m-d')) : null,
                 ];
             })->values(),
         ];

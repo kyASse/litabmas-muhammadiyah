@@ -11,6 +11,7 @@ use App\Services\FundingService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
 class FundingController extends Controller
@@ -188,7 +189,7 @@ class FundingController extends Controller
                 'status_pencairan' => $f->status_pencairan ?? $f->status ?? Funding::STATUS_PLANNED,
                 'status_label' => $f->status_label,
                 'status_color' => $f->status_color,
-                'tanggal_pencairan' => $f->tanggal_pencairan?->format('Y-m-d') ?? $f->paid_at?->format('Y-m-d'),
+                'tanggal_pencairan' => $this->formatDate($f->tanggal_pencairan) ?? $this->formatDate($f->paid_at),
                 'bukti_transfer_path' => $f->bukti_transfer_path ?? $f->proof_document_path,
                 'catatan_keuangan' => $f->catatan_keuangan ?? $f->notes,
                 'reference_number' => $f->reference_number,
@@ -243,5 +244,25 @@ class FundingController extends Controller
         );
 
         return redirect()->back()->with('success', '[SUKSES] Dana termin berhasil dicairkan.');
+    }
+
+    /**
+     * Format tanggal secara aman dari Carbon, string, atau null.
+     */
+    private function formatDate(mixed $date, string $format = 'Y-m-d'): ?string
+    {
+        if (! $date) {
+            return null;
+        }
+
+        if ($date instanceof \DateTimeInterface) {
+            return $date->format($format);
+        }
+
+        try {
+            return Carbon::parse($date)->format($format);
+        } catch (\Throwable) {
+            return is_string($date) ? $date : null;
+        }
     }
 }

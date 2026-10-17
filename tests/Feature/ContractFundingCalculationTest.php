@@ -249,5 +249,32 @@ class ContractFundingCalculationTest extends TestCase
         $this->assertTrue(\Illuminate\Support\Facades\Route::has('contracts.show'));
         $this->assertTrue(\Illuminate\Support\Facades\Route::has('funding.disburse'));
     }
+
+    public function test_finance_contracts_index_renders_successfully_with_contracts(): void
+    {
+        $proposal = $this->createProposal(Proposal::STATUS_LOLOS_DIDANAI, 25000000.00);
+
+        // Buat kontrak dengan tanggal_kontrak string eksplisit
+        $contract = Contract::create([
+            'university_id' => $this->university->id,
+            'id_proposal' => $proposal->id,
+            'nomor_kontrak' => 'KTR/2026/UMM/9999',
+            'judul_kontrak' => 'Kontrak Pengujian Render Index',
+            'dana_disetujui' => 20000000.00,
+            'tanggal_kontrak' => '2026-10-17',
+            'status_kontrak' => Contract::STATUS_DRAFT,
+        ]);
+
+        $response = $this->actingAs($this->financeAdmin)
+            ->get('/finance/contracts');
+
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('Finance/Contract/Index')
+            ->has('contracts.data', 1)
+            ->where('contracts.data.0.tanggal_kontrak', '2026-10-17')
+            ->where('contracts.data.0.nomor_kontrak', 'KTR/2026/UMM/9999')
+        );
+    }
 }
 

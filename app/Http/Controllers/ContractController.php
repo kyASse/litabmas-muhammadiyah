@@ -11,6 +11,7 @@ use App\Services\ContractFundingService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -87,11 +88,11 @@ class ContractController extends Controller
                         ? min(100, round(($disbursedTotal / $contractValue) * 100, 2))
                         : 0,
                     'fundings_count' => $contract->fundings_count,
-                    'tanggal_kontrak' => $contract->tanggal_kontrak?->format('Y-m-d'),
-                    'start_date' => $contract->tanggal_kontrak?->format('Y-m-d'),
-                    'end_date' => $contract->end_date?->format('Y-m-d'),
-                    'signed_at' => $contract->signed_at?->format('Y-m-d'),
-                    'created_at' => $contract->created_at->format('Y-m-d'),
+                    'tanggal_kontrak' => $this->formatDate($contract->tanggal_kontrak),
+                    'start_date' => $this->formatDate($contract->tanggal_kontrak),
+                    'end_date' => $this->formatDate($contract->end_date),
+                    'signed_at' => $this->formatDate($contract->signed_at),
+                    'created_at' => $this->formatDate($contract->created_at),
                     'university' => $contract->university ? [
                         'id' => $contract->university->id,
                         'name' => $contract->university->name,
@@ -205,9 +206,9 @@ class ContractController extends Controller
                 'status_color' => $contract->getStatusColorAttribute(),
                 'dana_disetujui' => (float) $contract->dana_disetujui,
                 'contract_value' => (float) $contract->dana_disetujui,
-                'tanggal_kontrak' => $contract->tanggal_kontrak?->format('Y-m-d'),
-                'start_date' => $contract->tanggal_kontrak?->format('Y-m-d'),
-                'end_date' => $contract->end_date?->format('Y-m-d'),
+                'tanggal_kontrak' => $this->formatDate($contract->tanggal_kontrak),
+                'start_date' => $this->formatDate($contract->tanggal_kontrak),
+                'end_date' => $this->formatDate($contract->end_date),
                 'terms' => $contract->terms,
                 'notes' => $contract->notes,
                 'file_dokumen_kontrak' => $contract->file_dokumen_kontrak,
@@ -240,15 +241,15 @@ class ContractController extends Controller
                     'nominal_dana' => (float) $f->nominal_dana,
                     'status_pencairan' => $f->status_pencairan,
                     'status_label' => $f->status_label,
-                    'tanggal_pencairan' => $f->tanggal_pencairan?->format('Y-m-d'),
+                    'tanggal_pencairan' => $this->formatDate($f->tanggal_pencairan),
                     'bukti_transfer_path' => $f->bukti_transfer_path,
                 ]),
                 'creator' => $contract->creator ? [
                     'id' => $contract->creator->id,
                     'name' => $contract->creator->name,
                 ] : null,
-                'created_at' => $contract->created_at?->format('Y-m-d H:i:s'),
-                'updated_at' => $contract->updated_at?->format('Y-m-d H:i:s'),
+                'created_at' => $this->formatDate($contract->created_at, 'Y-m-d H:i:s'),
+                'updated_at' => $this->formatDate($contract->updated_at, 'Y-m-d H:i:s'),
             ],
         ]);
     }
@@ -326,6 +327,26 @@ class ContractController extends Controller
 
         if ($contract->university_id !== null && $user && $user->university_id !== $contract->university_id) {
             abort(403, 'Anda tidak memiliki akses ke kontrak ini.');
+        }
+    }
+
+    /**
+     * Format tanggal secara aman dari Carbon, string, atau null.
+     */
+    private function formatDate(mixed $date, string $format = 'Y-m-d'): ?string
+    {
+        if (! $date) {
+            return null;
+        }
+
+        if ($date instanceof \DateTimeInterface) {
+            return $date->format($format);
+        }
+
+        try {
+            return Carbon::parse($date)->format($format);
+        } catch (\Throwable) {
+            return is_string($date) ? $date : null;
         }
     }
 }
