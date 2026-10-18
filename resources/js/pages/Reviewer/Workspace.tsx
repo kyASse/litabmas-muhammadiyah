@@ -10,29 +10,17 @@
  * @filepath /resources/js/pages/Reviewer/Workspace.tsx
  */
 
-import React, { useState, useMemo, useEffect } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    CheckCircle2,
-    AlertTriangle,
-    FileText,
-    Scale,
-    User,
-    BookOpen,
-    Send,
-    Save,
-    Check,
-    Coins,
-} from 'lucide-react';
-import AppLayout from '@/layouts/app-layout';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { SplitScreenViewer } from '@/components/ui/SplitScreenViewer';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { TabularFigure } from '@/components/ui/TabularFigure';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from '@/hooks/use-translation';
+import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { AlertTriangle, ArrowLeft, BookOpen, CheckCircle2, Coins, FileText, Save, Scale, Send, User } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 interface EvaluationItem {
     kriteria: string;
@@ -101,15 +89,13 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
     const [scoreMethodology, setScoreMethodology] = useState<number>(initialScores.methodology);
     const [scoreFeasibility, setScoreFeasibility] = useState<number>(initialScores.feasibility);
     const [notes, setNotes] = useState<string>(review?.catatan_evaluasi || '');
-    const [recommendation, setRecommendation] = useState<'Diterima' | 'Revisi' | 'Ditolak' | ''>(
-        review?.keputusan_rekomendasi || ''
-    );
+    const [recommendation, setRecommendation] = useState<'Diterima' | 'Revisi' | 'Ditolak' | ''>(review?.keputusan_rekomendasi || '');
     const [coiAcknowledged, setCoiAcknowledged] = useState<boolean>(false);
     const [draftSavedAlert, setDraftSavedAlert] = useState<boolean>(false);
 
     // Live weighted aggregate calculation: (35% + 35% + 30%)
     const aggregateScore = useMemo(() => {
-        const total = (scoreUrgency * 0.35) + (scoreMethodology * 0.35) + (scoreFeasibility * 0.30);
+        const total = scoreUrgency * 0.35 + scoreMethodology * 0.35 + scoreFeasibility * 0.3;
         return Math.round(total * 100) / 100;
     }, [scoreUrgency, scoreMethodology, scoreFeasibility]);
 
@@ -144,12 +130,7 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
 
     const isNotesValid = notes.trim().length >= 50;
     const isFormComplete =
-        coiAcknowledged &&
-        isNotesValid &&
-        recommendation !== '' &&
-        scoreUrgency >= 0 &&
-        scoreMethodology >= 0 &&
-        scoreFeasibility >= 0;
+        coiAcknowledged && isNotesValid && recommendation !== '' && scoreUrgency >= 0 && scoreMethodology >= 0 && scoreFeasibility >= 0;
 
     // Save draft locally
     const handleSaveDraft = () => {
@@ -250,22 +231,14 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
 
     // Header actions displayed inside the top utility bar of SplitScreenViewer
     const headerActions = (
-        <div className="flex items-center space-x-2 mr-2">
-            <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 gap-1.5 text-xs font-sans text-slate-700 hover:text-blue-900 hover:bg-slate-100"
-                asChild
-            >
+        <div className="mr-2 flex items-center space-x-2">
+            <Button variant="ghost" size="sm" className="h-8 gap-1.5 font-sans text-xs text-slate-700 hover:bg-slate-100 hover:text-blue-900" asChild>
                 <Link href="/reviewer/assignments">
-                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <ArrowLeft className="h-3.5 w-3.5" />
                     <span>{t.reviewerWorkspace.backToAssignments}</span>
                 </Link>
             </Button>
-            <StatusBadge
-                status={review.status_review === 'Completed' ? 'Completed_SKTS' : 'In_Review'}
-                size="sm"
-            />
+            <StatusBadge status={review.status_review === 'Completed' ? 'Completed_SKTS' : 'In_Review'} size="sm" />
             <LanguageSwitcher size="sm" variant="compact" />
         </div>
     );
@@ -275,14 +248,14 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
         <form onSubmit={handleSubmitFinal} className="space-y-6">
             {/* Server-Side Validation Errors Banner */}
             {Object.keys(errors).length > 0 && (
-                <div className="rounded-md border-2 border-rose-500 bg-rose-50 p-3.5 text-rose-900 shadow-xs space-y-1.5">
+                <div className="space-y-1.5 rounded-md border-2 border-rose-500 bg-rose-50 p-3.5 text-rose-900 shadow-xs">
                     <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-rose-800 font-sans">
+                        <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
+                        <h4 className="font-sans text-xs font-bold tracking-wider text-rose-800 uppercase">
                             {t.reviewerWorkspace.validationErrorTitle}
                         </h4>
                     </div>
-                    <ul className="list-disc list-inside text-xs text-rose-700 pl-1 space-y-1 font-sans">
+                    <ul className="list-inside list-disc space-y-1 pl-1 font-sans text-xs text-rose-700">
                         {Object.entries(errors).map(([field, message]) => (
                             <li key={field}>{String(message)}</li>
                         ))}
@@ -293,37 +266,31 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
             {/* Header / Instructions */}
             <div className="border-b border-slate-200 pb-3">
                 <div className="flex items-center gap-2">
-                    <Scale className="w-4 h-4 text-blue-900" />
-                    <h3 className="font-sans text-sm font-bold text-slate-900 uppercase tracking-wide">
-                        {t.reviewerWorkspace.rubricTitle}
-                    </h3>
+                    <Scale className="h-4 w-4 text-blue-900" />
+                    <h3 className="font-sans text-sm font-bold tracking-wide text-slate-900 uppercase">{t.reviewerWorkspace.rubricTitle}</h3>
                 </div>
-                <p className="text-xs text-slate-500 mt-1 font-sans leading-relaxed">
-                    {t.reviewerWorkspace.rubricSubtitle}
-                </p>
+                <p className="mt-1 font-sans text-xs leading-relaxed text-slate-500">{t.reviewerWorkspace.rubricSubtitle}</p>
             </div>
 
             {/* Proposal Quick Meta Card */}
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-xs space-y-1.5 font-sans">
-                <div className="flex items-center gap-1.5 text-slate-700 font-semibold uppercase tracking-wider text-[11px]">
-                    <FileText className="w-3.5 h-3.5 text-slate-500" />
+            <div className="space-y-1.5 rounded-md border border-slate-200 bg-slate-50 p-3 font-sans text-xs">
+                <div className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-slate-700 uppercase">
+                    <FileText className="h-3.5 w-3.5 text-slate-500" />
                     <span>{t.reviewerWorkspace.proposalDetails}</span>
                 </div>
-                <p className="text-slate-900 font-serif font-medium text-xs truncate">
-                    {proposalTitle}
-                </p>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-600 text-[11px] pt-1">
+                <p className="truncate font-serif text-xs font-medium text-slate-900">{proposalTitle}</p>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-[11px] text-slate-600">
                     <span className="flex items-center gap-1">
-                        <User className="w-3 h-3 text-slate-400" />
+                        <User className="h-3 w-3 text-slate-400" />
                         <strong className="text-slate-700">{t.reviewerWorkspace.researcher}:</strong> {researcherName}
                     </span>
                     <span className="flex items-center gap-1">
-                        <BookOpen className="w-3 h-3 text-slate-400" />
+                        <BookOpen className="h-3 w-3 text-slate-400" />
                         <strong className="text-slate-700">{t.reviewerWorkspace.scheme}:</strong> {schemeName}
                     </span>
                     {budgetCap && (
                         <span className="flex items-center gap-1">
-                            <Coins className="w-3 h-3 text-slate-400" />
+                            <Coins className="h-3 w-3 text-slate-400" />
                             <strong className="text-slate-700">{t.reviewerWorkspace.budgetCap}:</strong>
                             <TabularFigure value={budgetCap} type="currency" size="sm" weight="semibold" />
                         </span>
@@ -332,29 +299,25 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
             </div>
 
             {/* CRITERION 1: Urgency & Innovation (Weight 35%) */}
-            <div className="space-y-2.5 p-3.5 bg-white rounded-md border border-slate-200 shadow-xs">
-                <div className="flex justify-between items-start gap-2">
+            <div className="space-y-2.5 rounded-md border border-slate-200 bg-white p-3.5 shadow-xs">
+                <div className="flex items-start justify-between gap-2">
                     <div>
                         <div className="flex items-center gap-2">
-                            <span className="font-sans text-xs font-bold text-slate-800">
-                                1. {t.reviewerWorkspace.criteria1Name}
-                            </span>
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                            <span className="font-sans text-xs font-bold text-slate-800">1. {t.reviewerWorkspace.criteria1Name}</span>
+                            <span className="rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-blue-800">
                                 {t.reviewerWorkspace.criteria1Weight}
                             </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug font-sans">
-                            {t.reviewerWorkspace.criteria1Desc}
-                        </p>
+                        <p className="mt-0.5 font-sans text-[11px] leading-snug text-slate-500">{t.reviewerWorkspace.criteria1Desc}</p>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex shrink-0 items-center gap-1">
                         <input
                             type="number"
                             min="0"
                             max="100"
                             value={scoreUrgency}
                             onChange={(e) => setScoreUrgency(Math.min(100, Math.max(0, Number(e.target.value) || 0)))}
-                            className="w-14 h-7 text-xs font-mono font-bold text-right rounded border-slate-300 px-1.5 focus:border-blue-900 focus:ring-1 focus:ring-blue-900"
+                            className="h-7 w-14 rounded border-slate-300 px-1.5 text-right font-mono text-xs font-bold focus:border-blue-900 focus:ring-1 focus:ring-blue-900"
                         />
                     </div>
                 </div>
@@ -364,9 +327,9 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
                     max="100"
                     value={scoreUrgency}
                     onChange={(e) => setScoreUrgency(Number(e.target.value))}
-                    className="w-full accent-blue-900 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
+                    className="h-1.5 w-full cursor-pointer rounded-lg bg-slate-200 accent-blue-900"
                 />
-                <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+                <div className="flex justify-between font-mono text-[10px] text-slate-400">
                     <span>{t.components.splitScreen.scoreRangePoor}</span>
                     <span>{t.components.splitScreen.scoreRangeFair}</span>
                     <span>{t.components.splitScreen.scoreRangeExcellent}</span>
@@ -374,29 +337,25 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
             </div>
 
             {/* CRITERION 2: Methodology & Roadmap (Weight 35%) */}
-            <div className="space-y-2.5 p-3.5 bg-white rounded-md border border-slate-200 shadow-xs">
-                <div className="flex justify-between items-start gap-2">
+            <div className="space-y-2.5 rounded-md border border-slate-200 bg-white p-3.5 shadow-xs">
+                <div className="flex items-start justify-between gap-2">
                     <div>
                         <div className="flex items-center gap-2">
-                            <span className="font-sans text-xs font-bold text-slate-800">
-                                2. {t.reviewerWorkspace.criteria2Name}
-                            </span>
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                            <span className="font-sans text-xs font-bold text-slate-800">2. {t.reviewerWorkspace.criteria2Name}</span>
+                            <span className="rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-blue-800">
                                 {t.reviewerWorkspace.criteria2Weight}
                             </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug font-sans">
-                            {t.reviewerWorkspace.criteria2Desc}
-                        </p>
+                        <p className="mt-0.5 font-sans text-[11px] leading-snug text-slate-500">{t.reviewerWorkspace.criteria2Desc}</p>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex shrink-0 items-center gap-1">
                         <input
                             type="number"
                             min="0"
                             max="100"
                             value={scoreMethodology}
                             onChange={(e) => setScoreMethodology(Math.min(100, Math.max(0, Number(e.target.value) || 0)))}
-                            className="w-14 h-7 text-xs font-mono font-bold text-right rounded border-slate-300 px-1.5 focus:border-blue-900 focus:ring-1 focus:ring-blue-900"
+                            className="h-7 w-14 rounded border-slate-300 px-1.5 text-right font-mono text-xs font-bold focus:border-blue-900 focus:ring-1 focus:ring-blue-900"
                         />
                     </div>
                 </div>
@@ -406,9 +365,9 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
                     max="100"
                     value={scoreMethodology}
                     onChange={(e) => setScoreMethodology(Number(e.target.value))}
-                    className="w-full accent-blue-900 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
+                    className="h-1.5 w-full cursor-pointer rounded-lg bg-slate-200 accent-blue-900"
                 />
-                <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+                <div className="flex justify-between font-mono text-[10px] text-slate-400">
                     <span>{t.components.splitScreen.scoreRangePoor}</span>
                     <span>{t.components.splitScreen.scoreRangeFair}</span>
                     <span>{t.components.splitScreen.scoreRangeExcellent}</span>
@@ -416,29 +375,25 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
             </div>
 
             {/* CRITERION 3: Feasibility & Outputs (Weight 30%) */}
-            <div className="space-y-2.5 p-3.5 bg-white rounded-md border border-slate-200 shadow-xs">
-                <div className="flex justify-between items-start gap-2">
+            <div className="space-y-2.5 rounded-md border border-slate-200 bg-white p-3.5 shadow-xs">
+                <div className="flex items-start justify-between gap-2">
                     <div>
                         <div className="flex items-center gap-2">
-                            <span className="font-sans text-xs font-bold text-slate-800">
-                                3. {t.reviewerWorkspace.criteria3Name}
-                            </span>
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                            <span className="font-sans text-xs font-bold text-slate-800">3. {t.reviewerWorkspace.criteria3Name}</span>
+                            <span className="rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-blue-800">
                                 {t.reviewerWorkspace.criteria3Weight}
                             </span>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug font-sans">
-                            {t.reviewerWorkspace.criteria3Desc}
-                        </p>
+                        <p className="mt-0.5 font-sans text-[11px] leading-snug text-slate-500">{t.reviewerWorkspace.criteria3Desc}</p>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex shrink-0 items-center gap-1">
                         <input
                             type="number"
                             min="0"
                             max="100"
                             value={scoreFeasibility}
                             onChange={(e) => setScoreFeasibility(Math.min(100, Math.max(0, Number(e.target.value) || 0)))}
-                            className="w-14 h-7 text-xs font-mono font-bold text-right rounded border-slate-300 px-1.5 focus:border-blue-900 focus:ring-1 focus:ring-blue-900"
+                            className="h-7 w-14 rounded border-slate-300 px-1.5 text-right font-mono text-xs font-bold focus:border-blue-900 focus:ring-1 focus:ring-blue-900"
                         />
                     </div>
                 </div>
@@ -448,9 +403,9 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
                     max="100"
                     value={scoreFeasibility}
                     onChange={(e) => setScoreFeasibility(Number(e.target.value))}
-                    className="w-full accent-blue-900 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
+                    className="h-1.5 w-full cursor-pointer rounded-lg bg-slate-200 accent-blue-900"
                 />
-                <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+                <div className="flex justify-between font-mono text-[10px] text-slate-400">
                     <span>{t.components.splitScreen.scoreRangePoor}</span>
                     <span>{t.components.splitScreen.scoreRangeFair}</span>
                     <span>{t.components.splitScreen.scoreRangeExcellent}</span>
@@ -458,19 +413,19 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
             </div>
 
             {/* Real-Time Aggregate Score Calculator (Zero CLS) */}
-            <div className="p-4 bg-slate-50 border border-slate-300 rounded-lg space-y-2">
+            <div className="space-y-2 rounded-lg border border-slate-300 bg-slate-50 p-4">
                 <div className="flex items-center justify-between">
                     <div>
                         <div className="flex items-center gap-2">
-                            <span className="text-xs font-sans font-bold text-slate-900 uppercase tracking-wide">
+                            <span className="font-sans text-xs font-bold tracking-wide text-slate-900 uppercase">
                                 {t.reviewerWorkspace.totalScoreLabel}
                             </span>
-                            <span className="text-[11px] font-mono text-slate-500">
-                                {t.reviewerWorkspace.totalScoreScale}
-                            </span>
+                            <span className="font-mono text-[11px] text-slate-500">{t.reviewerWorkspace.totalScoreScale}</span>
                         </div>
                         <div className="mt-1">
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-sans font-semibold border ${scoreDescriptor.badgeClasses}`}>
+                            <span
+                                className={`inline-flex items-center rounded border px-2 py-0.5 font-sans text-[11px] font-semibold ${scoreDescriptor.badgeClasses}`}
+                            >
                                 {scoreDescriptor.text}
                             </span>
                         </div>
@@ -487,17 +442,17 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
 
             {/* Final Recommendation Selector (Pills) */}
             <div className="space-y-2">
-                <label className="block text-xs font-sans font-bold text-slate-800 uppercase tracking-wider">
+                <label className="block font-sans text-xs font-bold tracking-wider text-slate-800 uppercase">
                     {t.reviewerWorkspace.recommendationLabel} <span className="text-rose-600">*</span>
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                     <button
                         type="button"
                         onClick={() => setRecommendation('Diterima')}
-                        className={`py-2 px-2.5 rounded text-xs font-sans font-semibold border transition-all text-center ${
+                        className={`rounded border px-2.5 py-2 text-center font-sans text-xs font-semibold transition-all ${
                             recommendation === 'Diterima'
-                                ? 'bg-emerald-600 text-white border-emerald-700 shadow-xs'
-                                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                                ? 'border-emerald-700 bg-emerald-600 text-white shadow-xs'
+                                : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
                         }`}
                     >
                         {t.reviewerWorkspace.recAccepted}
@@ -505,10 +460,10 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
                     <button
                         type="button"
                         onClick={() => setRecommendation('Revisi')}
-                        className={`py-2 px-2.5 rounded text-xs font-sans font-semibold border transition-all text-center ${
+                        className={`rounded border px-2.5 py-2 text-center font-sans text-xs font-semibold transition-all ${
                             recommendation === 'Revisi'
-                                ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
-                                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                                ? 'border-amber-600 bg-amber-500 text-white shadow-xs'
+                                : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
                         }`}
                     >
                         {t.reviewerWorkspace.recRevision}
@@ -516,10 +471,10 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
                     <button
                         type="button"
                         onClick={() => setRecommendation('Ditolak')}
-                        className={`py-2 px-2.5 rounded text-xs font-sans font-semibold border transition-all text-center ${
+                        className={`rounded border px-2.5 py-2 text-center font-sans text-xs font-semibold transition-all ${
                             recommendation === 'Ditolak'
-                                ? 'bg-rose-600 text-white border-rose-700 shadow-xs'
-                                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50'
+                                ? 'border-rose-700 bg-rose-600 text-white shadow-xs'
+                                : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
                         }`}
                     >
                         {t.reviewerWorkspace.recRejected}
@@ -529,19 +484,15 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
 
             {/* Qualitative Notes Textarea with Character Counter */}
             <div className="space-y-1.5">
-                <div className="flex justify-between items-center">
-                    <label className="text-xs font-sans font-bold text-slate-800 uppercase tracking-wider">
+                <div className="flex items-center justify-between">
+                    <label className="font-sans text-xs font-bold tracking-wider text-slate-800 uppercase">
                         {t.reviewerWorkspace.notesLabel} <span className="text-rose-600">*</span>
                     </label>
-                    <div className="flex items-center gap-1.5 text-xs font-mono">
-                        <span className={isNotesValid ? 'text-emerald-700 font-semibold' : 'text-amber-700 font-medium'}>
+                    <div className="flex items-center gap-1.5 font-mono text-xs">
+                        <span className={isNotesValid ? 'font-semibold text-emerald-700' : 'font-medium text-amber-700'}>
                             {format(t.reviewerWorkspace.notesMinCount, { count: String(notes.trim().length) })}
                         </span>
-                        {isNotesValid && (
-                            <span className="text-[10px] font-bold text-emerald-700">
-                                {t.reviewerWorkspace.notesValid}
-                            </span>
-                        )}
+                        {isNotesValid && <span className="text-[10px] font-bold text-emerald-700">{t.reviewerWorkspace.notesValid}</span>}
                     </div>
                 </div>
                 <textarea
@@ -549,71 +500,65 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder={t.reviewerWorkspace.notesPlaceholder}
-                    className={`w-full text-xs font-sans rounded-md border p-2.5 leading-relaxed focus:ring-1 transition-colors ${
+                    className={`w-full rounded-md border p-2.5 font-sans text-xs leading-relaxed transition-colors focus:ring-1 ${
                         !isNotesValid && notes.length > 0
-                            ? 'border-amber-400 focus:border-amber-500 focus:ring-amber-500 bg-amber-50/20'
-                            : 'border-slate-300 focus:border-blue-900 focus:ring-blue-900 bg-white'
+                            ? 'border-amber-400 bg-amber-50/20 focus:border-amber-500 focus:ring-amber-500'
+                            : 'border-slate-300 bg-white focus:border-blue-900 focus:ring-blue-900'
                     }`}
                 />
                 {!isNotesValid && (
-                    <p className="text-[11px] text-amber-700 font-sans flex items-center gap-1">
-                        <AlertTriangle className="w-3 h-3 text-amber-600 shrink-0" />
+                    <p className="flex items-center gap-1 font-sans text-[11px] text-amber-700">
+                        <AlertTriangle className="h-3 w-3 shrink-0 text-amber-600" />
                         <span>{t.reviewerWorkspace.notesReminder}</span>
                     </p>
                 )}
             </div>
 
             {/* Conflict of Interest (CoI) Notice Checkbox */}
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-md">
-                <label className="flex items-start gap-2.5 cursor-pointer">
+            <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+                <label className="flex cursor-pointer items-start gap-2.5">
                     <input
                         type="checkbox"
                         checked={coiAcknowledged}
                         onChange={(e) => setCoiAcknowledged(e.target.checked)}
                         className="mt-0.5 rounded border-slate-300 text-blue-900 focus:ring-blue-900"
                     />
-                    <span className="text-xs font-sans text-slate-800 leading-snug">
-                        {t.reviewerWorkspace.coiNotice}
-                    </span>
+                    <span className="font-sans text-xs leading-snug text-slate-800">{t.reviewerWorkspace.coiNotice}</span>
                 </label>
-                {!coiAcknowledged && (
-                    <p className="text-[11px] text-slate-500 mt-1 pl-6 font-sans">
-                        {t.reviewerWorkspace.coiRequiredHint}
-                    </p>
-                )}
+                {!coiAcknowledged && <p className="mt-1 pl-6 font-sans text-[11px] text-slate-500">{t.reviewerWorkspace.coiRequiredHint}</p>}
             </div>
 
             {/* Draft Saved Notification Notice */}
             {draftSavedAlert && (
-                <div className="p-2.5 bg-blue-50 border border-blue-200 text-blue-900 rounded-md text-xs font-sans flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-blue-700 shrink-0" />
+                <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 p-2.5 font-sans text-xs text-blue-900">
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-blue-700" />
                     <span className="font-semibold">{t.reviewerWorkspace.draftSavedIndicator}</span>
                     <span>{t.reviewerWorkspace.draftSavedMessage}</span>
                 </div>
             )}
 
             {/* Form Action Buttons */}
-            <div className="pt-2 flex items-center space-x-2.5 border-t border-slate-200">
+            <div className="flex items-center space-x-2.5 border-t border-slate-200 pt-2">
                 <Button
                     type="button"
                     variant="outline"
                     onClick={handleSaveDraft}
-                    className="flex-1 h-9 gap-1.5 text-xs font-sans font-semibold text-slate-700 hover:text-slate-900 border-slate-300"
+                    className="h-9 flex-1 gap-1.5 border-slate-300 font-sans text-xs font-semibold text-slate-700 hover:text-slate-900"
                 >
-                    <Save className="w-3.5 h-3.5" />
+                    <Save className="h-3.5 w-3.5" />
                     <span>{t.reviewerWorkspace.btnSaveDraft}</span>
                 </Button>
 
                 <Button
                     type="submit"
                     disabled={!isFormComplete || processing}
-                    className={`flex-1 h-9 gap-1.5 text-xs font-sans font-semibold transition-all ${
+                    className={`h-9 flex-1 gap-1.5 font-sans text-xs font-semibold transition-all ${
                         isFormComplete && !processing
-                            ? 'bg-blue-900 hover:bg-blue-800 text-white shadow-xs'
-                            : 'bg-slate-300 text-slate-500 cursor-not-allowed border-slate-200'
+                            ? 'bg-blue-900 text-white shadow-xs hover:bg-blue-800'
+                            : 'cursor-not-allowed border-slate-200 bg-slate-300 text-slate-500'
                     }`}
                 >
-                    <Send className="w-3.5 h-3.5" />
+                    <Send className="h-3.5 w-3.5" />
                     <span>{processing ? t.reviewerWorkspace.btnSubmitting : t.reviewerWorkspace.btnSubmitFinal}</span>
                 </Button>
             </div>
@@ -625,12 +570,7 @@ export default function ReviewerWorkspace({ review, proposal }: WorkspaceProps) 
             <Head title={`${t.reviewerWorkspace.pageTitle} - ${proposalTitle}`} />
 
             <div className="w-full">
-                <SplitScreenViewer
-                    pdfUrl={pdfUrl}
-                    documentTitle={proposalTitle}
-                    headerActions={headerActions}
-                    formContent={formContent}
-                />
+                <SplitScreenViewer pdfUrl={pdfUrl} documentTitle={proposalTitle} headerActions={headerActions} formContent={formContent} />
             </div>
         </AppLayout>
     );

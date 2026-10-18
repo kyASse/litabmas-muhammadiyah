@@ -1,8 +1,8 @@
+import { Button } from '@/components/ui/button';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { TabularFigure } from '@/components/ui/TabularFigure';
-import { Button } from '@/components/ui/button';
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { useTranslation } from '@/hooks/use-translation';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
@@ -14,8 +14,8 @@ import {
     CheckCircle2,
     FileText,
     GraduationCap,
-    LayoutDashboard,
     Layers,
+    LayoutDashboard,
     Lock,
     Search,
     ShieldCheck,
@@ -89,9 +89,7 @@ export default function Welcome() {
                                 <GraduationCap className="h-6 w-6" />
                             </div>
                             <div className="flex flex-col">
-                                <span className="font-serif text-lg font-bold tracking-tight text-slate-900 dark:text-white">
-                                    {t.common.appName}
-                                </span>
+                                <span className="font-serif text-lg font-bold tracking-tight text-slate-900 dark:text-white">{t.common.appName}</span>
                                 <span className="text-[11px] font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                     {t.common.specTag}
                                 </span>
@@ -99,7 +97,7 @@ export default function Welcome() {
                         </div>
 
                         {/* Middle Links */}
-                        <div className="hidden md:flex md:items-center md:gap-6 text-sm font-medium text-slate-600 dark:text-slate-300">
+                        <div className="hidden text-sm font-medium text-slate-600 md:flex md:items-center md:gap-6 dark:text-slate-300">
                             <a href="#statistik" className="transition-colors hover:text-blue-900 dark:hover:text-blue-400">
                                 {t.welcome.statsNav}
                             </a>
@@ -163,9 +161,7 @@ export default function Welcome() {
                                 {t.welcome.heroTitle}
                             </h1>
 
-                            <p className="mt-6 text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-300">
-                                {t.welcome.heroSubtitle}
-                            </p>
+                            <p className="mt-6 text-base leading-relaxed text-slate-600 sm:text-lg dark:text-slate-300">{t.welcome.heroSubtitle}</p>
 
                             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
                                 <Link href={auth?.user ? route('dashboard') : route('login')}>
@@ -190,7 +186,7 @@ export default function Welcome() {
                 </section>
 
                 {/* OVERALL METRICS SECTION (BENTO GRID) */}
-                <section id="statistik" className="relative -mt-6 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <section id="statistik" className="relative mx-auto -mt-6 max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <MetricCard
                             title={t.welcome.participatingUniversities}
@@ -249,9 +245,7 @@ export default function Welcome() {
                             <h2 className="mt-1 font-serif text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                                 {t.welcome.schemesTitle}
                             </h2>
-                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                                {t.welcome.schemesSubtitle}
-                            </p>
+                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t.welcome.schemesSubtitle}</p>
                         </div>
 
                         {/* Search Filter */}
@@ -262,7 +256,7 @@ export default function Welcome() {
                                 placeholder={t.welcome.searchPlaceholder}
                                 value={searchFilter}
                                 onChange={(e) => setSearchFilter(e.target.value)}
-                                className="h-9 w-full rounded-lg border border-slate-200 bg-white pr-3 pl-9 text-xs text-slate-900 placeholder:text-slate-400 focus:border-blue-900 focus:outline-none focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-900 dark:text-white"
+                                className="h-9 w-full rounded-lg border border-slate-200 bg-white pr-3 pl-9 text-xs text-slate-900 placeholder:text-slate-400 focus:border-blue-900 focus:ring-1 focus:ring-blue-900 focus:outline-none dark:border-slate-800 dark:bg-slate-900 dark:text-white"
                             />
                         </div>
                     </div>
@@ -270,12 +264,8 @@ export default function Welcome() {
                     {filteredSchemes.length === 0 ? (
                         <div className="mt-8 rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center dark:border-slate-800 dark:bg-slate-900">
                             <BookOpen className="mx-auto h-10 w-10 text-slate-400" />
-                            <h3 className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                {t.welcome.noSchemesFound}
-                            </h3>
-                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                {t.welcome.contactLppm}
-                            </p>
+                            <h3 className="mt-3 text-sm font-semibold text-slate-800 dark:text-slate-200">{t.welcome.noSchemesFound}</h3>
+                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t.welcome.contactLppm}</p>
                         </div>
                     ) : (
                         <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -312,12 +302,19 @@ export default function Welcome() {
                                                         {t.welcome.maxFunding}
                                                     </span>
                                                     <div className="mt-0.5">
-                                                        <TabularFigure value={funding} type="currency" className="text-base font-bold text-slate-900 dark:text-white" />
+                                                        <TabularFigure
+                                                            value={funding}
+                                                            type="currency"
+                                                            className="text-base font-bold text-slate-900 dark:text-white"
+                                                        />
                                                     </div>
                                                 </div>
 
                                                 <Link href={auth?.user ? route('dashboard') : route('login')}>
-                                                    <Button variant="outline" className="h-8 rounded-lg px-3 text-xs font-semibold text-blue-900 border-blue-200 hover:bg-blue-50 dark:text-blue-300 dark:border-blue-900">
+                                                    <Button
+                                                        variant="outline"
+                                                        className="h-8 rounded-lg border-blue-200 px-3 text-xs font-semibold text-blue-900 hover:bg-blue-50 dark:border-blue-900 dark:text-blue-300"
+                                                    >
                                                         {t.welcome.applyScheme}
                                                     </Button>
                                                 </Link>
@@ -340,9 +337,7 @@ export default function Welcome() {
                             <h2 className="mt-1 font-serif text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
                                 {t.welcome.pillarsTitle}
                             </h2>
-                            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                                {t.welcome.pillarsSubtitle}
-                            </p>
+                            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t.welcome.pillarsSubtitle}</p>
                         </div>
 
                         <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
@@ -350,48 +345,32 @@ export default function Welcome() {
                                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-100 text-blue-900 dark:bg-blue-950 dark:text-blue-300">
                                     <Building2 className="h-5 w-5" />
                                 </div>
-                                <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">
-                                    {t.welcome.pillar1Title}
-                                </h3>
-                                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-                                    {t.welcome.pillar1Desc}
-                                </p>
+                                <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">{t.welcome.pillar1Title}</h3>
+                                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{t.welcome.pillar1Desc}</p>
                             </div>
 
                             <div className="rounded-xl border border-slate-200/90 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950">
                                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
                                     <Lock className="h-5 w-5" />
                                 </div>
-                                <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">
-                                    {t.welcome.pillar2Title}
-                                </h3>
-                                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-                                    {t.welcome.pillar2Desc}
-                                </p>
+                                <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">{t.welcome.pillar2Title}</h3>
+                                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{t.welcome.pillar2Desc}</p>
                             </div>
 
                             <div className="rounded-xl border border-slate-200/90 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950">
                                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-300">
                                     <ShieldCheck className="h-5 w-5" />
                                 </div>
-                                <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">
-                                    {t.welcome.pillar3Title}
-                                </h3>
-                                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-                                    {t.welcome.pillar3Desc}
-                                </p>
+                                <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">{t.welcome.pillar3Title}</h3>
+                                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{t.welcome.pillar3Desc}</p>
                             </div>
 
                             <div className="rounded-xl border border-slate-200/90 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950">
                                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-100 text-purple-900 dark:bg-purple-950 dark:text-purple-300">
                                     <CheckCircle2 className="h-5 w-5" />
                                 </div>
-                                <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">
-                                    {t.welcome.pillar4Title}
-                                </h3>
-                                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">
-                                    {t.welcome.pillar4Desc}
-                                </p>
+                                <h3 className="mt-4 text-sm font-bold text-slate-900 dark:text-white">{t.welcome.pillar4Title}</h3>
+                                <p className="mt-2 text-xs leading-relaxed text-slate-600 dark:text-slate-400">{t.welcome.pillar4Desc}</p>
                             </div>
                         </div>
                     </div>
@@ -406,12 +385,8 @@ export default function Welcome() {
                                     <GraduationCap className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <p className="font-serif text-sm font-bold text-slate-900 dark:text-white">
-                                        {t.common.appName}
-                                    </p>
-                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                                        {t.welcome.footerInstitution}
-                                    </p>
+                                    <p className="font-serif text-sm font-bold text-slate-900 dark:text-white">{t.common.appName}</p>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{t.welcome.footerInstitution}</p>
                                 </div>
                             </div>
 

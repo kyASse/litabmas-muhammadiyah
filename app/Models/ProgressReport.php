@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 /**
  * Model Laporan Kemajuan (Progress Report)
@@ -115,7 +116,7 @@ class ProgressReport extends Model
     /**
      * Relasi ke Dosen Pengusul melalui proposal (legacy compatibility).
      */
-    public function user(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    public function user(): HasOneThrough
     {
         return $this->hasOneThrough(
             User::class,
@@ -138,7 +139,7 @@ class ProgressReport extends Model
     /**
      * Relasi kontrak melalui proposal (legacy compatibility).
      */
-    public function contract(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    public function contract(): HasOneThrough
     {
         return $this->hasOneThrough(
             Contract::class,

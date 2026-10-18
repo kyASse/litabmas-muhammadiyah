@@ -33,6 +33,7 @@ class StatsService
         if (Schema::hasColumn('proposals', 'biaya_yang_diusulkan')) {
             return 'biaya_yang_diusulkan';
         }
+
         return null;
     }
 
@@ -89,7 +90,7 @@ class StatsService
     {
         $userCol = $this->getUserColumn();
         $fundingCol = $this->getFundingColumn();
-        $fundingSql = $fundingCol ? "SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN {$fundingCol} ELSE 0 END) as total_pendanaan," : "0 as total_pendanaan,";
+        $fundingSql = $fundingCol ? "SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN {$fundingCol} ELSE 0 END) as total_pendanaan," : '0 as total_pendanaan,';
 
         $query = DB::table('proposals')->where($userCol, $userId);
 
@@ -132,7 +133,7 @@ class StatsService
     {
         $userCol = $this->getUserColumn();
         $fundingCol = $this->getFundingColumn();
-        $fundingSql = $fundingCol ? "SUM(CASE WHEN p.status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN p.{$fundingCol} ELSE 0 END) as total_pendanaan," : "0 as total_pendanaan,";
+        $fundingSql = $fundingCol ? "SUM(CASE WHEN p.status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN p.{$fundingCol} ELSE 0 END) as total_pendanaan," : '0 as total_pendanaan,';
 
         $query = DB::table('proposals as p')
             ->join('users', "p.{$userCol}", '=', 'users.id')
@@ -176,7 +177,7 @@ class StatsService
     public function getProposalSummaryAll(): array
     {
         $fundingCol = $this->getFundingColumn();
-        $fundingSql = $fundingCol ? "SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN {$fundingCol} ELSE 0 END) as total_pendanaan," : "0 as total_pendanaan,";
+        $fundingSql = $fundingCol ? "SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN {$fundingCol} ELSE 0 END) as total_pendanaan," : '0 as total_pendanaan,';
 
         $query = DB::table('proposals');
 

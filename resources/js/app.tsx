@@ -17,7 +17,7 @@ createInertiaApp({
         root.render(
             <TranslationProvider>
                 <App {...props} />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
     },
     progress: {

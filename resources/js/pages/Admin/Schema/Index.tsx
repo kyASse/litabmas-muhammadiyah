@@ -16,22 +16,21 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import PageHeader from '@/components/ui/PageHeader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import StatusBadge from '@/components/ui/StatusBadge';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import TabularFigure from '@/components/ui/TabularFigure';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import AppLayout from '@/layouts/app-layout';
-import PageHeader from '@/components/ui/PageHeader';
-import TabularFigure from '@/components/ui/TabularFigure';
-import StatusBadge from '@/components/ui/StatusBadge';
 import { useTranslation } from '@/hooks/use-translation';
+import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
@@ -340,7 +339,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                     actions={
                         <Button
                             onClick={handleOpenCreate}
-                            className="flex items-center gap-2 bg-blue-900 text-white font-semibold shadow-sm hover:bg-blue-800"
+                            className="flex items-center gap-2 bg-blue-900 font-semibold text-white shadow-sm hover:bg-blue-800"
                         >
                             <Plus className="h-4 w-4" />
                             {t.adminSchema.addSchemeBtn}

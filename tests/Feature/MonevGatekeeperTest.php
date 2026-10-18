@@ -21,10 +21,15 @@ class MonevGatekeeperTest extends TestCase
     use RefreshDatabase;
 
     protected University $university;
+
     protected ResearchSchema $schema;
+
     protected User $adminKampus;
+
     protected User $financeAdmin;
+
     protected User $reviewer;
+
     protected User $researcher;
 
     protected function setUp(): void

@@ -78,9 +78,7 @@ export default function Show({ proposal }: ShowProps) {
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                         <div>
-                            <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">
-                                {t.proposalDetail.pageTitle}
-                            </h1>
+                            <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">{t.proposalDetail.pageTitle}</h1>
                             <p className="text-sm text-muted-foreground">{t.proposalDetail.pageSubtitle}</p>
                         </div>
                     </div>
@@ -114,7 +112,7 @@ export default function Show({ proposal }: ShowProps) {
                     <CardHeader>
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <CardTitle className="text-xl leading-relaxed font-serif font-bold text-foreground">{proposal.title}</CardTitle>
+                                <CardTitle className="font-serif text-xl leading-relaxed font-bold text-foreground">{proposal.title}</CardTitle>
                                 <CardDescription className="mt-2 space-y-1">
                                     {proposal.user && (
                                         <div className="flex items-center gap-1.5 text-sm text-foreground">

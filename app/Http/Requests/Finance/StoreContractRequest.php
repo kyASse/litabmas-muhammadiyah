@@ -4,6 +4,7 @@ namespace App\Http\Requests\Finance;
 
 use App\Models\Proposal;
 use App\Models\Role;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -29,7 +30,7 @@ class StoreContractRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -61,6 +62,7 @@ class StoreContractRequest extends FormRequest
                 }
 
                 $validator->errors()->add('id_proposal', 'Proposal tidak ditemukan.');
+
                 return;
             }
 

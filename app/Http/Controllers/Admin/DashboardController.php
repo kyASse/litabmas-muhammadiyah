@@ -124,7 +124,7 @@ class DashboardController extends Controller
             ->join($userRolesTable, 'users.id', '=', "{$userRolesTable}.user_id")
             ->join('roles', "{$userRolesTable}.role_id", '=', 'roles.id')
             ->whereIn('roles.name', ['Peneliti', 'Dosen', 'User'])
-            ->leftJoin('proposals', "users.id", '=', "proposals.{$userCol}")
+            ->leftJoin('proposals', 'users.id', '=', "proposals.{$userCol}")
             ->select('users.name', DB::raw('COUNT(proposals.id) as proposal_count'))
             ->groupBy('users.id', 'users.name')
             ->orderByDesc('proposal_count');

@@ -97,7 +97,7 @@ export default function EvaluationShow({ report, allReports }: Props) {
                 {/* Header */}
                 <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-3xl font-serif font-bold tracking-tight text-foreground">{t.reviewerEvaluation.detailPageTitle}</h1>
+                        <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground">{t.reviewerEvaluation.detailPageTitle}</h1>
                         <p className="mt-1 text-sm text-muted-foreground">{report.proposal?.judul ?? '-'}</p>
                     </div>
                     <StatusBadge status={report.status} />

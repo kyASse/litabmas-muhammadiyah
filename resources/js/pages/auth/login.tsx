@@ -43,12 +43,8 @@ export default function Login() {
                             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-900 text-white shadow-md">
                                 <GraduationCap className="h-7 w-7" />
                             </div>
-                            <h1 className="mt-3 font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                                {t.common.appName}
-                            </h1>
-                            <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-                                {t.auth.portalSubtitle}
-                            </p>
+                            <h1 className="mt-3 font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.common.appName}</h1>
+                            <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">{t.auth.portalSubtitle}</p>
                         </Link>
                     </div>
 
@@ -57,9 +53,7 @@ export default function Login() {
                         <div className="mb-6 flex items-start justify-between gap-4">
                             <div>
                                 <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t.auth.loginTitle}</h2>
-                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                    {t.auth.loginSubtitle}
-                                </p>
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t.auth.loginSubtitle}</p>
                             </div>
                             <LanguageSwitcher variant="segmented" />
                         </div>

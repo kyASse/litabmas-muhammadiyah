@@ -52,7 +52,7 @@ export default function EvaluationIndex({ pendingEvaluations }: Props) {
                 {/* Header */}
                 <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-3xl font-serif font-bold tracking-tight text-foreground">{t.reviewerEvaluation.pageTitle}</h1>
+                        <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground">{t.reviewerEvaluation.pageTitle}</h1>
                         <p className="mt-1 text-sm text-muted-foreground">{t.reviewerEvaluation.pageSubtitle}</p>
                     </div>
                 </div>

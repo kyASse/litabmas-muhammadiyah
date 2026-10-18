@@ -1,26 +1,17 @@
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { TabularFigure } from '@/components/ui/TabularFigure';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TabularFigure } from '@/components/ui/TabularFigure';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import { Calendar, CalendarCheck, Clock, FileText, Plus, ShieldCheck } from 'lucide-react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { Calendar, CalendarCheck, Clock, FileText, Plus } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -72,11 +63,7 @@ interface Props {
     activeTab?: string;
 }
 
-export default function Schedule({
-    schedules = [],
-    pendingReports = [],
-    activeTab = 'schedules',
-}: Props) {
+export default function Schedule({ schedules = [], pendingReports = [], activeTab = 'schedules' }: Props) {
     const { t, locale } = useTranslation();
     const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -147,14 +134,10 @@ export default function Schedule({
 
             <div className="flex h-full flex-1 flex-col gap-6 p-6">
                 {/* Header */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
+                <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">
-                            {t.monev.schedulePageTitle}
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            {t.monev.schedulePageSubtitle}
-                        </p>
+                        <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">{t.monev.schedulePageTitle}</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">{t.monev.schedulePageSubtitle}</p>
                     </div>
 
                     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -166,17 +149,13 @@ export default function Schedule({
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-lg">
                             <DialogHeader>
-                                <DialogTitle className="font-serif text-lg font-bold">
-                                    {t.monev.createScheduleTitle}
-                                </DialogTitle>
-                                <DialogDescription className="text-xs text-muted-foreground">
-                                    {t.monev.schedulePageSubtitle}
-                                </DialogDescription>
+                                <DialogTitle className="font-serif text-lg font-bold">{t.monev.createScheduleTitle}</DialogTitle>
+                                <DialogDescription className="text-xs text-muted-foreground">{t.monev.schedulePageSubtitle}</DialogDescription>
                             </DialogHeader>
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="nama_tahap" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                                    <Label htmlFor="nama_tahap" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
                                         {t.monev.scheduleName} <span className="text-rose-600">*</span>
                                     </Label>
                                     <Input
@@ -186,14 +165,12 @@ export default function Schedule({
                                         onChange={(e) => setData('nama_tahap', e.target.value)}
                                         required
                                     />
-                                    {errors.nama_tahap && (
-                                        <p className="text-xs text-rose-600 font-medium">{errors.nama_tahap}</p>
-                                    )}
+                                    {errors.nama_tahap && <p className="text-xs font-medium text-rose-600">{errors.nama_tahap}</p>}
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="tanggal_mulai" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                                        <Label htmlFor="tanggal_mulai" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
                                             {t.monev.startDate} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -203,13 +180,11 @@ export default function Schedule({
                                             onChange={(e) => setData('tanggal_mulai', e.target.value)}
                                             required
                                         />
-                                        {errors.tanggal_mulai && (
-                                            <p className="text-xs text-rose-600 font-medium">{errors.tanggal_mulai}</p>
-                                        )}
+                                        {errors.tanggal_mulai && <p className="text-xs font-medium text-rose-600">{errors.tanggal_mulai}</p>}
                                     </div>
 
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="tanggal_selesai" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                                        <Label htmlFor="tanggal_selesai" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
                                             {t.monev.endDate} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -219,14 +194,12 @@ export default function Schedule({
                                             onChange={(e) => setData('tanggal_selesai', e.target.value)}
                                             required
                                         />
-                                        {errors.tanggal_selesai && (
-                                            <p className="text-xs text-rose-600 font-medium">{errors.tanggal_selesai}</p>
-                                        )}
+                                        {errors.tanggal_selesai && <p className="text-xs font-medium text-rose-600">{errors.tanggal_selesai}</p>}
                                     </div>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="deskripsi" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                                    <Label htmlFor="deskripsi" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
                                         {t.monev.description}
                                     </Label>
                                     <Textarea
@@ -236,24 +209,14 @@ export default function Schedule({
                                         value={data.deskripsi}
                                         onChange={(e) => setData('deskripsi', e.target.value)}
                                     />
-                                    {errors.deskripsi && (
-                                        <p className="text-xs text-rose-600 font-medium">{errors.deskripsi}</p>
-                                    )}
+                                    {errors.deskripsi && <p className="text-xs font-medium text-rose-600">{errors.deskripsi}</p>}
                                 </div>
 
-                                <DialogFooter className="gap-2 sm:gap-0 pt-2 border-t">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => setDialogOpen(false)}
-                                    >
+                                <DialogFooter className="gap-2 border-t pt-2 sm:gap-0">
+                                    <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                                         {t.common.cancel}
                                     </Button>
-                                    <Button
-                                        type="submit"
-                                        disabled={processing}
-                                        className="bg-blue-900 text-white hover:bg-blue-800"
-                                    >
+                                    <Button type="submit" disabled={processing} className="bg-blue-900 text-white hover:bg-blue-800">
                                         {processing ? t.common.loading : t.common.save}
                                     </Button>
                                 </DialogFooter>
@@ -292,15 +255,9 @@ export default function Schedule({
                                         <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
                                             {t.monev.tableColStartDate}
                                         </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                            {t.monev.tableColEndDate}
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                            {t.monev.tableColStatus}
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                            {t.monev.description}
-                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColEndDate}</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColStatus}</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.description}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -318,20 +275,20 @@ export default function Schedule({
                                                 <TableRow key={schedule.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-900/60">
                                                     <TableCell className="font-medium text-foreground">
                                                         <div className="flex items-center gap-2">
-                                                            <Calendar className="h-4 w-4 text-blue-900 shrink-0" />
+                                                            <Calendar className="h-4 w-4 shrink-0 text-blue-900" />
                                                             <span>{schedule.nama_tahap}</span>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="text-sm font-mono text-muted-foreground">
+                                                    <TableCell className="font-mono text-sm text-muted-foreground">
                                                         {formatDate(schedule.tanggal_mulai)}
                                                     </TableCell>
-                                                    <TableCell className="text-sm font-mono text-muted-foreground">
+                                                    <TableCell className="font-mono text-sm text-muted-foreground">
                                                         {formatDate(schedule.tanggal_selesai)}
                                                     </TableCell>
                                                     <TableCell>
                                                         {open ? (
                                                             <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
-                                                                <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                                                                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-600" />
                                                                 {t.monev.statusActive}
                                                             </span>
                                                         ) : (
@@ -340,7 +297,7 @@ export default function Schedule({
                                                             </span>
                                                         )}
                                                     </TableCell>
-                                                    <TableCell className="text-xs text-muted-foreground max-w-xs truncate">
+                                                    <TableCell className="max-w-xs truncate text-xs text-muted-foreground">
                                                         {schedule.deskripsi || '-'}
                                                     </TableCell>
                                                 </TableRow>
@@ -358,18 +315,12 @@ export default function Schedule({
                             <Table>
                                 <TableHeader>
                                     <TableRow className="bg-slate-50 dark:bg-slate-900/40">
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                            {t.monev.tableColProposal}
-                                        </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                            {t.monev.researcher}
-                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColProposal}</TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.researcher}</TableHead>
                                         <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
                                             {t.monev.tableColPercentage}
                                         </TableHead>
-                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                            {t.monev.documentFiles}
-                                        </TableHead>
+                                        <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.documentFiles}</TableHead>
                                         <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
                                             {t.monev.tableColReportStatus}
                                         </TableHead>
@@ -391,7 +342,7 @@ export default function Schedule({
                                                         {report.proposal?.judul || report.proposal?.title || '-'}
                                                     </div>
                                                     {report.proposal?.nomor_proposal && (
-                                                        <div className="text-xs font-mono text-muted-foreground">
+                                                        <div className="font-mono text-xs text-muted-foreground">
                                                             {report.proposal.nomor_proposal}
                                                         </div>
                                                     )}
@@ -440,8 +391,8 @@ export default function Schedule({
                                                             report.status_laporan === 'Approved'
                                                                 ? 'Monev_Approved'
                                                                 : report.status_laporan === 'Revision'
-                                                                ? 'Revisi'
-                                                                : 'Submitted'
+                                                                  ? 'Revisi'
+                                                                  : 'Submitted'
                                                         }
                                                         size="sm"
                                                     />

@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class ContractFundingCalculationTest extends TestCase
@@ -17,9 +18,13 @@ class ContractFundingCalculationTest extends TestCase
     use RefreshDatabase;
 
     protected University $university;
+
     protected University $otherUniversity;
+
     protected ResearchSchema $schema;
+
     protected User $financeAdmin;
+
     protected User $researcher;
 
     protected function setUp(): void
@@ -238,16 +243,16 @@ class ContractFundingCalculationTest extends TestCase
     public function test_contract_and_funding_routes_are_registered_for_ziggy(): void
     {
         // Pastikan nama rute kanonikal finance.* terdaftar di sistem
-        $this->assertTrue(\Illuminate\Support\Facades\Route::has('finance.contracts.index'));
-        $this->assertTrue(\Illuminate\Support\Facades\Route::has('finance.contracts.store'));
-        $this->assertTrue(\Illuminate\Support\Facades\Route::has('finance.contracts.show'));
-        $this->assertTrue(\Illuminate\Support\Facades\Route::has('finance.funding.disburse'));
+        $this->assertTrue(Route::has('finance.contracts.index'));
+        $this->assertTrue(Route::has('finance.contracts.store'));
+        $this->assertTrue(Route::has('finance.contracts.show'));
+        $this->assertTrue(Route::has('finance.funding.disburse'));
 
         // Pastikan alias rute tanpa prefix finance.* juga terdaftar untuk kompatibilitas Ziggy frontend
-        $this->assertTrue(\Illuminate\Support\Facades\Route::has('contracts.index'));
-        $this->assertTrue(\Illuminate\Support\Facades\Route::has('contracts.store'));
-        $this->assertTrue(\Illuminate\Support\Facades\Route::has('contracts.show'));
-        $this->assertTrue(\Illuminate\Support\Facades\Route::has('funding.disburse'));
+        $this->assertTrue(Route::has('contracts.index'));
+        $this->assertTrue(Route::has('contracts.store'));
+        $this->assertTrue(Route::has('contracts.show'));
+        $this->assertTrue(Route::has('funding.disburse'));
     }
 
     public function test_finance_contracts_index_renders_successfully_with_contracts(): void
@@ -277,4 +282,3 @@ class ContractFundingCalculationTest extends TestCase
         );
     }
 }
-

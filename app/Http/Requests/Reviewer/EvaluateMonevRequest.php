@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Reviewer;
 
 use App\Models\Role;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class EvaluateMonevRequest extends FormRequest
@@ -27,7 +28,7 @@ class EvaluateMonevRequest extends FormRequest
     /**
      * Aturan validasi penilaian laporan kemajuan monev oleh reviewer.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

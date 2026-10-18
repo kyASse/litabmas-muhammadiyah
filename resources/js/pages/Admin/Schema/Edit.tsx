@@ -8,21 +8,21 @@
  * @route GET /admin/schema/{schema}/edit
  * @route PUT /admin/schema/{schema}
  */
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import AppLayout from '@/layouts/app-layout';
-import PageHeader from '@/components/ui/PageHeader';
 import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import PageHeader from '@/components/ui/PageHeader';
+import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
+import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
-import { route } from 'ziggy-js';
+import React from 'react';
 import { toast } from 'sonner';
+import { route } from 'ziggy-js';
 
 interface Schema {
     id: number;

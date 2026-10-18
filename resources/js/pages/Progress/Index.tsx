@@ -3,13 +3,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { TabularFigure } from '@/components/ui/TabularFigure';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TabularFigure } from '@/components/ui/TabularFigure';
 import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { Calendar, ChevronLeft, ChevronRight, Download, FileText, Plus, Search } from 'lucide-react';
+import { Download, FileText, Plus, Search } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 
 interface Proposal {
@@ -85,7 +85,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                 search: search || undefined,
                 status: status !== 'all' ? status : undefined,
             },
-            { preserveState: true }
+            { preserveState: true },
         );
     };
 
@@ -97,7 +97,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                 search: search || undefined,
                 status: val !== 'all' ? val : undefined,
             },
-            { preserveState: true }
+            { preserveState: true },
         );
     };
 
@@ -123,14 +123,10 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
 
             <div className="flex h-full flex-1 flex-col gap-6 p-6">
                 {/* Header Section */}
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
+                <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">
-                            {t.monev.progressListTitle}
-                        </h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            {t.monev.progressListSubtitle}
-                        </p>
+                        <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">{t.monev.progressListTitle}</h1>
+                        <p className="mt-1 text-sm text-muted-foreground">{t.monev.progressListSubtitle}</p>
                     </div>
 
                     <Button asChild className="bg-blue-900 text-white hover:bg-blue-800">
@@ -144,15 +140,10 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                 {/* Filters */}
                 <Card className="border-border shadow-sm">
                     <CardContent className="p-4">
-                        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
+                        <form onSubmit={handleSearch} className="flex flex-col gap-3 sm:flex-row">
                             <div className="relative flex-1">
-                                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                                <Input
-                                    placeholder={t.common.search}
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    className="pl-9"
-                                />
+                                <Search className="absolute top-2.5 left-3 h-4 w-4 text-muted-foreground" />
+                                <Input placeholder={t.common.search} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
                             </div>
 
                             <Select value={status} onValueChange={handleStatusFilter}>
@@ -179,24 +170,12 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-slate-50 dark:bg-slate-900/40">
-                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                    {t.monev.tableColProposal}
-                                </TableHead>
-                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                    {t.monev.tableColSchedule}
-                                </TableHead>
-                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                    {t.monev.tableColPercentage}
-                                </TableHead>
-                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                    {t.monev.tableColReportFile}
-                                </TableHead>
-                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                    {t.monev.tableColScore}
-                                </TableHead>
-                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                    {t.monev.tableColReportStatus}
-                                </TableHead>
+                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColProposal}</TableHead>
+                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColSchedule}</TableHead>
+                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColPercentage}</TableHead>
+                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColReportFile}</TableHead>
+                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColScore}</TableHead>
+                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColReportStatus}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -214,23 +193,19 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                         <TableRow key={report.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-900/60">
                                             <TableCell>
                                                 <div className="font-medium text-foreground">
-                                                    {report.proposal?.judul || report.proposal?.title || `Proposal #${report.id_proposal || report.id}`}
+                                                    {report.proposal?.judul ||
+                                                        report.proposal?.title ||
+                                                        `Proposal #${report.id_proposal || report.id}`}
                                                 </div>
                                                 {report.proposal?.nomor_proposal && (
-                                                    <div className="text-xs font-mono text-muted-foreground">
-                                                        {report.proposal.nomor_proposal}
-                                                    </div>
+                                                    <div className="font-mono text-xs text-muted-foreground">{report.proposal.nomor_proposal}</div>
                                                 )}
-                                                <div className="mt-1 text-xs text-muted-foreground line-clamp-1">
-                                                    {report.ringkasan_progres}
-                                                </div>
+                                                <div className="mt-1 line-clamp-1 text-xs text-muted-foreground">{report.ringkasan_progres}</div>
                                             </TableCell>
                                             <TableCell>
-                                                <div className="font-medium text-foreground text-sm">
-                                                    {sched?.nama_tahap || '-'}
-                                                </div>
+                                                <div className="text-sm font-medium text-foreground">{sched?.nama_tahap || '-'}</div>
                                                 {sched && (
-                                                    <div className="text-xs font-mono text-muted-foreground">
+                                                    <div className="font-mono text-xs text-muted-foreground">
                                                         {formatDate(sched.tanggal_mulai)} - {formatDate(sched.tanggal_selesai)}
                                                     </div>
                                                 )}
@@ -252,7 +227,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                                             href={`/storage/${report.file_laporan_kemajuan}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="inline-flex items-center gap-1 text-blue-900 hover:underline font-medium"
+                                                            className="inline-flex items-center gap-1 font-medium text-blue-900 hover:underline"
                                                         >
                                                             <Download className="h-3 w-3" />
                                                             {t.monev.tableColReportFile}
@@ -286,10 +261,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                                 )}
                                             </TableCell>
                                             <TableCell>
-                                                <StatusBadge
-                                                    status={mapStatus(report.status_laporan)}
-                                                    size="sm"
-                                                />
+                                                <StatusBadge status={mapStatus(report.status_laporan)} size="sm" />
                                             </TableCell>
                                         </TableRow>
                                     );

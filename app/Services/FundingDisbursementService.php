@@ -11,11 +11,7 @@ class FundingDisbursementService
     /**
      * Cairkan dana termin penelitian dengan bukti transfer valid dan verifikasi Monev Gatekeeper Lock.
      *
-     * @param Funding $funding
-     * @param UploadedFile|mixed $file
-     * @param string $tanggalPencairan
-     * @param string|null $catatanKeuangan
-     * @return Funding
+     * @param  UploadedFile|mixed  $file
      */
     public function disburse(Funding $funding, mixed $file, string $tanggalPencairan, ?string $catatanKeuangan = null): Funding
     {

@@ -85,17 +85,13 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
     const reviewerIdNum = data.reviewer_id ? Number(data.reviewer_id) : null;
     const isApplicantCoI = Boolean(
         selectedProposal &&
-        reviewerIdNum &&
-        (selectedProposal.id_pengusul === reviewerIdNum ||
-         selectedProposal.user_id === reviewerIdNum ||
-         selectedProposal.pengusul?.id === reviewerIdNum)
+            reviewerIdNum &&
+            (selectedProposal.id_pengusul === reviewerIdNum ||
+                selectedProposal.user_id === reviewerIdNum ||
+                selectedProposal.pengusul?.id === reviewerIdNum),
     );
     const isMemberCoI = Boolean(
-        selectedProposal &&
-        reviewerIdNum &&
-        selectedProposal.members?.some(
-            (m) => m.user_id === reviewerIdNum || m.user?.id === reviewerIdNum
-        )
+        selectedProposal && reviewerIdNum && selectedProposal.members?.some((m) => m.user_id === reviewerIdNum || m.user?.id === reviewerIdNum),
     );
     const hasCoI = isApplicantCoI || isMemberCoI;
 
@@ -107,7 +103,7 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
 
     if (selectedProposal && selectedProposal.reviews) {
         const completedReviews = selectedProposal.reviews.filter(
-            (r) => r.status_review === 'Completed' || (r.skor_total !== null && r.skor_total !== undefined && Number(r.skor_total) > 0)
+            (r) => r.status_review === 'Completed' || (r.skor_total !== null && r.skor_total !== undefined && Number(r.skor_total) > 0),
         );
         if (completedReviews.length >= 2) {
             score1 = Number(completedReviews[0].skor_total);
@@ -166,51 +162,40 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
                             <LanguageSwitcher size="sm" variant="compact" />
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-900 border border-blue-200">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-blue-200 bg-blue-50 text-blue-900">
                                 <UserCheck className="h-5 w-5" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold tracking-tight text-foreground font-sans">
-                                    {t.reviewerAssign.pageTitle}
-                                </h1>
-                                <p className="mt-0.5 text-sm text-muted-foreground font-sans">
-                                    {t.reviewerAssign.pageSubtitle}
-                                </p>
+                                <h1 className="font-sans text-2xl font-bold tracking-tight text-foreground">{t.reviewerAssign.pageTitle}</h1>
+                                <p className="mt-0.5 font-sans text-sm text-muted-foreground">{t.reviewerAssign.pageSubtitle}</p>
                             </div>
                         </div>
                     </div>
 
                     {/* Discrepancy Warning Banner */}
                     {hasDiscrepancy && (
-                        <div className="rounded-lg border-2 border-amber-300 bg-amber-50/80 p-4 text-amber-900 shadow-sm space-y-2.5">
+                        <div className="space-y-2.5 rounded-lg border-2 border-amber-300 bg-amber-50/80 p-4 text-amber-900 shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <StatusBadge status="Revisi" labelOverride={t.reviewerAssign.discrepancyBadge} />
-                                    <span className="text-xs font-bold text-amber-900 uppercase tracking-wide">
+                                    <span className="text-xs font-bold tracking-wide text-amber-900 uppercase">
                                         {t.reviewerAssign.discrepancyTitle}
                                     </span>
                                 </div>
-                                <TabularFigure
-                                    value={disparity}
-                                    type="score"
-                                    size="sm"
-                                    weight="bold"
-                                    suffix=" pts"
-                                    className="text-amber-900"
-                                />
+                                <TabularFigure value={disparity} type="score" size="sm" weight="bold" suffix=" pts" className="text-amber-900" />
                             </div>
-                            <p className="text-xs text-amber-900 leading-relaxed font-sans">
+                            <p className="font-sans text-xs leading-relaxed text-amber-900">
                                 {format(t.reviewerAssign.discrepancyDescription, {
                                     score1: score1.toFixed(1),
                                     score2: score2.toFixed(1),
                                     diff: disparity.toFixed(1),
                                 })}
                             </p>
-                            <div className="pt-1 flex items-center justify-between">
-                                <span className="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium bg-amber-200/80 text-amber-900 border border-amber-300">
+                            <div className="flex items-center justify-between pt-1">
+                                <span className="inline-flex items-center rounded border border-amber-300 bg-amber-200/80 px-2.5 py-1 text-xs font-medium text-amber-900">
                                     {t.reviewerAssign.assignTieBreakerPrompt}
                                 </span>
-                                <span className="text-xs font-mono text-amber-800">
+                                <span className="font-mono text-xs text-amber-800">
                                     {format(t.reviewerAssign.reviewsCompletedCount, { count: '2' })}
                                 </span>
                             </div>
@@ -219,21 +204,15 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
 
                     {/* Conflict of Interest (CoI) Warning Banner */}
                     {hasCoI && (
-                        <div className="rounded-lg border-2 border-rose-600 bg-rose-50 p-4 text-rose-900 shadow-sm space-y-2">
+                        <div className="space-y-2 rounded-lg border-2 border-rose-600 bg-rose-50 p-4 text-rose-900 shadow-sm">
                             <div className="flex items-start gap-3">
-                                <AlertCircle className="h-5 w-5 text-rose-600 shrink-0 mt-0.5" />
+                                <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-rose-600" />
                                 <div className="space-y-1">
-                                    <h4 className="text-sm font-bold uppercase tracking-wide text-rose-800 font-sans">
-                                        {t.reviewerAssign.coiTitle}
-                                    </h4>
-                                    <p className="text-xs font-sans text-rose-700 leading-relaxed">
-                                        {isApplicantCoI
-                                            ? t.reviewerAssign.coiApplicantNotice
-                                            : t.reviewerAssign.coiMemberNotice}
+                                    <h4 className="font-sans text-sm font-bold tracking-wide text-rose-800 uppercase">{t.reviewerAssign.coiTitle}</h4>
+                                    <p className="font-sans text-xs leading-relaxed text-rose-700">
+                                        {isApplicantCoI ? t.reviewerAssign.coiApplicantNotice : t.reviewerAssign.coiMemberNotice}
                                     </p>
-                                    <p className="text-xs font-semibold text-rose-800 pt-1">
-                                        {t.reviewerAssign.coiSubmitDisabled}
-                                    </p>
+                                    <p className="pt-1 text-xs font-semibold text-rose-800">{t.reviewerAssign.coiSubmitDisabled}</p>
                                 </div>
                             </div>
                         </div>
@@ -242,12 +221,8 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
                     {/* Form Card */}
                     <Card className="border-border bg-card shadow-sm">
                         <CardHeader>
-                            <CardTitle className="text-lg font-semibold font-sans">
-                                {t.reviewerAssign.formCardTitle}
-                            </CardTitle>
-                            <CardDescription className="font-sans">
-                                {t.reviewerAssign.formCardSubtitle}
-                            </CardDescription>
+                            <CardTitle className="font-sans text-lg font-semibold">{t.reviewerAssign.formCardTitle}</CardTitle>
+                            <CardDescription className="font-sans">{t.reviewerAssign.formCardSubtitle}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <form onSubmit={submit} className="space-y-6">
@@ -263,16 +238,14 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
                                         </SelectTrigger>
                                         <SelectContent>
                                             {proposals.length === 0 ? (
-                                                <div className="p-3 text-center text-sm text-muted-foreground">
-                                                    {t.reviewerAssign.noProposals}
-                                                </div>
+                                                <div className="p-3 text-center text-sm text-muted-foreground">{t.reviewerAssign.noProposals}</div>
                                             ) : (
                                                 proposals.map((proposal) => {
                                                     const proposalTitle = proposal.title || proposal.judul_penelitian || `Proposal #${proposal.id}`;
                                                     return (
                                                         <SelectItem key={proposal.id} value={String(proposal.id)}>
-                                                            <div className="flex items-center justify-between w-full gap-2">
-                                                                <span className="truncate max-w-md">{proposalTitle}</span>
+                                                            <div className="flex w-full items-center justify-between gap-2">
+                                                                <span className="max-w-md truncate">{proposalTitle}</span>
                                                             </div>
                                                         </SelectItem>
                                                     );
@@ -295,14 +268,15 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
                                         {t.reviewerAssign.labelSelectReviewer} <span className="text-destructive">*</span>
                                     </Label>
                                     <Select value={data.reviewer_id} onValueChange={(val) => setData('reviewer_id', val)}>
-                                        <SelectTrigger id="reviewer_id" className={`w-full ${errors.reviewer_id || hasCoI ? 'border-destructive' : ''}`}>
+                                        <SelectTrigger
+                                            id="reviewer_id"
+                                            className={`w-full ${errors.reviewer_id || hasCoI ? 'border-destructive' : ''}`}
+                                        >
                                             <SelectValue placeholder={t.reviewerAssign.placeholderSelectReviewer} />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {reviewers.length === 0 ? (
-                                                <div className="p-3 text-center text-sm text-muted-foreground">
-                                                    {t.reviewerAssign.noReviewers}
-                                                </div>
+                                                <div className="p-3 text-center text-sm text-muted-foreground">{t.reviewerAssign.noReviewers}</div>
                                             ) : (
                                                 reviewers.map((reviewer) => (
                                                     <SelectItem key={reviewer.id} value={String(reviewer.id)}>
@@ -328,13 +302,15 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
                                             {t.reviewerAssign.summaryTitle}
                                         </div>
                                         {selectedProposal && (
-                                            <p className="text-muted-foreground font-sans">
+                                            <p className="font-sans text-muted-foreground">
                                                 <span className="font-medium text-foreground">{t.reviewerAssign.summaryProposal}</span>{' '}
-                                                <span className="font-serif font-medium">{selectedProposal.title || selectedProposal.judul_penelitian}</span>
+                                                <span className="font-serif font-medium">
+                                                    {selectedProposal.title || selectedProposal.judul_penelitian}
+                                                </span>
                                             </p>
                                         )}
                                         {selectedReviewer && (
-                                            <p className="text-muted-foreground font-sans">
+                                            <p className="font-sans text-muted-foreground">
                                                 <span className="font-medium text-foreground">{t.reviewerAssign.summaryReviewer}</span>{' '}
                                                 <span className="font-semibold text-foreground">{selectedReviewer.name}</span>
                                             </p>
@@ -351,7 +327,7 @@ export default function AssignReviewer({ proposals = [], reviewers = [], selecte
                                     <Button
                                         type="submit"
                                         disabled={processing || !data.proposal_id || !data.reviewer_id || hasCoI}
-                                        className={`gap-2 ${hasCoI ? 'opacity-50 cursor-not-allowed bg-slate-400' : 'bg-blue-900 hover:bg-blue-800'}`}
+                                        className={`gap-2 ${hasCoI ? 'cursor-not-allowed bg-slate-400 opacity-50' : 'bg-blue-900 hover:bg-blue-800'}`}
                                     >
                                         <UserCheck className="h-4 w-4" />
                                         {processing ? t.reviewerAssign.btnSubmitting : t.reviewerAssign.btnSubmit}

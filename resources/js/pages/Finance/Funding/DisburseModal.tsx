@@ -1,21 +1,14 @@
-import React, { useRef } from 'react';
-import { useForm } from '@inertiajs/react';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import TabularFigure from '@/components/ui/TabularFigure';
 import StatusBadge from '@/components/ui/StatusBadge';
+import TabularFigure from '@/components/ui/TabularFigure';
+import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
-import { Lock, Unlock, UploadCloud, FileCheck, AlertTriangle, Building2, User, FileText } from 'lucide-react';
+import { useForm } from '@inertiajs/react';
+import { Building2, FileCheck, Lock, Unlock, UploadCloud, User } from 'lucide-react';
+import React, { useRef } from 'react';
 
 export interface FundingDisburseTarget {
     id: number;
@@ -53,12 +46,7 @@ export interface DisburseModalProps {
     onSuccess?: () => void;
 }
 
-export const DisburseModal: React.FC<DisburseModalProps> = ({
-    funding,
-    open,
-    onOpenChange,
-    onSuccess,
-}) => {
+export const DisburseModal: React.FC<DisburseModalProps> = ({ funding, open, onOpenChange, onSuccess }) => {
     const { t } = useTranslation();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -97,92 +85,75 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto sm:max-w-2xl">
                 <DialogHeader>
                     <div className="flex items-center justify-between gap-3">
-                        <DialogTitle className="text-xl font-serif font-bold text-slate-900 tracking-tight">
-                            {t.funding.modalTitle}
-                        </DialogTitle>
-                        <StatusBadge
-                            status={isLocked ? 'Monev_Locked' : isTermin2 ? 'Disbursed_T2' : 'Disbursed_T1'}
-                            size="sm"
-                        />
+                        <DialogTitle className="font-serif text-xl font-bold tracking-tight text-slate-900">{t.funding.modalTitle}</DialogTitle>
+                        <StatusBadge status={isLocked ? 'Monev_Locked' : isTermin2 ? 'Disbursed_T2' : 'Disbursed_T1'} size="sm" />
                     </div>
-                    <DialogDescription className="text-sm text-slate-600">
-                        {t.funding.modalSubtitle}
-                    </DialogDescription>
+                    <DialogDescription className="text-sm text-slate-600">{t.funding.modalSubtitle}</DialogDescription>
                 </DialogHeader>
 
                 {/* Info Kontrak & Proposal */}
-                <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-4 space-y-3 text-sm">
+                <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/70 p-4 text-sm">
                     <div className="flex items-start justify-between gap-4">
-                        <div className="space-y-1 min-w-0">
-                            <span className="text-xs font-mono font-medium text-slate-500 uppercase tracking-wider">
+                        <div className="min-w-0 space-y-1">
+                            <span className="font-mono text-xs font-medium tracking-wider text-slate-500 uppercase">
                                 {t.contracts.contractNumber}
                             </span>
-                            <p className="font-mono text-sm font-semibold text-slate-800">
-                                {funding.contract?.nomor_kontrak || '-'}
-                            </p>
-                            <p className="text-sm font-medium text-slate-900 line-clamp-2">
+                            <p className="font-mono text-sm font-semibold text-slate-800">{funding.contract?.nomor_kontrak || '-'}</p>
+                            <p className="line-clamp-2 text-sm font-medium text-slate-900">
                                 {funding.contract?.judul_kontrak || funding.contract?.proposal?.judul_penelitian}
                             </p>
                         </div>
-                        <div className="text-right shrink-0">
-                            <span className="text-xs font-mono font-medium text-slate-500 uppercase tracking-wider block">
+                        <div className="shrink-0 text-right">
+                            <span className="block font-mono text-xs font-medium tracking-wider text-slate-500 uppercase">
                                 {t.funding.trancheNumber}
                             </span>
-                            <span className="font-mono font-bold text-base text-slate-900">
+                            <span className="font-mono text-base font-bold text-slate-900">
                                 {t.funding.trancheLabel.replace('{number}', String(funding.termin_ke))} ({funding.persentase_dana}%)
                             </span>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-200/80 text-xs">
+                    <div className="grid grid-cols-2 gap-3 border-t border-slate-200/80 pt-2 text-xs">
                         <div className="flex items-center gap-2 text-slate-600">
-                            <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <User className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                             <span className="truncate">{funding.contract?.proposal?.pengusul?.name || '-'}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-slate-600 justify-end">
-                            <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <div className="flex items-center justify-end gap-2 text-slate-600">
+                            <Building2 className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                             <span className="truncate">{funding.contract?.university?.short_name || funding.contract?.university?.name || '-'}</span>
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-200/80">
-                        <span className="text-xs font-medium text-slate-600 uppercase tracking-wider">
-                            {t.funding.allocatedAmount}
-                        </span>
+                    <div className="flex items-center justify-between border-t border-slate-200/80 pt-2">
+                        <span className="text-xs font-medium tracking-wider text-slate-600 uppercase">{t.funding.allocatedAmount}</span>
                         <TabularFigure
                             value={funding.nominal_dana}
                             type="currency"
                             size="lg"
                             weight="bold"
-                            className="text-emerald-700 font-semibold"
+                            className="font-semibold text-emerald-700"
                         />
                     </div>
                 </div>
 
                 {/* Monev Gatekeeper Lock Warning / Indicator */}
                 {isLocked ? (
-                    <div className="rounded-lg border-2 border-rose-300 bg-rose-50 p-4 space-y-2 text-rose-900">
-                        <div className="flex items-center gap-2 font-bold text-rose-800 tracking-wide uppercase text-sm">
-                            <Lock className="w-4 h-4 text-rose-700 shrink-0" strokeWidth={2.5} />
+                    <div className="space-y-2 rounded-lg border-2 border-rose-300 bg-rose-50 p-4 text-rose-900">
+                        <div className="flex items-center gap-2 text-sm font-bold tracking-wide text-rose-800 uppercase">
+                            <Lock className="h-4 w-4 shrink-0 text-rose-700" strokeWidth={2.5} />
                             <span>{t.funding.monevGatekeeperTitle}</span>
-                            <span className="ml-auto text-xs px-2 py-0.5 rounded bg-rose-200 text-rose-800 font-mono">
-                                {t.statuses.Monev_Locked}
-                            </span>
+                            <span className="ml-auto rounded bg-rose-200 px-2 py-0.5 font-mono text-xs text-rose-800">{t.statuses.Monev_Locked}</span>
                         </div>
-                        <p className="text-xs leading-relaxed text-rose-700">
-                            {t.funding.monevLockedNotice}
-                        </p>
-                        <p className="text-xs font-mono text-rose-600 pt-1 border-t border-rose-200/60">
-                            {t.funding.monevBackendBlockNotice}
-                        </p>
+                        <p className="text-xs leading-relaxed text-rose-700">{t.funding.monevLockedNotice}</p>
+                        <p className="border-t border-rose-200/60 pt-1 font-mono text-xs text-rose-600">{t.funding.monevBackendBlockNotice}</p>
                     </div>
                 ) : isTermin2 && isMonevApproved ? (
-                    <div className="rounded-lg border border-emerald-300 bg-emerald-50 p-3 space-y-1 text-emerald-900">
-                        <div className="flex items-center gap-2 font-semibold text-emerald-800 text-xs tracking-wide uppercase">
-                            <Unlock className="w-4 h-4 text-emerald-700 shrink-0" strokeWidth={2} />
+                    <div className="space-y-1 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-emerald-900">
+                        <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-emerald-800 uppercase">
+                            <Unlock className="h-4 w-4 shrink-0 text-emerald-700" strokeWidth={2} />
                             <span>{t.funding.monevApprovedNotice}</span>
                         </div>
                     </div>
@@ -191,7 +162,7 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
                 {/* Form Pencairan */}
                 <form onSubmit={handleSubmit} className="space-y-4 pt-2">
                     <div className="grid gap-2">
-                        <Label htmlFor="tanggal_pencairan" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                        <Label htmlFor="tanggal_pencairan" className="text-xs font-medium tracking-wider text-slate-700 uppercase">
                             {t.funding.disbursementDate} <span className="text-rose-500">*</span>
                         </Label>
                         <Input
@@ -203,24 +174,22 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
                             className="bg-white font-mono text-sm"
                             required
                         />
-                        {errors.tanggal_pencairan && (
-                            <p className="text-xs text-rose-600 font-medium">{errors.tanggal_pencairan}</p>
-                        )}
+                        {errors.tanggal_pencairan && <p className="text-xs font-medium text-rose-600">{errors.tanggal_pencairan}</p>}
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="bukti_transfer" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                        <Label htmlFor="bukti_transfer" className="text-xs font-medium tracking-wider text-slate-700 uppercase">
                             {t.funding.proofOfTransfer} <span className="text-rose-500">*</span>
                         </Label>
                         <div className="flex flex-col gap-2">
                             <div
                                 onClick={() => !isLocked && !processing && fileInputRef.current?.click()}
-                                className={`border-2 border-dashed rounded-lg p-5 text-center cursor-pointer transition-colors ${
+                                className={`cursor-pointer rounded-lg border-2 border-dashed p-5 text-center transition-colors ${
                                     isLocked
-                                        ? 'bg-slate-100 border-slate-300 cursor-not-allowed opacity-60'
+                                        ? 'cursor-not-allowed border-slate-300 bg-slate-100 opacity-60'
                                         : data.bukti_transfer
-                                        ? 'border-emerald-400 bg-emerald-50/50'
-                                        : 'border-slate-300 hover:border-slate-400 bg-white'
+                                          ? 'border-emerald-400 bg-emerald-50/50'
+                                          : 'border-slate-300 bg-white hover:border-slate-400'
                                 }`}
                             >
                                 <input
@@ -235,33 +204,29 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
                                 <div className="flex flex-col items-center justify-center gap-2">
                                     {data.bukti_transfer ? (
                                         <>
-                                            <FileCheck className="w-8 h-8 text-emerald-600" />
-                                            <p className="text-xs font-medium font-mono text-slate-800">
+                                            <FileCheck className="h-8 w-8 text-emerald-600" />
+                                            <p className="font-mono text-xs font-medium text-slate-800">
                                                 {data.bukti_transfer.name} ({(data.bukti_transfer.size / (1024 * 1024)).toFixed(2)} MB)
                                             </p>
                                             <p className="text-xs text-slate-500">{t.funding.clickToReplaceFile}</p>
                                         </>
                                     ) : (
                                         <>
-                                            <UploadCloud className="w-8 h-8 text-slate-400" />
+                                            <UploadCloud className="h-8 w-8 text-slate-400" />
                                             <p className="text-xs font-medium text-slate-700">
                                                 {isLocked ? t.funding.blockedByMonevGatekeeper : t.funding.clickToSelectProofFile}
                                             </p>
-                                            <p className="text-xs text-slate-500">
-                                                {t.funding.proofFileFormatLimit}
-                                            </p>
+                                            <p className="text-xs text-slate-500">{t.funding.proofFileFormatLimit}</p>
                                         </>
                                     )}
                                 </div>
                             </div>
-                            {errors.bukti_transfer && (
-                                <p className="text-xs text-rose-600 font-medium">{errors.bukti_transfer}</p>
-                            )}
+                            {errors.bukti_transfer && <p className="text-xs font-medium text-rose-600">{errors.bukti_transfer}</p>}
                         </div>
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="catatan_keuangan" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                        <Label htmlFor="catatan_keuangan" className="text-xs font-medium tracking-wider text-slate-700 uppercase">
                             {t.funding.notes}
                         </Label>
                         <Textarea
@@ -273,40 +238,33 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
                             rows={3}
                             className="bg-white text-sm"
                         />
-                        {errors.catatan_keuangan && (
-                            <p className="text-xs text-rose-600 font-medium">{errors.catatan_keuangan}</p>
-                        )}
+                        {errors.catatan_keuangan && <p className="text-xs font-medium text-rose-600">{errors.catatan_keuangan}</p>}
                     </div>
 
-                    <DialogFooter className="gap-2 sm:gap-0 pt-3 border-t border-slate-200">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => onOpenChange(false)}
-                            disabled={processing}
-                        >
+                    <DialogFooter className="gap-2 border-t border-slate-200 pt-3 sm:gap-0">
+                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={processing}>
                             {t.common.cancel}
                         </Button>
                         <Button
                             type="submit"
                             disabled={isLocked || processing || !data.bukti_transfer}
                             className={`font-semibold tracking-wide ${
-                                isLocked ? 'bg-slate-400 cursor-not-allowed hover:bg-slate-400' : 'bg-slate-900 hover:bg-slate-800'
+                                isLocked ? 'cursor-not-allowed bg-slate-400 hover:bg-slate-400' : 'bg-slate-900 hover:bg-slate-800'
                             }`}
                         >
                             {processing ? (
                                 <span className="inline-flex items-center gap-2">
-                                    <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                    <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                                     {t.funding.btnDisbursing}
                                 </span>
                             ) : isLocked ? (
                                 <span className="inline-flex items-center gap-1.5">
-                                    <Lock className="w-3.5 h-3.5" />
+                                    <Lock className="h-3.5 w-3.5" />
                                     {t.statuses.Monev_Locked}
                                 </span>
                             ) : (
                                 <span className="inline-flex items-center gap-1.5">
-                                    <FileCheck className="w-3.5 h-3.5" />
+                                    <FileCheck className="h-3.5 w-3.5" />
                                     {t.funding.btnDisburse}
                                 </span>
                             )}

@@ -10,7 +10,6 @@ class ReviewAggregationService
      * Menghitung nilai akhir proposal dan mendeteksi disparitas skor ekstrem antar-reviewer.
      * Sesuai Kasus Batas 7: Selisih > 30 poin memicu flag DISCREPANCY_DETECTED dan penunjukan Reviewer ke-3.
      *
-     * @param int $proposalId
      * @return array{
      *     status: string,
      *     requires_third_reviewer: bool,

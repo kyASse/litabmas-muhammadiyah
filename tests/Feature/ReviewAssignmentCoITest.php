@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\ActivityLog;
 use App\Models\Proposal;
 use App\Models\ProposalMember;
 use App\Models\ResearchSchema;
@@ -19,6 +18,7 @@ class ReviewAssignmentCoITest extends TestCase
     use RefreshDatabase;
 
     protected University $university;
+
     protected ResearchSchema $schema;
 
     protected function setUp(): void
@@ -46,6 +46,7 @@ class ReviewAssignmentCoITest extends TestCase
     protected function createAdminKampus(): User
     {
         $role = Role::where('name', Role::ADMIN_KAMPUS)->first();
+
         return User::factory()->create([
             'role_id' => $role->id,
             'university_id' => $this->university->id,
@@ -55,6 +56,7 @@ class ReviewAssignmentCoITest extends TestCase
     protected function createReviewer(): User
     {
         $role = Role::where('name', Role::REVIEWER)->first();
+
         return User::factory()->create([
             'role_id' => $role->id,
             'university_id' => $this->university->id,
@@ -258,7 +260,7 @@ class ReviewAssignmentCoITest extends TestCase
             'status_review' => 'Completed',
         ]);
 
-        $service = new ReviewAggregationService();
+        $service = new ReviewAggregationService;
         $result = $service->calculateFinalScore($proposal->id);
 
         $this->assertEquals('DISCREPANCY_DETECTED', $result['status']);
@@ -309,7 +311,7 @@ class ReviewAssignmentCoITest extends TestCase
         $proposal = $this->createProposal($author);
         $reviewer = $this->createReviewer();
 
-        $response = $this->actingAs($admin)->get('/admin/reviewer/assign?proposal_id=' . $proposal->id);
+        $response = $this->actingAs($admin)->get('/admin/reviewer/assign?proposal_id='.$proposal->id);
 
         $response->assertStatus(200);
         $response->assertInertia(fn ($page) => $page

@@ -8,7 +8,7 @@ afterEach(() => {
 });
 
 // Mock Ziggy route() helper
-const mockRoute = (name?: string) => name ? `/${name}` : { has: () => true, current: () => '' };
+const mockRoute = (name?: string) => (name ? `/${name}` : { has: () => true, current: () => '' });
 (global as any).route = mockRoute;
 (window as any).route = mockRoute;
 

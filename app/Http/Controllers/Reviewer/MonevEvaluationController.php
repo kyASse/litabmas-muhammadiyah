@@ -6,15 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Reviewer\EvaluateMonevRequest;
 use App\Models\ProgressReport;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class MonevEvaluationController extends Controller
 {
     /**
      * Menyimpan hasil evaluasi dan rekomendasi laporan kemajuan riset oleh reviewer.
-     *
-     * @param EvaluateMonevRequest $request
-     * @param int|ProgressReport $report
-     * @return RedirectResponse
      */
     public function evaluate(EvaluateMonevRequest $request, int|ProgressReport $report): RedirectResponse
     {
@@ -48,11 +46,8 @@ class MonevEvaluationController extends Controller
 
     /**
      * Menampilkan halaman formulir evaluasi monev bagi reviewer.
-     *
-     * @param int|ProgressReport $report
-     * @return \Inertia\Response
      */
-    public function show(int|ProgressReport $report): \Inertia\Response
+    public function show(int|ProgressReport $report): Response
     {
         $progressReport = $report instanceof ProgressReport
             ? $report
@@ -71,7 +66,7 @@ class MonevEvaluationController extends Controller
             abort(403, 'Reviewer memiliki konflik kepentingan langsung dengan usulan penelitian ini.');
         }
 
-        return \Inertia\Inertia::render('Reviewer/Monev/Evaluate', [
+        return Inertia::render('Reviewer/Monev/Evaluate', [
             'report' => $progressReport,
         ]);
     }

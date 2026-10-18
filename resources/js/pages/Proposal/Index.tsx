@@ -101,13 +101,11 @@ export default function Index({ proposals, filters }: IndexProps) {
             <div className="container mx-auto space-y-6 p-4 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">
-                            {t.proposalList.pageTitle}
-                        </h1>
+                        <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">{t.proposalList.pageTitle}</h1>
                         <p className="text-sm text-muted-foreground">{t.proposalList.pageSubtitle}</p>
                     </div>
                     <Link href={route('proposal.create')}>
-                        <Button className="w-full sm:w-auto bg-blue-900 text-white hover:bg-blue-800">
+                        <Button className="w-full bg-blue-900 text-white hover:bg-blue-800 sm:w-auto">
                             <Plus className="mr-2 h-4 w-4" />
                             {t.proposalList.submitNewBtn}
                         </Button>

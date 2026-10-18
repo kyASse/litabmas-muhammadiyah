@@ -5,6 +5,7 @@ namespace App\Http\Requests\Finance;
 use App\Models\Contract;
 use App\Models\Funding;
 use App\Models\Role;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class DisburseFundingRequest extends FormRequest
@@ -47,7 +48,7 @@ class DisburseFundingRequest extends FormRequest
     /**
      * Aturan validasi untuk proses pencairan dana termin.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

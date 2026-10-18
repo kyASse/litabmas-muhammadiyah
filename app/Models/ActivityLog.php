@@ -65,7 +65,7 @@ class ActivityLog extends Model
     public function setDescriptionAttribute($value): void
     {
         if (isset($this->attributes['activity']) && $this->attributes['activity'] !== '') {
-            $this->attributes['activity'] .= ' - ' . $value;
+            $this->attributes['activity'] .= ' - '.$value;
         } else {
             $this->attributes['activity'] = (string) $value;
         }

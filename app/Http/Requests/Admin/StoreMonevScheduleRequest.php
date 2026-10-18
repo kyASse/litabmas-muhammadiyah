@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Admin;
 
 use App\Models\Role;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreMonevScheduleRequest extends FormRequest
@@ -27,7 +28,7 @@ class StoreMonevScheduleRequest extends FormRequest
     /**
      * Aturan validasi pembentukan jadwal tahapan monev (PRD Modul 4).
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

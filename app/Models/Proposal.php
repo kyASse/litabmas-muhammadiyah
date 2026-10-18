@@ -215,7 +215,6 @@ class Proposal extends Model
         $this->setStatusProposalAttribute($value);
     }
 
-
     protected ?string $virtualFileDokumenProposal = null;
 
     public function getFileDokumenProposalAttribute(): ?string
@@ -250,6 +249,7 @@ class Proposal extends Model
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
             return $path;
         }
+
         return Storage::disk('public')->url($path);
     }
 

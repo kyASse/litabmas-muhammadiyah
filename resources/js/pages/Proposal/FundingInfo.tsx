@@ -29,10 +29,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { formatCurrency } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { useTranslation } from '@/hooks/use-translation';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 
 type FundingStatus = 'planned' | 'requested' | 'approved' | 'disbursed' | 'cancelled';
@@ -168,7 +168,9 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{formatCurrency(fundingStats.total_approved)}</div>
-                        <p className="mt-2 text-xs text-gray-500">{t.userFunding.fromActiveContracts.replace('{count}', String(fundingStats.active_contracts))}</p>
+                        <p className="mt-2 text-xs text-gray-500">
+                            {t.userFunding.fromActiveContracts.replace('{count}', String(fundingStats.active_contracts))}
+                        </p>
                     </CardContent>
                 </Card>
 
@@ -180,7 +182,14 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                     <CardContent>
                         <div className="text-2xl font-bold text-green-600">{formatCurrency(fundingStats.total_disbursed)}</div>
                         <p className="mt-2 text-xs text-green-600">
-                            {t.userFunding.percentOfTotal.replace('{percent}', String(fundingStats.total_approved > 0 ? ((fundingStats.total_disbursed / fundingStats.total_approved) * 100).toFixed(1) : 0))}
+                            {t.userFunding.percentOfTotal.replace(
+                                '{percent}',
+                                String(
+                                    fundingStats.total_approved > 0
+                                        ? ((fundingStats.total_disbursed / fundingStats.total_approved) * 100).toFixed(1)
+                                        : 0,
+                                ),
+                            )}
                         </p>
                     </CardContent>
                 </Card>
@@ -325,7 +334,9 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                                                             )}
                                                                         </TooltipTrigger>
                                                                         <TooltipContent>
-                                                                            {funding.proof_document_path ? t.userFunding.downloadProof : t.userFunding.proofUnavailable}
+                                                                            {funding.proof_document_path
+                                                                                ? t.userFunding.downloadProof
+                                                                                : t.userFunding.proofUnavailable}
                                                                         </TooltipContent>
                                                                     </Tooltip>
                                                                 </TooltipProvider>
@@ -360,9 +371,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                         <CardContent className="pt-6 text-center">
                             <FileText className="mx-auto h-12 w-12 text-gray-300" />
                             <h3 className="mt-4 text-lg font-semibold text-gray-900">{t.userFunding.emptyTitle}</h3>
-                            <p className="mt-2 text-sm text-gray-500">
-                                {t.userFunding.emptySubtitle}
-                            </p>
+                            <p className="mt-2 text-sm text-gray-500">{t.userFunding.emptySubtitle}</p>
                         </CardContent>
                     </Card>
                 )}

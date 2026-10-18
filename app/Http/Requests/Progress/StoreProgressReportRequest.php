@@ -4,6 +4,7 @@ namespace App\Http\Requests\Progress;
 
 use App\Models\MonevSchedule;
 use App\Models\Proposal;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -20,7 +21,7 @@ class StoreProgressReportRequest extends FormRequest
     /**
      * Aturan validasi pengunggahan laporan kemajuan riset (PRD Modul 4).
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

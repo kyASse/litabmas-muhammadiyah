@@ -10,7 +10,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, CheckCircle2, FileText, Send } from 'lucide-react';
+import { ArrowLeft, Send } from 'lucide-react';
 import { type FormEvent } from 'react';
 import { toast } from 'sonner';
 
@@ -119,80 +119,66 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                         </Link>
                     </Button>
                     <div>
-                        <h1 className="text-2xl font-serif font-bold tracking-tight text-foreground">
-                            {t.monev.createProgressTitle}
-                        </h1>
-                        <p className="text-xs text-muted-foreground">
-                            {t.monev.createProgressSubtitle}
-                        </p>
+                        <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">{t.monev.createProgressTitle}</h1>
+                        <p className="text-xs text-muted-foreground">{t.monev.createProgressSubtitle}</p>
                     </div>
                 </div>
 
                 <Card className="border-border shadow-sm">
                     <CardHeader className="border-b border-border/70 bg-slate-50/50 dark:bg-slate-900/30">
-                        <CardTitle className="font-serif text-lg font-bold">
-                            {t.monev.createProgressTitle}
-                        </CardTitle>
-                        <CardDescription className="text-xs">
-                            {t.monev.activeWindowNotice}
-                        </CardDescription>
+                        <CardTitle className="font-serif text-lg font-bold">{t.monev.createProgressTitle}</CardTitle>
+                        <CardDescription className="text-xs">{t.monev.activeWindowNotice}</CardDescription>
                     </CardHeader>
 
                     <CardContent className="p-6">
                         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                             {/* Pilihan Proposal Riset */}
                             <div className="space-y-1.5">
-                                <Label htmlFor="id_proposal" className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                                <Label
+                                    htmlFor="id_proposal"
+                                    className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-200"
+                                >
                                     {t.monev.selectProposal} <span className="text-rose-600">*</span>
                                 </Label>
-                                <Select
-                                    value={data.id_proposal}
-                                    onValueChange={(val) => setData('id_proposal', val)}
-                                >
+                                <Select value={data.id_proposal} onValueChange={(val) => setData('id_proposal', val)}>
                                     <SelectTrigger id="id_proposal" className="w-full">
                                         <SelectValue placeholder={t.monev.selectProposalPlaceholder} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {proposals.length === 0 ? (
-                                            <div className="p-3 text-center text-xs text-muted-foreground">
-                                                {t.monev.noEligibleProposals}
-                                            </div>
+                                            <div className="p-3 text-center text-xs text-muted-foreground">{t.monev.noEligibleProposals}</div>
                                         ) : (
                                             proposals.map((p) => (
                                                 <SelectItem key={p.id} value={String(p.id)}>
-                                                    <span className="font-medium">{p.judul_penelitian || p.judul || p.title || `Proposal #${p.id}`}</span>
+                                                    <span className="font-medium">
+                                                        {p.judul_penelitian || p.judul || p.title || `Proposal #${p.id}`}
+                                                    </span>
                                                     {p.nomor_proposal && (
-                                                        <span className="ml-2 font-mono text-xs text-muted-foreground">
-                                                            ({p.nomor_proposal})
-                                                        </span>
+                                                        <span className="ml-2 font-mono text-xs text-muted-foreground">({p.nomor_proposal})</span>
                                                     )}
                                                 </SelectItem>
                                             ))
                                         )}
                                     </SelectContent>
                                 </Select>
-                                {errors.id_proposal && (
-                                    <p className="text-xs font-medium text-rose-600">{errors.id_proposal}</p>
-                                )}
+                                {errors.id_proposal && <p className="text-xs font-medium text-rose-600">{errors.id_proposal}</p>}
                             </div>
 
                             {/* Pilihan Jadwal Monev Aktif */}
                             <div className="space-y-1.5">
-                                <Label htmlFor="id_monev_schedule" className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                                <Label
+                                    htmlFor="id_monev_schedule"
+                                    className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-200"
+                                >
                                     {t.monev.selectSchedule} <span className="text-rose-600">*</span>
                                 </Label>
-                                <Select
-                                    value={data.id_monev_schedule}
-                                    onValueChange={(val) => setData('id_monev_schedule', val)}
-                                >
+                                <Select value={data.id_monev_schedule} onValueChange={(val) => setData('id_monev_schedule', val)}>
                                     <SelectTrigger id="id_monev_schedule" className="w-full">
                                         <SelectValue placeholder={t.monev.selectSchedulePlaceholder} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {schedules.length === 0 ? (
-                                            <div className="p-3 text-center text-xs text-muted-foreground">
-                                                {t.monev.emptySchedules}
-                                            </div>
+                                            <div className="p-3 text-center text-xs text-muted-foreground">{t.monev.emptySchedules}</div>
                                         ) : (
                                             schedules.map((s) => (
                                                 <SelectItem key={s.id} value={String(s.id)}>
@@ -205,21 +191,20 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                         )}
                                     </SelectContent>
                                 </Select>
-                                {errors.id_monev_schedule && (
-                                    <p className="text-xs font-medium text-rose-600">{errors.id_monev_schedule}</p>
-                                )}
+                                {errors.id_monev_schedule && <p className="text-xs font-medium text-rose-600">{errors.id_monev_schedule}</p>}
                             </div>
 
                             {/* Slider & Input Persentase Kemajuan Riil */}
                             <div className="space-y-3 rounded-lg border border-border bg-slate-50/40 p-4 dark:bg-slate-900/20">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <Label htmlFor="persentase_kemajuan" className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                                        <Label
+                                            htmlFor="persentase_kemajuan"
+                                            className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-200"
+                                        >
                                             {t.monev.progressPercentage} <span className="text-rose-600">*</span>
                                         </Label>
-                                        <p className="mt-0.5 text-xs text-muted-foreground">
-                                            {t.monev.progressPercentageHelp}
-                                        </p>
+                                        <p className="mt-0.5 text-xs text-muted-foreground">{t.monev.progressPercentageHelp}</p>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <TabularFigure
@@ -256,18 +241,21 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                         className="w-24 text-center font-mono font-bold"
                                     />
                                 </div>
-                                {errors.persentase_kemajuan && (
-                                    <p className="text-xs font-medium text-rose-600">{errors.persentase_kemajuan}</p>
-                                )}
+                                {errors.persentase_kemajuan && <p className="text-xs font-medium text-rose-600">{errors.persentase_kemajuan}</p>}
                             </div>
 
                             {/* Ringkasan Progres */}
                             <div className="space-y-1.5">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="ringkasan_progres" className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                                    <Label
+                                        htmlFor="ringkasan_progres"
+                                        className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-200"
+                                    >
                                         {t.monev.summaryLabel} <span className="text-rose-600">*</span>
                                     </Label>
-                                    <span className={`text-xs font-mono ${data.ringkasan_progres.length >= 20 ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`}>
+                                    <span
+                                        className={`font-mono text-xs ${data.ringkasan_progres.length >= 20 ? 'font-semibold text-emerald-700' : 'text-slate-500'}`}
+                                    >
                                         {data.ringkasan_progres.length} / 20 {t.monev.charsMin}
                                     </span>
                                 </div>
@@ -279,14 +267,15 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                     onChange={(e) => setData('ringkasan_progres', e.target.value)}
                                     required
                                 />
-                                {errors.ringkasan_progres && (
-                                    <p className="text-xs font-medium text-rose-600">{errors.ringkasan_progres}</p>
-                                )}
+                                {errors.ringkasan_progres && <p className="text-xs font-medium text-rose-600">{errors.ringkasan_progres}</p>}
                             </div>
 
                             {/* Catatan Kendala */}
                             <div className="space-y-1.5">
-                                <Label htmlFor="catatan_kendala" className="text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                                <Label
+                                    htmlFor="catatan_kendala"
+                                    className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-200"
+                                >
                                     {t.monev.issuesLabel}
                                 </Label>
                                 <Textarea
@@ -296,9 +285,7 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                     value={data.catatan_kendala}
                                     onChange={(e) => setData('catatan_kendala', e.target.value)}
                                 />
-                                {errors.catatan_kendala && (
-                                    <p className="text-xs font-medium text-rose-600">{errors.catatan_kendala}</p>
-                                )}
+                                {errors.catatan_kendala && <p className="text-xs font-medium text-rose-600">{errors.catatan_kendala}</p>}
                             </div>
 
                             {/* PDF Uploader: Naskah Laporan Kemajuan */}
@@ -311,9 +298,7 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                     maxSizeMB={10}
                                     required
                                 />
-                                {errors.file_laporan_kemajuan && (
-                                    <p className="text-xs font-medium text-rose-600">{errors.file_laporan_kemajuan}</p>
-                                )}
+                                {errors.file_laporan_kemajuan && <p className="text-xs font-medium text-rose-600">{errors.file_laporan_kemajuan}</p>}
                             </div>
 
                             {/* PDF Uploader: Berkas Logbook */}
@@ -326,21 +311,13 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                     maxSizeMB={10}
                                     required={false}
                                 />
-                                {errors.file_logbook && (
-                                    <p className="text-xs font-medium text-rose-600">{errors.file_logbook}</p>
-                                )}
+                                {errors.file_logbook && <p className="text-xs font-medium text-rose-600">{errors.file_logbook}</p>}
                             </div>
 
                             {/* Submit Button */}
                             <div className="flex items-center justify-end gap-3 border-t border-border pt-4">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    asChild
-                                >
-                                    <Link href={route('progress.index')}>
-                                        {t.common.cancel}
-                                    </Link>
+                                <Button type="button" variant="outline" asChild>
+                                    <Link href={route('progress.index')}>{t.common.cancel}</Link>
                                 </Button>
                                 <Button
                                     type="submit"

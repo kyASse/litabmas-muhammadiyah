@@ -75,7 +75,6 @@ class RegisteredUserController extends Controller
             'university_id' => $request->university_id,
             'position' => $request->position,
             'phone' => $request->phone,
-            'approval_status' => 'pending', // All new registrations start as pending
             'is_active' => false, // Will be activated after approval
         ]);
 

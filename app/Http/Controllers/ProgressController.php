@@ -4,13 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Progress\StoreProgressReportRequest;
 use App\Http\Requests\Reviewer\EvaluateMonevRequest;
-use App\Models\Contract;
 use App\Models\MonevSchedule;
 use App\Models\ProgressReport;
 use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class ProgressController extends Controller

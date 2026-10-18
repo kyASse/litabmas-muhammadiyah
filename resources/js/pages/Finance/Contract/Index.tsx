@@ -1,42 +1,19 @@
-import React, { useState, FormEvent } from 'react';
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
 import PageHeader from '@/components/ui/PageHeader';
-import TabularFigure from '@/components/ui/TabularFigure';
 import StatusBadge, { BadgeStatusType } from '@/components/ui/StatusBadge';
+import TabularFigure from '@/components/ui/TabularFigure';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { useTranslation } from '@/hooks/use-translation';
+import AppLayout from '@/layouts/app-layout';
 import { BreadcrumbItem } from '@/types';
-import {
-    FileText,
-    Search,
-    FilterX,
-    PlusCircle,
-    Building2,
-    User,
-    CalendarDays,
-    ChevronLeft,
-    ChevronRight,
-    ArrowUpRight,
-    UploadCloud,
-    AlertTriangle,
-    Layers,
-    DollarSign,
-    CheckCircle2,
-} from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { AlertTriangle, ArrowUpRight, Building2, ChevronLeft, ChevronRight, FileText, FilterX, PlusCircle, Search, User } from 'lucide-react';
+import { FormEvent, useState } from 'react';
 
 interface PaginationLink {
     url: string | null;
@@ -146,14 +123,7 @@ function mapStatusToBadge(status: string): { type: BadgeStatusType; label: strin
     return { type: 'Draft', label: `[${status.toUpperCase()}]` };
 }
 
-export default function ContractIndex({
-    contracts,
-    filters,
-    summary,
-    universities,
-    eligibleProposals = [],
-    statusOptions,
-}: Props) {
+export default function ContractIndex({ contracts, filters, summary, universities, eligibleProposals = [], statusOptions }: Props) {
     const { t } = useTranslation();
 
     const [search, setSearch] = useState(filters.search || '');
@@ -254,15 +224,9 @@ export default function ContractIndex({
 
             <div className="flex h-full flex-1 flex-col gap-6 p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                    <PageHeader
-                        title={t.contracts.pageTitle}
-                        subtitle={t.contracts.pageSubtitle}
-                    />
+                    <PageHeader title={t.contracts.pageTitle} subtitle={t.contracts.pageSubtitle} />
                     <div className="flex items-center gap-2">
-                        <Button
-                            onClick={() => setIssueModalOpen(true)}
-                            className="bg-slate-900 text-white hover:bg-slate-800 gap-2 font-medium"
-                        >
+                        <Button onClick={() => setIssueModalOpen(true)} className="gap-2 bg-slate-900 font-medium text-white hover:bg-slate-800">
                             <PlusCircle className="h-4 w-4" />
                             {t.contracts.issueContractBtn}
                         </Button>
@@ -272,70 +236,54 @@ export default function ContractIndex({
                 {/* Ringkasan Finansial Kontrak */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            {t.contracts.totalContracts}
-                        </span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase">{t.contracts.totalContracts}</span>
                         <div className="mt-2 flex items-baseline justify-between">
-                            <span className="font-mono text-2xl font-bold text-slate-900">
-                                {summary.total_contracts}
-                            </span>
-                            <span className="text-xs text-slate-500 font-mono">
+                            <span className="font-mono text-2xl font-bold text-slate-900">{summary.total_contracts}</span>
+                            <span className="font-mono text-xs text-slate-500">
                                 {t.contracts.contractsMatchingFilter.replace('{total}', String(contracts.total))}
                             </span>
                         </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            {t.contracts.approvedContractValue}
-                        </span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase">{t.contracts.approvedContractValue}</span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
                                 value={summary.contract_value}
                                 type="currency"
                                 size="xl"
                                 weight="bold"
-                                className="text-slate-900 font-semibold"
+                                className="font-semibold text-slate-900"
                             />
-                            <span className="text-xs text-slate-500 font-mono">
-                                {t.contracts.accumulatedValue}
-                            </span>
+                            <span className="font-mono text-xs text-slate-500">{t.contracts.accumulatedValue}</span>
                         </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            {t.contracts.realizedFunding}
-                        </span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase">{t.contracts.realizedFunding}</span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
                                 value={summary.disbursed_value}
                                 type="currency"
                                 size="xl"
                                 weight="bold"
-                                className="text-emerald-700 font-semibold"
+                                className="font-semibold text-emerald-700"
                             />
-                            <span className="text-xs text-emerald-600 font-mono">
-                                {t.contracts.disbursedToResearchers}
-                            </span>
+                            <span className="font-mono text-xs text-emerald-600">{t.contracts.disbursedToResearchers}</span>
                         </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                        <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            {t.contracts.outstandingFunding}
-                        </span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase">{t.contracts.outstandingFunding}</span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
                                 value={summary.outstanding_value}
                                 type="currency"
                                 size="xl"
                                 weight="bold"
-                                className="text-amber-700 font-semibold"
+                                className="font-semibold text-amber-700"
                             />
-                            <span className="text-xs text-amber-600 font-mono">
-                                {t.contracts.unrealized}
-                            </span>
+                            <span className="font-mono text-xs text-amber-600">{t.contracts.unrealized}</span>
                         </div>
                     </div>
                 </div>
@@ -349,12 +297,12 @@ export default function ContractIndex({
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder={t.contracts.searchPlaceholder}
-                                className="pl-9 text-sm font-sans"
+                                className="pl-9 font-sans text-sm"
                             />
                         </div>
 
                         <Select value={status || 'all'} onValueChange={(val) => setStatus(val === 'all' ? '' : val)}>
-                            <SelectTrigger className="text-sm font-sans">
+                            <SelectTrigger className="font-sans text-sm">
                                 <SelectValue placeholder={t.contracts.filterStatus} />
                             </SelectTrigger>
                             <SelectContent>
@@ -368,7 +316,7 @@ export default function ContractIndex({
                         </Select>
 
                         <Select value={universityId || 'all'} onValueChange={(val) => setUniversityId(val === 'all' ? '' : val)}>
-                            <SelectTrigger className="text-sm font-sans">
+                            <SelectTrigger className="font-sans text-sm">
                                 <SelectValue placeholder={t.contracts.allUniversities} />
                             </SelectTrigger>
                             <SelectContent>
@@ -396,13 +344,17 @@ export default function ContractIndex({
                 </div>
 
                 {/* Tabel Kontrak */}
-                <div className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-slate-50/80">
                                 <TableHead className="w-12 text-center">{t.contracts.tableColNo}</TableHead>
-                                <TableHead>{t.contracts.tableColNumber} & {t.contracts.tableColProposal}</TableHead>
-                                <TableHead>{t.contracts.institution} & {t.contracts.leadResearcher}</TableHead>
+                                <TableHead>
+                                    {t.contracts.tableColNumber} & {t.contracts.tableColProposal}
+                                </TableHead>
+                                <TableHead>
+                                    {t.contracts.institution} & {t.contracts.leadResearcher}
+                                </TableHead>
                                 <TableHead className="text-right">{t.contracts.paguOrProposed}</TableHead>
                                 <TableHead className="text-right">{t.contracts.tableColApprovedBudget}</TableHead>
                                 <TableHead className="min-w-44">{t.contracts.disbursementRealization}</TableHead>
@@ -414,9 +366,9 @@ export default function ContractIndex({
                             {contracts.data.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={8} className="py-12 text-center text-slate-500">
-                                        <FileText className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+                                        <FileText className="mx-auto mb-2 h-10 w-10 text-slate-300" />
                                         <p className="font-medium">{t.contracts.emptyList}</p>
-                                        <p className="text-xs text-slate-400 mt-1">{t.contracts.emptySubtitle}</p>
+                                        <p className="mt-1 text-xs text-slate-400">{t.contracts.emptySubtitle}</p>
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -430,19 +382,19 @@ export default function ContractIndex({
                                             <TableCell className="text-center font-mono text-xs text-slate-500">
                                                 {(contracts.current_page - 1) * contracts.per_page + index + 1}
                                             </TableCell>
-                                            <TableCell className="min-w-64 max-w-sm">
+                                            <TableCell className="max-w-sm min-w-64">
                                                 <div className="space-y-1">
                                                     <Link
                                                         href={route('finance.contracts.show', contract.id)}
-                                                        className="font-mono text-xs font-semibold text-sky-800 hover:underline block"
+                                                        className="block font-mono text-xs font-semibold text-sky-800 hover:underline"
                                                     >
                                                         {contract.nomor_kontrak || contract.contract_number}
                                                     </Link>
-                                                    <p className="font-medium text-xs text-slate-900 line-clamp-2">
+                                                    <p className="line-clamp-2 text-xs font-medium text-slate-900">
                                                         {contract.judul_kontrak || contract.title}
                                                     </p>
                                                     {contract.proposal?.research_schema && (
-                                                        <span className="inline-block text-[11px] font-sans px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                                                        <span className="inline-block rounded bg-slate-100 px-1.5 py-0.5 font-sans text-[11px] text-slate-600">
                                                             {contract.proposal.research_schema.nama_skema}
                                                         </span>
                                                     )}
@@ -450,12 +402,14 @@ export default function ContractIndex({
                                             </TableCell>
                                             <TableCell className="min-w-44">
                                                 <div className="space-y-1 text-xs">
-                                                    <p className="font-medium text-slate-800 flex items-center gap-1.5">
-                                                        <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                                        <span className="truncate">{contract.proposal?.pengusul?.name || contract.party_2 || '-'}</span>
+                                                    <p className="flex items-center gap-1.5 font-medium text-slate-800">
+                                                        <User className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                                                        <span className="truncate">
+                                                            {contract.proposal?.pengusul?.name || contract.party_2 || '-'}
+                                                        </span>
                                                     </p>
-                                                    <p className="text-slate-500 flex items-center gap-1.5">
-                                                        <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                    <p className="flex items-center gap-1.5 text-slate-500">
+                                                        <Building2 className="h-3.5 w-3.5 shrink-0 text-slate-400" />
                                                         <span className="truncate">{contract.university.short_name || contract.university.name}</span>
                                                     </p>
                                                 </div>
@@ -463,22 +417,26 @@ export default function ContractIndex({
                                             <TableCell className="text-right">
                                                 <div className="space-y-1">
                                                     <div>
-                                                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">{t.contracts.paguLabel}</span>
+                                                        <span className="block text-[10px] tracking-wider text-slate-400 uppercase">
+                                                            {t.contracts.paguLabel}
+                                                        </span>
                                                         <TabularFigure
                                                             value={maxBudget}
                                                             type="currency"
                                                             size="sm"
-                                                            className="text-slate-600 font-medium"
+                                                            className="font-medium text-slate-600"
                                                         />
                                                     </div>
                                                     {proposedBudget > 0 && (
                                                         <div>
-                                                            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">{t.contracts.proposedLabel}</span>
+                                                            <span className="block text-[10px] tracking-wider text-slate-400 uppercase">
+                                                                {t.contracts.proposedLabel}
+                                                            </span>
                                                             <TabularFigure
                                                                 value={proposedBudget}
                                                                 type="currency"
                                                                 size="sm"
-                                                                className="text-slate-500 text-xs"
+                                                                className="text-xs text-slate-500"
                                                             />
                                                         </div>
                                                     )}
@@ -507,24 +465,21 @@ export default function ContractIndex({
                                                         </span>
                                                     </div>
                                                     <Progress value={contract.funding_progress} className="h-1.5" />
-                                                    <p className="text-[11px] text-slate-500 font-mono">
+                                                    <p className="font-mono text-[11px] text-slate-500">
                                                         {t.contracts.tranchesDisbursementCount.replace('{count}', String(contract.fundings_count))}
                                                     </p>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
-                                                <StatusBadge
-                                                    status={badgeInfo.type}
-                                                    size="sm"
-                                                />
+                                                <StatusBadge status={badgeInfo.type} size="sm" />
                                             </TableCell>
                                             <TableCell className="text-center">
                                                 <Link
                                                     href={route('finance.contracts.show', contract.id)}
-                                                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
+                                                    className="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50"
                                                 >
                                                     <span>{t.contracts.viewDetailBtn}</span>
-                                                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
+                                                    <ArrowUpRight className="h-3.5 w-3.5 text-slate-400" />
                                                 </Link>
                                             </TableCell>
                                         </TableRow>
@@ -538,8 +493,11 @@ export default function ContractIndex({
                 {/* Pagination */}
                 {contracts.last_page > 1 && (
                     <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
-                        <p className="text-xs font-mono text-slate-500">
-                            {t.contracts.pageOf.replace('{current}', String(contracts.current_page)).replace('{last}', String(contracts.last_page)).replace('{total}', String(contracts.total))}
+                        <p className="font-mono text-xs text-slate-500">
+                            {t.contracts.pageOf
+                                .replace('{current}', String(contracts.current_page))
+                                .replace('{last}', String(contracts.last_page))
+                                .replace('{total}', String(contracts.total))}
                         </p>
                         <div className="flex flex-wrap gap-1.5">
                             {contracts.links.map((link, index) => {
@@ -552,9 +510,9 @@ export default function ContractIndex({
                                             size="sm"
                                             disabled={!link.url}
                                             onClick={() => link.url && router.visit(link.url)}
-                                            className="text-xs h-8"
+                                            className="h-8 text-xs"
                                         >
-                                            <ChevronLeft className="h-3.5 w-3.5 mr-1" />
+                                            <ChevronLeft className="mr-1 h-3.5 w-3.5" />
                                             Prev
                                         </Button>
                                     );
@@ -569,10 +527,10 @@ export default function ContractIndex({
                                             size="sm"
                                             disabled={!link.url}
                                             onClick={() => link.url && router.visit(link.url)}
-                                            className="text-xs h-8"
+                                            className="h-8 text-xs"
                                         >
                                             Next
-                                            <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                                            <ChevronRight className="ml-1 h-3.5 w-3.5" />
                                         </Button>
                                     );
                                 }
@@ -585,7 +543,7 @@ export default function ContractIndex({
                                         size="sm"
                                         disabled={!link.url}
                                         onClick={() => link.url && router.visit(link.url)}
-                                        className="text-xs h-8 px-3"
+                                        className="h-8 px-3 text-xs"
                                     >
                                         {cleanPaginationLabel(link.label)}
                                     </Button>
@@ -598,20 +556,16 @@ export default function ContractIndex({
 
             {/* Modal Penerbitan Kontrak dengan Budget Cut Adjustment */}
             <Dialog open={issueModalOpen} onOpenChange={setIssueModalOpen}>
-                <DialogContent className="max-w-2xl sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto sm:max-w-2xl">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-serif font-bold text-slate-900 tracking-tight">
-                            {t.contracts.createTitle}
-                        </DialogTitle>
-                        <DialogDescription className="text-sm text-slate-600">
-                            {t.contracts.createSubtitle}
-                        </DialogDescription>
+                        <DialogTitle className="font-serif text-xl font-bold tracking-tight text-slate-900">{t.contracts.createTitle}</DialogTitle>
+                        <DialogDescription className="text-sm text-slate-600">{t.contracts.createSubtitle}</DialogDescription>
                     </DialogHeader>
 
                     <form onSubmit={handleIssueSubmit} className="space-y-4 pt-2">
                         {/* Pilih Proposal Lolos Didanai */}
                         <div className="grid gap-2">
-                            <Label htmlFor="id_proposal" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                            <Label htmlFor="id_proposal" className="text-xs font-medium tracking-wider text-slate-700 uppercase">
                                 {t.contracts.selectProposalPrompt} <span className="text-rose-500">*</span>
                             </Label>
                             {eligibleProposals.length === 0 ? (
@@ -627,7 +581,7 @@ export default function ContractIndex({
                                         {eligibleProposals.map((p) => (
                                             <SelectItem key={p.id} value={p.id.toString()}>
                                                 <span className="font-medium">{p.judul_penelitian}</span>
-                                                <span className="text-xs text-slate-500 block">
+                                                <span className="block text-xs text-slate-500">
                                                     {p.pengusul_nama} | {p.skema_nama}
                                                 </span>
                                             </SelectItem>
@@ -635,30 +589,26 @@ export default function ContractIndex({
                                     </SelectContent>
                                 </Select>
                             )}
-                            {issueErrors.id_proposal && (
-                                <p className="text-xs text-rose-600 font-medium">{issueErrors.id_proposal}</p>
-                            )}
+                            {issueErrors.id_proposal && <p className="text-xs font-medium text-rose-600">{issueErrors.id_proposal}</p>}
                         </div>
 
                         {/* Rincian Pagu & Usulan Pasca Pemilihan Proposal */}
                         {selectedProposal && (
-                            <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+                            <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/70 p-4">
                                 <div className="flex items-start justify-between gap-4 text-xs">
                                     <div>
-                                        <span className="text-slate-500 uppercase tracking-wider block">{t.contracts.scheme}</span>
+                                        <span className="block tracking-wider text-slate-500 uppercase">{t.contracts.scheme}</span>
                                         <span className="font-semibold text-slate-800">{selectedProposal.skema_nama || '-'}</span>
                                     </div>
                                     <div>
-                                        <span className="text-slate-500 uppercase tracking-wider block">{t.contracts.leadResearcher}</span>
+                                        <span className="block tracking-wider text-slate-500 uppercase">{t.contracts.leadResearcher}</span>
                                         <span className="font-semibold text-slate-800">{selectedProposal.pengusul_nama || '-'}</span>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-200">
+                                <div className="grid grid-cols-2 gap-3 border-t border-slate-200 pt-3">
                                     <div>
-                                        <span className="text-xs text-slate-500 uppercase tracking-wider block">
-                                            {t.contracts.proposedBudget}
-                                        </span>
+                                        <span className="block text-xs tracking-wider text-slate-500 uppercase">{t.contracts.proposedBudget}</span>
                                         <TabularFigure
                                             value={selectedProposal.biaya_diusulkan}
                                             type="currency"
@@ -668,7 +618,7 @@ export default function ContractIndex({
                                         />
                                     </div>
                                     <div className="text-right">
-                                        <span className="text-xs text-slate-500 uppercase tracking-wider block">
+                                        <span className="block text-xs tracking-wider text-slate-500 uppercase">
                                             {t.contracts.schemeCeilingLimit}
                                         </span>
                                         <TabularFigure
@@ -686,7 +636,7 @@ export default function ContractIndex({
                         {/* Input Nominal Dana Disetujui (Budget Cut Adjustment) */}
                         <div className="grid gap-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="dana_disetujui" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                                <Label htmlFor="dana_disetujui" className="text-xs font-medium tracking-wider text-slate-700 uppercase">
                                     {t.contracts.approvedBudget} ({t.contracts.budgetCut}) <span className="text-rose-500">*</span>
                                 </Label>
                                 {selectedProposal && (
@@ -694,7 +644,7 @@ export default function ContractIndex({
                                         <button
                                             type="button"
                                             onClick={() => setIssueData('dana_disetujui', selectedProposal.biaya_diusulkan.toString())}
-                                            className="text-sky-700 hover:underline font-mono text-[11px]"
+                                            className="font-mono text-[11px] text-sky-700 hover:underline"
                                         >
                                             {t.contracts.matchProposedBtn}
                                         </button>
@@ -702,7 +652,7 @@ export default function ContractIndex({
                                         <button
                                             type="button"
                                             onClick={() => setIssueData('dana_disetujui', selectedProposal.pagu_maksimal.toString())}
-                                            className="text-sky-700 hover:underline font-mono text-[11px]"
+                                            className="font-mono text-[11px] text-sky-700 hover:underline"
                                         >
                                             {t.contracts.useCeilingBtn}
                                         </button>
@@ -717,35 +667,38 @@ export default function ContractIndex({
                                 value={issueData.dana_disetujui}
                                 onChange={(e) => setIssueData('dana_disetujui', e.target.value)}
                                 placeholder={t.contracts.enterApprovedBudgetPlaceholder}
-                                className="font-mono text-sm bg-white"
+                                className="bg-white font-mono text-sm"
                                 required
                             />
-                            {issueErrors.dana_disetujui && (
-                                <p className="text-xs text-rose-600 font-medium">{issueErrors.dana_disetujui}</p>
-                            )}
+                            {issueErrors.dana_disetujui && <p className="text-xs font-medium text-rose-600">{issueErrors.dana_disetujui}</p>}
 
                             {/* Peringatan Pagu Skema Melebihi */}
                             {isPaguExceeded && (
-                                <div className="rounded border border-rose-300 bg-rose-50 p-2.5 text-xs text-rose-700 flex items-center gap-2">
-                                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                                <div className="flex items-center gap-2 rounded border border-rose-300 bg-rose-50 p-2.5 text-xs text-rose-700">
+                                    <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
                                     <span>{t.contracts.contractValueMismatchNotice}</span>
                                 </div>
                             )}
 
                             {/* Info Pemotongan Anggaran (Budget Cut Calculation) */}
                             {selectedProposal && approvedNum > 0 && !isPaguExceeded && (
-                                <div className="rounded border border-slate-200 bg-slate-50 p-3 space-y-2 text-xs">
+                                <div className="space-y-2 rounded border border-slate-200 bg-slate-50 p-3 text-xs">
                                     <div className="flex items-center justify-between">
                                         <span className="text-slate-600">{t.contracts.budgetCut}:</span>
                                         <span className={`font-mono font-bold ${budgetCutAmount > 0 ? 'text-amber-700' : 'text-slate-800'}`}>
                                             {budgetCutAmount > 0
-                                                ? t.contracts.budgetCutInfo.replace('{amount}', budgetCutAmount.toLocaleString('id-ID')).replace('{percent}', budgetCutPercent)
+                                                ? t.contracts.budgetCutInfo
+                                                      .replace('{amount}', budgetCutAmount.toLocaleString('id-ID'))
+                                                      .replace('{percent}', budgetCutPercent)
                                                 : budgetCutAmount === 0
-                                                ? t.contracts.matchingProposedNoCut
-                                                : t.contracts.budgetIncreaseInfo.replace('{amount}', Math.abs(budgetCutAmount).toLocaleString('id-ID'))}
+                                                  ? t.contracts.matchingProposedNoCut
+                                                  : t.contracts.budgetIncreaseInfo.replace(
+                                                        '{amount}',
+                                                        Math.abs(budgetCutAmount).toLocaleString('id-ID'),
+                                                    )}
                                         </span>
                                     </div>
-                                    <div className="pt-2 border-t border-slate-200 grid grid-cols-2 gap-2 text-[11px] text-slate-500 font-mono">
+                                    <div className="grid grid-cols-2 gap-2 border-t border-slate-200 pt-2 font-mono text-[11px] text-slate-500">
                                         <div>
                                             <span>{t.funding.tranche1RatioBadge}: </span>
                                             <span className="font-semibold text-slate-700">
@@ -765,7 +718,7 @@ export default function ContractIndex({
 
                         {/* Tanggal Kontrak */}
                         <div className="grid gap-2">
-                            <Label htmlFor="tanggal_kontrak" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                            <Label htmlFor="tanggal_kontrak" className="text-xs font-medium tracking-wider text-slate-700 uppercase">
                                 {t.contracts.contractDate} <span className="text-rose-500">*</span>
                             </Label>
                             <Input
@@ -773,17 +726,15 @@ export default function ContractIndex({
                                 type="date"
                                 value={issueData.tanggal_kontrak}
                                 onChange={(e) => setIssueData('tanggal_kontrak', e.target.value)}
-                                className="font-mono text-sm bg-white"
+                                className="bg-white font-mono text-sm"
                                 required
                             />
-                            {issueErrors.tanggal_kontrak && (
-                                <p className="text-xs text-rose-600 font-medium">{issueErrors.tanggal_kontrak}</p>
-                            )}
+                            {issueErrors.tanggal_kontrak && <p className="text-xs font-medium text-rose-600">{issueErrors.tanggal_kontrak}</p>}
                         </div>
 
                         {/* Nomor Kontrak (Opsional / Otomatis) */}
                         <div className="grid gap-2">
-                            <Label htmlFor="nomor_kontrak" className="text-xs font-medium uppercase tracking-wider text-slate-700">
+                            <Label htmlFor="nomor_kontrak" className="text-xs font-medium tracking-wider text-slate-700 uppercase">
                                 {t.contracts.contractNumber} ({t.contracts.optional})
                             </Label>
                             <Input
@@ -792,26 +743,19 @@ export default function ContractIndex({
                                 value={issueData.nomor_kontrak}
                                 onChange={(e) => setIssueData('nomor_kontrak', e.target.value)}
                                 placeholder={t.contracts.contractNumberAutoHelp}
-                                className="font-mono text-sm bg-white"
+                                className="bg-white font-mono text-sm"
                             />
-                            {issueErrors.nomor_kontrak && (
-                                <p className="text-xs text-rose-600 font-medium">{issueErrors.nomor_kontrak}</p>
-                            )}
+                            {issueErrors.nomor_kontrak && <p className="text-xs font-medium text-rose-600">{issueErrors.nomor_kontrak}</p>}
                         </div>
 
-                        <DialogFooter className="gap-2 sm:gap-0 pt-3 border-t border-slate-200">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setIssueModalOpen(false)}
-                                disabled={issueProcessing}
-                            >
+                        <DialogFooter className="gap-2 border-t border-slate-200 pt-3 sm:gap-0">
+                            <Button type="button" variant="outline" onClick={() => setIssueModalOpen(false)} disabled={issueProcessing}>
                                 {t.common.cancel}
                             </Button>
                             <Button
                                 type="submit"
                                 disabled={issueProcessing || isPaguExceeded || !issueData.id_proposal || !issueData.dana_disetujui}
-                                className="bg-slate-900 hover:bg-slate-800 text-white font-medium"
+                                className="bg-slate-900 font-medium text-white hover:bg-slate-800"
                             >
                                 {issueProcessing ? t.contracts.issuingContract : t.contracts.issueContractBtn}
                             </Button>

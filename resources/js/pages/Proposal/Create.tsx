@@ -1,11 +1,10 @@
-import React from 'react';
-import Wizard, { SchemaItem, LecturerItem } from './Wizard';
+import Wizard, { LecturerItem, SchemaItem } from './Wizard';
 
 interface CreateProps {
-  schemas?: SchemaItem[];
-  lecturers?: LecturerItem[];
+    schemas?: SchemaItem[];
+    lecturers?: LecturerItem[];
 }
 
 export default function Create({ schemas = [], lecturers = [] }: CreateProps) {
-  return <Wizard schemas={schemas} lecturers={lecturers} />;
+    return <Wizard schemas={schemas} lecturers={lecturers} />;
 }

@@ -46,7 +46,6 @@ class QualityGateDay1Test extends TestCase
         );
     }
 
-
     /**
      * Uji keberadaan seluruh 21 tabel domain bersih sesuai spesifikasi Kamus Data schema.md.
      */
