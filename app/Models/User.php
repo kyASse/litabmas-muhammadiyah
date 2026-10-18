@@ -60,23 +60,15 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'google_id',
-        'microsoft_id',
         'avatar_url',
         'phone',
-        'position',
         'role_id',
         'university_id',
         'nidn',
         'faculty',
         'study_program',
-        'scientific_field_id',
         'is_active',
         'is_reviewer',
-        'approval_status',
-        'approved_by',
-        'approved_at',
-        'rejection_reason',
         'last_login_at',
         'email_verified_at',
     ];
@@ -101,7 +93,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
-            'approved_at' => 'datetime',
             'is_active' => 'boolean',
             'is_reviewer' => 'boolean',
             'password' => 'hashed',
@@ -320,13 +311,7 @@ class User extends Authenticatable
      */
     public function isSuperAdmin(): bool
     {
-        // Check in primary role (backwards compatibility)
-        if ($this->role && $this->role->name === Role::SUPER_ADMIN) {
-            return true;
-        }
-
-        // Check in roles relationship (multi-role)
-        return $this->roles()->where('name', Role::SUPER_ADMIN)->exists();
+        return $this->hasRole(Role::SUPER_ADMIN);
     }
 
     /**
@@ -334,13 +319,7 @@ class User extends Authenticatable
      */
     public function isAdminKampus(): bool
     {
-        // Check in primary role (backwards compatibility)
-        if ($this->role && $this->role->name === Role::ADMIN_KAMPUS) {
-            return true;
-        }
-
-        // Check in roles relationship (multi-role)
-        return $this->roles()->where('name', Role::ADMIN_KAMPUS)->exists();
+        return $this->hasRole(Role::ADMIN_KAMPUS);
     }
 
     /**
@@ -348,11 +327,7 @@ class User extends Authenticatable
      */
     public function isAdminKeuangan(): bool
     {
-        if ($this->role && $this->role->name === Role::ADMIN_KEUANGAN) {
-            return true;
-        }
-
-        return $this->roles()->where('name', Role::ADMIN_KEUANGAN)->exists();
+        return $this->hasRole(Role::ADMIN_KEUANGAN);
     }
 
     /**
@@ -360,13 +335,7 @@ class User extends Authenticatable
      */
     public function isUser(): bool
     {
-        // Check in primary role (backwards compatibility)
-        if ($this->role && $this->role->name === Role::USER) {
-            return true;
-        }
-
-        // Check in roles relationship (multi-role)
-        return $this->roles()->where('name', Role::USER)->exists();
+        return $this->hasRole(Role::USER);
     }
 
     /**
@@ -375,7 +344,7 @@ class User extends Authenticatable
     public function isPengelolaJurnal(): bool
     {
         // Pengelola Jurnal is the same as User role, or a separate role
-        return $this->isUser() || $this->roles()->where('name', Role::PENGELOLA_JURNAL)->exists();
+        return $this->isUser() || $this->hasRole(Role::PENGELOLA_JURNAL);
     }
 
     /**
@@ -389,7 +358,7 @@ class User extends Authenticatable
         }
 
         // Check in roles relationship (multi-role)
-        return $this->roles()->where('name', Role::REVIEWER)->exists();
+        return $this->hasRole(Role::REVIEWER);
     }
 
     /**
@@ -397,12 +366,26 @@ class User extends Authenticatable
      */
     public function hasRole(string $roleName): bool
     {
-        // Check in primary role (backwards compatibility)
+        // 1. Check in primary role (legacy compatibility)
         if ($this->role && $this->role->name === $roleName) {
             return true;
         }
 
-        // Check in roles relationship (multi-role)
+        // 2. Fallback check by role_id direct query if relation not loaded or stale
+        if ($this->role_id && (! $this->relationLoaded('role') || is_null($this->role))) {
+            $primaryRoleName = Role::where('id', $this->role_id)->value('name');
+            if ($primaryRoleName === $roleName) {
+                return true;
+            }
+        }
+
+        // 3. Check in roles relationship (multi-role pivot)
+        if ($this->relationLoaded('roles')) {
+            if ($this->roles->contains('name', $roleName)) {
+                return true;
+            }
+        }
+
         return $this->roles()->where('name', $roleName)->exists();
     }
 
@@ -411,12 +394,26 @@ class User extends Authenticatable
      */
     public function hasAnyRole(array $roleNames): bool
     {
-        // Check in primary role (backwards compatibility)
+        // 1. Check in primary role (legacy compatibility)
         if ($this->role && in_array($this->role->name, $roleNames)) {
             return true;
         }
 
-        // Check in roles relationship (multi-role)
+        // 2. Fallback check by role_id direct query if relation not loaded or stale
+        if ($this->role_id && (! $this->relationLoaded('role') || is_null($this->role))) {
+            $primaryRoleName = Role::where('id', $this->role_id)->value('name');
+            if ($primaryRoleName && in_array($primaryRoleName, $roleNames)) {
+                return true;
+            }
+        }
+
+        // 3. Check in roles relationship (multi-role pivot)
+        if ($this->relationLoaded('roles')) {
+            if ($this->roles->contains(fn ($role) => in_array($role->name, $roleNames))) {
+                return true;
+            }
+        }
+
         return $this->roles()->whereIn('name', $roleNames)->exists();
     }
 
@@ -425,17 +422,10 @@ class User extends Authenticatable
      */
     public function hasAllRoles(array $roleNames): bool
     {
-        $userRoles = $this->roles()->pluck('name')->toArray();
-
-        // Add primary role if exists
-        if ($this->role) {
-            $userRoles[] = $this->role->name;
-        }
-
-        $userRoles = array_unique($userRoles);
+        $userRoles = $this->getRoleNames();
 
         foreach ($roleNames as $roleName) {
-            if (! in_array($roleName, $userRoles)) {
+            if (! in_array($roleName, $userRoles, true)) {
                 return false;
             }
         }
@@ -448,14 +438,25 @@ class User extends Authenticatable
      */
     public function getRoleNames(): array
     {
-        $roleNames = $this->roles()->pluck('name')->toArray();
-
-        // Add primary role if exists and not already in array
-        if ($this->role && ! in_array($this->role->name, $roleNames)) {
-            $roleNames[] = $this->role->name;
+        if ($this->relationLoaded('roles')) {
+            $roleNames = $this->roles->pluck('name')->toArray();
+        } else {
+            $roleNames = $this->roles()->pluck('name')->toArray();
         }
 
-        return array_unique($roleNames);
+        // Add primary role if exists and not already in array
+        $primaryRole = null;
+        if ($this->role) {
+            $primaryRole = $this->role->name;
+        } elseif ($this->role_id) {
+            $primaryRole = Role::where('id', $this->role_id)->value('name');
+        }
+
+        if ($primaryRole && ! in_array($primaryRole, $roleNames, true)) {
+            $roleNames[] = $primaryRole;
+        }
+
+        return array_values(array_unique($roleNames));
     }
 
     /**

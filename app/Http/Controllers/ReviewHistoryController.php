@@ -75,7 +75,7 @@ class ReviewHistoryController extends Controller
                 'reviewer',
             ])
                 ->whereHas('proposal', function ($query) use ($targetUserId) {
-                    $query->where('user_id', $targetUserId);
+                    $query->where('id_pengusul', $targetUserId);
                 })
                 ->orderBy('reviewed_at', 'desc');
 

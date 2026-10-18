@@ -87,7 +87,7 @@ class AnnouncementController extends Controller
         $universities = Cache::remember('universities.active.list', 3600, function () {
             return University::where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+                ->get(['id', 'name', 'code']);
         });
 
         return Inertia::render('Admin/Announcements/Index', [
@@ -108,7 +108,7 @@ class AnnouncementController extends Controller
         $universities = Cache::remember('universities.active.list', 3600, function () {
             return University::where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+                ->get(['id', 'name', 'code']);
         });
 
         return Inertia::render('Admin/Announcements/Create', [
@@ -212,7 +212,7 @@ class AnnouncementController extends Controller
         // Get all active universities
         $universities = University::active()
             ->orderBy('name')
-            ->get(['id', 'name', 'short_name', 'code']);
+            ->get(['id', 'name', 'code']);
 
         return Inertia::render('Admin/Announcements/Edit', [
             'announcement' => [

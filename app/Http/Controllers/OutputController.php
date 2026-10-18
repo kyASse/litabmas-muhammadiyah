@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\BookOutput;
 use App\Models\HkiOutput;
-use App\Models\Journal;
 use App\Models\JournalOutput;
 use App\Models\ResearchOutput;
 use Illuminate\Http\RedirectResponse;
@@ -40,14 +39,9 @@ class OutputController extends Controller
             'Produk' => 'Produk / Prototipe',
         ];
 
-        $journals = [];
-        if (class_exists(Journal::class)) {
-            $journals = Journal::select('id', 'title', 'issn', 'e_issn')->get()->toArray();
-        }
-
         return Inertia::render('Output/Create', [
             'outputTypes' => $outputTypes,
-            'journals' => $journals,
+            'journals' => [],
         ]);
     }
 

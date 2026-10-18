@@ -1,16 +1,11 @@
 import StatisticsDashboard from '@/components/StatisticsDashboard';
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type JournalStatistics, type PageProps } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { BookOpen, CheckCircle, ClipboardCheck, Clock, TrendingUp, UserPlus, XCircle } from 'lucide-react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-];
+import { route } from 'ziggy-js';
 
 interface UniversityDistribution {
     id: number;
@@ -46,13 +41,21 @@ interface DashboardProps extends PageProps {
 }
 
 export default function Dashboard({ stats, statistics }: DashboardProps) {
+    const { t } = useTranslation();
     const { auth } = usePage<PageProps>().props;
     const isSuperAdmin = auth.user?.role?.name === 'Super Admin';
     const isUser = auth.user?.role?.name === 'User';
 
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t.navigation.dashboard,
+            href: route('dashboard'),
+        },
+    ];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard" />
+            <Head title={t.navigation.dashboard} />
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 sm:p-6">
                 {/* Stats Cards - Conditional Grid Based on Role */}
                 <div
@@ -68,8 +71,8 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                     <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Total Asesmen</p>
-                                <h3 className="mt-2 text-3xl font-bold">{stats.total_assessments}</h3>
+                                <p className="text-sm font-medium text-muted-foreground">{t.dashboard.totalAssessments}</p>
+                                <h3 className="mt-2 font-mono text-3xl font-bold">{stats.total_assessments}</h3>
                             </div>
                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
                                 <ClipboardCheck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -81,8 +84,8 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                     <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">Rata-rata Skor</p>
-                                <h3 className="mt-2 text-3xl font-bold">
+                                <p className="text-sm font-medium text-muted-foreground">{t.dashboard.averageScore}</p>
+                                <h3 className="mt-2 font-mono text-3xl font-bold">
                                     {stats.average_score !== null ? Number(stats.average_score).toFixed(1) : '0.0'}
                                 </h3>
                             </div>
@@ -98,9 +101,9 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                             <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 transition-all hover:border-orange-500 hover:shadow-md dark:border-sidebar-border dark:bg-neutral-950 dark:hover:border-orange-400">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Pending LPPM</p>
-                                        <h3 className="mt-2 text-3xl font-bold">{stats.pending_lppm_count}</h3>
-                                        <p className="mt-1 text-xs text-muted-foreground">Click to review</p>
+                                        <p className="text-sm font-medium text-muted-foreground">{t.dashboard.pendingLppm}</p>
+                                        <h3 className="mt-2 font-mono text-3xl font-bold">{stats.pending_lppm_count}</h3>
+                                        <p className="mt-1 text-xs text-muted-foreground">{t.dashboard.clickToReview}</p>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/20">
                                         <UserPlus className="h-6 w-6 text-orange-600 dark:text-orange-400" />
@@ -117,8 +120,8 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                             <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Pending</p>
-                                        <h3 className="mt-2 text-3xl font-bold">{stats.journals_by_status.pending}</h3>
+                                        <p className="text-sm font-medium text-muted-foreground">{t.dashboard.pending}</p>
+                                        <h3 className="mt-2 font-mono text-3xl font-bold">{stats.journals_by_status.pending}</h3>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/20">
                                         <Clock className="h-6 w-6 text-amber-600 dark:text-amber-400" />
@@ -130,8 +133,8 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                             <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Disetujui</p>
-                                        <h3 className="mt-2 text-3xl font-bold">{stats.journals_by_status.approved}</h3>
+                                        <p className="text-sm font-medium text-muted-foreground">{t.dashboard.approved}</p>
+                                        <h3 className="mt-2 font-mono text-3xl font-bold">{stats.journals_by_status.approved}</h3>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
                                         <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -143,8 +146,8 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                             <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
                                 <div className="flex items-center justify-between">
                                     <div>
-                                        <p className="text-sm font-medium text-muted-foreground">Ditolak</p>
-                                        <h3 className="mt-2 text-3xl font-bold">{stats.journals_by_status.rejected}</h3>
+                                        <p className="text-sm font-medium text-muted-foreground">{t.dashboard.rejected}</p>
+                                        <h3 className="mt-2 font-mono text-3xl font-bold">{stats.journals_by_status.rejected}</h3>
                                     </div>
                                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
                                         <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
@@ -160,14 +163,17 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                     <div className="mt-2 rounded-xl border border-sidebar-border/70 bg-white dark:border-sidebar-border dark:bg-neutral-950">
                         <div className="flex items-center justify-between border-b border-sidebar-border/70 p-6 dark:border-sidebar-border">
                             <div>
-                                <h3 className="text-lg font-semibold">Distribusi Jurnal per Universitas</h3>
+                                <h3 className="font-serif text-lg font-semibold text-foreground">{t.dashboard.distributionTitle}</h3>
                                 <p className="text-sm text-muted-foreground">
-                                    Top {Math.min(10, stats.universities_distribution.length)} universitas dengan jurnal terbanyak
+                                    {t.dashboard.distributionSubtitle.replace(
+                                        '{count}',
+                                        String(Math.min(10, stats.universities_distribution.length)),
+                                    )}
                                 </p>
                             </div>
                             {stats.universities_distribution.length > 10 && (
                                 <Link href="/admin/universities" className="text-sm font-medium text-primary hover:underline">
-                                    Lihat Semua ({stats.universities_distribution.length})
+                                    {t.dashboard.viewAll.replace('{count}', String(stats.universities_distribution.length))}
                                 </Link>
                             )}
                         </div>
@@ -175,10 +181,14 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                             <table className="w-full min-w-[600px]">
                                 <thead className="border-b border-sidebar-border/70 dark:border-sidebar-border">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">#</th>
-                                        <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">Universitas</th>
-                                        <th className="px-6 py-3 text-right text-sm font-medium text-muted-foreground">Jumlah Jurnal</th>
-                                        <th className="px-6 py-3 text-right text-sm font-medium text-muted-foreground">Persentase</th>
+                                        <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">{t.dashboard.colNumber}</th>
+                                        <th className="px-6 py-3 text-left text-sm font-medium text-muted-foreground">{t.dashboard.colUniversity}</th>
+                                        <th className="px-6 py-3 text-right text-sm font-medium text-muted-foreground">
+                                            {t.dashboard.colJournalCount}
+                                        </th>
+                                        <th className="px-6 py-3 text-right text-sm font-medium text-muted-foreground">
+                                            {t.dashboard.colPercentage}
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-sidebar-border/70 dark:divide-sidebar-border">
@@ -187,10 +197,10 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                                             stats.total_journals > 0 ? ((university.count / stats.total_journals) * 100).toFixed(1) : '0.0';
                                         return (
                                             <tr key={university.id} className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/50">
-                                                <td className="px-6 py-4 text-sm text-muted-foreground">{index + 1}</td>
+                                                <td className="px-6 py-4 font-mono text-sm text-muted-foreground">{index + 1}</td>
                                                 <td className="px-6 py-4 text-sm font-medium">{university.name}</td>
-                                                <td className="px-6 py-4 text-right text-sm font-semibold">{university.count}</td>
-                                                <td className="px-6 py-4 text-right text-sm text-muted-foreground">{percentage}%</td>
+                                                <td className="px-6 py-4 text-right font-mono text-sm font-semibold">{university.count}</td>
+                                                <td className="px-6 py-4 text-right font-mono text-sm text-muted-foreground">{percentage}%</td>
                                             </tr>
                                         );
                                     })}
@@ -214,13 +224,13 @@ export default function Dashboard({ stats, statistics }: DashboardProps) {
                             <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                             <div className="relative z-10">
                                 <BookOpen className="mx-auto h-12 w-12 text-muted-foreground" />
-                                <h3 className="mt-4 text-lg font-semibold">Belum Ada Jurnal</h3>
+                                <h3 className="mt-4 text-lg font-semibold">{t.dashboard.noJournalsTitle}</h3>
                                 <p className="mt-2 text-sm text-muted-foreground">
                                     {isSuperAdmin
-                                        ? 'Belum ada jurnal yang terdaftar di sistem.'
+                                        ? t.dashboard.noJournalsSuperAdmin
                                         : auth.user?.role?.name === 'Admin Kampus'
-                                          ? 'Belum ada jurnal yang terdaftar di universitas Anda.'
-                                          : 'Anda belum mengelola jurnal. Mulai dengan menambahkan jurnal baru.'}
+                                          ? t.dashboard.noJournalsCampusAdmin
+                                          : t.dashboard.noJournalsUser}
                                 </p>
                             </div>
                         </div>

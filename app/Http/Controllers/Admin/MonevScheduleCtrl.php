@@ -28,7 +28,22 @@ class MonevScheduleCtrl extends Controller
      */
     public function store(StoreMonevScheduleRequest $request)
     {
-        MonevSchedule::create($request->validated());
+        $user = $request->user();
+        $universityId = $user->isSuperAdmin()
+            ? ($request->input('university_id') ?? $user->university_id)
+            : $user->university_id;
+
+        if (! $universityId) {
+            return back()->withErrors([
+                'university_id' => 'Institusi universitas wajib ditentukan.',
+            ])->withInput();
+        }
+
+        $data = array_merge($request->validated(), [
+            'university_id' => $universityId,
+        ]);
+
+        MonevSchedule::create($data);
 
         return redirect()->route('admin.monev-schedules.index')
             ->with('success', 'Jadwal monev berhasil dibuat.');
@@ -41,11 +56,11 @@ class MonevScheduleCtrl extends Controller
     {
         $universityId = auth()->user()->university_id;
 
-        $pendingQuery = ProgressReport::where('status', 'submitted')
-            ->with(['proposal.user', 'user']);
+        $pendingQuery = ProgressReport::where('status_laporan', ProgressReport::STATUS_SUBMITTED)
+            ->with(['proposal.user', 'monevSchedule']);
 
         if ($universityId) {
-            $pendingQuery->whereHas('proposal.user', function ($q) use ($universityId) {
+            $pendingQuery->whereHas('proposal', function ($q) use ($universityId) {
                 $q->where('university_id', $universityId);
             });
         }
@@ -66,15 +81,12 @@ class MonevScheduleCtrl extends Controller
     {
         $universityId = auth()->user()->university_id;
 
-        $schedulesQuery = MonevSchedule::with(['contract.proposal.user', 'evaluator']);
+        $schedulesQuery = MonevSchedule::query();
         $contractsQuery = Contract::with('proposal.user');
         $evaluatorsQuery = User::where('is_reviewer', true);
 
         if ($universityId) {
-            $schedulesQuery->whereHas('contract', function ($q) use ($universityId) {
-                $q->where('university_id', $universityId);
-            })->orWhereNull('contract_id');
-
+            $schedulesQuery->where('university_id', $universityId);
             $contractsQuery->where('university_id', $universityId);
             $evaluatorsQuery->where('university_id', $universityId);
         }

@@ -36,6 +36,7 @@ use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\Review\ReviewSummaryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewDocumentController;
+use App\Http\Controllers\Reviewer\MonevEvaluationController;
 use App\Http\Controllers\ReviewerController;
 use App\Http\Controllers\ReviewHistoryController;
 use App\Http\Controllers\SchemaController;
@@ -70,6 +71,11 @@ Route::get('/storage/{path}', function (string $path) {
 
 // Home / Landing Page
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Design System Preview Gate (Hybrid Scholarly Enterprise Showcase)
+Route::get('/design-system-preview', function () {
+    return inertia('DesignSystemPreview');
+})->name('design-system-preview');
 
 // Google OAuth
 Route::middleware('guest')->group(function () {
@@ -109,12 +115,20 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:Peneliti,Dosen,User'])->group(function () {
         // Proposals CRUD
         Route::get('/proposals', [ProposalController::class, 'index'])->name('proposals.index');
+        Route::get('/proposal', [ProposalController::class, 'index'])->name('proposal.index');
         Route::get('/proposals/create', [ProposalController::class, 'create'])->name('proposals.create');
+        Route::get('/proposal/create', [ProposalController::class, 'create'])->name('proposal.create');
         Route::post('/proposals', [ProposalController::class, 'store'])->name('proposals.store');
+        Route::post('/proposal', [ProposalController::class, 'store'])->name('proposal.store');
         Route::get('/proposals/{proposal}', [ProposalController::class, 'show'])->name('proposals.show');
+        Route::get('/proposal/{proposal}', [ProposalController::class, 'show'])->name('proposal.show');
         Route::get('/proposals/{proposal}/edit', [ProposalController::class, 'edit'])->name('proposals.edit');
+        Route::get('/proposal/{proposal}/edit', [ProposalController::class, 'edit'])->name('proposal.edit');
         Route::put('/proposals/{proposal}', [ProposalController::class, 'update'])->name('proposals.update');
+        Route::put('/proposal/{proposal}', [ProposalController::class, 'update'])->name('proposal.update');
         Route::delete('/proposals/{proposal}', [ProposalController::class, 'destroy'])->name('proposals.destroy');
+        Route::delete('/proposal/{proposal}', [ProposalController::class, 'destroy'])->name('proposal.destroy');
+        Route::get('/proposal/documents/{document}/download', [DocumentController::class, 'download'])->name('proposal.documents.download');
 
         // Document Upload
         Route::post('/proposals/{proposal}/documents', [DocumentController::class, 'upload'])->name('documents.store');
@@ -146,6 +160,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Funding Info for Peneliti
         Route::get('/funding', [UserFundingController::class, 'index'])->name('funding.index');
+        Route::get('/user/funding', [UserFundingController::class, 'index'])->name('user.funding.index');
     });
 
     /*
@@ -165,9 +180,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/proposals/{id}', [ReviewController::class, 'show'])->name('proposals.show');
         Route::post('/proposals/{id}/assessment', [ReviewController::class, 'storeAssessment'])->name('proposals.assessment');
         Route::put('/proposals/{id}/assessment', [ReviewController::class, 'updateAssessment'])->name('proposals.assessment.update');
+        Route::post('/assessment', [ReviewController::class, 'storeAssessment'])->name('assessment.store');
+        Route::put('/assessment/{id}', [ReviewController::class, 'updateAssessment'])->name('assessment.update');
 
         // Monev & Evaluation
-        Route::post('/monev/{id}', [ProgressController::class, 'evaluateMonev'])->name('monev.evaluate');
+        Route::get('/monev/{report}/evaluate', [MonevEvaluationController::class, 'show'])->name('monev.show');
+        Route::post('/monev/{report}/evaluate', [MonevEvaluationController::class, 'evaluate'])->name('monev.evaluate');
+        Route::post('/monev/{id}', [MonevEvaluationController::class, 'evaluate'])->name('monev.evaluate.legacy');
         Route::get('/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
         Route::get('/evaluations/{report}', [EvaluationController::class, 'showProgress'])->name('evaluations.show');
         Route::post('/evaluations/{id}', [EvaluationController::class, 'evaluateFinal'])->name('evaluations.evaluate-final');
@@ -178,10 +197,10 @@ Route::middleware(['auth'])->group(function () {
     | Grup Admin Keuangan (PRD Bab 7.3)
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:'.Role::ADMIN_KEUANGAN])->prefix('finance')->name('finance.')->group(function () {
+    Route::middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::ADMIN_KAMPUS.','.Role::SUPER_ADMIN])->prefix('finance')->name('finance.')->group(function () {
         // Contracts
         Route::get('/contracts', [ContractController::class, 'index'])->name('contracts.index');
-        Route::post('/contracts', [ContractController::class, 'generate'])->name('contracts.store');
+        Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
         Route::post('/contracts/generate', [ContractController::class, 'generate'])->name('contracts.generate');
         Route::get('/contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
         Route::post('/contracts/{contract}/update-status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
@@ -208,6 +227,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reports/filter', [FinanceReportController::class, 'filter'])->name('reports.filter');
     });
 
+    // Contract & Funding Route Aliases (Ziggy & Backward Compatibility)
+    Route::middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::ADMIN_KAMPUS.','.Role::SUPER_ADMIN])->group(function () {
+        Route::get('/contracts', [ContractController::class, 'index'])->name('contracts.index');
+        Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
+        Route::get('/contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
+        Route::post('/contracts/{contract}/update-status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
+        Route::post('/funding/{id}/disburse', [FundingController::class, 'disburse'])->name('funding.disburse');
+        Route::post('/funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])->name('funding.upload-bukti');
+        Route::get('/funding/{id}/print', [FundingController::class, 'printKwitansi'])->name('funding.print-kwitansi');
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Grup Admin Kampus / LPPM (PRD Bab 7.4)
@@ -231,6 +261,7 @@ Route::middleware(['auth'])->group(function () {
         // Reviewer Assignment
         Route::get('reviewer/assign', [AdminAssignController::class, 'index'])->name('reviewer.assign');
         Route::post('assign', [AdminAssignController::class, 'assign'])->name('assign.store');
+        Route::post('assign/{id}/reassign', [AdminAssignController::class, 'reassign'])->name('assign.reassign');
         Route::delete('assign/{id}', [AdminAssignController::class, 'unassign'])->name('assign.unassign');
 
         // Decision

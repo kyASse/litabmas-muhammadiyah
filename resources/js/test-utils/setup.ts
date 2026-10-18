@@ -7,6 +7,11 @@ afterEach(() => {
     cleanup();
 });
 
+// Mock Ziggy route() helper
+const mockRoute = (name?: string) => (name ? `/${name}` : { has: () => true, current: () => '' });
+(global as any).route = mockRoute;
+(window as any).route = mockRoute;
+
 // Mock window.matchMedia for theme detection
 Object.defineProperty(window, 'matchMedia', {
     writable: true,

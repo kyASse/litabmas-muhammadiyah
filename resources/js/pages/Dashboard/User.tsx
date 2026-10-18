@@ -171,7 +171,7 @@ export default function UserDashboard({ stats: _stats, proposal_stats }: UserDas
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">
-                            Selamat datang, <span className="text-primary">{user.name}</span> 👋
+                            Selamat datang, <span className="text-primary">{user.name}</span>
                         </h1>
                         <p className="mt-0.5 text-sm text-muted-foreground">Berikut ringkasan proposal riset dan pendanaan penelitian Anda.</p>
                     </div>
@@ -370,7 +370,7 @@ export default function UserDashboard({ stats: _stats, proposal_stats }: UserDas
                             Anda belum mengajukan proposal penelitian apapun. Mulai dengan membuat proposal pertama Anda.
                         </p>
                         <Link
-                            href={route('user.pembinaan.akreditasi')}
+                            href={route('proposals.create')}
                             id="btn-buat-proposal"
                             className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90"
                         >

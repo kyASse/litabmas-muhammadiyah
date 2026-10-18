@@ -26,25 +26,23 @@ class EvaluationController extends Controller
         $reviewerId = Auth::id();
 
         // Ambil proposal_id yang ditugaskan ke reviewer ini
-        $assignedProposalIds = Review::where('reviewer_id', $reviewerId)
-            ->pluck('proposal_id');
+        $assignedProposalIds = Review::where('id_reviewer', $reviewerId)
+            ->pluck('id_proposal');
 
-        $pendingEvaluations = ProgressReport::with(['proposal.user'])
-            ->where('status', 'submitted')
-            ->whereIn('proposal_id', $assignedProposalIds)
-            ->whereDoesntHave('evaluations', function ($q) use ($reviewerId) {
-                $q->where('reviewer_id', $reviewerId);
-            })
+        $pendingEvaluations = ProgressReport::with(['proposal.user', 'proposal.contract'])
+            ->where('status_laporan', ProgressReport::STATUS_SUBMITTED)
+            ->whereIn('id_proposal', $assignedProposalIds)
+            ->whereNull('skor_monev')
             ->latest()
             ->get()
             ->map(function ($report) {
                 return [
                     'id_report' => $report->id,
-                    'id_contract' => $report->contract_id,
-                    'judul_penelitian' => $report->proposal->judul ?? '-',
-                    'nama_dosen' => $report->proposal->user->name ?? '-',
-                    'last_reported_at' => $report->report_date,
-                    'last_percentage' => $report->progress_percentage,
+                    'id_contract' => $report->proposal?->contract?->id ?? 0,
+                    'judul_penelitian' => $report->proposal?->judul_penelitian ?? '-',
+                    'nama_dosen' => $report->proposal?->user?->name ?? '-',
+                    'last_reported_at' => $report->created_at?->format('Y-m-d') ?? now()->format('Y-m-d'),
+                    'last_percentage' => (int) $report->persentase_kemajuan,
                 ];
             });
 
@@ -61,22 +59,52 @@ class EvaluationController extends Controller
         $reviewerId = Auth::id();
 
         // Otorisasi: pastikan reviewer ditugaskan ke proposal ini
-        $isAssigned = Review::where('reviewer_id', $reviewerId)
-            ->where('proposal_id', $report->proposal_id)
+        $isAssigned = Review::where('id_reviewer', $reviewerId)
+            ->where('id_proposal', $report->id_proposal)
             ->exists();
 
         if (! $isAssigned) {
             abort(403, 'Anda tidak memiliki akses ke laporan ini.');
         }
 
-        $report->load(['proposal.user', 'contract', 'evaluations.reviewer']);
+        $report->loadMissing(['proposal.user', 'proposal.contract', 'monevSchedule']);
 
-        $allReports = ProgressReport::where('proposal_id', $report->proposal_id)
-            ->orderBy('report_date')
-            ->get(['id', 'report_date', 'progress_percentage', 'report_type']);
+        $allReports = ProgressReport::where('id_proposal', $report->id_proposal)
+            ->orderBy('created_at')
+            ->get()
+            ->map(fn ($r) => [
+                'id' => $r->id,
+                'report_date' => $r->created_at?->format('Y-m-d') ?? now()->format('Y-m-d'),
+                'progress_percentage' => (int) $r->persentase_kemajuan,
+                'report_type' => 'laporan_kemajuan',
+            ]);
+
+        $formattedReport = [
+            'id' => $report->id,
+            'proposal_id' => $report->id_proposal,
+            'contract_id' => $report->proposal?->contract?->id ?? 0,
+            'title' => $report->proposal?->judul_penelitian ?? 'Laporan Kemajuan',
+            'content' => $report->ringkasan_progres,
+            'report_type' => 'laporan_kemajuan',
+            'report_date' => $report->created_at?->format('Y-m-d') ?? now()->format('Y-m-d'),
+            'progress_percentage' => (int) $report->persentase_kemajuan,
+            'report_period' => $report->monevSchedule?->nama_tahap ?? 'Monev Kemajuan',
+            'attachment_path' => $report->file_laporan_kemajuan,
+            'status' => strtolower($report->status_laporan ?? 'submitted'),
+            'submitted_at' => $report->created_at?->toIso8601String() ?? now()->toIso8601String(),
+            'proposal' => [
+                'id' => $report->proposal?->id,
+                'judul' => $report->proposal?->judul_penelitian,
+                'user' => [
+                    'id' => $report->proposal?->user?->id,
+                    'name' => $report->proposal?->user?->name,
+                    'email' => $report->proposal?->user?->email,
+                ],
+            ],
+        ];
 
         return Inertia::render('Reviewer/Evaluation/Show', [
-            'report' => $report,
+            'report' => $formattedReport,
             'allReports' => $allReports,
         ]);
     }

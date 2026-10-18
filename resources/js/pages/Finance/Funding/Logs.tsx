@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
+import { Settings } from 'lucide-react';
 import { useState } from 'react';
 
 interface FundingLog {
@@ -78,7 +79,9 @@ export default function Logs({ logs }: Props) {
                     <CardContent>
                         {/* Panel Pengaturan Cetak (Control Bar) */}
                         <div className="mb-6 flex flex-wrap items-center gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4">
-                            <span className="text-sm font-semibold text-gray-700">⚙️ Pengaturan Kertas:</span>
+                            <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
+                                <Settings className="h-4 w-4" /> Pengaturan Kertas:
+                            </span>
 
                             <Select value={paperSize} onValueChange={setPaperSize}>
                                 <SelectTrigger className="w-[140px] bg-white">

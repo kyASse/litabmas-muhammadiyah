@@ -2,6 +2,7 @@ import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { ROLE_NAMES } from '@/constants/roles';
+import { useTranslation } from '@/hooks/use-translation';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 
@@ -27,6 +28,7 @@ import AppLogo from './app-logo';
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
     const { user } = auth;
+    const { t } = useTranslation();
 
     const hasRole = (role: string) => {
         if (!user) return false;
@@ -41,22 +43,22 @@ export function AppSidebar() {
     if (hasRole(ROLE_NAMES.SUPER_ADMIN)) {
         roleNavItems = [
             {
-                title: 'Universities',
+                title: t.navigation.universities,
                 href: '/admin/universities',
                 icon: Building2,
             },
             {
-                title: 'Users',
+                title: t.navigation.users,
                 href: '/admin/users',
                 icon: Users,
             },
             {
-                title: 'System Logs',
+                title: t.navigation.systemLogs,
                 href: '/admin/logs',
                 icon: ClipboardList,
             },
             {
-                title: 'Settings',
+                title: t.navigation.settings,
                 href: '/admin/settings',
                 icon: Settings,
             },
@@ -64,27 +66,27 @@ export function AppSidebar() {
     } else if (hasRole(ROLE_NAMES.ADMIN_KAMPUS)) {
         roleNavItems = [
             {
-                title: 'Skema Penelitian',
+                title: t.navigation.schemes,
                 href: '/admin/schemas',
                 icon: BookType,
             },
             {
-                title: 'Usulan Proposal',
+                title: t.navigation.proposals,
                 href: '/admin/proposals',
                 icon: FileText,
             },
             {
-                title: 'Jadwal Monev',
+                title: t.navigation.monev,
                 href: '/admin/monev',
                 icon: CalendarDays,
             },
             {
-                title: 'Verifikasi Luaran',
+                title: t.navigation.outputs,
                 href: '/admin/output',
                 icon: Award,
             },
             {
-                title: 'Kelulusan & SKTS',
+                title: t.navigation.graduationSkts,
                 href: '/admin/evaluations',
                 icon: GraduationCap,
             },
@@ -92,17 +94,17 @@ export function AppSidebar() {
     } else if (hasRole(ROLE_NAMES.ADMIN_KEUANGAN)) {
         roleNavItems = [
             {
-                title: 'Kontrak Hibah',
+                title: t.navigation.contracts,
                 href: '/finance/contracts',
                 icon: FileText,
             },
             {
-                title: 'Termin & Pencairan',
+                title: t.navigation.tranchesDisbursement,
                 href: '/finance/fundings',
                 icon: CreditCard,
             },
             {
-                title: 'Laporan Keuangan',
+                title: t.navigation.financialReports,
                 href: '/finance/reports',
                 icon: FileSpreadsheet,
             },
@@ -110,17 +112,17 @@ export function AppSidebar() {
     } else if (hasRole(ROLE_NAMES.REVIEWER)) {
         roleNavItems = [
             {
-                title: 'Dashboard Reviewer',
+                title: t.navigation.reviewerDashboard,
                 href: '/reviewer/dashboard',
                 icon: LayoutGrid,
             },
             {
-                title: 'Penilaian Proposal',
+                title: t.navigation.reviews,
                 href: '/reviewer/proposals',
                 icon: UserCheck,
             },
             {
-                title: 'Penilaian Monev',
+                title: t.navigation.monevEvaluation,
                 href: '/reviewer/monev',
                 icon: CalendarDays,
             },
@@ -128,22 +130,22 @@ export function AppSidebar() {
     } else if (hasRole(ROLE_NAMES.PENELITI) || hasRole('Dosen') || hasRole('User')) {
         roleNavItems = [
             {
-                title: 'Usulan Penelitian',
+                title: t.navigation.proposals,
                 href: '/proposals',
                 icon: FileText,
             },
             {
-                title: 'Laporan Kemajuan',
+                title: t.navigation.progressReports,
                 href: '/progress',
                 icon: Clock,
             },
             {
-                title: 'Luaran Riset',
+                title: t.navigation.outputs,
                 href: '/outputs',
                 icon: Award,
             },
             {
-                title: 'Evaluasi Akhir',
+                title: t.navigation.finalEvaluation,
                 href: '/evaluations/my-final-report',
                 icon: GraduationCap,
             },
@@ -158,7 +160,7 @@ export function AppSidebar() {
         ? []
         : [
               {
-                  title: 'Dashboard',
+                  title: t.navigation.dashboard,
                   href: '/dashboard',
                   icon: LayoutGrid,
               },

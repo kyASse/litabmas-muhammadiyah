@@ -3,11 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreProposalRequest;
+use App\Http\Requests\UpdateProposalRequest;
 use App\Models\Proposal;
 use App\Models\ProposalDocument;
+use App\Models\ProposalMember;
 use App\Models\ResearchSchema;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -21,11 +26,11 @@ class ProposalController extends Controller
     public function index(Request $request): Response
     {
         $query = Proposal::query()
-            ->with(['researchSchema:id,name', 'user:id,name,email'])
-            ->where('user_id', auth()->id());
+            ->with(['researchSchema', 'user:id,name,email', 'members.user', 'documents'])
+            ->where('id_pengusul', auth()->id());
 
         if ($request->filled('search')) {
-            $query->where('title', 'like', '%'.$request->search.'%');
+            $query->where('judul_penelitian', 'like', '%'.$request->search.'%');
         }
 
         if ($request->filled('status')) {
@@ -48,10 +53,24 @@ class ProposalController extends Controller
      */
     public function create(): Response
     {
-        $schemas = ResearchSchema::select('id', 'name', 'description')->get();
+        $user = auth()->user();
+        $universityId = $user?->university_id;
+
+        $schemas = ResearchSchema::select('id', 'nama_skema', 'deskripsi', 'biaya_maksimal', 'tanggal_mulai', 'tanggal_selesai', 'is_active')
+            ->where(function ($q) {
+                $q->where('is_active', true)->orWhereNull('is_active');
+            })
+            ->get();
+
+        $lecturers = User::select('id', 'name', 'email', 'nidn', 'study_program')
+            ->when($universityId, fn ($q) => $q->where('university_id', $universityId))
+            ->when($user, fn ($q) => $q->where('id', '!=', $user->id))
+            ->orderBy('name')
+            ->get();
 
         return Inertia::render('Proposal/Create', [
             'schemas' => $schemas,
+            'lecturers' => $lecturers,
         ]);
     }
 
@@ -60,33 +79,75 @@ class ProposalController extends Controller
      */
     public function store(StoreProposalRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-        $action = $request->input('action', 'submit');
+        $userId = $request->user()->id;
+        $lockKey = 'submit-proposal:'.$userId;
+        $lock = Cache::lock($lockKey, 10);
 
-        $filePath = null;
-        if ($request->hasFile('file_dokumen_proposal')) {
-            $file = $request->file('file_dokumen_proposal');
-            $fileName = time().'_'.Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
-            $filePath = $file->storeAs('proposal_documents', $fileName, 'public');
+        if (! $lock->get()) {
+            return back()->withErrors([
+                'error' => '[PERINGATAN] Permintaan Anda sedang diproses. Mohon tunggu beberapa saat.',
+            ]);
         }
 
-        $status = ($action === 'draft') ? Proposal::STATUS_DRAFT : Proposal::STATUS_SUBMITTED;
+        try {
+            $proposal = DB::transaction(function () use ($request) {
+                $validated = $request->validated();
+                $action = $request->input('action', 'submit');
+                $isDraft = ($action === 'draft');
+                $status = $isDraft ? Proposal::STATUS_DRAFT : Proposal::STATUS_SUBMITTED;
 
-        $proposal = Proposal::create([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'user_id' => auth()->id(),
-            'research_schema_id' => $validated['research_schema_id'],
-            'status_proposal' => $status,
-            'file_dokumen_proposal' => $filePath,
-        ]);
+                $proposal = Proposal::create([
+                    'university_id' => $request->user()->university_id,
+                    'id_pengusul' => $request->user()->id,
+                    'id_skema_pendanaan' => $validated['id_skema_pendanaan'],
+                    'judul_penelitian' => $validated['judul_penelitian'],
+                    'abstrak' => $validated['abstrak'],
+                    'latar_belakang' => $request->input('latar_belakang'),
+                    'biaya_yang_diusulkan' => $validated['biaya_yang_diusulkan'] ?? 0,
+                    'status_proposal' => $status,
+                    'tanggal_pengajuan' => $isDraft ? null : now()->toDateString(),
+                ]);
 
-        $message = ($action === 'draft')
-            ? 'Proposal berhasil disimpan sebagai draf.'
-            : 'Proposal berhasil diajukan dan menunggu verifikasi admin.';
+                if ($request->hasFile('file_dokumen_proposal')) {
+                    $file = $request->file('file_dokumen_proposal');
+                    $fileName = $file->getClientOriginalName();
+                    $storedName = time().'_'.Str::slug(pathinfo($fileName, PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
+                    $filePath = $file->storeAs('proposal_documents', $storedName, 'public');
 
-        return redirect()->route('proposal.index')
-            ->with('success', $message);
+                    ProposalDocument::create([
+                        'id_proposal' => $proposal->id,
+                        'nama_file' => $fileName,
+                        'file_path' => $filePath,
+                        'file_size' => $file->getSize(),
+                        'tipe_dokumen' => 'Proposal_Utama',
+                    ]);
+
+                    $proposal->file_dokumen_proposal = $filePath;
+                }
+
+                if (! empty($validated['members']) && is_array($validated['members'])) {
+                    foreach ($validated['members'] as $member) {
+                        ProposalMember::create([
+                            'id_proposal' => $proposal->id,
+                            'user_id' => $member['user_id'],
+                            'peran' => $member['peran'] ?? 'Anggota Peneliti',
+                            'alokasi_jam_per_minggu' => $member['alokasi_jam_per_minggu'] ?? 10,
+                        ]);
+                    }
+                }
+
+                return $proposal;
+            });
+
+            $message = ($proposal->status_proposal === Proposal::STATUS_DRAFT)
+                ? '[SUKSES] Usulan penelitian berhasil disimpan sebagai draf.'
+                : '[SUKSES] Usulan penelitian berhasil diajukan.';
+
+            return redirect()->route('proposals.index')
+                ->with('success', $message);
+        } finally {
+            $lock->release();
+        }
     }
 
     /**
@@ -96,7 +157,12 @@ class ProposalController extends Controller
     {
         $this->authorize('view', $proposal);
 
-        $proposal->load(['user:id,name,email', 'researchSchema:id,name,description', 'documents']);
+        $proposal->load([
+            'user:id,name,email',
+            'researchSchema',
+            'documents',
+            'members.user:id,name,email',
+        ]);
 
         return Inertia::render('Proposal/Show', [
             'proposal' => $proposal,
@@ -110,10 +176,10 @@ class ProposalController extends Controller
     {
         $this->authorize('update', $proposal);
 
-        $schemas = ResearchSchema::select('id', 'name', 'description')->get();
+        $schemas = ResearchSchema::select('id', 'nama_skema', 'deskripsi', 'biaya_maksimal')->get();
 
         return Inertia::render('Proposal/Edit', [
-            'proposal' => $proposal,
+            'proposal' => $proposal->load(['members.user', 'documents']),
             'schemas' => $schemas,
         ]);
     }
@@ -121,59 +187,80 @@ class ProposalController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Proposal $proposal): RedirectResponse
+    public function update(UpdateProposalRequest $request, Proposal $proposal): RedirectResponse
     {
         $this->authorize('update', $proposal);
 
+        $validated = $request->validated();
         $action = $request->input('action', 'submit');
-        $isSubmit = ($action === 'submit');
+        $isDraft = ($action === 'draft');
+        $status = $isDraft ? Proposal::STATUS_DRAFT : Proposal::STATUS_SUBMITTED;
 
-        $title = $request->input('title') ?? $request->input('judul');
-        $description = $request->input('description') ?? $request->input('deskripsi');
-
-        $rules = [
-            'title' => 'required_without:judul|nullable|string|max:255',
-            'judul' => 'required_without:title|nullable|string|max:255',
-            'description' => 'required_without:deskripsi|nullable|string',
-            'deskripsi' => 'required_without:description|nullable|string',
-            'research_schema_id' => 'nullable|exists:research_schemas,id',
-            'action' => 'nullable|string|in:draft,submit',
-            'file_dokumen_proposal' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-        ];
-
-        if ($isSubmit && ! $proposal->file_dokumen_proposal) {
-            $rules['file_dokumen_proposal'] = 'required|file|mimes:pdf,doc,docx|max:10240';
-        }
-
-        $request->validate($rules, [
-            'file_dokumen_proposal.required' => 'Dokumen proposal wajib diunggah saat mengajukan proposal.',
-        ]);
-
-        $filePath = $proposal->file_dokumen_proposal;
-        if ($request->hasFile('file_dokumen_proposal')) {
-            if ($proposal->file_dokumen_proposal) {
-                Storage::disk('public')->delete($proposal->file_dokumen_proposal);
+        DB::transaction(function () use ($request, $proposal, $validated, $status, $isDraft) {
+            $updateData = [];
+            if (isset($validated['judul_penelitian'])) {
+                $updateData['judul_penelitian'] = $validated['judul_penelitian'];
             }
-            $file = $request->file('file_dokumen_proposal');
-            $fileName = time().'_'.Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
-            $filePath = $file->storeAs('proposal_documents', $fileName, 'public');
-        }
+            if (isset($validated['abstrak'])) {
+                $updateData['abstrak'] = $validated['abstrak'];
+            }
+            if (isset($validated['id_skema_pendanaan'])) {
+                $updateData['id_skema_pendanaan'] = $validated['id_skema_pendanaan'];
+            }
+            if (isset($validated['biaya_yang_diusulkan'])) {
+                $updateData['biaya_yang_diusulkan'] = $validated['biaya_yang_diusulkan'];
+            }
+            if ($request->filled('latar_belakang')) {
+                $updateData['latar_belakang'] = $request->input('latar_belakang');
+            }
+            $updateData['status_proposal'] = $status;
+            if (! $isDraft && ! $proposal->tanggal_pengajuan) {
+                $updateData['tanggal_pengajuan'] = now()->toDateString();
+            }
 
-        $status = ($action === 'draft') ? Proposal::STATUS_DRAFT : Proposal::STATUS_SUBMITTED;
+            $proposal->update($updateData);
 
-        $proposal->update([
-            'title' => $title,
-            'description' => $description,
-            'research_schema_id' => $request->input('research_schema_id', $proposal->research_schema_id),
-            'status_proposal' => $status,
-            'file_dokumen_proposal' => $filePath,
-        ]);
+            if ($request->hasFile('file_dokumen_proposal')) {
+                $file = $request->file('file_dokumen_proposal');
+                $fileName = $file->getClientOriginalName();
+                $storedName = time().'_'.Str::slug(pathinfo($fileName, PATHINFO_FILENAME)).'.'.$file->getClientOriginalExtension();
+                $filePath = $file->storeAs('proposal_documents', $storedName, 'public');
 
-        $message = ($action === 'draft')
-            ? 'Proposal berhasil disimpan sebagai draf.'
-            : 'Proposal berhasil diajukan dan menunggu verifikasi admin.';
+                $oldDoc = $proposal->documents()->where('tipe_dokumen', 'Proposal_Utama')->first();
+                if ($oldDoc && $oldDoc->file_path) {
+                    Storage::disk('public')->delete($oldDoc->file_path);
+                }
 
-        return redirect()->route('proposal.index')
+                ProposalDocument::updateOrCreate(
+                    ['id_proposal' => $proposal->id, 'tipe_dokumen' => 'Proposal_Utama'],
+                    [
+                        'nama_file' => $fileName,
+                        'file_path' => $filePath,
+                        'file_size' => $file->getSize(),
+                    ]
+                );
+
+                $proposal->file_dokumen_proposal = $filePath;
+            }
+
+            if (! empty($validated['members']) && is_array($validated['members'])) {
+                $proposal->members()->delete();
+                foreach ($validated['members'] as $member) {
+                    ProposalMember::create([
+                        'id_proposal' => $proposal->id,
+                        'user_id' => $member['user_id'],
+                        'peran' => $member['peran'] ?? 'Anggota Peneliti',
+                        'alokasi_jam_per_minggu' => $member['alokasi_jam_per_minggu'] ?? 10,
+                    ]);
+                }
+            }
+        });
+
+        $message = ($proposal->status_proposal === Proposal::STATUS_DRAFT)
+            ? '[SUKSES] Usulan penelitian berhasil disimpan sebagai draf.'
+            : '[SUKSES] Usulan penelitian berhasil diajukan.';
+
+        return redirect()->route('proposals.index')
             ->with('success', $message);
     }
 
@@ -184,14 +271,19 @@ class ProposalController extends Controller
     {
         $this->authorize('delete', $proposal);
 
+        foreach ($proposal->documents as $doc) {
+            if ($doc->file_path) {
+                Storage::disk('public')->delete($doc->file_path);
+            }
+        }
         if ($proposal->file_dokumen_proposal) {
             Storage::disk('public')->delete($proposal->file_dokumen_proposal);
         }
 
         $proposal->delete();
 
-        return redirect()->route('proposal.index')
-            ->with('success', 'Proposal berhasil dihapus');
+        return redirect()->route('proposals.index')
+            ->with('success', '[SUKSES] Usulan penelitian berhasil dihapus.');
     }
 
     /**

@@ -16,17 +16,20 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import PageHeader from '@/components/ui/PageHeader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import StatusBadge from '@/components/ui/StatusBadge';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import TabularFigure from '@/components/ui/TabularFigure';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
@@ -168,6 +171,7 @@ function SortableHead({ label, column, currentSort, currentDir, onSort, classNam
 
 export default function SchemaIndex({ schemas, filters }: Props) {
     const { flash } = usePage<SharedData>().props;
+    const { t, format, locale } = useTranslation();
 
     // Local filter states
     const [search, setSearch] = useState(filters.search || '');
@@ -327,42 +331,21 @@ export default function SchemaIndex({ schemas, filters }: Props) {
             <Head title="Manajemen Skema Penelitian" />
 
             <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
-                {/* ── Header ─────────────────────────────────────────── */}
-                <div className="relative overflow-hidden rounded-2xl border border-sidebar-border/60 bg-gradient-to-r from-emerald-50/40 via-white to-teal-50/20 p-6 shadow-sm dark:border-sidebar-border dark:from-neutral-900/40 dark:via-neutral-950 dark:to-neutral-900/20">
-                    {/* Decorative circles */}
-                    <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-emerald-400/5 blur-2xl" />
-                    <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-teal-400/5 blur-3xl" />
-
-                    <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="space-y-1">
-                            <h1 className="flex items-center gap-3 text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/20 dark:bg-emerald-500/20 dark:text-emerald-400 dark:ring-emerald-500/30">
-                                    <ClipboardList className="h-6 w-6" />
-                                </div>
-                                Skema Penelitian
-                            </h1>
-                            <p className="text-sm text-muted-foreground sm:text-base">
-                                Kelola jenis dan kategori skema penelitian untuk pengajuan proposal dosen.
-                            </p>
-                        </div>
-
-                        {/* Stats badges */}
-                        <div className="flex items-center gap-3">
-                            <div className="hidden items-center gap-2 rounded-lg border border-sidebar-border/60 bg-white/80 px-3 py-2 text-sm shadow-sm backdrop-blur-sm sm:flex dark:border-sidebar-border dark:bg-neutral-900/60">
-                                <FileText className="h-4 w-4 text-emerald-500" />
-                                <span className="font-bold text-foreground">{schemas.total}</span>
-                                <span className="text-muted-foreground">Skema</span>
-                            </div>
-                            <Button
-                                onClick={handleOpenCreate}
-                                className="flex items-center gap-2 bg-emerald-600 font-semibold shadow-sm transition-all duration-300 hover:scale-[1.02] hover:bg-emerald-700 hover:shadow-md dark:bg-emerald-500 dark:text-neutral-950 dark:hover:bg-emerald-400"
-                            >
-                                <Plus className="h-4 w-4" />
-                                Tambah Skema
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+                {/* ── PageHeader ─────────────────────────────────────────────────────────────── */}
+                <PageHeader
+                    title={t.adminSchema.pageTitle}
+                    subtitle={t.adminSchema.pageSubtitle}
+                    isEditorialSerif={true}
+                    actions={
+                        <Button
+                            onClick={handleOpenCreate}
+                            className="flex items-center gap-2 bg-blue-900 font-semibold text-white shadow-sm hover:bg-blue-800"
+                        >
+                            <Plus className="h-4 w-4" />
+                            {t.adminSchema.addSchemeBtn}
+                        </Button>
+                    }
+                />
 
                 {/* ── Filters ────────────────────────────────────────── */}
                 <Card className="border-sidebar-border/60 bg-white/70 shadow-sm backdrop-blur-md dark:border-sidebar-border dark:bg-neutral-950/70">
@@ -508,10 +491,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                 {/* Pagu Dana */}
                                                 <TableCell>
                                                     {schema.max_funding > 0 ? (
-                                                        <div className="flex items-center gap-1.5 text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-                                                            <Coins className="h-3.5 w-3.5" />
-                                                            {formatRupiah(schema.max_funding)}
-                                                        </div>
+                                                        <TabularFigure value={schema.max_funding} type="currency" align="left" weight="semibold" />
                                                     ) : (
                                                         <span className="text-xs text-neutral-400">—</span>
                                                     )}
@@ -519,15 +499,11 @@ export default function SchemaIndex({ schemas, filters }: Props) {
 
                                                 {/* Status */}
                                                 <TableCell>
-                                                    {schema.is_active ? (
-                                                        <Badge className="border-0 bg-emerald-100 font-medium text-emerald-800 hover:bg-emerald-100 dark:bg-emerald-900/40 dark:text-emerald-300">
-                                                            Aktif
-                                                        </Badge>
-                                                    ) : (
-                                                        <Badge variant="secondary" className="font-medium text-neutral-500 dark:text-neutral-400">
-                                                            Nonaktif
-                                                        </Badge>
-                                                    )}
+                                                    <StatusBadge
+                                                        status={schema.is_active ? 'Draft' : 'Terminated'}
+                                                        labelOverride={schema.is_active ? t.adminSchema.statusActive : t.adminSchema.statusInactive}
+                                                        size="sm"
+                                                    />
                                                 </TableCell>
 
                                                 {/* Proposals Count */}
@@ -618,15 +594,11 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                     <div className="flex items-start justify-between gap-2">
                                         <div className="min-w-0 flex-1 space-y-1">
                                             <h3 className="leading-snug font-bold text-foreground">{schema.name}</h3>
-                                            {schema.is_active ? (
-                                                <Badge className="border-0 bg-emerald-100 text-[10px] font-medium text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300">
-                                                    Aktif
-                                                </Badge>
-                                            ) : (
-                                                <Badge variant="secondary" className="text-[10px]">
-                                                    Nonaktif
-                                                </Badge>
-                                            )}
+                                            <StatusBadge
+                                                status={schema.is_active ? 'Draft' : 'Terminated'}
+                                                labelOverride={schema.is_active ? t.adminSchema.statusActive : t.adminSchema.statusInactive}
+                                                size="sm"
+                                            />
                                         </div>
                                         <div className="flex shrink-0 gap-1">
                                             <Button
@@ -665,8 +637,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                     <div className="flex flex-wrap items-center gap-3 border-t pt-3 text-xs text-muted-foreground">
                                         {schema.max_funding > 0 && (
                                             <span className="flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
-                                                <Coins className="h-3 w-3" />
-                                                {formatRupiah(schema.max_funding)}
+                                                <TabularFigure value={schema.max_funding} type="currency" weight="semibold" size="sm" />
                                             </span>
                                         )}
                                         <span className="flex items-center gap-1">

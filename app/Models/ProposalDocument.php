@@ -11,16 +11,27 @@ class ProposalDocument extends Model
     use HasFactory;
 
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'proposal_documents';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        'id_proposal',
+        'nama_file',
+        'file_path',
+        'file_size',
+        'tipe_dokumen',
+        // Virtual / legacy aliases
         'proposal_id',
         'file_name',
-        'file_path',
         'file_type',
-        'file_size',
         'document_type',
         'description',
     ];
@@ -36,6 +47,77 @@ class ProposalDocument extends Model
         'updated_at' => 'datetime',
     ];
 
+    /**
+     * Virtual attributes appended to array/JSON representation.
+     */
+    protected $appends = [
+        'proposal_id',
+        'file_name',
+        'document_type',
+    ];
+
+    /*
+    |--------------------------------------------------------------------------
+    | Accessors & Mutators
+    |--------------------------------------------------------------------------
+    */
+
+    public function getProposalIdAttribute(): ?int
+    {
+        return $this->attributes['id_proposal'] ?? null;
+    }
+
+    public function setProposalIdAttribute($value): void
+    {
+        $this->attributes['id_proposal'] = $value;
+    }
+
+    public function getFileNameAttribute(): ?string
+    {
+        return $this->attributes['nama_file'] ?? null;
+    }
+
+    public function setFileNameAttribute($value): void
+    {
+        $this->attributes['nama_file'] = $value;
+    }
+
+    public function getDocumentTypeAttribute(): ?string
+    {
+        return $this->attributes['tipe_dokumen'] ?? null;
+    }
+
+    public function setDocumentTypeAttribute($value): void
+    {
+        $map = [
+            'Dokumen Utama' => 'Proposal_Utama',
+            'Proposal Utama' => 'Proposal_Utama',
+            'Surat Pernyataan' => 'Surat_Pernyataan',
+            'Lampiran' => 'Lampiran',
+        ];
+        $this->attributes['tipe_dokumen'] = $map[$value] ?? $value;
+    }
+
+    public function getFileTypeAttribute(): ?string
+    {
+        return 'application/pdf';
+    }
+
+    public function setFileTypeAttribute($value): void
+    {
+        // Virtual attribute - ignore for SQL insert
+    }
+
+    public function getDescriptionAttribute(): ?string
+    {
+        return null;
+    }
+
+    public function setDescriptionAttribute($value): void
+    {
+        // Virtual attribute - ignore for SQL insert
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Relationships
@@ -47,6 +129,6 @@ class ProposalDocument extends Model
      */
     public function proposal(): BelongsTo
     {
-        return $this->belongsTo(Proposal::class);
+        return $this->belongsTo(Proposal::class, 'id_proposal');
     }
 }

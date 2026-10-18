@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { ClipboardCheck, FileText, Save, Star } from 'lucide-react';
+import { AlertCircle, ClipboardCheck, FileText, Save, Star } from 'lucide-react';
 import { type FormEventHandler, useCallback, useMemo } from 'react';
 
 /* ------------------------------------------------------------------ */
@@ -276,8 +276,9 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                     </div>
                                 </div>
                                 {!allCriteriaFilled && (
-                                    <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-                                        ⚠ Semua kriteria harus diisi untuk mendapatkan skor final yang akurat.
+                                    <p className="mt-2 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+                                        <AlertCircle className="h-3.5 w-3.5" />
+                                        Semua kriteria harus diisi untuk mendapatkan skor final yang akurat.
                                     </p>
                                 )}
                             </div>
@@ -303,9 +304,9 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                         <SelectValue placeholder="Pilih Rekomendasi..." />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="accepted">✅ Diterima</SelectItem>
-                                        <SelectItem value="revision">🔄 Revisi</SelectItem>
-                                        <SelectItem value="rejected">❌ Ditolak</SelectItem>
+                                        <SelectItem value="accepted">Diterima</SelectItem>
+                                        <SelectItem value="revision">Revisi</SelectItem>
+                                        <SelectItem value="rejected">Ditolak</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <InputError message={errors.recommendation} />

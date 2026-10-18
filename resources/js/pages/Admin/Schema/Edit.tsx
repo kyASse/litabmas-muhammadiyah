@@ -3,29 +3,26 @@
  *
  * @description
  * Form page for editing an existing Research Schema (Skema Penelitian).
- * Super Admin can update the schema name and description.
+ * Super Admin / LPPM can update the schema name and description.
  *
  * @route GET /admin/schema/{schema}/edit
  * @route PUT /admin/schema/{schema}
- *
- * @features
- * - Edit existing research schema
- * - Pre-filled form with current values
- * - Name uniqueness validation (excluding current record)
- * - Form validation with error messages
- *
- * @author JurnalMU Team
  */
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import PageHeader from '@/components/ui/PageHeader';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, FlaskConical } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import React from 'react';
 import { toast } from 'sonner';
+import { route } from 'ziggy-js';
 
 interface Schema {
     id: number;
@@ -38,6 +35,7 @@ interface Props {
 }
 
 export default function SchemaEdit({ schema }: Props) {
+    const { t } = useTranslation();
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Dashboard',
@@ -76,40 +74,37 @@ export default function SchemaEdit({ schema }: Props) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Edit Skema – ${schema.name}`} />
+            <Head title={`${t.adminSchema.editTitle} - ${schema.name}`} />
 
-            <div className="mx-auto max-w-2xl space-y-8">
-                {/* Header */}
-                <div className="space-y-3">
-                    <Button variant="ghost" size="sm" className="h-auto gap-2 p-0" asChild>
+            <div className="mx-auto max-w-2xl space-y-6">
+                <PageHeader
+                    title={t.adminSchema.editTitle}
+                    subtitle={schema.name}
+                    isEditorialSerif={true}
+                    actions={<LanguageSwitcher variant="compact" />}
+                />
+
+                <div className="flex items-center">
+                    <Button variant="ghost" size="sm" className="gap-2" asChild>
                         <Link href={route('admin.schema.index')}>
                             <ArrowLeft className="h-4 w-4" />
-                            Kembali ke Daftar
+                            {t.common.back}
                         </Link>
                     </Button>
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                            <FlaskConical className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight">Edit Skema Penelitian</h1>
-                            <p className="mt-1 text-sm text-muted-foreground">{schema.name}</p>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Form */}
-                <Card>
+                <Card className="border-slate-200 shadow-sm">
                     <CardHeader>
-                        <CardTitle>Informasi Skema</CardTitle>
-                        <CardDescription>Perbarui detail skema penelitian</CardDescription>
+                        <CardTitle className="font-serif text-lg font-semibold">{t.adminSchema.editTitle}</CardTitle>
+                        <CardDescription>{t.adminSchema.editSubtitle}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Nama Skema */}
                             <div className="space-y-2">
                                 <Label htmlFor="name">
-                                    Nama Skema <span className="text-destructive">*</span>
+                                    {t.adminSchema.tableColName} <span className="text-destructive">*</span>
                                 </Label>
                                 <Input
                                     id="name"
@@ -124,7 +119,7 @@ export default function SchemaEdit({ schema }: Props) {
 
                             {/* Deskripsi */}
                             <div className="space-y-2">
-                                <Label htmlFor="description">Deskripsi</Label>
+                                <Label htmlFor="description">{t.adminSchema.tableColDesc}</Label>
                                 <Textarea
                                     id="description"
                                     value={data.description}
@@ -140,10 +135,10 @@ export default function SchemaEdit({ schema }: Props) {
                             {/* Actions */}
                             <div className="flex justify-end gap-3 border-t pt-6">
                                 <Button type="button" variant="outline" asChild>
-                                    <Link href={route('admin.schema.index')}>Batal</Link>
+                                    <Link href={route('admin.schema.index')}>{t.common.cancel}</Link>
                                 </Button>
-                                <Button type="submit" disabled={processing}>
-                                    {processing ? 'Menyimpan...' : 'Perbarui Skema'}
+                                <Button type="submit" disabled={processing} className="bg-blue-900 text-white hover:bg-blue-800">
+                                    {processing ? t.common.loading : t.common.save}
                                 </Button>
                             </div>
                         </form>

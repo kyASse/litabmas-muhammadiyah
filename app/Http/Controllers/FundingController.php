@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Finance\DisburseFundingRequest;
 use App\Http\Requests\StoreFundingRequest;
 use App\Models\Contract;
 use App\Models\Funding;
+use App\Services\FundingDisbursementService;
 use App\Services\FundingService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
 class FundingController extends Controller
@@ -156,9 +159,68 @@ class FundingController extends Controller
      */
     public function index(Request $request)
     {
-        $fundings = Funding::with(['contract.university', 'contract.proposal'])
-            ->latest()
-            ->paginate(10);
+        $user = $request->user();
+        $query = Funding::with([
+            'contract.university',
+            'contract.proposal.user',
+            'contract.proposal.progressReports',
+            'contract.proposal.researchSchema',
+        ]);
+
+        if ($user && ! $user->isSuperAdmin()) {
+            $query->whereHas('contract', function ($q) use ($user) {
+                if ($user->university_id) {
+                    $q->where('university_id', $user->university_id);
+                }
+            });
+        }
+
+        $fundings = $query->orderBy('created_at', 'desc')->paginate(10)->through(function ($f) {
+            $proposal = $f->contract?->proposal;
+            $hasApprovedMonev = (bool) ($proposal && $proposal->progressReports->contains(fn ($r) => $r->status_laporan === 'Approved'));
+
+            return [
+                'id' => $f->id,
+                'contract_id' => $f->id_contract ?? $f->contract_id,
+                'id_contract' => $f->id_contract ?? $f->contract_id,
+                'termin_ke' => (int) ($f->termin_ke ?? ($f->percentage > 50 ? 1 : 2)),
+                'persentase_dana' => (float) ($f->persentase_dana ?? $f->percentage ?? 0),
+                'nominal_dana' => (float) ($f->nominal_dana ?? $f->amount ?? 0),
+                'status_pencairan' => $f->status_pencairan ?? $f->status ?? Funding::STATUS_PLANNED,
+                'status_label' => $f->status_label,
+                'status_color' => $f->status_color,
+                'tanggal_pencairan' => self::formatDate($f->tanggal_pencairan) ?? self::formatDate($f->paid_at),
+                'bukti_transfer_path' => $f->bukti_transfer_path ?? $f->proof_document_path,
+                'catatan_keuangan' => $f->catatan_keuangan ?? $f->notes,
+                'reference_number' => $f->reference_number,
+                'is_monev_approved' => $hasApprovedMonev,
+                'contract' => $f->contract ? [
+                    'id' => $f->contract->id,
+                    'nomor_kontrak' => $f->contract->nomor_kontrak ?? $f->contract->contract_number,
+                    'judul_kontrak' => $f->contract->judul_kontrak ?? $f->contract->title,
+                    'dana_disetujui' => (float) ($f->contract->dana_disetujui ?? $f->contract->contract_value ?? 0),
+                    'university' => $f->contract->university ? [
+                        'id' => $f->contract->university->id,
+                        'name' => $f->contract->university->name,
+                        'short_name' => $f->contract->university->short_name,
+                        'code' => $f->contract->university->code,
+                    ] : null,
+                    'proposal' => $proposal ? [
+                        'id' => $proposal->id,
+                        'judul_penelitian' => $proposal->judul_penelitian ?? $proposal->title,
+                        'pengusul' => $proposal->user ? [
+                            'id' => $proposal->user->id,
+                            'name' => $proposal->user->name,
+                            'email' => $proposal->user->email,
+                        ] : null,
+                        'research_schema' => $proposal->researchSchema ? [
+                            'id' => $proposal->researchSchema->id,
+                            'nama_skema' => $proposal->researchSchema->nama_skema,
+                        ] : null,
+                    ] : null,
+                ] : null,
+            ];
+        });
 
         return Inertia::render('Finance/Funding/Index', [
             'fundings' => $fundings,
@@ -168,14 +230,39 @@ class FundingController extends Controller
     /**
      * Pencairan dana termin riset (Disburse).
      */
-    public function disburse(Request $request, $id)
+    public function disburse(DisburseFundingRequest $request, $id, FundingDisbursementService $service)
     {
-        $funding = Funding::findOrFail($id);
-        $funding->update([
-            'status' => Funding::STATUS_DISBURSED,
-            'paid_at' => now(),
-        ]);
+        $funding = $id instanceof Funding
+            ? $id
+            : Funding::with('contract.proposal.progressReports')->findOrFail($id);
 
-        return redirect()->back()->with('success', 'Dana termin berhasil dicairkan.');
+        $service->disburse(
+            $funding,
+            $request->file('bukti_transfer'),
+            $request->validated('tanggal_pencairan'),
+            $request->validated('catatan_keuangan')
+        );
+
+        return redirect()->back()->with('success', '[SUKSES] Dana termin berhasil dicairkan.');
+    }
+
+    /**
+     * Format tanggal secara aman dari Carbon, string, atau null.
+     */
+    public static function formatDate(mixed $date, string $format = 'Y-m-d'): ?string
+    {
+        if (! $date) {
+            return null;
+        }
+
+        if ($date instanceof \DateTimeInterface) {
+            return $date->format($format);
+        }
+
+        try {
+            return Carbon::parse($date)->format($format);
+        } catch (\Throwable) {
+            return is_string($date) ? $date : null;
+        }
     }
 }

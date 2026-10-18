@@ -13,23 +13,19 @@
  * @route GET /proposal
  */
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
 import { Eye, FileText, Plus, Search, Send, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Proposal Penelitian', href: route('proposal.index') },
-];
 
 interface ProposalItem {
     id: number;
@@ -59,8 +55,14 @@ interface IndexProps {
 }
 
 export default function Index({ proposals, filters }: IndexProps) {
+    const { t } = useTranslation();
     const [search, setSearch] = useState(filters?.search || '');
     const [statusFilter, setStatusFilter] = useState(filters?.status || 'all');
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: t.navigation.dashboard, href: route('dashboard') },
+        { title: t.proposalList.pageTitle, href: route('proposal.index') },
+    ];
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -87,46 +89,25 @@ export default function Index({ proposals, filters }: IndexProps) {
     };
 
     const handleDelete = (id: number) => {
-        if (confirm('Apakah Anda yakin ingin menghapus draf proposal ini?')) {
+        if (confirm(t.proposalList.confirmDelete)) {
             router.delete(route('proposal.destroy', id));
-        }
-    };
-
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'Administrasi_Valid':
-                return <Badge className="bg-emerald-500 text-white hover:bg-emerald-600">Valid Administrasi</Badge>;
-            case 'Submitted':
-                return <Badge className="bg-blue-500 text-white hover:bg-blue-600">Submitted</Badge>;
-            case 'Ditolak':
-                return <Badge variant="destructive">Ditolak</Badge>;
-            case 'Draft':
-            default:
-                return (
-                    <Badge
-                        variant="outline"
-                        className="border-amber-500 bg-amber-50 font-medium text-amber-600 dark:bg-amber-950/30 dark:text-amber-400"
-                    >
-                        Draft
-                    </Badge>
-                );
         }
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Proposal Penelitian Saya" />
+            <Head title={t.proposalList.pageTitle} />
 
             <div className="container mx-auto space-y-6 p-4 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Proposal Penelitian Saya</h1>
-                        <p className="text-sm text-muted-foreground">Kelola draf dan pengajuan proposal penelitian Anda dalam sistem.</p>
+                        <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">{t.proposalList.pageTitle}</h1>
+                        <p className="text-sm text-muted-foreground">{t.proposalList.pageSubtitle}</p>
                     </div>
                     <Link href={route('proposal.create')}>
-                        <Button className="w-full sm:w-auto">
+                        <Button className="w-full bg-blue-900 text-white hover:bg-blue-800 sm:w-auto">
                             <Plus className="mr-2 h-4 w-4" />
-                            Ajukan Proposal Baru
+                            {t.proposalList.submitNewBtn}
                         </Button>
                     </Link>
                 </div>
@@ -137,7 +118,7 @@ export default function Index({ proposals, filters }: IndexProps) {
                             <div className="relative flex-1">
                                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
-                                    placeholder="Cari judul proposal..."
+                                    placeholder={t.proposalList.searchPlaceholder}
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="pl-9"
@@ -145,18 +126,18 @@ export default function Index({ proposals, filters }: IndexProps) {
                             </div>
                             <Select value={statusFilter} onValueChange={handleStatusChange}>
                                 <SelectTrigger className="w-full sm:w-[200px]">
-                                    <SelectValue placeholder="Semua Status" />
+                                    <SelectValue placeholder={t.proposalList.allStatuses} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">Semua Status</SelectItem>
-                                    <SelectItem value="Draft">Draft</SelectItem>
-                                    <SelectItem value="Submitted">Submitted</SelectItem>
-                                    <SelectItem value="Administrasi_Valid">Valid Administrasi</SelectItem>
-                                    <SelectItem value="Ditolak">Ditolak</SelectItem>
+                                    <SelectItem value="all">{t.proposalList.allStatuses}</SelectItem>
+                                    <SelectItem value="Draft">{t.statuses.Draft}</SelectItem>
+                                    <SelectItem value="Submitted">{t.statuses.Submitted}</SelectItem>
+                                    <SelectItem value="Administrasi_Valid">{t.statuses.Administrasi_Valid}</SelectItem>
+                                    <SelectItem value="Ditolak">{t.statuses.Ditolak}</SelectItem>
                                 </SelectContent>
                             </Select>
                             <Button type="submit" variant="secondary">
-                                Filter
+                                {t.common.filter}
                             </Button>
                         </form>
 
@@ -164,10 +145,10 @@ export default function Index({ proposals, filters }: IndexProps) {
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead>Judul Proposal</TableHead>
-                                        <TableHead>Skema Penelitian</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Aksi</TableHead>
+                                        <TableHead>{t.proposalList.tableColTitle}</TableHead>
+                                        <TableHead>{t.proposalList.tableColScheme}</TableHead>
+                                        <TableHead>{t.proposalList.tableColStatus}</TableHead>
+                                        <TableHead className="text-right">{t.proposalList.tableColActions}</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -177,13 +158,15 @@ export default function Index({ proposals, filters }: IndexProps) {
                                                 <TableCell className="max-w-md font-medium">
                                                     <div className="line-clamp-2">{item.title}</div>
                                                 </TableCell>
-                                                <TableCell>{item.research_schema?.name || 'Belum dipilih'}</TableCell>
-                                                <TableCell>{getStatusBadge(item.status_proposal)}</TableCell>
+                                                <TableCell>{item.research_schema?.name || t.proposalList.notSelected}</TableCell>
+                                                <TableCell>
+                                                    <StatusBadge status={item.status_proposal} size="sm" />
+                                                </TableCell>
                                                 <TableCell className="text-right">
                                                     <div className="flex items-center justify-end space-x-2">
                                                         {/* Detail View */}
                                                         <Link href={route('proposal.show', item.id)}>
-                                                            <Button size="icon" variant="ghost" title="Detail Proposal">
+                                                            <Button size="icon" variant="ghost" title={t.proposalList.detailTooltip}>
                                                                 <Eye className="h-4 w-4" />
                                                             </Button>
                                                         </Link>
@@ -193,7 +176,7 @@ export default function Index({ proposals, filters }: IndexProps) {
                                                             <>
                                                                 {/* Edit Draf */}
                                                                 <Link href={route('proposal.edit', item.id)}>
-                                                                    <Button size="icon" variant="ghost" title="Edit Draf">
+                                                                    <Button size="icon" variant="ghost" title={t.proposalList.editTooltip}>
                                                                         <FileText className="h-4 w-4 text-amber-600" />
                                                                     </Button>
                                                                 </Link>
@@ -202,7 +185,7 @@ export default function Index({ proposals, filters }: IndexProps) {
                                                                 <Link href={route('proposal.edit', item.id)}>
                                                                     <Button size="sm" variant="default" className="h-8 gap-1 text-xs">
                                                                         <Send className="h-3 w-3" />
-                                                                        Kirim
+                                                                        {t.proposalList.sendBtn}
                                                                     </Button>
                                                                 </Link>
 
@@ -212,7 +195,7 @@ export default function Index({ proposals, filters }: IndexProps) {
                                                                     variant="ghost"
                                                                     className="text-destructive hover:text-destructive"
                                                                     onClick={() => handleDelete(item.id)}
-                                                                    title="Hapus Draf"
+                                                                    title={t.proposalList.deleteTooltip}
                                                                 >
                                                                     <Trash2 className="h-4 w-4" />
                                                                 </Button>
@@ -225,7 +208,7 @@ export default function Index({ proposals, filters }: IndexProps) {
                                     ) : (
                                         <TableRow>
                                             <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
-                                                Belum ada proposal penelitian yang diajukan.
+                                                {t.proposalList.emptyList}
                                             </TableCell>
                                         </TableRow>
                                     )}

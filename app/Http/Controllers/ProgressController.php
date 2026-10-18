@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Contract;
+use App\Http\Requests\Progress\StoreProgressReportRequest;
+use App\Http\Requests\Reviewer\EvaluateMonevRequest;
+use App\Models\MonevSchedule;
 use App\Models\ProgressReport;
 use App\Models\Proposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class ProgressController extends Controller
@@ -19,32 +20,30 @@ class ProgressController extends Controller
     {
         $user = Auth::user();
 
-        $query = ProgressReport::where('user_id', $user->id)
-            ->with(['proposal', 'contract', 'evaluations.reviewer']);
+        $query = ProgressReport::whereHas('proposal', function ($q) use ($user) {
+            $q->where('id_pengusul', $user->id);
+        })->with(['proposal', 'monevSchedule']);
 
-        // Search by title
+        // Search by title or summary
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('content', 'like', "%{$search}%");
+                $q->where('ringkasan_progres', 'like', "%{$search}%")
+                    ->orWhereHas('proposal', function ($pq) use ($search) {
+                        $pq->where('judul_penelitian', 'like', "%{$search}%");
+                    });
             });
         }
 
         // Filter by status
         if ($status = $request->input('status')) {
-            $query->where('status', $status);
-        }
-
-        // Filter by report type
-        if ($reportType = $request->input('report_type')) {
-            $query->where('report_type', $reportType);
+            $query->byStatus($status);
         }
 
         $progressReports = $query->latest()->paginate(10)->withQueryString();
 
         return Inertia::render('Progress/Index', [
             'progressReports' => $progressReports,
-            'filters' => $request->only(['search', 'status', 'report_type']),
+            'filters' => $request->only(['search', 'status']),
         ]);
     }
 
@@ -53,83 +52,49 @@ class ProgressController extends Controller
      */
     public function create()
     {
-        $proposals = Proposal::where('user_id', Auth::id())
-            ->orderBy('title')
-            ->get(['id', 'title']);
+        $userId = Auth::id();
+        $proposals = Proposal::where('id_pengusul', $userId)
+            ->where('status_proposal', Proposal::STATUS_LOLOS_DIDANAI)
+            ->orderBy('judul_penelitian')
+            ->get(['id', 'judul_penelitian']);
+
+        $schedules = MonevSchedule::where('is_active', true)
+            ->orderBy('tanggal_mulai', 'desc')
+            ->get(['id', 'nama_tahap', 'tanggal_mulai', 'tanggal_selesai', 'deskripsi', 'is_active']);
 
         return Inertia::render('Progress/Create', [
             'proposals' => $proposals,
+            'schedules' => $schedules,
         ]);
     }
 
     /**
      * Store a newly created progress report.
      */
-    public function store(Request $request)
+    public function store(StoreProgressReportRequest $request)
     {
-        $user = Auth::user();
+        $validated = $request->validated();
 
-        $validated = $request->validate([
-            'proposal_id' => [
-                'required',
-                Rule::exists('proposals', 'id')->where('user_id', $user->id),
-            ],
-            'title' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
-            'report_type' => ['required', Rule::in(['logbook', 'laporan_kemajuan', 'laporan_akhir'])],
-            'report_date' => ['required', 'date'],
-            'progress_percentage' => ['required', 'integer', 'min:0', 'max:100'],
-            'report_period' => ['required', 'string', 'max:255'],
-            'attachment' => ['required_unless:report_type,logbook', 'nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'],
-            'status' => ['required', Rule::in(['draft', 'submitted'])],
-        ], [
-            'proposal_id.required' => 'Proposal wajib dipilih.',
-            'title.required' => 'Judul laporan wajib diisi.',
-            'content.required' => 'Deskripsi kegiatan wajib diisi.',
-            'report_type.required' => 'Jenis laporan wajib dipilih.',
-            'report_date.required' => 'Tanggal pelaporan wajib diisi.',
-            'progress_percentage.min' => 'Nilai progres harus antara rentang 0 hingga 100.',
-            'progress_percentage.max' => 'Nilai progres harus antara rentang 0 hingga 100.',
-            'attachment.required_unless' => 'Bukti file dokumentasi laporan wajib dilampirkan.',
-            'attachment.max' => 'Dokumen lampiran maksimal 5MB.',
-        ]);
+        $fileLaporanPath = $request->file('file_laporan_kemajuan')->store('progress-reports', 'public');
 
-        // Validasi logis (PRD Modul 4): progres tidak boleh mundur dari laporan sebelumnya
-        $lastPercentage = ProgressReport::where('user_id', $user->id)
-            ->where('proposal_id', $validated['proposal_id'])
-            ->max('progress_percentage');
-
-        if ($lastPercentage !== null && $validated['progress_percentage'] < $lastPercentage) {
-            return back()->withErrors([
-                'progress_percentage' => "Persentase progres tidak boleh lebih kecil dari laporan sebelumnya ({$lastPercentage}%).",
-            ])->withInput();
-        }
-
-        // Ambil kontrak yang terhubung dengan proposal (jika sudah ada)
-        $contract = Contract::where('proposal_id', $validated['proposal_id'])->first();
-
-        $attachmentPath = null;
-        if ($request->hasFile('attachment')) {
-            $attachmentPath = $request->file('attachment')->store('progress-attachments', 'public');
+        $fileLogbookPath = null;
+        if ($request->hasFile('file_logbook')) {
+            $fileLogbookPath = $request->file('file_logbook')->store('progress-logbooks', 'public');
         }
 
         ProgressReport::create([
-            'proposal_id' => $validated['proposal_id'],
-            'contract_id' => $contract?->id,
-            'user_id' => $user->id,
-            'title' => $validated['title'],
-            'content' => $validated['content'],
-            'report_type' => $validated['report_type'],
-            'report_date' => $validated['report_date'],
-            'progress_percentage' => $validated['progress_percentage'],
-            'report_period' => $validated['report_period'],
-            'attachment_path' => $attachmentPath,
-            'status' => $validated['status'],
-            'submitted_at' => $validated['status'] === 'submitted' ? now() : null,
+            'id_proposal' => $validated['id_proposal'],
+            'id_monev_schedule' => $validated['id_monev_schedule'],
+            'persentase_kemajuan' => $validated['persentase_kemajuan'],
+            'ringkasan_progres' => $validated['ringkasan_progres'],
+            'catatan_kendala' => $validated['catatan_kendala'] ?? null,
+            'file_laporan_kemajuan' => $fileLaporanPath,
+            'file_logbook' => $fileLogbookPath,
+            'status_laporan' => ProgressReport::STATUS_SUBMITTED,
         ]);
 
         return redirect()
-            ->route('user.progress.index')
+            ->route('progress.index')
             ->with('success', 'Laporan kemajuan berhasil disimpan.');
     }
 
@@ -138,20 +103,67 @@ class ProgressController extends Controller
      */
     public function show(ProgressReport $progressReport)
     {
-        abort_if($progressReport->user_id !== Auth::id(), 403);
+        $progressReport->loadMissing('proposal');
+        abort_if((int) $progressReport->user_id !== (int) Auth::id(), 403);
 
-        $progressReport->load(['proposal', 'contract', 'evaluations.reviewer']);
+        $progressReport->loadMissing(['proposal.contract', 'monevSchedule']);
+
+        $reportData = array_merge($progressReport->toArray(), [
+            'id' => $progressReport->id,
+            'title' => $progressReport->proposal?->judul_penelitian ?? 'Laporan Kemajuan',
+            'content' => $progressReport->ringkasan_progres,
+            'report_type' => 'laporan_kemajuan',
+            'report_date' => $progressReport->created_at?->format('Y-m-d') ?? now()->format('Y-m-d'),
+            'progress_percentage' => (int) $progressReport->persentase_kemajuan,
+            'report_period' => $progressReport->monevSchedule?->nama_tahap ?? 'Monev Kemajuan',
+            'attachment_path' => $progressReport->file_laporan_kemajuan,
+            'status' => strtolower($progressReport->status_laporan ?? 'submitted'),
+            'submitted_at' => $progressReport->created_at?->toIso8601String() ?? now()->toIso8601String(),
+            'created_at' => $progressReport->created_at?->toIso8601String() ?? now()->toIso8601String(),
+            'proposal' => [
+                'id' => $progressReport->proposal?->id,
+                'title' => $progressReport->proposal?->judul_penelitian,
+            ],
+            'contract' => $progressReport->proposal?->contract ? [
+                'id' => $progressReport->proposal->contract->id,
+                'contract_number' => $progressReport->proposal->contract->nomor_kontrak,
+                'title' => $progressReport->proposal->contract->judul_kontrak,
+            ] : null,
+            'evaluations' => $progressReport->evaluations,
+        ]);
 
         return Inertia::render('Progress/Show', [
-            'progressReport' => $progressReport,
+            'progressReport' => $reportData,
         ]);
     }
 
     /**
      * Evaluasi laporan monev oleh reviewer.
      */
-    public function evaluateMonev(Request $request, $id)
+    public function evaluateMonev(EvaluateMonevRequest $request, $id)
     {
+        $report = ProgressReport::findOrFail($id);
+        $report->loadMissing('proposal');
+        $user = $request->user();
+
+        // Multi-tenancy check
+        if (! $user->isSuperAdmin() && (int) $report->proposal?->university_id !== (int) $user->university_id) {
+            abort(403, 'Akses lintas institusi tidak diizinkan.');
+        }
+
+        // Conflict of Interest (CoI) Guard
+        if ((int) $report->proposal?->id_pengusul === (int) $user->id) {
+            abort(403, 'Reviewer memiliki konflik kepentingan langsung dengan usulan penelitian ini.');
+        }
+
+        $validated = $request->validated();
+
+        $report->update([
+            'skor_monev' => $validated['skor_monev'],
+            'status_laporan' => $validated['status_laporan'],
+            'catatan_reviewer_monev' => $validated['catatan_reviewer_monev'],
+        ]);
+
         return redirect()->back()->with('success', 'Evaluasi monev berhasil disimpan.');
     }
 }

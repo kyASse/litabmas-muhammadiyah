@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\AssignReviewerRequest;
+use App\Http\Requests\Admin\ReassignReviewerRequest;
+use App\Models\ActivityLog;
 use App\Models\Proposal;
 use App\Models\Review;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AssignController extends Controller
@@ -26,8 +30,14 @@ class AssignController extends Controller
             Proposal::STATUS_SUBMITTED,
             'Submitted',
             'Administrasi_Valid',
+            'In_Review',
         ])
-            ->select('id', 'title')
+            ->with([
+                'pengusul:id,name',
+                'members.user:id,name',
+                'reviews:id,id_proposal,id_reviewer,skor_total,status_review',
+            ])
+            ->select('id', 'judul_penelitian', 'id_pengusul', 'status_proposal')
             ->get();
 
         $reviewerRole = Role::where('name', Role::REVIEWER)->first();
@@ -49,28 +59,64 @@ class AssignController extends Controller
         ]);
     }
 
-    public function assign(Request $request): RedirectResponse
+    public function assign(AssignReviewerRequest $request): RedirectResponse
     {
-        $user = auth()->user();
+        $validated = $request->validated();
 
-        if (! $user->isSuperAdmin() && ! $user->isAdminKampus()) {
-            abort(403);
-        }
-
-        $validated = $request->validate([
-            'proposal_id' => 'required|integer',
-            'reviewer_id' => 'required|integer',
-        ]);
+        $proposalId = $validated['id_proposal'] ?? $validated['proposal_id'];
+        $reviewerId = $validated['id_reviewer'] ?? $validated['reviewer_id'];
 
         Review::create([
-            'proposal_id' => $validated['proposal_id'],
-            'reviewer_id' => $validated['reviewer_id'],
+            'id_proposal' => $proposalId,
+            'id_reviewer' => $reviewerId,
+            'tanggal_mulai_review' => $validated['tanggal_mulai_review'] ?? now()->toDateString(),
+            'tanggal_selesai_review' => $validated['tanggal_selesai_review'] ?? now()->addDays(14)->toDateString(),
+            'status_review' => 'Assigned',
         ]);
 
         return redirect()->route('admin.proposals.index')->with(
             'success',
-            'Reviewer berhasil ditugaskan.'
+            '[SUKSES] Reviewer berhasil ditugaskan.'
         );
+    }
+
+    public function reassign(ReassignReviewerRequest $request, int $id): RedirectResponse
+    {
+        DB::transaction(function () use ($request, $id) {
+            $oldReview = Review::findOrFail($id);
+
+            // Pastikan review lama belum diselesaikan
+            if ($oldReview->status_review === 'Completed') {
+                abort(422, '[GAGAL] Review yang telah selesai tidak dapat dibatalkan atau dialihkan.');
+            }
+
+            // Catat jejak audit pencabutan
+            ActivityLog::create([
+                'user_id' => auth()->id(),
+                'university_id' => auth()->user()?->university_id,
+                'activity' => sprintf(
+                    'REVOKE_REVIEWER: Mencabut penugasan reviewer ID %d dari proposal ID %d karena batas waktu telaah terlampaui. Alasan: %s',
+                    $oldReview->id_reviewer,
+                    $oldReview->id_proposal,
+                    $request->input('alasan_pencabutan')
+                ),
+            ]);
+
+            // Perbarui reviewer dengan reviewer baru yang dipilih
+            $newReviewerId = $request->input('id_reviewer_baru');
+            $newEndDate = $request->input('tanggal_selesai_baru') ?? now()->addDays(14)->toDateString();
+
+            $oldReview->update([
+                'id_reviewer' => $newReviewerId,
+                'tanggal_mulai_review' => now()->toDateString(),
+                'tanggal_selesai_review' => $newEndDate,
+                'status_review' => 'Assigned',
+                'komponen_penilaian' => null,
+                'skor_total' => 0,
+            ]);
+        });
+
+        return back()->with('success', '[SUKSES] Penugasan reviewer berhasil dialihkan ke penilai baru.');
     }
 
     public function unassign(int $id): RedirectResponse
@@ -87,7 +133,7 @@ class AssignController extends Controller
 
         return back()->with(
             'success',
-            'Penunjukan reviewer berhasil dihapus.'
+            '[SUKSES] Penunjukan reviewer berhasil dihapus.'
         );
     }
 }
