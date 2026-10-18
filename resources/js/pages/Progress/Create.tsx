@@ -67,12 +67,12 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
         e.preventDefault();
 
         if (data.ringkasan_progres.trim().length < 20) {
-            toast.error('Ringkasan progres minimal 20 karakter.');
+            toast.error(t.monev.summaryMinCharsError);
             return;
         }
 
         if (!data.file_laporan_kemajuan) {
-            toast.error('Berkas naskah laporan kemajuan PDF wajib diunggah.');
+            toast.error(t.monev.reportFileRequiredError);
             return;
         }
 
@@ -83,7 +83,7 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                 toast.success(t.monev.submissionSuccess);
             },
             onError: () => {
-                toast.error('Gagal mengirimkan laporan kemajuan. Silakan periksa formulir Anda.');
+                toast.error(t.monev.submissionFailedError);
             },
         });
     };
@@ -155,7 +155,7 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                     <SelectContent>
                                         {proposals.length === 0 ? (
                                             <div className="p-3 text-center text-xs text-muted-foreground">
-                                                Tidak ada proposal yang memenuhi syarat monev.
+                                                {t.monev.noEligibleProposals}
                                             </div>
                                         ) : (
                                             proposals.map((p) => (
@@ -268,7 +268,7 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                         {t.monev.summaryLabel} <span className="text-rose-600">*</span>
                                     </Label>
                                     <span className={`text-xs font-mono ${data.ringkasan_progres.length >= 20 ? 'text-emerald-700 font-semibold' : 'text-slate-500'}`}>
-                                        {data.ringkasan_progres.length} / 20 karakter min
+                                        {data.ringkasan_progres.length} / 20 {t.monev.charsMin}
                                     </span>
                                 </div>
                                 <Textarea

@@ -195,10 +195,10 @@ export default function ContractShow({ contract }: Props) {
             {
                 preserveScroll: true,
                 onSuccess: () => {
-                    toast.success(`[SUKSES] Status kontrak diperbarui ke [${newStatus.toUpperCase()}].`);
+                    toast.success(t.contracts.updateStatusSuccess.replace('{status}', newStatus.toUpperCase()));
                 },
                 onError: () => {
-                    toast.error('[GALAT] Gagal memperbarui status kontrak.');
+                    toast.error(t.contracts.updateStatusError);
                 },
                 onFinish: () => {
                     setProcessing(false);
@@ -242,7 +242,7 @@ export default function ContractShow({ contract }: Props) {
                     <Button variant="ghost" size="sm" asChild className="gap-2">
                         <Link href={route('finance.contracts.index')}>
                             <ArrowLeft className="h-4 w-4" />
-                            Kembali ke Daftar Kontrak
+                            {t.contracts.backToList}
                         </Link>
                     </Button>
                     <div className="flex items-center gap-2">
@@ -259,7 +259,6 @@ export default function ContractShow({ contract }: Props) {
                         )}
                         <StatusBadge
                             status={badgeInfo.type}
-                            labelOverride={badgeInfo.label}
                             size="md"
                         />
                     </div>
@@ -272,14 +271,14 @@ export default function ContractShow({ contract }: Props) {
                             <Hash className="h-3.5 w-3.5 text-slate-400" />
                             <span className="font-semibold text-slate-700">{contractNumber}</span>
                             <span>•</span>
-                            <span>Tanggal: {formatDate(contract.tanggal_kontrak || contract.start_date)}</span>
+                            <span>{t.contracts.contractDate}: {formatDate(contract.tanggal_kontrak || contract.start_date)}</span>
                         </div>
                         <h1 className="text-xl sm:text-2xl font-serif font-bold text-slate-900 tracking-tight">
                             {contractTitle}
                         </h1>
                         <p className="text-xs text-slate-500">
-                            Institusi: <strong className="text-slate-700">{contract.university?.name || '-'}</strong>
-                            {contract.creator && ` | Diterbitkan oleh: ${contract.creator.name}`}
+                            {t.contracts.institution}: <strong className="text-slate-700">{contract.university?.name || '-'}</strong>
+                            {contract.creator && ` | ${t.contracts.issuedBy}: ${contract.creator.name}`}
                         </p>
                     </div>
                 </div>
@@ -289,15 +288,15 @@ export default function ContractShow({ contract }: Props) {
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div>
                             <h2 className="text-base font-serif font-bold text-slate-900">
-                                Alur Termin Pencairan Dana Riset (70:30)
+                                {t.contracts.fundingFlowTitle}
                             </h2>
                             <p className="text-xs text-slate-500">
-                                Tahapan pencairan dana hibah sesuai formula Cetak Biru Arsitektur Standalone.
+                                {t.contracts.fundingFlowSubtitle}
                             </p>
                         </div>
                         <div className="text-right">
                             <span className="text-xs font-mono text-slate-500 uppercase tracking-wider block">
-                                Realisasi Pendanaan
+                                {t.contracts.realizationProgress}
                             </span>
                             <div className="flex items-baseline gap-2">
                                 <TabularFigure
@@ -308,7 +307,7 @@ export default function ContractShow({ contract }: Props) {
                                     className="text-emerald-700"
                                 />
                                 <span className="font-mono text-xs text-slate-500">
-                                    dari <TabularFigure value={contractValue} type="currency" size="sm" className="text-slate-700" /> ({progressPercent}%)
+                                    {t.contracts.of} <TabularFigure value={contractValue} type="currency" size="sm" className="text-slate-700" /> ({progressPercent}%)
                                 </span>
                             </div>
                         </div>
@@ -328,19 +327,19 @@ export default function ContractShow({ contract }: Props) {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-teal-100 text-teal-800">
-                                            TERMIN 1 (70%)
+                                            {t.funding.tranche1RatioBadge}
                                         </span>
                                         {isT1Disbursed ? (
-                                            <StatusBadge status="Disbursed_T1" labelOverride="[CAIR TERMIN 1]" size="sm" />
+                                            <StatusBadge status="Disbursed_T1" size="sm" />
                                         ) : (
-                                            <StatusBadge status="Draft" labelOverride="[MENUNGGU PENCAIRAN]" size="sm" />
+                                            <StatusBadge status="Waiting_Disbursement" size="sm" />
                                         )}
                                     </div>
                                     <h3 className="font-serif font-bold text-slate-900 text-base pt-1">
-                                        Pencairan Dana Tahap Pertama
+                                        {t.contracts.tranche1CardTitle}
                                     </h3>
                                     <p className="text-xs text-slate-600">
-                                        Dialokasikan 70% dari nilai kontrak setelah penandatanganan dokumen perjanjian.
+                                        {t.contracts.tranche1CardDesc}
                                     </p>
                                 </div>
                                 <TabularFigure
@@ -355,9 +354,9 @@ export default function ContractShow({ contract }: Props) {
                             <div className="mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs">
                                 <div className="text-slate-500">
                                     {isT1Disbursed ? (
-                                        <span>Dicairkan pada: <strong className="font-mono text-slate-700">{formatDate(termin1.tanggal_pencairan)}</strong></span>
+                                        <span>{t.contracts.disbursedAtLabel} <strong className="font-mono text-slate-700">{formatDate(termin1.tanggal_pencairan)}</strong></span>
                                     ) : (
-                                        <span>Status: Siap dicairkan oleh Admin Keuangan</span>
+                                        <span>{t.contracts.statusReadyToDisburse}</span>
                                     )}
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -369,7 +368,7 @@ export default function ContractShow({ contract }: Props) {
                                             className="inline-flex items-center gap-1 text-sky-700 hover:underline font-medium"
                                         >
                                             <Download className="w-3.5 h-3.5" />
-                                            Bukti Transfer
+                                            {t.contracts.proofOfTransfer}
                                         </a>
                                     ) : !isT1Disbursed && termin1.id > 0 ? (
                                         <Button
@@ -378,7 +377,7 @@ export default function ContractShow({ contract }: Props) {
                                             className="bg-slate-900 text-white hover:bg-slate-800 text-xs h-7 gap-1"
                                         >
                                             <FileCheck className="w-3.5 h-3.5" />
-                                            Cairkan Termin 1
+                                            {t.contracts.disburseTranche1Btn}
                                         </Button>
                                     ) : null}
                                 </div>
@@ -397,21 +396,21 @@ export default function ContractShow({ contract }: Props) {
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
                                         <span className="font-mono font-bold text-xs px-2 py-0.5 rounded bg-amber-100 text-amber-800">
-                                            TERMIN 2 (30%)
+                                            {t.funding.tranche2RatioBadge}
                                         </span>
                                         {isT2Disbursed ? (
-                                            <StatusBadge status="Disbursed_T2" labelOverride="[CAIR TERMIN 2]" size="sm" />
+                                            <StatusBadge status="Disbursed_T2" size="sm" />
                                         ) : !isMonevApproved ? (
-                                            <StatusBadge status="Monev_Locked" labelOverride="[TERKUNCI MONEV]" size="sm" />
+                                            <StatusBadge status="Monev_Locked" size="sm" />
                                         ) : (
-                                            <StatusBadge status="Monev_Approved" labelOverride="[MONEV DISETUJUI]" size="sm" />
+                                            <StatusBadge status="Monev_Approved" size="sm" />
                                         )}
                                     </div>
                                     <h3 className="font-serif font-bold text-slate-900 text-base pt-1">
-                                        Pencairan Dana Tahap Kedua
+                                        {t.contracts.tranche2CardTitle}
                                     </h3>
                                     <p className="text-xs text-slate-600">
-                                        Dialokasikan 30% dari nilai kontrak setelah laporan kemajuan Monev disetujui reviewer.
+                                        {t.contracts.tranche2CardDesc}
                                     </p>
                                 </div>
                                 <TabularFigure
@@ -428,10 +427,10 @@ export default function ContractShow({ contract }: Props) {
                                 <div className="mt-3 rounded border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-800 space-y-1">
                                     <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider">
                                         <Lock className="w-3.5 h-3.5 text-rose-700 shrink-0" />
-                                        <span>[TERKUNCI MONEV] Gembok Pencairan Aktif</span>
+                                        <span>{t.contracts.monevLockBannerTitle}</span>
                                     </div>
                                     <p className="text-[11px] leading-relaxed text-rose-700">
-                                        Termin 2 tidak dapat dicairkan sebelum laporan kemajuan Monev diunggah oleh peneliti dan disetujui (Approved) oleh reviewer.
+                                        {t.contracts.monevLockBannerDesc}
                                     </p>
                                 </div>
                             )}
@@ -439,11 +438,11 @@ export default function ContractShow({ contract }: Props) {
                             <div className="mt-4 pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs">
                                 <div className="text-slate-500">
                                     {isT2Disbursed ? (
-                                        <span>Dicairkan pada: <strong className="font-mono text-slate-700">{formatDate(termin2.tanggal_pencairan)}</strong></span>
+                                        <span>{t.contracts.disbursedAtLabel} <strong className="font-mono text-slate-700">{formatDate(termin2.tanggal_pencairan)}</strong></span>
                                     ) : !isMonevApproved ? (
-                                        <span className="text-rose-700 font-mono text-[11px]">[GEMBOK MONEV: DIBLOKIR HTTP 422]</span>
+                                        <span className="text-rose-700 font-mono text-[11px]">{t.contracts.monevLockStatusBlocked}</span>
                                     ) : (
-                                        <span className="text-emerald-700 font-mono text-[11px]">[MONEV APPROVED: SIAP CAIR]</span>
+                                        <span className="text-emerald-700 font-mono text-[11px]">{t.contracts.monevLockStatusReady}</span>
                                     )}
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -455,7 +454,7 @@ export default function ContractShow({ contract }: Props) {
                                             className="inline-flex items-center gap-1 text-sky-700 hover:underline font-medium"
                                         >
                                             <Download className="w-3.5 h-3.5" />
-                                            Bukti Transfer
+                                            {t.contracts.proofOfTransfer}
                                         </a>
                                     ) : !isT2Disbursed && termin2.id > 0 ? (
                                         <Button
@@ -471,12 +470,12 @@ export default function ContractShow({ contract }: Props) {
                                             {isMonevApproved ? (
                                                 <>
                                                     <FileCheck className="w-3.5 h-3.5" />
-                                                    Cairkan Termin 2
+                                                    {t.contracts.disburseTranche2Btn}
                                                 </>
                                             ) : (
                                                 <>
                                                     <Lock className="w-3.5 h-3.5" />
-                                                    [TERKUNCI MONEV]
+                                                    {t.statuses.Monev_Locked}
                                                 </>
                                             )}
                                         </Button>
@@ -494,27 +493,27 @@ export default function ContractShow({ contract }: Props) {
                             <CardHeader>
                                 <CardTitle className="text-base font-serif font-bold text-slate-900 flex items-center gap-2">
                                     <FileText className="w-4 h-4 text-slate-500" />
-                                    Informasi Usulan & Ketetapan Hibah
+                                    {t.contracts.proposalGrantInfoTitle}
                                 </CardTitle>
                                 <CardDescription className="text-xs text-slate-500">
-                                    Rincian proposal yang disetujui beserta analisis pemotongan anggaran pasca-review.
+                                    {t.contracts.proposalGrantInfoDesc}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <DetailRow
                                     icon={FileText}
-                                    label="Judul Penelitian"
+                                    label={t.contracts.proposalTitle}
                                     value={contract.proposal?.judul_penelitian || contractTitle}
                                 />
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
                                     <DetailRow
                                         icon={Layers}
-                                        label="Skema Riset"
+                                        label={t.contracts.scheme}
                                         value={contract.proposal?.research_schema?.nama_skema || '-'}
                                     />
                                     <DetailRow
                                         icon={User}
-                                        label="Ketua Pengusul"
+                                        label={t.contracts.leadResearcher}
                                         value={contract.proposal?.pengusul?.name || '-'}
                                     />
                                 </div>
@@ -524,11 +523,11 @@ export default function ContractShow({ contract }: Props) {
                                 {/* Tabular Anggaran & Budget Cut */}
                                 <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-4 space-y-3">
                                     <p className="text-xs font-mono font-medium text-slate-500 uppercase tracking-wider">
-                                        Komparasi Anggaran & Budget Cut Adjustment
+                                        {t.contracts.budgetComparisonTitle}
                                     </p>
                                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                         <div>
-                                            <span className="text-xs text-slate-500 block">Pagu Maksimal Skema</span>
+                                            <span className="text-xs text-slate-500 block">{t.contracts.schemeMaxBudget}</span>
                                             <TabularFigure
                                                 value={maxBudget}
                                                 type="currency"
@@ -538,7 +537,7 @@ export default function ContractShow({ contract }: Props) {
                                             />
                                         </div>
                                         <div>
-                                            <span className="text-xs text-slate-500 block">Anggaran Diusulkan</span>
+                                            <span className="text-xs text-slate-500 block">{t.contracts.proposedBudgetLabel}</span>
                                             <TabularFigure
                                                 value={proposedBudget}
                                                 type="currency"
@@ -548,7 +547,7 @@ export default function ContractShow({ contract }: Props) {
                                             />
                                         </div>
                                         <div>
-                                            <span className="text-xs text-slate-500 block">Dana Disetujui (Kontrak)</span>
+                                            <span className="text-xs text-slate-500 block">{t.contracts.approvedContractBudget}</span>
                                             <TabularFigure
                                                 value={contractValue}
                                                 type="currency"
@@ -560,9 +559,9 @@ export default function ContractShow({ contract }: Props) {
                                     </div>
                                     {budgetCut > 0 && (
                                         <div className="pt-2 border-t border-slate-200/80 flex items-center justify-between text-xs text-amber-800">
-                                            <span>Penyesuaian Anggaran (Budget Cut):</span>
+                                            <span>{t.contracts.budgetCutAdjustment}</span>
                                             <span className="font-mono font-bold">
-                                                Dipotong <TabularFigure value={budgetCut} type="currency" size="sm" className="text-amber-800" />
+                                                {t.contracts.cutAmount} <TabularFigure value={budgetCut} type="currency" size="sm" className="text-amber-800" />
                                             </span>
                                         </div>
                                     )}
@@ -573,7 +572,7 @@ export default function ContractShow({ contract }: Props) {
                                         <Separator />
                                         <div>
                                             <p className="text-xs font-mono font-medium text-slate-500 uppercase tracking-wider mb-1">
-                                                Syarat & Ketentuan Khusus
+                                                {t.contracts.specialTerms}
                                             </p>
                                             <div className="rounded border bg-slate-50/50 p-3 text-xs leading-relaxed text-slate-700 whitespace-pre-wrap">
                                                 {contract.terms}
@@ -590,20 +589,19 @@ export default function ContractShow({ contract }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-base font-serif font-bold text-slate-900">
-                                    Otoritas Kontrak
+                                    {t.contracts.contractAuthority}
                                 </CardTitle>
                                 <CardDescription className="text-xs text-slate-500">
-                                    Status formalisasi perjanjian kerja sama.
+                                    {t.contracts.contractAuthorityDesc}
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <span className="text-xs font-mono text-slate-500 uppercase tracking-wider block">
-                                        Status Saat Ini
+                                        {t.contracts.currentStatus}
                                     </span>
                                     <StatusBadge
                                         status={badgeInfo.type}
-                                        labelOverride={badgeInfo.label}
                                         size="md"
                                     />
                                 </div>
@@ -616,7 +614,7 @@ export default function ContractShow({ contract }: Props) {
                                             className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs gap-1.5"
                                         >
                                             <CheckCircle2 className="w-3.5 h-3.5" />
-                                            Aktifkan Kontrak
+                                            {t.contracts.activateContractBtn}
                                         </Button>
                                     </div>
                                 )}
@@ -630,7 +628,7 @@ export default function ContractShow({ contract }: Props) {
                                             className="w-full text-xs gap-1.5 font-medium"
                                         >
                                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                            Tandai Selesai
+                                            {t.contracts.markCompletedBtn}
                                         </Button>
                                     </div>
                                 )}
@@ -641,20 +639,20 @@ export default function ContractShow({ contract }: Props) {
                         <Card>
                             <CardHeader>
                                 <CardTitle className="text-base font-serif font-bold text-slate-900">
-                                    Riwayat Audit
+                                    {t.contracts.auditTrailTitle}
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3 text-xs">
                                 <div>
                                     <span className="text-slate-500 uppercase tracking-wider block font-mono text-[11px]">
-                                        Diterbitkan Oleh
+                                        {t.contracts.issuedBy}
                                     </span>
                                     <p className="font-medium text-slate-800">{contract.creator?.name || 'Administrator'}</p>
                                     <p className="text-slate-400 font-mono text-[11px]">{contract.created_at}</p>
                                 </div>
                                 <div className="pt-2 border-t border-slate-100">
                                     <span className="text-slate-500 uppercase tracking-wider block font-mono text-[11px]">
-                                        Pembaruan Terakhir
+                                        {t.contracts.lastUpdate}
                                     </span>
                                     <p className="text-slate-600 font-mono text-[11px]">{contract.updated_at}</p>
                                 </div>
@@ -682,21 +680,20 @@ export default function ContractShow({ contract }: Props) {
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle className="font-serif font-bold text-slate-900">
-                            Konfirmasi Perubahan Status Kontrak
+                            {t.contracts.confirmStatusTitle}
                         </AlertDialogTitle>
                         <AlertDialogDescription className="text-xs text-slate-600">
-                            Apakah Anda yakin ingin mengubah status kontrak <strong>{contractNumber}</strong> menjadi{' '}
-                            <strong>[{pendingStatus?.toUpperCase()}]</strong>?
+                            {t.contracts.confirmStatusDesc.replace('{number}', contractNumber).replace('{status}', pendingStatus?.toUpperCase() || '')}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel disabled={processing}>Batal</AlertDialogCancel>
+                        <AlertDialogCancel disabled={processing}>{t.common.cancel}</AlertDialogCancel>
                         <AlertDialogAction
                             disabled={processing}
                             onClick={() => pendingStatus && handleUpdateStatus(pendingStatus)}
                             className="bg-slate-900 hover:bg-slate-800 text-white"
                         >
-                            {processing ? 'Memproses...' : 'Ya, Perbarui Status'}
+                            {processing ? t.contracts.updatingStatus : t.contracts.confirmUpdateBtn}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

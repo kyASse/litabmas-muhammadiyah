@@ -105,7 +105,6 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
                         </DialogTitle>
                         <StatusBadge
                             status={isLocked ? 'Monev_Locked' : isTermin2 ? 'Disbursed_T2' : 'Disbursed_T1'}
-                            labelOverride={isLocked ? '[TERKUNCI MONEV]' : `[TERMIN ${funding.termin_ke}]`}
                             size="sm"
                         />
                     </div>
@@ -133,7 +132,7 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
                                 {t.funding.trancheNumber}
                             </span>
                             <span className="font-mono font-bold text-base text-slate-900">
-                                Termin {funding.termin_ke} ({funding.persentase_dana}%)
+                                {t.funding.trancheLabel.replace('{number}', String(funding.termin_ke))} ({funding.persentase_dana}%)
                             </span>
                         </div>
                     </div>
@@ -170,14 +169,14 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
                             <Lock className="w-4 h-4 text-rose-700 shrink-0" strokeWidth={2.5} />
                             <span>{t.funding.monevGatekeeperTitle}</span>
                             <span className="ml-auto text-xs px-2 py-0.5 rounded bg-rose-200 text-rose-800 font-mono">
-                                [TERKUNCI MONEV]
+                                {t.statuses.Monev_Locked}
                             </span>
                         </div>
                         <p className="text-xs leading-relaxed text-rose-700">
                             {t.funding.monevLockedNotice}
                         </p>
                         <p className="text-xs font-mono text-rose-600 pt-1 border-t border-rose-200/60">
-                            Pencairan Termin 2 (30%) secara teknis dan bisnis diblokir di level backend (HTTP 422 Unprocessable Content) hingga laporan kemajuan disetujui (Approved) oleh reviewer.
+                            {t.funding.monevBackendBlockNotice}
                         </p>
                     </div>
                 ) : isTermin2 && isMonevApproved ? (
@@ -240,16 +239,16 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
                                             <p className="text-xs font-medium font-mono text-slate-800">
                                                 {data.bukti_transfer.name} ({(data.bukti_transfer.size / (1024 * 1024)).toFixed(2)} MB)
                                             </p>
-                                            <p className="text-xs text-slate-500">Klik untuk mengganti berkas</p>
+                                            <p className="text-xs text-slate-500">{t.funding.clickToReplaceFile}</p>
                                         </>
                                     ) : (
                                         <>
                                             <UploadCloud className="w-8 h-8 text-slate-400" />
                                             <p className="text-xs font-medium text-slate-700">
-                                                {isLocked ? '[DIBLOKIR GEMBOK MONEV]' : 'Klik untuk memilih berkas bukti transfer'}
+                                                {isLocked ? t.funding.blockedByMonevGatekeeper : t.funding.clickToSelectProofFile}
                                             </p>
                                             <p className="text-xs text-slate-500">
-                                                Format PDF, JPG, PNG (Maksimal 10 MB)
+                                                {t.funding.proofFileFormatLimit}
                                             </p>
                                         </>
                                     )}
@@ -303,7 +302,7 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({
                             ) : isLocked ? (
                                 <span className="inline-flex items-center gap-1.5">
                                     <Lock className="w-3.5 h-3.5" />
-                                    [TERKUNCI MONEV]
+                                    {t.statuses.Monev_Locked}
                                 </span>
                             ) : (
                                 <span className="inline-flex items-center gap-1.5">

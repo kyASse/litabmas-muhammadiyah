@@ -32,6 +32,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import AppLayout from '@/layouts/app-layout';
 import { formatCurrency } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { useTranslation } from '@/hooks/use-translation';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 
 type FundingStatus = 'planned' | 'requested' | 'approved' | 'disbursed' | 'cancelled';
@@ -127,11 +128,12 @@ const getStatusColor = (status: FundingStatus) => {
 
 export default function FundingInfo({ contracts, fundingStats, filters: initialFilters }: Props) {
     const { flash } = usePage<SharedData>().props;
+    const { t } = useTranslation();
     const [expandedContracts, setExpandedContracts] = useState<Set<number>>(new Set());
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Pendanaan', href: route('user.funding.index') },
+        { title: t.navigation.dashboard, href: '/dashboard' },
+        { title: t.navigation.tranchesDisbursement, href: route('user.funding.index') },
     ];
 
     const toggleContractExpand = (contractId: number) => {
@@ -146,15 +148,15 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Pendanaan" />
+            <Head title={t.userFunding.pageTitle} />
 
             {/* Flash Messages */}
             {flash?.success && <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">{flash.success}</div>}
 
             {/* Page Header */}
             <div className="mb-6">
-                <h1 className="text-3xl font-bold tracking-tight">Rincian Dana Cair</h1>
-                <p className="mt-2 text-gray-600">Kelola dan pantau pencairan dana penelitian Anda</p>
+                <h1 className="text-3xl font-bold tracking-tight">{t.userFunding.pageTitle}</h1>
+                <p className="mt-2 text-gray-600">{t.userFunding.pageSubtitle}</p>
             </div>
 
             {/* Funding Statistics Cards */}
@@ -162,24 +164,23 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                 {/* Total Approved Funding */}
                 <Card>
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-gray-600">Total Dana Disetujui</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-600">{t.userFunding.totalApproved}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{formatCurrency(fundingStats.total_approved)}</div>
-                        <p className="mt-2 text-xs text-gray-500">Dari {fundingStats.active_contracts} kontrak aktif</p>
+                        <p className="mt-2 text-xs text-gray-500">{t.userFunding.fromActiveContracts.replace('{count}', String(fundingStats.active_contracts))}</p>
                     </CardContent>
                 </Card>
 
                 {/* Total Disbursed */}
                 <Card className="border-green-200 bg-green-50">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-green-700">Dana Yang Sudah Cair</CardTitle>
+                        <CardTitle className="text-sm font-medium text-green-700">{t.userFunding.disbursedFunding}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-green-600">{formatCurrency(fundingStats.total_disbursed)}</div>
                         <p className="mt-2 text-xs text-green-600">
-                            {fundingStats.total_approved > 0 ? ((fundingStats.total_disbursed / fundingStats.total_approved) * 100).toFixed(1) : 0}%
-                            dari total
+                            {t.userFunding.percentOfTotal.replace('{percent}', String(fundingStats.total_approved > 0 ? ((fundingStats.total_disbursed / fundingStats.total_approved) * 100).toFixed(1) : 0))}
                         </p>
                     </CardContent>
                 </Card>
@@ -187,22 +188,22 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                 {/* Remaining Funding */}
                 <Card className="border-orange-200 bg-orange-50">
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-orange-700">Sisa Dana</CardTitle>
+                        <CardTitle className="text-sm font-medium text-orange-700">{t.userFunding.remainingFunding}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold text-orange-600">{formatCurrency(fundingStats.total_remaining)}</div>
-                        <p className="mt-2 text-xs text-orange-600">Menunggu pencairan</p>
+                        <p className="mt-2 text-xs text-orange-600">{t.userFunding.waitingDisbursement}</p>
                     </CardContent>
                 </Card>
 
                 {/* Active Contracts */}
                 <Card>
                     <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium text-gray-600">Kontrak Aktif</CardTitle>
+                        <CardTitle className="text-sm font-medium text-gray-600">{t.userFunding.activeContracts}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{fundingStats.active_contracts}</div>
-                        <p className="mt-2 text-xs text-gray-500">Sedang berjalan</p>
+                        <p className="mt-2 text-xs text-gray-500">{t.userFunding.inProgress}</p>
                     </CardContent>
                 </Card>
             </div>
@@ -231,15 +232,15 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                 {/* Contract Summary */}
                                 <div className="mr-4 flex items-center gap-6 text-right">
                                     <div>
-                                        <p className="text-xs font-medium text-gray-600">Dana Disetujui</p>
+                                        <p className="text-xs font-medium text-gray-600">{t.userFunding.approvedFunding}</p>
                                         <p className="font-semibold text-gray-900">{formatCurrency(contract.contract_value)}</p>
                                     </div>
                                     <div>
-                                        <p className="text-xs font-medium text-gray-600">Sudah Cair</p>
+                                        <p className="text-xs font-medium text-gray-600">{t.userFunding.alreadyDisbursed}</p>
                                         <p className="font-semibold text-green-600">{formatCurrency(contract.total_disbursed)}</p>
                                     </div>
                                     <div className="w-24">
-                                        <p className="text-xs font-medium text-gray-600">Progress</p>
+                                        <p className="text-xs font-medium text-gray-600">{t.userFunding.progress}</p>
                                         <div className="mt-1 flex items-center gap-2">
                                             <Progress value={contract.disbursement_percentage} className="h-2" />
                                             <span className="text-xs font-semibold text-gray-900">{contract.disbursement_percentage}%</span>
@@ -266,19 +267,19 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                             {expandedContracts.has(contract.id) && (
                                 <CardContent className="pt-6">
                                     <div>
-                                        <h4 className="mb-4 font-semibold text-gray-900">Detail Termin Pencairan</h4>
+                                        <h4 className="mb-4 font-semibold text-gray-900">{t.userFunding.trancheDetails}</h4>
 
                                         <div className="overflow-x-auto">
                                             <Table>
                                                 <TableHeader>
                                                     <TableRow className="border-gray-200 hover:bg-transparent">
-                                                        <TableHead className="text-xs font-semibold">Termin</TableHead>
-                                                        <TableHead className="text-right text-xs font-semibold">Persentase</TableHead>
-                                                        <TableHead className="text-right text-xs font-semibold">Nominal</TableHead>
-                                                        <TableHead className="text-xs font-semibold">Status</TableHead>
-                                                        <TableHead className="text-xs font-semibold">Tanggal Cair</TableHead>
-                                                        <TableHead className="text-xs font-semibold">No. Referensi</TableHead>
-                                                        <TableHead className="text-center text-xs font-semibold">Aksi</TableHead>
+                                                        <TableHead className="text-xs font-semibold">{t.userFunding.tranche}</TableHead>
+                                                        <TableHead className="text-right text-xs font-semibold">{t.userFunding.percentage}</TableHead>
+                                                        <TableHead className="text-right text-xs font-semibold">{t.userFunding.amount}</TableHead>
+                                                        <TableHead className="text-xs font-semibold">{t.userFunding.status}</TableHead>
+                                                        <TableHead className="text-xs font-semibold">{t.userFunding.disbursementDate}</TableHead>
+                                                        <TableHead className="text-xs font-semibold">{t.userFunding.referenceNumber}</TableHead>
+                                                        <TableHead className="text-center text-xs font-semibold">{t.userFunding.actions}</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
@@ -324,7 +325,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                                                             )}
                                                                         </TooltipTrigger>
                                                                         <TooltipContent>
-                                                                            {funding.proof_document_path ? 'Download bukti' : 'Bukti tidak tersedia'}
+                                                                            {funding.proof_document_path ? t.userFunding.downloadProof : t.userFunding.proofUnavailable}
                                                                         </TooltipContent>
                                                                     </Tooltip>
                                                                 </TooltipProvider>
@@ -338,7 +339,7 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                         {/* Notes Section */}
                                         {contract.fundings.some((f) => f.notes) && (
                                             <div className="mt-4 space-y-2 border-t border-gray-100 pt-4">
-                                                <h5 className="font-medium text-gray-900">Catatan</h5>
+                                                <h5 className="font-medium text-gray-900">{t.userFunding.notes}</h5>
                                                 {contract.fundings
                                                     .filter((f) => f.notes)
                                                     .map((funding) => (
@@ -358,9 +359,9 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                     <Card>
                         <CardContent className="pt-6 text-center">
                             <FileText className="mx-auto h-12 w-12 text-gray-300" />
-                            <h3 className="mt-4 text-lg font-semibold text-gray-900">Belum ada data kontrak</h3>
+                            <h3 className="mt-4 text-lg font-semibold text-gray-900">{t.userFunding.emptyTitle}</h3>
                             <p className="mt-2 text-sm text-gray-500">
-                                Data kontrak dan pendanaan akan ditampilkan di sini setelah proposal Anda diterima.
+                                {t.userFunding.emptySubtitle}
                             </p>
                         </CardContent>
                     </Card>

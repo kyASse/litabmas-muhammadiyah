@@ -114,8 +114,8 @@ export default function FundingIndex({ fundings }: Props) {
                             <span className="font-mono text-2xl font-bold text-teal-700">70%</span>
                         </div>
                         <div className="mt-4 pt-3 border-t border-teal-200/60 flex items-center justify-between text-xs text-teal-900 font-medium">
-                            <span>Syarat: Kontrak Penelitian Ditandatangani</span>
-                            <span className="text-teal-700 font-mono">[SIAP CAIR SETELAH KONTRAK]</span>
+                            <span>{t.funding.tranche1Requirement}</span>
+                            <span className="text-teal-700 font-mono">{t.funding.tranche1ReadyNotice}</span>
                         </div>
                     </div>
 
@@ -138,9 +138,9 @@ export default function FundingIndex({ fundings }: Props) {
                         <div className="mt-4 pt-3 border-t border-amber-200/60 flex items-center justify-between text-xs text-amber-900 font-medium">
                             <span className="flex items-center gap-1.5">
                                 <Lock className="w-3.5 h-3.5 text-amber-700" />
-                                Gembok Monev LPPM (HTTP 422 Lock)
+                                {t.funding.tranche2Requirement}
                             </span>
-                            <span className="text-amber-800 font-mono">[MONEV APPROVED REQUIRED]</span>
+                            <span className="text-amber-800 font-mono">{t.funding.tranche2ApprovedNotice}</span>
                         </div>
                     </div>
                 </div>
@@ -149,7 +149,7 @@ export default function FundingIndex({ fundings }: Props) {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                         <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            Total Alokasi Termin
+                            {t.funding.totalTrancheAllocation}
                         </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
@@ -160,14 +160,14 @@ export default function FundingIndex({ fundings }: Props) {
                                 className="text-slate-900"
                             />
                             <span className="text-xs text-slate-500 font-mono">
-                                {fundings.total} record
+                                {t.funding.records.replace('{count}', String(fundings.total))}
                             </span>
                         </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                         <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            Dana Terealisasi (Cair)
+                            {t.funding.disbursedFundingLabel}
                         </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
@@ -178,14 +178,14 @@ export default function FundingIndex({ fundings }: Props) {
                                 className="text-emerald-700 font-semibold"
                             />
                             <span className="text-xs text-emerald-600 font-mono">
-                                {fundings.data.filter((f) => f.status_pencairan === 'Disbursed' || f.status_pencairan === 'disbursed').length} termin cair
+                                {t.funding.disbursedTranchesCount.replace('{count}', String(fundings.data.filter((f) => f.status_pencairan === 'Disbursed' || f.status_pencairan === 'disbursed').length))}
                             </span>
                         </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                         <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            Outstanding (Tertahan / Belum Cair)
+                            {t.funding.outstandingPendingLabel}
                         </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
@@ -196,7 +196,7 @@ export default function FundingIndex({ fundings }: Props) {
                                 className="text-amber-700 font-semibold"
                             />
                             <span className="text-xs text-amber-600 font-mono">
-                                Menunggu syarat / monev
+                                {t.funding.waitingRequirementNotice}
                             </span>
                         </div>
                     </div>
@@ -209,7 +209,7 @@ export default function FundingIndex({ fundings }: Props) {
                             <TableRow className="bg-slate-50/80">
                                 <TableHead className="w-12 text-center">{t.funding.tableColNo}</TableHead>
                                 <TableHead>{t.contracts.contractNumber} & {t.contracts.proposalTitle}</TableHead>
-                                <TableHead>PTMA & Pengusul</TableHead>
+                                <TableHead>{t.funding.universityAndResearcher}</TableHead>
                                 <TableHead className="text-center">{t.funding.tableColTranche}</TableHead>
                                 <TableHead className="text-right">{t.funding.tableColPercentage}</TableHead>
                                 <TableHead className="text-right">{t.funding.tableColAmount}</TableHead>
@@ -263,7 +263,7 @@ export default function FundingIndex({ fundings }: Props) {
                                             </TableCell>
                                             <TableCell className="text-center">
                                                 <span className="font-mono font-bold text-xs px-2 py-1 rounded bg-slate-100 text-slate-800">
-                                                    Termin {funding.termin_ke}
+                                                    {t.funding.trancheLabel.replace('{number}', String(funding.termin_ke))}
                                                 </span>
                                             </TableCell>
                                             <TableCell className="text-right">
@@ -287,19 +287,16 @@ export default function FundingIndex({ fundings }: Props) {
                                                 {isDisbursed ? (
                                                     <StatusBadge
                                                         status={funding.termin_ke === 1 ? 'Disbursed_T1' : 'Disbursed_T2'}
-                                                        labelOverride={funding.termin_ke === 1 ? '[CAIR TERMIN 1]' : '[CAIR TERMIN 2]'}
                                                         size="sm"
                                                     />
                                                 ) : isMonevLocked ? (
                                                     <StatusBadge
                                                         status="Monev_Locked"
-                                                        labelOverride="[TERKUNCI MONEV]"
                                                         size="sm"
                                                     />
                                                 ) : (
                                                     <StatusBadge
-                                                        status="Draft"
-                                                        labelOverride="[MENUNGGU PENCAIRAN]"
+                                                        status="Waiting_Disbursement"
                                                         size="sm"
                                                     />
                                                 )}
@@ -317,7 +314,7 @@ export default function FundingIndex({ fundings }: Props) {
                                                                     title={t.funding.btnViewProof}
                                                                 >
                                                                     <Download className="w-3.5 h-3.5 text-slate-500" />
-                                                                    <span>Bukti</span>
+                                                                    <span>{t.funding.proof}</span>
                                                                 </a>
                                                             )}
                                                             <a
@@ -325,10 +322,10 @@ export default function FundingIndex({ fundings }: Props) {
                                                                 target="_blank"
                                                                 rel="noreferrer"
                                                                 className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors"
-                                                                title="Cetak Kwitansi PDF"
+                                                                title={t.funding.printReceiptPdf}
                                                             >
                                                                 <Printer className="w-3.5 h-3.5 text-slate-500" />
-                                                                <span>Kwitansi</span>
+                                                                <span>{t.funding.printReceipt}</span>
                                                             </a>
                                                         </>
                                                     ) : (
@@ -345,7 +342,7 @@ export default function FundingIndex({ fundings }: Props) {
                                                             {isMonevLocked ? (
                                                                 <>
                                                                     <Lock className="w-3.5 h-3.5" />
-                                                                    <span>[TERKUNCI MONEV]</span>
+                                                                    <span>{t.statuses.Monev_Locked}</span>
                                                                 </>
                                                             ) : (
                                                                 <>
@@ -369,7 +366,7 @@ export default function FundingIndex({ fundings }: Props) {
                 {fundings.last_page > 1 && (
                     <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-xs font-mono text-slate-500">
-                            Halaman {fundings.current_page} dari {fundings.last_page} (Total {fundings.total} termin)
+                            {t.funding.pageOfTranches.replace('{current}', String(fundings.current_page)).replace('{last}', String(fundings.last_page)).replace('{total}', String(fundings.total))}
                         </p>
                         <div className="flex flex-wrap gap-1.5">
                             {fundings.links.map((link, index) => {

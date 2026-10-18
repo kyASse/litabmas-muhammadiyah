@@ -74,8 +74,8 @@ export default function MonevEvaluate({ report }: Props) {
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t.navigation.dashboard, href: route('dashboard') },
-        { title: 'Evaluasi Monev', href: '#' },
-        { title: `Telaah #${report.id}`, href: '#' },
+        { title: t.monev.evalBreadcrumb, href: '#' },
+        { title: t.monev.reviewBreadcrumb.replace('{id}', String(report.id)), href: '#' },
     ];
 
     const { data, setData, post, processing, errors } = useForm({
@@ -95,12 +95,12 @@ export default function MonevEvaluate({ report }: Props) {
         e.preventDefault();
 
         if (!isScoreValid) {
-            toast.error('Skor monev harus berupa angka antara 0 dan 100.');
+            toast.error(t.monev.evalScoreRangeError);
             return;
         }
 
         if (!isNotesValid) {
-            toast.error('Catatan reviewer monev minimal 10 karakter.');
+            toast.error(t.monev.evalNotesMinLengthError);
             return;
         }
 
@@ -110,7 +110,7 @@ export default function MonevEvaluate({ report }: Props) {
                 toast.success(t.monev.evalSuccess);
             },
             onError: () => {
-                toast.error('Gagal menyimpan evaluasi monev. Silakan periksa kembali formulir.');
+                toast.error(t.monev.evalSaveError);
             },
         });
     };
@@ -170,17 +170,17 @@ export default function MonevEvaluate({ report }: Props) {
                         <Card className="border-border shadow-sm">
                             <CardHeader className="border-b border-border/70 bg-slate-50/50 dark:bg-slate-900/30">
                                 <CardTitle className="font-serif text-base font-bold text-foreground">
-                                    Identitas Usulan & Capaian Monev
+                                    {t.monev.proposalAndMonevIdentity}
                                 </CardTitle>
                                 <CardDescription className="text-xs">
-                                    Data laporan kemajuan yang dikirimkan oleh pengusul penelitian
+                                    {t.monev.proposalAndMonevIdentityDesc}
                                 </CardDescription>
                             </CardHeader>
 
                             <CardContent className="space-y-4 p-5 text-sm">
                                 <div>
                                     <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                        Judul Penelitian
+                                        {t.monev.proposalTitle}
                                     </span>
                                     <h2 className="mt-1 font-serif text-base font-bold text-foreground">
                                         {report.proposal?.judul || report.proposal?.title || '-'}
@@ -195,7 +195,7 @@ export default function MonevEvaluate({ report }: Props) {
                                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 pt-2 border-t border-border/60">
                                     <div>
                                         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                            Pengusul Utama
+                                            {t.monev.principalInvestigator}
                                         </span>
                                         <div className="mt-1 flex items-center gap-1.5 text-foreground font-medium">
                                             <User className="h-4 w-4 text-muted-foreground" />
@@ -205,7 +205,7 @@ export default function MonevEvaluate({ report }: Props) {
 
                                     <div>
                                         <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                            Jadwal Tahapan Monev
+                                            {t.monev.monevStageSchedule}
                                         </span>
                                         <p className="mt-1 font-medium text-foreground">
                                             {sched?.nama_tahap || '-'}
@@ -223,10 +223,10 @@ export default function MonevEvaluate({ report }: Props) {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                                                Persentase Kemajuan Riil
+                                                {t.monev.actualProgressPercentage}
                                             </span>
                                             <p className="text-xs text-muted-foreground mt-0.5">
-                                                Klaim capaian pelaksanaan yang dilaporkan peneliti
+                                                {t.monev.actualProgressClaimDesc}
                                             </p>
                                         </div>
                                         <TabularFigure
@@ -252,7 +252,7 @@ export default function MonevEvaluate({ report }: Props) {
                         <Card className="border-border shadow-sm">
                             <CardHeader className="border-b border-border/70 bg-slate-50/50 dark:bg-slate-900/30">
                                 <CardTitle className="font-serif text-base font-bold text-foreground">
-                                    Ringkasan Progres & Catatan Kendala
+                                    {t.monev.summaryLabel} & {t.monev.issuesLabel}
                                 </CardTitle>
                             </CardHeader>
 
@@ -275,7 +275,7 @@ export default function MonevEvaluate({ report }: Props) {
                                             report.catatan_kendala
                                         ) : (
                                             <span className="italic text-muted-foreground">
-                                                Tidak ada kendala spesifik yang dilaporkan oleh peneliti.
+                                                {t.monev.noObstaclesReported}
                                             </span>
                                         )}
                                     </div>
@@ -287,7 +287,7 @@ export default function MonevEvaluate({ report }: Props) {
                         <Card className="border-border shadow-sm">
                             <CardHeader className="border-b border-border/70 bg-slate-50/50 dark:bg-slate-900/30">
                                 <CardTitle className="font-serif text-base font-bold text-foreground">
-                                    Berkas Dokumen Pendukung
+                                    {t.monev.supportingDocumentsTitle}
                                 </CardTitle>
                             </CardHeader>
 
@@ -302,7 +302,7 @@ export default function MonevEvaluate({ report }: Props) {
                                                 {t.monev.reportFileLabel}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                                Dokumen laporan kemajuan substantif (Format PDF)
+                                                {t.monev.progressReportDocDesc}
                                             </p>
                                         </div>
                                     </div>
@@ -320,7 +320,7 @@ export default function MonevEvaluate({ report }: Props) {
                                             </a>
                                         </Button>
                                     ) : (
-                                        <span className="text-xs text-muted-foreground">Berkas belum diunggah</span>
+                                        <span className="text-xs text-muted-foreground">{t.monev.fileNotUploaded}</span>
                                     )}
                                 </div>
 
@@ -334,7 +334,7 @@ export default function MonevEvaluate({ report }: Props) {
                                                 {t.monev.logbookFileLabel}
                                             </p>
                                             <p className="text-xs text-muted-foreground">
-                                                Rekam jejak aktivitas harian dan bukti pelaksanaan
+                                                {t.monev.logbookDocDesc}
                                             </p>
                                         </div>
                                     </div>
@@ -352,7 +352,7 @@ export default function MonevEvaluate({ report }: Props) {
                                             </a>
                                         </Button>
                                     ) : (
-                                        <span className="text-xs text-muted-foreground">Berkas tidak dilampirkan</span>
+                                        <span className="text-xs text-muted-foreground">{t.monev.fileNotAttached}</span>
                                     )}
                                 </div>
                             </CardContent>
@@ -364,10 +364,10 @@ export default function MonevEvaluate({ report }: Props) {
                         <Card className="border-border shadow-sm sticky top-6">
                             <CardHeader className="border-b border-border/70 bg-slate-50/50 dark:bg-slate-900/30">
                                 <CardTitle className="font-serif text-lg font-bold text-foreground">
-                                    Lembar Penilaian Reviewer
+                                    {t.monev.reviewerEvaluationSheet}
                                 </CardTitle>
                                 <CardDescription className="text-xs">
-                                    Masukkan nilai monev, evaluasi substantif, dan putusan rekomendasi
+                                    {t.monev.reviewerEvaluationSheetDesc}
                                 </CardDescription>
                             </CardHeader>
 
@@ -391,7 +391,7 @@ export default function MonevEvaluate({ report }: Props) {
                                             step="0.01"
                                             min="0"
                                             max="100"
-                                            placeholder="Contoh: 85.50"
+                                            placeholder={t.monev.scorePlaceholder}
                                             value={data.skor_monev}
                                             onChange={(e) => setData('skor_monev', e.target.value)}
                                             required
@@ -425,7 +425,7 @@ export default function MonevEvaluate({ report }: Props) {
                                                     {t.monev.statusApproved}
                                                 </span>
                                                 <span className="text-[10px] text-muted-foreground mt-0.5">
-                                                    Buka Kunci Termin 2
+                                                    {t.monev.unlockTranche2}
                                                 </span>
                                             </button>
 
@@ -443,7 +443,7 @@ export default function MonevEvaluate({ report }: Props) {
                                                     {t.monev.statusRevision}
                                                 </span>
                                                 <span className="text-[10px] text-muted-foreground mt-0.5">
-                                                    Perbaikan Dokumen
+                                                    {t.monev.documentRevision}
                                                 </span>
                                             </button>
                                         </div>

@@ -43,17 +43,17 @@ export function AppSidebar() {
     if (hasRole(ROLE_NAMES.SUPER_ADMIN)) {
         roleNavItems = [
             {
-                title: 'Universities',
+                title: t.navigation.universities,
                 href: '/admin/universities',
                 icon: Building2,
             },
             {
-                title: 'Users',
+                title: t.navigation.users,
                 href: '/admin/users',
                 icon: Users,
             },
             {
-                title: 'System Logs',
+                title: t.navigation.systemLogs,
                 href: '/admin/logs',
                 icon: ClipboardList,
             },
@@ -86,7 +86,7 @@ export function AppSidebar() {
                 icon: Award,
             },
             {
-                title: 'Kelulusan & SKTS',
+                title: t.navigation.graduationSkts,
                 href: '/admin/evaluations',
                 icon: GraduationCap,
             },
@@ -99,12 +99,12 @@ export function AppSidebar() {
                 icon: FileText,
             },
             {
-                title: 'Termin & Pencairan',
+                title: t.navigation.tranchesDisbursement,
                 href: '/finance/fundings',
                 icon: CreditCard,
             },
             {
-                title: 'Laporan Keuangan',
+                title: t.navigation.financialReports,
                 href: '/finance/reports',
                 icon: FileSpreadsheet,
             },
@@ -112,7 +112,7 @@ export function AppSidebar() {
     } else if (hasRole(ROLE_NAMES.REVIEWER)) {
         roleNavItems = [
             {
-                title: 'Dashboard Reviewer',
+                title: t.navigation.reviewerDashboard,
                 href: '/reviewer/dashboard',
                 icon: LayoutGrid,
             },
@@ -122,7 +122,7 @@ export function AppSidebar() {
                 icon: UserCheck,
             },
             {
-                title: 'Penilaian Monev',
+                title: t.navigation.monevEvaluation,
                 href: '/reviewer/monev',
                 icon: CalendarDays,
             },
@@ -135,7 +135,7 @@ export function AppSidebar() {
                 icon: FileText,
             },
             {
-                title: 'Laporan Kemajuan',
+                title: t.navigation.progressReports,
                 href: '/progress',
                 icon: Clock,
             },
@@ -145,7 +145,7 @@ export function AppSidebar() {
                 icon: Award,
             },
             {
-                title: 'Evaluasi Akhir',
+                title: t.navigation.finalEvaluation,
                 href: '/evaluations/my-final-report',
                 icon: GraduationCap,
             },

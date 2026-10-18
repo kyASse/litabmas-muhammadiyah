@@ -161,9 +161,9 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">{t.common.all}</SelectItem>
-                                    <SelectItem value="submitted">Submitted</SelectItem>
-                                    <SelectItem value="approved">Approved</SelectItem>
-                                    <SelectItem value="revision">Revision</SelectItem>
+                                    <SelectItem value="submitted">{t.statuses.Submitted}</SelectItem>
+                                    <SelectItem value="approved">{t.statuses.Approved}</SelectItem>
+                                    <SelectItem value="revision">{t.statuses.Revision}</SelectItem>
                                 </SelectContent>
                             </Select>
 

@@ -20,7 +20,17 @@ export type BadgeStatusType =
   | 'Monev_Locked' 
   | 'Output_Verified' 
   | 'Completed_SKTS' 
-  | 'Terminated';
+  | 'Terminated'
+  | 'Active'
+  | 'Signed'
+  | 'Pending'
+  | 'Disbursed'
+  | 'Approved'
+  | 'Revision'
+  | 'Waiting_Disbursement'
+  | 'Administrasi_Valid'
+  | 'Reviewed'
+  | string;
 
 export interface StatusBadgeProps {
   status: BadgeStatusType;
@@ -36,7 +46,33 @@ interface StatusConfig {
   icon: LucideIcon;
 }
 
-const statusMap: Record<BadgeStatusType, StatusConfig> = {
+export function normalizeStatus(status: string): string {
+  const s = (status || '').toLowerCase().trim();
+  if (s === 'draft' || s === 'draf') return 'Draft';
+  if (s === 'submitted' || s === 'diajukan') return 'Submitted';
+  if (s === 'in_review' || s === 'in review' || s === 'sedang direview' || s === 'review' || s === 'reviewed' || s === 'direview') return 'In_Review';
+  if (s === 'lolos_didanai' || s === 'lolos didanai' || s === 'funded') return 'Lolos_Didanai';
+  if (s === 'ditolak' || s === 'rejected') return 'Ditolak';
+  if (s === 'revisi' || s === 'revision' || s === 'perlu revisi') return 'Revisi';
+  if (s === 'contracted' || s === 'terkontrak') return 'Contracted';
+  if (s === 'disbursed_t1' || s === 'cair termin 1' || s === 'cair_termin_1') return 'Disbursed_T1';
+  if (s === 'disbursed_t2' || s === 'cair termin 2' || s === 'cair_termin_2') return 'Disbursed_T2';
+  if (s === 'monev_approved' || s === 'monev disetujui') return 'Monev_Approved';
+  if (s === 'monev_locked' || s === 'terkunci monev' || s === 'terkunci_monev') return 'Monev_Locked';
+  if (s === 'output_verified' || s === 'luaran terverifikasi' || s === 'verified') return 'Output_Verified';
+  if (s === 'completed_skts' || s === 'selesai (skts)' || s === 'selesai' || s === 'completed') return 'Completed_SKTS';
+  if (s === 'terminated' || s === 'dibatalkan' || s === 'force majeure / dibatalkan') return 'Terminated';
+  if (s === 'active' || s === 'aktif') return 'Active';
+  if (s === 'signed' || s === 'ditandatangani') return 'Signed';
+  if (s === 'pending' || s === 'menunggu') return 'Pending';
+  if (s === 'disbursed' || s === 'dicairkan') return 'Disbursed';
+  if (s === 'approved' || s === 'disetujui') return 'Approved';
+  if (s === 'administrasi_valid' || s === 'valid administrasi' || s === 'valid_administrasi') return 'Administrasi_Valid';
+  if (s === 'waiting_disbursement' || s === 'menunggu pencairan' || s === 'menunggu_pencairan') return 'Waiting_Disbursement';
+  return status;
+}
+
+const statusMap: Record<string, StatusConfig> = {
   Draft: {
     label: '[DRAFT]',
     classes: 'bg-slate-100 text-slate-700 border-slate-300',
@@ -107,6 +143,51 @@ const statusMap: Record<BadgeStatusType, StatusConfig> = {
     classes: 'bg-rose-100 text-rose-800 border-rose-300',
     icon: XCircle,
   },
+  Active: {
+    label: '[ACTIVE]',
+    classes: 'bg-blue-50 text-blue-800 border-blue-200',
+    icon: FileCheck,
+  },
+  Signed: {
+    label: '[SIGNED]',
+    classes: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    icon: CheckCircle2,
+  },
+  Pending: {
+    label: '[PENDING]',
+    classes: 'bg-slate-100 text-slate-700 border-slate-300',
+    icon: Clock,
+  },
+  Disbursed: {
+    label: '[DISBURSED]',
+    classes: 'bg-teal-50 text-teal-700 border-teal-200',
+    icon: CheckCircle2,
+  },
+  Approved: {
+    label: '[APPROVED]',
+    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    icon: Unlock,
+  },
+  Revision: {
+    label: '[PERLU REVISI]',
+    classes: 'bg-amber-50 text-amber-800 border-amber-300',
+    icon: AlertTriangle,
+  },
+  Waiting_Disbursement: {
+    label: '[MENUNGGU PENCAIRAN]',
+    classes: 'bg-amber-50 text-amber-800 border-amber-200',
+    icon: Clock,
+  },
+  Administrasi_Valid: {
+    label: '[ADMINISTRASI VALID]',
+    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    icon: CheckCircle2,
+  },
+  Reviewed: {
+    label: '[DIREVIEW]',
+    classes: 'bg-sky-50 text-sky-700 border-sky-200',
+    icon: CheckCircle2,
+  },
 };
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({
@@ -117,14 +198,18 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
   className = '',
 }) => {
   const { t } = useTranslation();
-  const config = statusMap[status] || statusMap.Draft;
+  const normalized = normalizeStatus(status);
+  const config = statusMap[normalized] || statusMap[status] || statusMap.Draft;
   const Icon = config.icon;
 
   const sizeClasses = size === 'sm' 
     ? 'px-2 py-0.5 text-xs gap-1' 
     : 'px-2.5 py-1 text-xs gap-1.5';
 
-  const localizedLabel = labelOverride || (t.statuses && t.statuses[status]) || config.label;
+  const localizedLabel =
+    (t.statuses && ((t.statuses as any)[normalized] || (t.statuses as any)[status])) ||
+    labelOverride ||
+    config.label;
 
   return (
     <span

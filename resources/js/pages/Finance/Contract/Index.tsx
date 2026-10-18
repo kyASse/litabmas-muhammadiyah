@@ -273,21 +273,21 @@ export default function ContractIndex({
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                         <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            Total Kontrak
+                            {t.contracts.totalContracts}
                         </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <span className="font-mono text-2xl font-bold text-slate-900">
                                 {summary.total_contracts}
                             </span>
                             <span className="text-xs text-slate-500 font-mono">
-                                {contracts.total} sesuai filter
+                                {t.contracts.contractsMatchingFilter.replace('{total}', String(contracts.total))}
                             </span>
                         </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                         <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            Nilai Kontrak Disetujui
+                            {t.contracts.approvedContractValue}
                         </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
@@ -298,14 +298,14 @@ export default function ContractIndex({
                                 className="text-slate-900 font-semibold"
                             />
                             <span className="text-xs text-slate-500 font-mono">
-                                Akumulasi nilai
+                                {t.contracts.accumulatedValue}
                             </span>
                         </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                         <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            Dana Terealisasi
+                            {t.contracts.realizedFunding}
                         </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
@@ -316,14 +316,14 @@ export default function ContractIndex({
                                 className="text-emerald-700 font-semibold"
                             />
                             <span className="text-xs text-emerald-600 font-mono">
-                                Cair ke peneliti
+                                {t.contracts.disbursedToResearchers}
                             </span>
                         </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
                         <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block">
-                            Outstanding Dana
+                            {t.contracts.outstandingFunding}
                         </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
@@ -334,7 +334,7 @@ export default function ContractIndex({
                                 className="text-amber-700 font-semibold"
                             />
                             <span className="text-xs text-amber-600 font-mono">
-                                Belum terealisasi
+                                {t.contracts.unrealized}
                             </span>
                         </div>
                     </div>
@@ -369,10 +369,10 @@ export default function ContractIndex({
 
                         <Select value={universityId || 'all'} onValueChange={(val) => setUniversityId(val === 'all' ? '' : val)}>
                             <SelectTrigger className="text-sm font-sans">
-                                <SelectValue placeholder="Semua Perguruan Tinggi" />
+                                <SelectValue placeholder={t.contracts.allUniversities} />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Semua Perguruan Tinggi</SelectItem>
+                                <SelectItem value="all">{t.contracts.allUniversities}</SelectItem>
                                 {universities.map((u) => (
                                     <SelectItem key={u.id} value={u.id.toString()}>
                                         {u.short_name || u.name}
@@ -403,9 +403,9 @@ export default function ContractIndex({
                                 <TableHead className="w-12 text-center">{t.contracts.tableColNo}</TableHead>
                                 <TableHead>{t.contracts.tableColNumber} & {t.contracts.tableColProposal}</TableHead>
                                 <TableHead>{t.contracts.institution} & {t.contracts.leadResearcher}</TableHead>
-                                <TableHead className="text-right">Pagu / Usulan</TableHead>
+                                <TableHead className="text-right">{t.contracts.paguOrProposed}</TableHead>
                                 <TableHead className="text-right">{t.contracts.tableColApprovedBudget}</TableHead>
-                                <TableHead className="min-w-44">Realisasi Pencairan</TableHead>
+                                <TableHead className="min-w-44">{t.contracts.disbursementRealization}</TableHead>
                                 <TableHead>{t.contracts.tableColStatus}</TableHead>
                                 <TableHead className="text-center">{t.contracts.tableColActions}</TableHead>
                             </TableRow>
@@ -463,7 +463,7 @@ export default function ContractIndex({
                                             <TableCell className="text-right">
                                                 <div className="space-y-1">
                                                     <div>
-                                                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Pagu</span>
+                                                        <span className="text-[10px] text-slate-400 uppercase tracking-wider block">{t.contracts.paguLabel}</span>
                                                         <TabularFigure
                                                             value={maxBudget}
                                                             type="currency"
@@ -473,7 +473,7 @@ export default function ContractIndex({
                                                     </div>
                                                     {proposedBudget > 0 && (
                                                         <div>
-                                                            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">Usulan</span>
+                                                            <span className="text-[10px] text-slate-400 uppercase tracking-wider block">{t.contracts.proposedLabel}</span>
                                                             <TabularFigure
                                                                 value={proposedBudget}
                                                                 type="currency"
@@ -508,14 +508,13 @@ export default function ContractIndex({
                                                     </div>
                                                     <Progress value={contract.funding_progress} className="h-1.5" />
                                                     <p className="text-[11px] text-slate-500 font-mono">
-                                                        {contract.fundings_count} termin pencairan (70:30)
+                                                        {t.contracts.tranchesDisbursementCount.replace('{count}', String(contract.fundings_count))}
                                                     </p>
                                                 </div>
                                             </TableCell>
                                             <TableCell>
                                                 <StatusBadge
                                                     status={badgeInfo.type}
-                                                    labelOverride={badgeInfo.label}
                                                     size="sm"
                                                 />
                                             </TableCell>
@@ -540,7 +539,7 @@ export default function ContractIndex({
                 {contracts.last_page > 1 && (
                     <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
                         <p className="text-xs font-mono text-slate-500">
-                            Halaman {contracts.current_page} dari {contracts.last_page} (Total {contracts.total} kontrak)
+                            {t.contracts.pageOf.replace('{current}', String(contracts.current_page)).replace('{last}', String(contracts.last_page)).replace('{total}', String(contracts.total))}
                         </p>
                         <div className="flex flex-wrap gap-1.5">
                             {contracts.links.map((link, index) => {
@@ -617,12 +616,12 @@ export default function ContractIndex({
                             </Label>
                             {eligibleProposals.length === 0 ? (
                                 <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-                                    [INFORMASI] Saat ini belum ada usulan berstatus [LOLOS DIDANAI] yang belum memiliki kontrak.
+                                    {t.contracts.noFundedProposalsNotice}
                                 </div>
                             ) : (
                                 <Select value={issueData.id_proposal} onValueChange={handleProposalChange}>
                                     <SelectTrigger className="text-sm">
-                                        <SelectValue placeholder="Pilih usulan penelitian yang lolos didanai..." />
+                                        <SelectValue placeholder={t.contracts.selectFundedProposalPlaceholder} />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {eligibleProposals.map((p) => (
@@ -646,11 +645,11 @@ export default function ContractIndex({
                             <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-4 space-y-3">
                                 <div className="flex items-start justify-between gap-4 text-xs">
                                     <div>
-                                        <span className="text-slate-500 uppercase tracking-wider block">Skema Penelitian</span>
+                                        <span className="text-slate-500 uppercase tracking-wider block">{t.contracts.scheme}</span>
                                         <span className="font-semibold text-slate-800">{selectedProposal.skema_nama || '-'}</span>
                                     </div>
                                     <div>
-                                        <span className="text-slate-500 uppercase tracking-wider block">Ketua Pengusul</span>
+                                        <span className="text-slate-500 uppercase tracking-wider block">{t.contracts.leadResearcher}</span>
                                         <span className="font-semibold text-slate-800">{selectedProposal.pengusul_nama || '-'}</span>
                                     </div>
                                 </div>
@@ -670,7 +669,7 @@ export default function ContractIndex({
                                     </div>
                                     <div className="text-right">
                                         <span className="text-xs text-slate-500 uppercase tracking-wider block">
-                                            Batas Pagu Skema
+                                            {t.contracts.schemeCeilingLimit}
                                         </span>
                                         <TabularFigure
                                             value={selectedProposal.pagu_maksimal}
@@ -688,7 +687,7 @@ export default function ContractIndex({
                         <div className="grid gap-2">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="dana_disetujui" className="text-xs font-medium uppercase tracking-wider text-slate-700">
-                                    {t.contracts.approvedBudget} (Budget Cut Adjustment) <span className="text-rose-500">*</span>
+                                    {t.contracts.approvedBudget} ({t.contracts.budgetCut}) <span className="text-rose-500">*</span>
                                 </Label>
                                 {selectedProposal && (
                                     <div className="flex gap-1.5 text-xs">
@@ -697,7 +696,7 @@ export default function ContractIndex({
                                             onClick={() => setIssueData('dana_disetujui', selectedProposal.biaya_diusulkan.toString())}
                                             className="text-sky-700 hover:underline font-mono text-[11px]"
                                         >
-                                            Samakan Usulan
+                                            {t.contracts.matchProposedBtn}
                                         </button>
                                         <span className="text-slate-300">|</span>
                                         <button
@@ -705,7 +704,7 @@ export default function ContractIndex({
                                             onClick={() => setIssueData('dana_disetujui', selectedProposal.pagu_maksimal.toString())}
                                             className="text-sky-700 hover:underline font-mono text-[11px]"
                                         >
-                                            Gunakan Pagu
+                                            {t.contracts.useCeilingBtn}
                                         </button>
                                     </div>
                                 )}
@@ -717,7 +716,7 @@ export default function ContractIndex({
                                 step={50000}
                                 value={issueData.dana_disetujui}
                                 onChange={(e) => setIssueData('dana_disetujui', e.target.value)}
-                                placeholder="Masukkan nominal dana disetujui (contoh: 20000000)"
+                                placeholder={t.contracts.enterApprovedBudgetPlaceholder}
                                 className="font-mono text-sm bg-white"
                                 required
                             />
@@ -740,21 +739,21 @@ export default function ContractIndex({
                                         <span className="text-slate-600">{t.contracts.budgetCut}:</span>
                                         <span className={`font-mono font-bold ${budgetCutAmount > 0 ? 'text-amber-700' : 'text-slate-800'}`}>
                                             {budgetCutAmount > 0
-                                                ? `Dipotong Rp ${budgetCutAmount.toLocaleString('id-ID')} (-${budgetCutPercent}%)`
+                                                ? t.contracts.budgetCutInfo.replace('{amount}', budgetCutAmount.toLocaleString('id-ID')).replace('{percent}', budgetCutPercent)
                                                 : budgetCutAmount === 0
-                                                ? 'Sesuai Usulan (0% Pemotongan)'
-                                                : `Penambahan Rp ${Math.abs(budgetCutAmount).toLocaleString('id-ID')}`}
+                                                ? t.contracts.matchingProposedNoCut
+                                                : t.contracts.budgetIncreaseInfo.replace('{amount}', Math.abs(budgetCutAmount).toLocaleString('id-ID'))}
                                         </span>
                                     </div>
                                     <div className="pt-2 border-t border-slate-200 grid grid-cols-2 gap-2 text-[11px] text-slate-500 font-mono">
                                         <div>
-                                            <span>Termin 1 (70%): </span>
+                                            <span>{t.funding.tranche1RatioBadge}: </span>
                                             <span className="font-semibold text-slate-700">
                                                 Rp {Math.round(approvedNum * 0.7).toLocaleString('id-ID')}
                                             </span>
                                         </div>
                                         <div className="text-right">
-                                            <span>Termin 2 (30%): </span>
+                                            <span>{t.funding.tranche2RatioBadge}: </span>
                                             <span className="font-semibold text-slate-700">
                                                 Rp {Math.round(approvedNum * 0.3).toLocaleString('id-ID')}
                                             </span>
@@ -785,14 +784,14 @@ export default function ContractIndex({
                         {/* Nomor Kontrak (Opsional / Otomatis) */}
                         <div className="grid gap-2">
                             <Label htmlFor="nomor_kontrak" className="text-xs font-medium uppercase tracking-wider text-slate-700">
-                                {t.contracts.contractNumber} (Opsional)
+                                {t.contracts.contractNumber} ({t.contracts.optional})
                             </Label>
                             <Input
                                 id="nomor_kontrak"
                                 type="text"
                                 value={issueData.nomor_kontrak}
                                 onChange={(e) => setIssueData('nomor_kontrak', e.target.value)}
-                                placeholder="Kosongkan untuk penomoran kanonikal otomatis (KTR/YYYY/KMP/0001)"
+                                placeholder={t.contracts.contractNumberAutoHelp}
                                 className="font-mono text-sm bg-white"
                             />
                             {issueErrors.nomor_kontrak && (

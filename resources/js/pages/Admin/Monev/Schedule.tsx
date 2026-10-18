@@ -109,7 +109,7 @@ export default function Schedule({
                 toast.success(t.monev.scheduleSaved);
             },
             onError: () => {
-                toast.error('Gagal menyimpan jadwal monev. Periksa isian formulir.');
+                toast.error(t.monev.saveScheduleError);
             },
         });
     };
@@ -271,7 +271,7 @@ export default function Schedule({
                         </TabsTrigger>
                         <TabsTrigger value="pending" className="flex items-center gap-2">
                             <Clock className="h-4 w-4" />
-                            Laporan Pending
+                            {t.monev.pendingReportsTab}
                             {pendingReports.length > 0 && (
                                 <span className="ml-1.5 rounded-full bg-amber-500/10 px-2 py-0.5 text-xs font-bold text-amber-700">
                                     {pendingReports.length}
@@ -362,13 +362,13 @@ export default function Schedule({
                                             {t.monev.tableColProposal}
                                         </TableHead>
                                         <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                            Peneliti
+                                            {t.monev.researcher}
                                         </TableHead>
                                         <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
                                             {t.monev.tableColPercentage}
                                         </TableHead>
                                         <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
-                                            Berkas Dokumen
+                                            {t.monev.documentFiles}
                                         </TableHead>
                                         <TableHead className="font-semibold text-slate-700 dark:text-slate-200">
                                             {t.monev.tableColReportStatus}
@@ -380,7 +380,7 @@ export default function Schedule({
                                         <TableRow>
                                             <TableCell colSpan={5} className="py-12 text-center text-muted-foreground">
                                                 <FileText className="mx-auto mb-2 h-8 w-8 text-slate-300" />
-                                                <p className="text-sm">Tidak ada laporan kemajuan yang menunggu evaluasi.</p>
+                                                <p className="text-sm">{t.monev.noPendingReports}</p>
                                             </TableCell>
                                         </TableRow>
                                     ) : (
