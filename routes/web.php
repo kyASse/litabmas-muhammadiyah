@@ -10,11 +10,11 @@ use App\Http\Controllers\Admin\MonevReportController as AdminMonevReportControll
 use App\Http\Controllers\Admin\MonevScheduleCtrl as AdminMonevScheduleCtrl;
 use App\Http\Controllers\Admin\OutputReportController as AdminOutputReportController;
 use App\Http\Controllers\Admin\OutputVerifyController as AdminOutputVerifyController;
-use App\Http\Controllers\Admin\OutputVerifyCtrl as AdminOutputVerifyCtrl;
 use App\Http\Controllers\Admin\ProposalController as AdminProposalController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\ScheduleController as AdminScheduleController;
 use App\Http\Controllers\Admin\SettingsCtrl as AdminSettingsCtrl;
+use App\Http\Controllers\Admin\SktsController;
 use App\Http\Controllers\Admin\UniversityController as AdminUniversityController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\UserRoleController as AdminUserRoleController;
@@ -154,6 +154,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Final Report / Evaluation
         Route::get('/evaluations/my-final-report', [EvaluationController::class, 'show'])->name('evaluations.my-final-report');
+        Route::get('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'show'])->name('evaluations.show');
+        Route::post('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'store'])->name('evaluations.store');
 
         // Funding Info for Peneliti
         Route::get('/funding', [UserFundingController::class, 'index'])->name('funding.index');
@@ -294,8 +296,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('output/report', [AdminOutputReportController::class, 'index'])->name('output.report');
         Route::get('output/export', [AdminOutputReportController::class, 'export'])->name('output.export');
 
-        // Final Certification (SKTS)
-        Route::post('/evaluations/{id}/certify', [EvaluationController::class, 'generateSkts'])->name('evaluations.certify');
+        // SKTS & Final Evaluation Management
+        Route::post('/proposals/{proposal}/evaluate', [SktsController::class, 'evaluate'])->name('proposals.evaluate');
+        Route::post('/proposals/{proposal}/skts', [SktsController::class, 'generateSkts'])->name('proposals.skts');
+        Route::post('/proposals/{proposal}/terminate', [SktsController::class, 'terminateForceMajeure'])->name('proposals.terminate');
+        Route::post('/evaluations/{id}/certify', [SktsController::class, 'generateSkts'])->name('evaluations.certify');
 
         // Schedules
         Route::resource('schedules', AdminScheduleController::class);

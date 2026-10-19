@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFinalEvaluationRequest;
+use App\Models\Evaluation;
 use App\Models\ProgressReport;
+use App\Models\Proposal;
 use App\Models\Review;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -13,9 +17,94 @@ class EvaluationController extends Controller
     /**
      * Menampilkan laporan akhir peneliti untuk diunduh / dilihat (Peneliti).
      */
-    public function show(Request $request)
+    public function show(Request $request, ?Proposal $proposal = null)
     {
-        return Inertia::render('Evaluation/Show');
+        $user = Auth::user();
+
+        if (! $proposal) {
+            $proposal = Proposal::where('id_pengusul', $user->id)->latest()->first();
+        }
+
+        if ($proposal) {
+            // Otorisasi: Super Admin, Admin Kampus di institusi yang sama, atau Pengusul pemilik usulan
+            $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+                || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
+            $isAdminKampus = $user->hasAnyRole([Role::ADMIN_KAMPUS])
+                || in_array($user->role?->name, [Role::ADMIN_KAMPUS, 'Admin Kampus'], true);
+
+            if (! $isSuperAdmin) {
+                if ($isAdminKampus && (int) $user->university_id !== (int) $proposal->university_id) {
+                    abort(403, 'Anda tidak memiliki hak akses ke evaluasi institusi lain.');
+                }
+                if (! $isAdminKampus && ((int) $user->id !== (int) $proposal->id_pengusul || (int) $user->university_id !== (int) $proposal->university_id)) {
+                    abort(403, 'Anda tidak memiliki hak akses ke evaluasi proposal ini.');
+                }
+            }
+
+            $proposal->loadMissing([
+                'user',
+                'researchSchema',
+                'contract',
+                'researchOutputs.journalOutput',
+                'researchOutputs.bookOutput',
+                'researchOutputs.hkiOutput',
+                'researchOutputs.productOutput',
+                'evaluation',
+            ]);
+        }
+
+        return Inertia::render('Evaluation/Show', [
+            'proposal' => $proposal,
+            'evaluation' => $proposal?->evaluation,
+            'outputs' => $proposal?->researchOutputs ?? [],
+        ]);
+    }
+
+    /**
+     * Menyimpan penyerahan laporan akhir 100% dan memicu status Dalam_Evaluasi.
+     */
+    public function store(StoreFinalEvaluationRequest $request, Proposal $proposal)
+    {
+        $user = Auth::user();
+
+        // Otorisasi kepemilikan usulan (pencegahan IDOR)
+        $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+            || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
+        $isAdminKampus = $user->hasAnyRole([Role::ADMIN_KAMPUS])
+            || in_array($user->role?->name, [Role::ADMIN_KAMPUS, 'Admin Kampus'], true);
+
+        if (! $isSuperAdmin) {
+            if ($isAdminKampus && (int) $user->university_id !== (int) $proposal->university_id) {
+                abort(403, 'Anda tidak memiliki hak akses ke proposal institusi lain.');
+            }
+            if (! $isAdminKampus && ((int) $user->id !== (int) $proposal->id_pengusul || (int) $user->university_id !== (int) $proposal->university_id)) {
+                abort(403, 'Anda tidak memiliki hak akses untuk menyerahkan evaluasi akhir usulan ini.');
+            }
+        }
+
+        $filePath = null;
+        if ($request->hasFile('file_laporan_akhir')) {
+            $filePath = $request->file('file_laporan_akhir')->store('evaluations', 'public');
+        }
+
+        $wajibOutputs = $proposal->researchOutputs()
+            ->where('target_status', 'Wajib')
+            ->get();
+        $totalWajib = $wajibOutputs->count();
+        $verifiedWajib = $wajibOutputs->filter(fn ($o) => $o->status_verifikasi === 'Verified')->count();
+        $percentage = $totalWajib > 0 ? (int) round(($verifiedWajib / $totalWajib) * 100) : 100;
+
+        Evaluation::updateOrCreate(
+            ['id_proposal' => $proposal->id],
+            [
+                'file_laporan_akhir' => $filePath ?? 'evaluations/default.pdf',
+                'ringkasan_hasil' => $request->input('ringkasan_hasil'),
+                'persentase_capaian_luaran' => $percentage,
+                'status_penelitian' => Evaluation::STATUS_DALAM_EVALUASI,
+            ]
+        );
+
+        return redirect()->back()->with('success', 'Laporan akhir berhasil diajukan dan sedang dalam proses evaluasi akhir.');
     }
 
     /**
