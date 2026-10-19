@@ -157,6 +157,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/outputs/products/{product}/upload', [OutputDocController::class, 'destroy'])->name('outputs.products.delete-doc');
 
         // Final Report / Evaluation
+        Route::get('/evaluations/show', [EvaluationController::class, 'show'])->name('evaluations.show.query');
         Route::get('/evaluations/my-final-report', [EvaluationController::class, 'show'])->name('evaluations.my-final-report');
         Route::get('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'show'])->name('evaluations.show');
         Route::post('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'store'])->name('evaluations.store');
@@ -289,6 +290,7 @@ Route::middleware(['auth'])->group(function () {
         // Output Verification & Reports
         Route::prefix('outputs')->name('outputs.')->group(function () {
             Route::get('/', [AdminOutputVerifyController::class, 'index'])->name('index');
+            Route::get('/verify', [AdminOutputVerifyController::class, 'index'])->name('verify-page');
             Route::post('{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('verify');
         });
         Route::post('/outputs/{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('outputs.verify');

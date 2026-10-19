@@ -22,7 +22,12 @@ class EvaluationController extends Controller
         $user = Auth::user();
 
         if (! $proposal) {
-            $proposal = Proposal::where('id_pengusul', $user->id)->latest()->first();
+            $proposalId = $request->input('proposal_id') ?? $request->input('id');
+            if ($proposalId) {
+                $proposal = Proposal::find($proposalId);
+            } else {
+                $proposal = Proposal::where('id_pengusul', $user->id)->latest()->first();
+            }
         }
 
         if ($proposal) {
