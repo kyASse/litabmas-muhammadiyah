@@ -26,7 +26,8 @@ import { PDFUploader } from '@/components/ui/PDFUploader';
 
 export interface ProposalOption {
     id: number;
-    judul: string;
+    judul?: string;
+    judul_penelitian?: string;
     status_proposal?: string;
 }
 
@@ -157,7 +158,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                 <SelectContent>
                                     {proposals.map((prop) => (
                                         <SelectItem key={prop.id} value={String(prop.id)}>
-                                            <span className="font-medium text-slate-900">#{prop.id}</span> - {prop.judul}
+                                            <span className="font-medium text-slate-900">#{prop.id}</span> - {prop.judul || prop.judul_penelitian}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>

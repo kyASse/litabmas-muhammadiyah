@@ -461,4 +461,19 @@ class OutputDeduplicationTest extends TestCase
         $this->assertContains($outputUniv1->id, $ids);
         $this->assertNotContains($outputUniv2->id, $ids);
     }
+
+    public function test_researcher_can_view_outputs_index_and_proposals_list(): void
+    {
+        $this->actingAs($this->researcher1);
+
+        $response = $this->get(route('outputs.index'));
+        $response->assertOk();
+
+        $pageProps = $response->viewData('page')['props'] ?? [];
+        $this->assertArrayHasKey('proposals', $pageProps);
+        $this->assertNotEmpty($pageProps['proposals']);
+        $firstProp = $pageProps['proposals'][0];
+        $this->assertEquals($this->proposal1->id, $firstProp['id']);
+        $this->assertNotNull($firstProp['judul_penelitian'] ?? $firstProp['judul']);
+    }
 }

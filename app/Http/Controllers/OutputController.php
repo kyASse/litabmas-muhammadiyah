@@ -84,16 +84,16 @@ class OutputController extends Controller
         $userProposals = [];
         if (! $isSuperAdmin && ! $isAdminKampus) {
             $userProposals = Proposal::where('id_pengusul', $user->id)
-                ->select('id', 'judul', 'status_proposal')
+                ->select('id', 'judul_penelitian', 'status_proposal')
                 ->latest()
                 ->get();
         } elseif ($isAdminKampus) {
             $userProposals = Proposal::where('university_id', $user->university_id)
-                ->select('id', 'judul', 'status_proposal')
+                ->select('id', 'judul_penelitian', 'status_proposal')
                 ->latest()
                 ->get();
         } else {
-            $userProposals = Proposal::select('id', 'judul', 'status_proposal')
+            $userProposals = Proposal::select('id', 'judul_penelitian', 'status_proposal')
                 ->latest()
                 ->limit(50)
                 ->get();
