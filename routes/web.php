@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\LppmApprovalController as AdminLppmApprovalContro
 use App\Http\Controllers\Admin\MonevReportController as AdminMonevReportController;
 use App\Http\Controllers\Admin\MonevScheduleCtrl as AdminMonevScheduleCtrl;
 use App\Http\Controllers\Admin\OutputReportController as AdminOutputReportController;
+use App\Http\Controllers\Admin\OutputVerifyController as AdminOutputVerifyController;
 use App\Http\Controllers\Admin\OutputVerifyCtrl as AdminOutputVerifyCtrl;
 use App\Http\Controllers\Admin\ProposalController as AdminProposalController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
@@ -143,7 +144,7 @@ Route::middleware(['auth'])->group(function () {
         // Research Outputs (Luaran Penelitian)
         Route::get('/outputs', [OutputController::class, 'index'])->name('outputs.index');
         Route::get('/outputs/create', [OutputController::class, 'create'])->name('outputs.create');
-        Route::post('/outputs', [OutputController::class, 'storeJournal'])->name('outputs.store');
+        Route::post('/outputs', [OutputController::class, 'store'])->name('outputs.store');
         Route::get('/outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('/outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
         Route::delete('/outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
@@ -284,11 +285,16 @@ Route::middleware(['auth'])->group(function () {
         });
 
         // Output Verification & Reports
-        Route::prefix('output-verify')->name('output-verify.')->group(function () {
-            Route::get('/', [AdminOutputVerifyCtrl::class, 'index'])->name('index');
-            Route::post('{output}', [AdminOutputVerifyCtrl::class, 'verify'])->name('verify');
+        Route::prefix('outputs')->name('outputs.')->group(function () {
+            Route::get('/', [AdminOutputVerifyController::class, 'index'])->name('index');
+            Route::post('{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('verify');
         });
-        Route::post('/output/{output}/verify', [AdminOutputVerifyCtrl::class, 'verify'])->name('output.verify');
+        Route::post('/outputs/{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('outputs.verify');
+        Route::prefix('output-verify')->name('output-verify.')->group(function () {
+            Route::get('/', [AdminOutputVerifyController::class, 'index'])->name('index');
+            Route::post('{output}', [AdminOutputVerifyController::class, 'verify'])->name('verify');
+        });
+        Route::post('/output/{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('output.verify');
         Route::get('output/report', [AdminOutputReportController::class, 'index'])->name('output.report');
         Route::get('output/export', [AdminOutputReportController::class, 'export'])->name('output.export');
 

@@ -2,9 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Contract;
+use App\Models\Proposal;
 use App\Models\ResearchOutput;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,13 +21,12 @@ class ResearchOutputFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => User::factory(),
-            'contract_id' => Contract::factory(),
-            'jenis_luaran' => $this->faker->randomElement(['Jurnal', 'Buku', 'HKI', 'Produk']),
-            'judul_luaran' => $this->faker->sentence(),
-            'tahun_capaian' => (int) $this->faker->year(),
-            'penulis_atau_pencipta' => $this->faker->name(),
+            'id_proposal' => Proposal::factory(),
+            'tipe_luaran' => $this->faker->randomElement(['Journal', 'Book', 'Hki', 'Product']),
+            'target_status' => $this->faker->randomElement(['Wajib', 'Tambahan']),
             'status_verifikasi' => 'Draft',
+            'catatan_verifikasi' => null,
+            'tanggal_pelaporan' => now(),
         ];
     }
 }
