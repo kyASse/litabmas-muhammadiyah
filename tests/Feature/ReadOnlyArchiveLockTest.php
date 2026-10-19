@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Contract;
 use App\Models\Evaluation;
-use App\Models\JournalOutput;
 use App\Models\Proposal;
 use App\Models\ResearchOutput;
 use App\Models\ResearchSchema;
@@ -19,10 +18,15 @@ class ReadOnlyArchiveLockTest extends TestCase
     use RefreshDatabase;
 
     protected University $university;
+
     protected User $researcher;
+
     protected User $admin;
+
     protected Proposal $proposal;
+
     protected Contract $contract;
+
     protected Evaluation $evaluation;
 
     protected function setUp(): void
@@ -67,7 +71,7 @@ class ReadOnlyArchiveLockTest extends TestCase
             'persentase_capaian_luaran' => 100,
             'skor_akhir_substansi' => 95.00,
             'rekomendasi_kelulusan' => 'Lulus_Memuaskan',
-            'nomor_skts' => 'SKTS/UMM/2026/' . $this->proposal->id,
+            'nomor_skts' => 'SKTS/UMM/2026/'.$this->proposal->id,
             'status_penelitian' => 'Selesai',
         ]);
     }

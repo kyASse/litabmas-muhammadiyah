@@ -113,7 +113,7 @@ class SktsController extends Controller
                 ->where('status_pencairan', 'Pending')
                 ->update([
                     'status_pencairan' => 'Cancelled',
-                    'catatan_keuangan' => 'Dibatalkan akibat terminasi force majeure: ' . $reason,
+                    'catatan_keuangan' => 'Dibatalkan akibat terminasi force majeure: '.$reason,
                 ]);
 
             $proposal->contract->update(['status_kontrak' => 'Closed']);

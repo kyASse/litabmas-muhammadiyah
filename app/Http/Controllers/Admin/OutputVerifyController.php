@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\VerifyOutputRequest;
 use App\Models\ResearchOutput;
 use App\Models\Role;
+use App\Models\University;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -56,7 +57,7 @@ class OutputVerifyController extends Controller
         $outputs = $query->paginate(15)->withQueryString();
 
         $universities = $isSuperAdmin
-            ? \App\Models\University::select('id', 'name', 'code')->orderBy('name')->get()
+            ? University::select('id', 'name', 'code')->orderBy('name')->get()
             : [];
 
         return Inertia::render('Admin/Output/Verify', [

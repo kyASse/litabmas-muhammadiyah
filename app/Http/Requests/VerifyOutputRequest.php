@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Models\ResearchOutput;
 use App\Models\Role;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class VerifyOutputRequest extends FormRequest
@@ -38,6 +39,7 @@ class VerifyOutputRequest extends FormRequest
 
         if ($output instanceof ResearchOutput) {
             $outputUniversityId = $output->proposal?->university_id;
+
             return (int) $user->university_id === (int) $outputUniversityId;
         }
 
@@ -68,7 +70,7 @@ class VerifyOutputRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

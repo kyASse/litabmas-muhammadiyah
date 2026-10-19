@@ -10,7 +10,6 @@ use App\Models\ProductOutput;
 use App\Models\Proposal;
 use App\Models\ResearchOutput;
 use App\Models\Role;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -320,6 +319,7 @@ class OutputController extends Controller
                 403,
                 '[BLOKIR] Anda tidak memiliki izin untuk mengelola luaran institusi lain.'
             );
+
             return;
         }
 

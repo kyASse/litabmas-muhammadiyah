@@ -7,6 +7,7 @@ use App\Models\HkiOutput;
 use App\Models\JournalOutput;
 use App\Models\Proposal;
 use App\Models\Role;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -51,7 +52,7 @@ class StoreResearchOutputRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
@@ -75,7 +76,7 @@ class StoreResearchOutputRequest extends FormRequest
             $rules['judul_buku'] = ['required', 'string', 'max:255'];
             $rules['isbn'] = ['required', 'string', 'max:50'];
             $rules['penerbit'] = ['required', 'string', 'max:255'];
-            $rules['tahun_terbit'] = ['required', 'integer', 'min:1900', 'max:' . (date('Y') + 5)];
+            $rules['tahun_terbit'] = ['required', 'integer', 'min:1900', 'max:'.(date('Y') + 5)];
             $rules['jumlah_halaman'] = ['nullable', 'integer', 'min:1'];
         } elseif ($tipeLuaran === 'Hki') {
             $rules['judul_ciptaan'] = ['required', 'string', 'max:255'];
@@ -141,7 +142,7 @@ class StoreResearchOutputRequest extends FormRequest
                 $exists = BookOutput::whereHas('researchOutput.proposal', function ($q) use ($universityId) {
                     $q->where('university_id', $universityId);
                 })->whereRaw("UPPER(REPLACE(REPLACE(isbn, '-', ''), ' ', '')) = ?", [$cleanIsbn])
-                ->exists();
+                    ->exists();
 
                 if ($exists) {
                     $validator->errors()->add('isbn', '[DUPLIKASI] Nomor ISBN ini telah terdaftar pada luaran buku lain di institusi Anda.');
@@ -152,8 +153,8 @@ class StoreResearchOutputRequest extends FormRequest
 
                     $exists = HkiOutput::whereHas('researchOutput.proposal', function ($q) use ($universityId) {
                         $q->where('university_id', $universityId);
-                    })->whereRaw("UPPER(TRIM(nomor_pendaftaran)) = ?", [$cleanReg])
-                    ->exists();
+                    })->whereRaw('UPPER(TRIM(nomor_pendaftaran)) = ?', [$cleanReg])
+                        ->exists();
 
                     if ($exists) {
                         $validator->errors()->add('nomor_pendaftaran', '[DUPLIKASI] Nomor pendaftaran HKI ini telah terdaftar pada luaran lain di institusi Anda.');
@@ -165,8 +166,8 @@ class StoreResearchOutputRequest extends FormRequest
 
                     $exists = HkiOutput::whereHas('researchOutput.proposal', function ($q) use ($universityId) {
                         $q->where('university_id', $universityId);
-                    })->whereRaw("UPPER(TRIM(nomor_sertifikat)) = ?", [$cleanCert])
-                    ->exists();
+                    })->whereRaw('UPPER(TRIM(nomor_sertifikat)) = ?', [$cleanCert])
+                        ->exists();
 
                     if ($exists) {
                         $validator->errors()->add('nomor_sertifikat', '[DUPLIKASI] Nomor sertifikat HKI ini telah terdaftar pada luaran lain di institusi Anda.');

@@ -17,9 +17,13 @@ class OutputDeduplicationTest extends TestCase
     use RefreshDatabase;
 
     protected University $university;
+
     protected User $researcher1;
+
     protected User $researcher2;
+
     protected Proposal $proposal1;
+
     protected Proposal $proposal2;
 
     protected function setUp(): void
@@ -224,7 +228,7 @@ class OutputDeduplicationTest extends TestCase
     {
         $this->actingAs($this->researcher1);
 
-        $fakeContent = "This is NOT a PDF file content";
+        $fakeContent = 'This is NOT a PDF file content';
         $file = UploadedFile::fake()->createWithContent('fake.pdf', $fakeContent);
 
         $response = $this->post(route('outputs.store'), [

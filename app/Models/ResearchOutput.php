@@ -17,16 +17,23 @@ class ResearchOutput extends Model
     protected $table = 'research_outputs';
 
     public const TIPE_JOURNAL = 'Journal';
+
     public const TIPE_BOOK = 'Book';
+
     public const TIPE_HKI = 'Hki';
+
     public const TIPE_PRODUCT = 'Product';
 
     public const TARGET_WAJIB = 'Wajib';
+
     public const TARGET_TAMBAHAN = 'Tambahan';
 
     public const STATUS_DRAFT = 'Draft';
+
     public const STATUS_SUBMITTED = 'Submitted';
+
     public const STATUS_VERIFIED = 'Verified';
+
     public const STATUS_REJECTED = 'Rejected';
 
     public const KATEGORI = [

@@ -13,11 +13,15 @@ class Evaluation extends Model
     protected $table = 'evaluations';
 
     public const REKOMENDASI_MEMUASKAN = 'Lulus_Memuaskan';
+
     public const REKOMENDASI_CUKUP = 'Lulus_Cukup';
+
     public const REKOMENDASI_TIDAK_LULUS = 'Tidak_Lulus';
 
     public const STATUS_DALAM_EVALUASI = 'Dalam_Evaluasi';
+
     public const STATUS_SELESAI = 'Selesai';
+
     public const STATUS_GAGAL = 'Gagal';
 
     protected $fillable = [
