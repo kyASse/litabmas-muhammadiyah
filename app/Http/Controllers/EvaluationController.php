@@ -26,7 +26,22 @@ class EvaluationController extends Controller
             if ($proposalId) {
                 $proposal = Proposal::find($proposalId);
             } else {
-                $proposal = Proposal::where('id_pengusul', $user->id)->latest()->first();
+                $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+                    || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
+                $isAdminKampus = $user->hasAnyRole([Role::ADMIN_KAMPUS])
+                    || in_array($user->role?->name, [Role::ADMIN_KAMPUS, 'Admin Kampus'], true);
+
+                if ($isAdminKampus || $isSuperAdmin) {
+                    $query = Proposal::query();
+                    if ($isAdminKampus && $user->university_id) {
+                        $query->where('university_id', $user->university_id);
+                    }
+                    $proposal = (clone $query)->whereHas('evaluation')->latest()->first()
+                        ?? (clone $query)->where('status_proposal', 'Lolos_Didanai')->latest()->first()
+                        ?? $query->latest()->first();
+                } else {
+                    $proposal = Proposal::where('id_pengusul', $user->id)->latest()->first();
+                }
             }
         }
 

@@ -109,6 +109,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/proposals/{proposal}/download', [ProposalController::class, 'downloadDocument'])->name('proposals.download');
 
     // SKTS Certificate & Evaluation
+    Route::get('/evaluations/show', [EvaluationController::class, 'show'])->name('evaluations.show.query');
+    Route::get('/evaluations/my-final-report', [EvaluationController::class, 'show'])->name('evaluations.my-final-report');
+    Route::get('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'show'])->name('evaluations.show');
     Route::get('/proposals/{proposal}/skts-certificate', [EvaluationController::class, 'certificate'])->name('evaluations.certificate');
     Route::get('/proposals/{proposal}/skts', [EvaluationController::class, 'certificate'])->name('evaluations.skts.show');
 
@@ -156,10 +159,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/outputs/products/{product}/upload', [OutputDocController::class, 'upload'])->name('outputs.products.upload-doc');
         Route::delete('/outputs/products/{product}/upload', [OutputDocController::class, 'destroy'])->name('outputs.products.delete-doc');
 
-        // Final Report / Evaluation
-        Route::get('/evaluations/show', [EvaluationController::class, 'show'])->name('evaluations.show.query');
-        Route::get('/evaluations/my-final-report', [EvaluationController::class, 'show'])->name('evaluations.my-final-report');
-        Route::get('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'show'])->name('evaluations.show');
+        // Final Report / Evaluation Submission
         Route::post('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'store'])->name('evaluations.store');
 
         // Funding Info for Peneliti
@@ -303,6 +303,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('output/export', [AdminOutputReportController::class, 'export'])->name('output.export');
 
         // SKTS & Final Evaluation Management
+        Route::get('/evaluations', [EvaluationController::class, 'show'])->name('evaluations.index');
+        Route::get('/evaluations/show', [EvaluationController::class, 'show'])->name('evaluations.show');
+        Route::get('/evaluations/{proposal}', [EvaluationController::class, 'show'])->name('evaluations.proposal.show');
+        Route::get('/proposals/{proposal}/evaluate', [EvaluationController::class, 'show'])->name('proposals.evaluate.show');
+        Route::get('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'show'])->name('proposals.final-evaluation.show');
         Route::post('/proposals/{proposal}/evaluate', [SktsController::class, 'evaluate'])->name('proposals.evaluate');
         Route::post('/proposals/{proposal}/skts', [SktsController::class, 'generateSkts'])->name('proposals.skts');
         Route::post('/proposals/{proposal}/terminate', [SktsController::class, 'terminateForceMajeure'])->name('proposals.terminate');

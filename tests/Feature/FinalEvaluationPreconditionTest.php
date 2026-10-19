@@ -240,4 +240,39 @@ class FinalEvaluationPreconditionTest extends TestCase
         $response = $this->post(route('admin.proposals.skts', $this->proposal));
         $this->assertTrue(in_array($response->status(), [403, 404]));
     }
+
+    public function test_admin_kampus_can_view_evaluation_page_via_query_param(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->get(route('evaluations.show.query', ['proposal_id' => $this->proposal->id]));
+        $response->assertOk();
+
+        $pageProps = $response->viewData('page')['props'] ?? [];
+        $this->assertArrayHasKey('proposal', $pageProps);
+        $this->assertEquals($this->proposal->id, $pageProps['proposal']['id']);
+    }
+
+    public function test_admin_kampus_can_view_evaluation_page_via_admin_evaluations_route(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->get(route('admin.evaluations.index'));
+        $response->assertOk();
+
+        $pageProps = $response->viewData('page')['props'] ?? [];
+        $this->assertArrayHasKey('proposal', $pageProps);
+    }
+
+    public function test_admin_kampus_can_view_evaluation_page_via_proposal_route(): void
+    {
+        $this->actingAs($this->admin);
+
+        $response = $this->get(route('evaluations.show', $this->proposal));
+        $response->assertOk();
+
+        $pageProps = $response->viewData('page')['props'] ?? [];
+        $this->assertArrayHasKey('proposal', $pageProps);
+        $this->assertEquals($this->proposal->id, $pageProps['proposal']['id']);
+    }
 }
