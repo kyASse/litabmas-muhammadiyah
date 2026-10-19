@@ -274,12 +274,14 @@ export default function Show({ proposal, evaluation: propEvaluation, outputs = [
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
                 <Head title={t.evaluation.title} />
-                <div className="flex h-96 flex-col items-center justify-center gap-4 text-center">
-                    <Info className="h-12 w-12 text-muted-foreground" />
-                    <p className="text-base text-muted-foreground">{t.evaluation.noOutputs}</p>
-                    <Link href="/dashboard" className="text-sm font-semibold text-primary underline">
-                        {t.evaluation.backToDashboard}
-                    </Link>
+                <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                    <div className="flex h-96 flex-col items-center justify-center gap-4 text-center">
+                        <Info className="h-12 w-12 text-muted-foreground" />
+                        <p className="text-base text-muted-foreground">{t.evaluation.noOutputs}</p>
+                        <Link href="/dashboard" className="text-sm font-semibold text-primary underline">
+                            {t.evaluation.backToDashboard}
+                        </Link>
+                    </div>
                 </div>
             </AppLayout>
         );
@@ -291,7 +293,8 @@ export default function Show({ proposal, evaluation: propEvaluation, outputs = [
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`${t.evaluation.title} - ${proposalTitle}`} />
 
-            {/* ── Sticky Top Archive / Termination Banner ── */}
+            <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                {/* ── Sticky Top Archive / Termination Banner ── */}
             {isArchived && (
                 <div className="sticky top-0 z-30 mb-6 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-slate-300 bg-slate-100 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                     <div className="flex items-center gap-3">
@@ -994,6 +997,7 @@ export default function Show({ proposal, evaluation: propEvaluation, outputs = [
                     </form>
                 </DialogContent>
             </Dialog>
+            </div>
         </AppLayout>
     );
 }
