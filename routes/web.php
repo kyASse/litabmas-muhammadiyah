@@ -149,10 +149,6 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
         Route::delete('/outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
 
-        Route::post('/outputs/journal', [OutputController::class, 'storeJournal'])->name('outputs.store-journal');
-        Route::post('/outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
-        Route::post('/outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
-        Route::post('/outputs/products', [OutputController::class, 'storeProduct'])->name('outputs.products.store');
         Route::post('/outputs/products/{product}/upload', [OutputDocController::class, 'upload'])->name('outputs.products.upload-doc');
         Route::delete('/outputs/products/{product}/upload', [OutputDocController::class, 'destroy'])->name('outputs.products.delete-doc');
 

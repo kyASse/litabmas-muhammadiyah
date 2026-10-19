@@ -6,6 +6,7 @@ use App\Models\BookOutput;
 use App\Models\HkiOutput;
 use App\Models\JournalOutput;
 use App\Models\Proposal;
+use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 
@@ -16,7 +17,35 @@ class StoreResearchOutputRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check();
+        $user = $this->user();
+        if (! $user) {
+            return false;
+        }
+
+        $proposalId = $this->input('id_proposal');
+        if (! $proposalId) {
+            return true;
+        }
+
+        $proposal = Proposal::find($proposalId);
+        if (! $proposal) {
+            return true;
+        }
+
+        $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+            || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
+        if ($isSuperAdmin) {
+            return true;
+        }
+
+        $isAdminKampus = $user->hasAnyRole([Role::ADMIN_KAMPUS])
+            || in_array($user->role?->name, [Role::ADMIN_KAMPUS, 'Admin Kampus'], true);
+        if ($isAdminKampus) {
+            return (int) $user->university_id === (int) $proposal->university_id;
+        }
+
+        // Researcher must be the author of the proposal
+        return (int) $user->id === (int) $proposal->id_pengusul;
     }
 
     /**
@@ -83,7 +112,7 @@ class StoreResearchOutputRequest extends FormRequest
             }
 
             // 2. Output Deduplication Guard scoped to institution
-            $proposal = Proposal::withoutGlobalScopes()->find($this->input('id_proposal'));
+            $proposal = Proposal::find($this->input('id_proposal'));
             $universityId = $proposal?->university_id ?? $this->user()?->university_id;
 
             if (! $proposal || ! $universityId) {

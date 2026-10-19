@@ -295,4 +295,166 @@ class OutputDeduplicationTest extends TestCase
             'catatan_verifikasi' => 'Dokumentasi produk tidak lengkap.',
         ]);
     }
+
+    public function test_researcher_cannot_submit_output_for_another_users_proposal(): void
+    {
+        // Researcher 2 attempts to submit output for Researcher 1's proposal
+        $this->actingAs($this->researcher2);
+
+        $pdfContent = "%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF";
+        $file = UploadedFile::fake()->createWithContent('paper.pdf', $pdfContent);
+
+        $response = $this->post(route('outputs.store'), [
+            'id_proposal' => $this->proposal1->id,
+            'tipe_luaran' => 'Journal',
+            'target_status' => 'Wajib',
+            'nama_jurnal' => 'IEEE Transactions',
+            'judul_artikel' => 'Hijacked Proposal',
+            'indeksasi' => 'Scopus',
+            'status_publikasi' => 'Published',
+            'doi_url' => 'https://doi.org/10.1109/HIJACK.2026.001',
+            'file_dokumen' => $file,
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_researcher_cannot_view_outputs_of_another_proposal_via_proposal_id_filter(): void
+    {
+        // Researcher 2 tries to access Researcher 1's outputs
+        $this->actingAs($this->researcher2);
+
+        $response = $this->get(route('outputs.index', ['proposal_id' => $this->proposal1->id]));
+        $response->assertStatus(403);
+    }
+
+    public function test_admin_kampus_cannot_view_outputs_of_another_university_via_proposal_id(): void
+    {
+        $roleAdmin = Role::firstOrCreate(['name' => 'Admin Kampus']);
+        $admin1 = User::factory()->create([
+            'university_id' => $this->university->id,
+            'role_id' => $roleAdmin->id,
+        ]);
+
+        // Univ 2 & Proposal 3
+        $univ2 = University::factory()->create(['code' => 'UAD']);
+        $schema2 = ResearchSchema::factory()->create(['university_id' => $univ2->id]);
+        $researcher3 = User::factory()->create([
+            'university_id' => $univ2->id,
+            'role_id' => Role::firstOrCreate(['name' => 'Dosen'])->id,
+        ]);
+        $proposal3 = Proposal::factory()->create([
+            'university_id' => $univ2->id,
+            'id_pengusul' => $researcher3->id,
+            'id_skema_pendanaan' => $schema2->id,
+            'status_proposal' => 'Lolos_Didanai',
+        ]);
+
+        $this->actingAs($admin1);
+        $response = $this->get(route('outputs.index', ['proposal_id' => $proposal3->id]));
+        $response->assertStatus(403);
+    }
+
+    public function test_admin_kampus_cannot_verify_output_of_another_university(): void
+    {
+        // Researcher 1 submits output in Univ 1
+        $this->actingAs($this->researcher1);
+        $pdfContent = "%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF";
+        $file = UploadedFile::fake()->createWithContent('paper.pdf', $pdfContent);
+
+        $this->post(route('outputs.store'), [
+            'id_proposal' => $this->proposal1->id,
+            'tipe_luaran' => 'Journal',
+            'target_status' => 'Wajib',
+            'nama_jurnal' => 'IEEE TSE',
+            'judul_artikel' => 'Autonomous Coding',
+            'indeksasi' => 'Scopus',
+            'status_publikasi' => 'Published',
+            'doi_url' => 'https://doi.org/10.1109/UNIV1.2026.001',
+            'file_dokumen' => $file,
+        ]);
+
+        $output1 = ResearchOutput::latest()->first();
+
+        // Admin from Univ 2 tries to verify Univ 1 output
+        $univ2 = University::factory()->create(['code' => 'UAD']);
+        $roleAdmin = Role::firstOrCreate(['name' => 'Admin Kampus']);
+        $admin2 = User::factory()->create([
+            'university_id' => $univ2->id,
+            'role_id' => $roleAdmin->id,
+        ]);
+
+        $this->actingAs($admin2);
+        $response = $this->post(route('admin.outputs.verify', $output1->id), [
+            'status_verifikasi' => 'Verified',
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_admin_kampus_output_verify_index_is_scoped_to_their_university(): void
+    {
+        // Output 1 in Univ 1
+        $this->actingAs($this->researcher1);
+        $pdfContent = "%PDF-1.4\n1 0 obj\n<<>>\nendobj\ntrailer\n<<>>\n%%EOF";
+        $file1 = UploadedFile::fake()->createWithContent('paper1.pdf', $pdfContent);
+        $this->post(route('outputs.store'), [
+            'id_proposal' => $this->proposal1->id,
+            'tipe_luaran' => 'Journal',
+            'target_status' => 'Wajib',
+            'nama_jurnal' => 'Jurnal UMM',
+            'judul_artikel' => 'Riset UMM',
+            'indeksasi' => 'Scopus',
+            'status_publikasi' => 'Published',
+            'doi_url' => 'https://doi.org/10.1109/UMM.2026.001',
+            'file_dokumen' => $file1,
+        ]);
+        $outputUniv1 = ResearchOutput::where('id_proposal', $this->proposal1->id)->first();
+
+        // Output 2 in Univ 2
+        $univ2 = University::factory()->create(['code' => 'UAD']);
+        $schema2 = ResearchSchema::factory()->create(['university_id' => $univ2->id]);
+        $researcher3 = User::factory()->create([
+            'university_id' => $univ2->id,
+            'role_id' => Role::firstOrCreate(['name' => 'Dosen'])->id,
+        ]);
+        $proposal3 = Proposal::factory()->create([
+            'university_id' => $univ2->id,
+            'id_pengusul' => $researcher3->id,
+            'id_skema_pendanaan' => $schema2->id,
+            'status_proposal' => 'Lolos_Didanai',
+        ]);
+
+        $this->actingAs($researcher3);
+        $file2 = UploadedFile::fake()->createWithContent('paper2.pdf', $pdfContent);
+        $this->post(route('outputs.store'), [
+            'id_proposal' => $proposal3->id,
+            'tipe_luaran' => 'Journal',
+            'target_status' => 'Wajib',
+            'nama_jurnal' => 'Jurnal UAD',
+            'judul_artikel' => 'Riset UAD',
+            'indeksasi' => 'Scopus',
+            'status_publikasi' => 'Published',
+            'doi_url' => 'https://doi.org/10.1109/UAD.2026.001',
+            'file_dokumen' => $file2,
+        ]);
+        $outputUniv2 = ResearchOutput::where('id_proposal', $proposal3->id)->first();
+
+        // Admin of Univ 1 visits /admin/outputs
+        $roleAdmin = Role::firstOrCreate(['name' => 'Admin Kampus']);
+        $admin1 = User::factory()->create([
+            'university_id' => $this->university->id,
+            'role_id' => $roleAdmin->id,
+        ]);
+
+        $this->actingAs($admin1);
+        $response = $this->get(route('admin.outputs.index'));
+        $response->assertOk();
+
+        // Verify that outputs page only has Univ 1 output, not Univ 2
+        $responseOutputs = $response->viewData('page')['props']['outputs']['data'] ?? [];
+        $ids = array_column($responseOutputs, 'id');
+        $this->assertContains($outputUniv1->id, $ids);
+        $this->assertNotContains($outputUniv2->id, $ids);
+    }
 }

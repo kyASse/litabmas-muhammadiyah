@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\ResearchOutput;
 use App\Models\Role;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -17,8 +18,30 @@ class VerifyOutputRequest extends FormRequest
             return false;
         }
 
-        return $user->hasAnyRole([Role::ADMIN_KAMPUS, Role::SUPER_ADMIN])
+        $isAuthorizedRole = $user->hasAnyRole([Role::ADMIN_KAMPUS, Role::SUPER_ADMIN])
             || in_array($user->role?->name, [Role::ADMIN_KAMPUS, Role::SUPER_ADMIN, 'Admin Kampus', 'Super Admin'], true);
+
+        if (! $isAuthorizedRole) {
+            return false;
+        }
+
+        $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+            || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
+        if ($isSuperAdmin) {
+            return true;
+        }
+
+        $output = $this->route('output');
+        if (is_numeric($output)) {
+            $output = ResearchOutput::find($output);
+        }
+
+        if ($output instanceof ResearchOutput) {
+            $outputUniversityId = $output->proposal?->university_id;
+            return (int) $user->university_id === (int) $outputUniversityId;
+        }
+
+        return true;
     }
 
     /**

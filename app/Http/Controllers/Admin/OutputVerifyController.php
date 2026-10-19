@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VerifyOutputRequest;
 use App\Models\ResearchOutput;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,6 +16,10 @@ class OutputVerifyController extends Controller
      */
     public function index(Request $request)
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+            || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
+
         $query = ResearchOutput::with([
             'proposal.pengusul',
             'proposal.university',
@@ -23,6 +28,13 @@ class OutputVerifyController extends Controller
             'hkiOutput',
             'productOutput',
         ])->latest();
+
+        // Multi-tenancy isolation: filter by university_id unless Super Admin
+        if (! $isSuperAdmin) {
+            $query->whereHas('proposal', function ($q) use ($user) {
+                $q->where('university_id', $user->university_id);
+            });
+        }
 
         $status = $request->input('status_verifikasi', $request->input('status'));
         if ($status && $status !== 'all') {
@@ -52,6 +64,19 @@ class OutputVerifyController extends Controller
      */
     public function verify(VerifyOutputRequest $request, ResearchOutput $output)
     {
+        $user = auth()->user();
+        $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+            || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
+
+        if (! $isSuperAdmin) {
+            $outputUniversityId = $output->proposal?->university_id;
+            abort_if(
+                (int) $user->university_id !== (int) $outputUniversityId,
+                403,
+                '[BLOKIR] Anda tidak memiliki izin untuk memverifikasi luaran institusi lain.'
+            );
+        }
+
         $status = $request->input('status_verifikasi');
         $catatan = $request->input('catatan_verifikasi');
 

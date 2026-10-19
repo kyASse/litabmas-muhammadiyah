@@ -14,7 +14,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -25,7 +24,13 @@ class OutputController extends Controller
      */
     public function index(Request $request)
     {
-        $proposalId = $request->input('proposal_id');
+        $user = Auth::user();
+        abort_if(! $user, 403, '[BLOKIR] Anda harus login untuk mengakses halaman ini.');
+
+        $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+            || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
+        $isAdminKampus = $user->hasAnyRole([Role::ADMIN_KAMPUS])
+            || in_array($user->role?->name, [Role::ADMIN_KAMPUS, 'Admin Kampus'], true);
 
         $query = ResearchOutput::with([
             'proposal.pengusul',
@@ -35,12 +40,40 @@ class OutputController extends Controller
             'productOutput',
         ]);
 
+        $proposalId = $request->input('proposal_id');
+
         if ($proposalId) {
+            $proposal = Proposal::findOrFail($proposalId);
+
+            if (! $isSuperAdmin) {
+                if ($isAdminKampus) {
+                    abort_if(
+                        (int) $user->university_id !== (int) $proposal->university_id,
+                        403,
+                        '[BLOKIR] Anda tidak memiliki akses ke proposal institusi lain.'
+                    );
+                } else {
+                    abort_if(
+                        (int) $user->id !== (int) $proposal->id_pengusul,
+                        403,
+                        '[BLOKIR] Anda tidak memiliki akses ke proposal ini.'
+                    );
+                }
+            }
+
             $query->where('id_proposal', $proposalId);
         } else {
-            $query->whereHas('proposal', function ($q) {
-                $q->where('id_pengusul', Auth::id());
-            });
+            if ($isSuperAdmin) {
+                // Super Admin has global bypass
+            } elseif ($isAdminKampus) {
+                $query->whereHas('proposal', function ($q) use ($user) {
+                    $q->where('university_id', $user->university_id);
+                });
+            } else {
+                $query->whereHas('proposal', function ($q) use ($user) {
+                    $q->where('id_pengusul', $user->id);
+                });
+            }
         }
 
         $outputs = $query->latest()->paginate(10)->withQueryString();
@@ -80,7 +113,29 @@ class OutputController extends Controller
     public function store(StoreResearchOutputRequest $request)
     {
         return DB::transaction(function () use ($request) {
-            $proposal = Proposal::withoutGlobalScopes()->findOrFail($request->input('id_proposal'));
+            $proposal = Proposal::findOrFail($request->input('id_proposal'));
+
+            $user = auth()->user();
+            $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+                || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
+            $isAdminKampus = $user->hasAnyRole([Role::ADMIN_KAMPUS])
+                || in_array($user->role?->name, [Role::ADMIN_KAMPUS, 'Admin Kampus'], true);
+
+            if (! $isSuperAdmin) {
+                if ($isAdminKampus) {
+                    abort_if(
+                        (int) $user->university_id !== (int) $proposal->university_id,
+                        403,
+                        '[BLOKIR] Anda tidak memiliki izin untuk menyimpan luaran pada institusi lain.'
+                    );
+                } else {
+                    abort_if(
+                        (int) $user->id !== (int) $proposal->id_pengusul,
+                        403,
+                        '[BLOKIR] Anda hanya dapat melaporkan luaran untuk proposal Anda sendiri.'
+                    );
+                }
+            }
 
             $tipeLuaran = $request->input('tipe_luaran');
             $folder = strtolower($tipeLuaran);
@@ -216,7 +271,7 @@ class OutputController extends Controller
     }
 
     /**
-     * Authorize access to mutate research output.
+     * Authorize access to mutate or view research output.
      */
     protected function authorizeAccess(ResearchOutput $output): void
     {
@@ -225,10 +280,35 @@ class OutputController extends Controller
             abort(403, '[BLOKIR] Anda harus login untuk melakukan aksi ini.');
         }
 
-        $isOwner = $output->proposal?->id_pengusul === $user->id;
-        $isAdmin = $user->hasAnyRole([Role::ADMIN_KAMPUS, Role::SUPER_ADMIN])
-            || in_array($user->role?->name, [Role::ADMIN_KAMPUS, Role::SUPER_ADMIN, 'Admin Kampus', 'Super Admin'], true);
+        $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+            || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
 
-        abort_if(! $isOwner && ! $isAdmin, 403, '[BLOKIR] Anda tidak memiliki hak akses terhadap luaran ini.');
+        if ($isSuperAdmin) {
+            return;
+        }
+
+        $isAdminKampus = $user->hasAnyRole([Role::ADMIN_KAMPUS])
+            || in_array($user->role?->name, [Role::ADMIN_KAMPUS, 'Admin Kampus'], true);
+
+        $proposal = $output->proposal;
+        if (! $proposal) {
+            abort(404, '[TIDAK_DITEMUKAN] Usulan proposal terkait luaran ini tidak ditemukan.');
+        }
+
+        if ($isAdminKampus) {
+            abort_if(
+                (int) $user->university_id !== (int) $proposal->university_id,
+                403,
+                '[BLOKIR] Anda tidak memiliki izin untuk mengelola luaran institusi lain.'
+            );
+            return;
+        }
+
+        // Researcher must own the proposal
+        abort_if(
+            (int) $proposal->id_pengusul !== (int) $user->id,
+            403,
+            '[BLOKIR] Anda tidak memiliki hak akses terhadap luaran ini.'
+        );
     }
 }
