@@ -34,6 +34,13 @@ class OutputVerifyController extends Controller
             $query->whereHas('proposal', function ($q) use ($user) {
                 $q->where('university_id', $user->university_id);
             });
+        } else {
+            $universityId = $request->input('university_id');
+            if ($universityId && $universityId !== 'all') {
+                $query->whereHas('proposal', function ($q) use ($universityId) {
+                    $q->where('university_id', $universityId);
+                });
+            }
         }
 
         $status = $request->input('status_verifikasi', $request->input('status'));
@@ -48,12 +55,18 @@ class OutputVerifyController extends Controller
 
         $outputs = $query->paginate(15)->withQueryString();
 
-        return Inertia::render('Admin/Output/Index', [
+        $universities = $isSuperAdmin
+            ? \App\Models\University::select('id', 'name', 'code')->orderBy('name')->get()
+            : [];
+
+        return Inertia::render('Admin/Output/Verify', [
             'outputs' => $outputs,
             'filters' => [
                 'status_verifikasi' => $request->input('status_verifikasi', ''),
                 'tipe_luaran' => $request->input('tipe_luaran', ''),
+                'university_id' => $request->input('university_id', ''),
             ],
+            'universities' => $universities,
             'kategoriOptions' => ResearchOutput::KATEGORI,
             'statusOptions' => ResearchOutput::STATUS,
         ]);

@@ -82,8 +82,27 @@ class OutputController extends Controller
             return response()->json($outputs);
         }
 
+        $userProposals = [];
+        if (! $isSuperAdmin && ! $isAdminKampus) {
+            $userProposals = Proposal::where('id_pengusul', $user->id)
+                ->select('id', 'judul', 'status_proposal')
+                ->latest()
+                ->get();
+        } elseif ($isAdminKampus) {
+            $userProposals = Proposal::where('university_id', $user->university_id)
+                ->select('id', 'judul', 'status_proposal')
+                ->latest()
+                ->get();
+        } else {
+            $userProposals = Proposal::select('id', 'judul', 'status_proposal')
+                ->latest()
+                ->limit(50)
+                ->get();
+        }
+
         return Inertia::render('Output/Index', [
             'outputs' => $outputs,
+            'proposals' => $userProposals,
         ]);
     }
 
