@@ -147,4 +147,19 @@ class ReadOnlyArchiveLockTest extends TestCase
 
         $this->assertEquals('Cancelled', $funding2->fresh()->status_pencairan);
     }
+
+    public function test_updating_or_deleting_proposal_document_after_skts_issued_is_blocked_with_403(): void
+    {
+        $doc = $this->proposal->documents()->create([
+            'nama_file' => 'dokumen_awal.pdf',
+            'file_path' => 'proposals/dokumen_awal.pdf',
+            'file_size' => 1024,
+            'tipe_dokumen' => 'Proposal_Utama',
+        ]);
+
+        $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+        $this->expectExceptionMessage('[TERKUNCI] Data usulan telah berstatus Selesai dan terkunci permanen sebagai Arsip Baca-Saja.');
+
+        $doc->update(['nama_file' => 'dokumen_diubah.pdf']);
+    }
 }

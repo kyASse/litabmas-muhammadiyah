@@ -404,6 +404,7 @@ Klaster ini menangani pembuatan surat perjanjian kerja/kontrak penelitian bagi u
   - `Pending`: Termin pendanaan dijadwalkan namun belum diproses oleh bagian keuangan.
   - `Disbursed`: Dana telah ditransfer oleh Admin Keuangan dan bukti transfer diunggah.
   - `Verified`: Peneliti telah mengonfirmasi penerimaan dana pada rekening operasional riset.
+  - `Cancelled`: Pencairan termin dibatalkan karena terminasi riset atau kegagalan pemenuhan kewajiban.
 
 | Nama Kolom | Tipe Data & Panjang | Nullable | Nilai Default | Batasan & Keterangan Fungsional |
 |---|---|---|---|---|
@@ -414,7 +415,7 @@ Klaster ini menangani pembuatan surat perjanjian kerja/kontrak penelitian bagi u
 | `nominal_dana` | DECIMAL(15,2) | Tidak | - | Nilai moneter riil yang dicairkan dalam Rupiah (`dana_disetujui * persentase / 100`). |
 | `tanggal_pencairan` | DATE | Ya | NULL | Tanggal riil saat proses transfer perbankan dieksekusi. |
 | `bukti_transfer_path`| VARCHAR(255) | Ya | NULL | Jalur penyimpanan berkas bukti transfer bank resmi format PDF/JPG/PNG. |
-| `status_pencairan` | ENUM | Tidak | 'Pending' | State pencairan: 'Pending', 'Disbursed', 'Verified'. |
+| `status_pencairan` | ENUM | Tidak | 'Pending' | State pencairan: 'Pending', 'Disbursed', 'Verified', 'Cancelled'. |
 | `catatan_keuangan` | TEXT | Ya | NULL | Catatan rincian transfer atau informasi rekening bank penerima dari staf keuangan. |
 | `created_at` | TIMESTAMP | Ya | NULL | Waktu pembuatan jadwal termin pendanaan. |
 | `updated_at` | TIMESTAMP | Ya | NULL | Waktu pembaruan status pencairan termin. |

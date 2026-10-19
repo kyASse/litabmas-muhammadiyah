@@ -24,7 +24,6 @@ import { useTranslation } from '@/hooks/use-translation';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { TabularFigure } from '@/components/ui/TabularFigure';
 import { PDFUploader } from '@/components/ui/PDFUploader';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -356,12 +355,14 @@ export default function Show({ proposal, evaluation: propEvaluation, outputs = [
                 <PageHeader
                     title={t.evaluation.title}
                     subtitle={t.evaluation.subtitle}
-                    badges={[
-                        <StatusBadge key="proposal-status" status={proposal.status_proposal} size="sm" />,
-                        evaluation?.status_penelitian ? (
-                            <StatusBadge key="eval-status" status={evaluation.status_penelitian} size="sm" />
-                        ) : null,
-                    ]}
+                    badge={
+                        <div className="flex items-center gap-2">
+                            <StatusBadge status={proposal.status_proposal} size="sm" />
+                            {evaluation?.status_penelitian && (
+                                <StatusBadge status={evaluation.status_penelitian} size="sm" />
+                            )}
+                        </div>
+                    }
                     actions={
                         evaluation?.nomor_skts ? (
                             <Link
@@ -440,39 +441,29 @@ export default function Show({ proposal, evaluation: propEvaluation, outputs = [
             {/* ── Key Metrics Cards ── */}
             <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <MetricCard
-                    label={t.evaluation.metricOutputsVerified}
+                    title={t.evaluation.metricOutputsVerified}
                     value={`${verifiedWajib} / ${totalWajib}`}
-                    variant={totalWajib > 0 && verifiedWajib === totalWajib ? 'accent' : 'warning'}
                     icon={<FileCheck className="h-5 w-5" />}
-                    meta={`${totalWajib > 0 ? Math.round((verifiedWajib / totalWajib) * 100) : 100}% ${t.evaluation.targetMandatory}`}
+                    caption={`${totalWajib > 0 ? Math.round((verifiedWajib / totalWajib) * 100) : 100}% ${t.evaluation.targetMandatory}`}
                 />
 
                 <MetricCard
-                    label={t.evaluation.metricProgress}
+                    title={t.evaluation.metricProgress}
                     value={isArchived ? '100%' : `${evaluation?.persentase_capaian_luaran ?? 0}%`}
-                    variant="neutral"
                     icon={<Layers className="h-5 w-5" />}
-                    meta={isArchived ? t.evaluation.metricCompleted : t.evaluation.metricPending}
+                    caption={isArchived ? t.evaluation.metricCompleted : t.evaluation.metricPending}
                 />
 
                 <MetricCard
-                    label={t.evaluation.metricScore}
+                    title={t.evaluation.metricScore}
                     value={
-                        evaluation?.skor_akhir_substansi ? (
-                            <TabularFigure value={Number(evaluation.skor_akhir_substansi)} />
-                        ) : (
-                            '-'
-                        )
+                        evaluation?.skor_akhir_substansi
+                            ? Number(evaluation.skor_akhir_substansi)
+                            : '-'
                     }
-                    variant={
-                        Number(evaluation?.skor_akhir_substansi || 0) >= 80
-                            ? 'primary'
-                            : Number(evaluation?.skor_akhir_substansi || 0) >= 65
-                              ? 'accent'
-                              : 'neutral'
-                    }
+                    type="score"
                     icon={<Award className="h-5 w-5" />}
-                    meta={
+                    caption={
                         evaluation?.rekomendasi_kelulusan === 'Lulus_Memuaskan'
                             ? t.evaluation.recMemuaskan
                             : evaluation?.rekomendasi_kelulusan === 'Lulus_Cukup'
@@ -484,19 +475,16 @@ export default function Show({ proposal, evaluation: propEvaluation, outputs = [
                 />
 
                 <MetricCard
-                    label={t.evaluation.metricSkts}
+                    title={t.evaluation.metricSkts}
                     value={
-                        evaluation?.nomor_skts ? (
-                            <span className="font-mono text-sm tracking-tight">{evaluation.nomor_skts}</span>
-                        ) : (
-                            <span className="text-sm font-normal text-slate-500">
-                                {isArchived ? t.evaluation.metricCompleted : t.evaluation.metricPending}
-                            </span>
-                        )
+                        evaluation?.nomor_skts
+                            ? evaluation.nomor_skts
+                            : isArchived
+                              ? t.evaluation.metricCompleted
+                              : t.evaluation.metricPending
                     }
-                    variant={evaluation?.nomor_skts ? 'primary' : 'neutral'}
                     icon={<ShieldCheck className="h-5 w-5" />}
-                    meta={evaluation?.nomor_skts ? t.evaluation.sktsIssuedDesc : t.evaluation.sktsNotIssuedDesc}
+                    caption={evaluation?.nomor_skts ? t.evaluation.sktsIssuedDesc : t.evaluation.sktsNotIssuedDesc}
                 />
             </div>
 
