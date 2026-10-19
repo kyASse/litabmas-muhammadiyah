@@ -43,13 +43,14 @@ class EvaluationController extends Controller
 
             $proposal->loadMissing([
                 'user',
+                'university',
                 'researchSchema',
                 'contract',
                 'researchOutputs.journalOutput',
                 'researchOutputs.bookOutput',
                 'researchOutputs.hkiOutput',
                 'researchOutputs.productOutput',
-                'evaluation',
+                'evaluation.evaluator',
             ]);
         }
 
@@ -57,6 +58,43 @@ class EvaluationController extends Controller
             'proposal' => $proposal,
             'evaluation' => $proposal?->evaluation,
             'outputs' => $proposal?->researchOutputs ?? [],
+        ]);
+    }
+
+    /**
+     * Menampilkan sertifikat SKTS resmi (Surat Keterangan Tanda Selesai).
+     */
+    public function certificate(Request $request, Proposal $proposal)
+    {
+        $user = Auth::user();
+
+        // Otorisasi: Super Admin, Admin Kampus di institusi yang sama, atau Pengusul pemilik usulan
+        $isSuperAdmin = $user->hasAnyRole([Role::SUPER_ADMIN])
+            || in_array($user->role?->name, [Role::SUPER_ADMIN, 'Super Admin'], true);
+        $isAdminKampus = $user->hasAnyRole([Role::ADMIN_KAMPUS])
+            || in_array($user->role?->name, [Role::ADMIN_KAMPUS, 'Admin Kampus'], true);
+
+        if (! $isSuperAdmin) {
+            if ($isAdminKampus && (int) $user->university_id !== (int) $proposal->university_id) {
+                abort(403, 'Anda tidak memiliki hak akses ke sertifikat institusi lain.');
+            }
+            if (! $isAdminKampus && ((int) $user->id !== (int) $proposal->id_pengusul || (int) $user->university_id !== (int) $proposal->university_id)) {
+                abort(403, 'Anda tidak memiliki hak akses ke sertifikat proposal ini.');
+            }
+        }
+
+        $proposal->loadMissing([
+            'user',
+            'university',
+            'researchSchema',
+            'contract',
+            'evaluation.evaluator',
+        ]);
+
+        return Inertia::render('Evaluation/SktsCertificate', [
+            'proposal' => $proposal,
+            'evaluation' => $proposal->evaluation,
+            'university' => $proposal->university,
         ]);
     }
 

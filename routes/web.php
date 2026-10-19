@@ -108,6 +108,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/proposals/documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
     Route::get('/proposals/{proposal}/download', [ProposalController::class, 'downloadDocument'])->name('proposals.download');
 
+    // SKTS Certificate & Evaluation
+    Route::get('/proposals/{proposal}/skts-certificate', [EvaluationController::class, 'certificate'])->name('evaluations.certificate');
+    Route::get('/proposals/{proposal}/skts', [EvaluationController::class, 'certificate'])->name('evaluations.skts.show');
+
     /*
     |--------------------------------------------------------------------------
     | Grup Peneliti / Dosen (PRD Bab 7.1)
