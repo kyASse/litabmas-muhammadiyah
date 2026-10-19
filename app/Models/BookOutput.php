@@ -2,17 +2,28 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class BookOutput extends Model
 {
-    protected $fillable = ['isbn', 'publisher', 'pages', 'tipe_buku'];
+    use HasFactory;
 
-    /**
-     * Mendapatkan entitas induk luaran.
-     */
-    public function researchOutput()
+    protected $table = 'book_outputs';
+
+    protected $fillable = [
+        'id_research_output',
+        'judul_buku',
+        'isbn',
+        'penerbit',
+        'tahun_terbit',
+        'jumlah_halaman',
+        'file_cover_path',
+    ];
+
+    public function researchOutput(): BelongsTo
     {
-        return $this->morphOne(ResearchOutput::class, 'outputable');
+        return $this->belongsTo(ResearchOutput::class, 'id_research_output');
     }
 }
