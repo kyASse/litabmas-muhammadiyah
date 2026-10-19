@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\EnforcesReadOnlyArchive;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
  */
 class ProgressReport extends Model
 {
-    use HasFactory;
+    use EnforcesReadOnlyArchive, HasFactory;
 
     public const STATUS_SUBMITTED = 'Submitted';
 

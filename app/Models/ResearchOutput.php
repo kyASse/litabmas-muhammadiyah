@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\EnforcesReadOnlyArchive;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ResearchOutput extends Model
 {
-    use HasFactory, SoftDeletes;
+    use EnforcesReadOnlyArchive, HasFactory, SoftDeletes;
 
     protected $table = 'research_outputs';
 

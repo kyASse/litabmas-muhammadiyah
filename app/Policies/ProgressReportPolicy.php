@@ -62,6 +62,10 @@ class ProgressReportPolicy
      */
     public function update(User $user, ProgressReport $progressReport): bool
     {
+        if ($progressReport->proposal?->evaluation?->status_penelitian === 'Selesai') {
+            return false;
+        }
+
         // Super Admin bypass
         if ($user->isSuperAdmin()) {
             return true;
@@ -99,6 +103,10 @@ class ProgressReportPolicy
      */
     public function delete(User $user, ProgressReport $progressReport): bool
     {
+        if ($progressReport->proposal?->evaluation?->status_penelitian === 'Selesai') {
+            return false;
+        }
+
         return $user->isSuperAdmin();
     }
 }

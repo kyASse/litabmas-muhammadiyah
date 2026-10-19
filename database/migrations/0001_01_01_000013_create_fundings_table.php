@@ -19,7 +19,7 @@ return new class extends Migration
             $table->decimal('nominal_dana', 15, 2);
             $table->date('tanggal_pencairan')->nullable();
             $table->string('bukti_transfer_path')->nullable();
-            $table->enum('status_pencairan', ['Pending', 'Disbursed', 'Verified'])->default('Pending');
+            $table->enum('status_pencairan', ['Pending', 'Disbursed', 'Verified', 'Cancelled'])->default('Pending');
             $table->text('catatan_keuangan')->nullable();
             $table->timestamps();
             $table->softDeletes();

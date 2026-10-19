@@ -300,7 +300,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/proposals/{proposal}/evaluate', [SktsController::class, 'evaluate'])->name('proposals.evaluate');
         Route::post('/proposals/{proposal}/skts', [SktsController::class, 'generateSkts'])->name('proposals.skts');
         Route::post('/proposals/{proposal}/terminate', [SktsController::class, 'terminateForceMajeure'])->name('proposals.terminate');
-        Route::post('/evaluations/{id}/certify', [SktsController::class, 'generateSkts'])->name('evaluations.certify');
+        Route::post('/evaluations/{proposal}/certify', [SktsController::class, 'generateSkts'])->name('evaluations.certify');
 
         // Schedules
         Route::resource('schedules', AdminScheduleController::class);

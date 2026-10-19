@@ -31,6 +31,10 @@ class ProposalPolicy
      */
     public function update(User $user, Proposal $proposal): bool
     {
+        if ($proposal->evaluation && $proposal->evaluation->status_penelitian === 'Selesai') {
+            return false;
+        }
+
         return $proposal->university_id === $user->university_id
             && (int) ($proposal->id_pengusul ?? $proposal->user_id) === (int) $user->id
             && in_array($proposal->status_proposal, [Proposal::STATUS_DRAFT, 'Revisi'], true);
@@ -42,6 +46,10 @@ class ProposalPolicy
      */
     public function delete(User $user, Proposal $proposal): bool
     {
+        if ($proposal->evaluation && $proposal->evaluation->status_penelitian === 'Selesai') {
+            return false;
+        }
+
         return $proposal->university_id === $user->university_id
             && (int) ($proposal->id_pengusul ?? $proposal->user_id) === (int) $user->id
             && in_array($proposal->status_proposal, [Proposal::STATUS_DRAFT, 'Revisi'], true);
