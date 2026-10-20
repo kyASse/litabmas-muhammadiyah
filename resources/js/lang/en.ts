@@ -1283,7 +1283,8 @@ export const en = {
         finalReportFileLabel: 'Final Research Report (PDF)',
         finalReportFileHelp: 'Official final manuscript incorporating findings, methodologies, and deliverable summaries.',
         summaryLabel: 'Executive Summary of Research Outcomes',
-        summaryPlaceholder: 'Provide an exhaustive executive summary detailing research achievements, methodologies implemented, target beneficiaries, and conclusion (minimum 50 characters)...',
+        summaryPlaceholder:
+            'Provide an exhaustive executive summary detailing research achievements, methodologies implemented, target beneficiaries, and conclusion (minimum 50 characters)...',
         summaryHelp: 'Minimum 50 characters required.',
         submitFinalReport: 'Submit Final Report',
         submitting: 'Submitting Final Report...',
@@ -1319,7 +1320,8 @@ export const en = {
         saveEvaluation: 'Save Final Evaluation',
         savingEvaluation: 'Saving Evaluation...',
         generateSktsConfirmTitle: 'Issue Official SKTS Certificate?',
-        generateSktsConfirmDesc: 'This action will generate a canonical institutional SKTS number, close the contract, and permanently lock the proposal into a read-only archive.',
+        generateSktsConfirmDesc:
+            'This action will generate a canonical institutional SKTS number, close the contract, and permanently lock the proposal into a read-only archive.',
         confirmGenerateSkts: 'Confirm & Issue SKTS',
         generatingSkts: 'Issuing SKTS...',
         terminateModalTitle: 'Terminate Research (Force Majeure)',
@@ -1349,8 +1351,10 @@ export const en = {
         decreeNumber: 'Decree / SKTS Reference Number',
         institutionHeader: 'LEMBAGA PENELITIAN DAN PENGABDIAN KEPADA MASYARAKAT',
         councilHeader: 'MAJELIS PENDIDIKAN TINGGI PENELITIAN DAN PENGEMBANGAN PIMPINAN PUSAT MUHAMMADIYAH',
-        pembuka: 'Berdasarkan hasil evaluasi substantif laporan akhir dan verifikasi luaran penelitian tahun anggaran berkenaan, dengan ini Lembaga Penelitian dan Pengabdian kepada Masyarakat (LPPM) menerangkan bahwa:',
-        pembukaEn: 'Based on the substantive evaluation of the final report and output verification for the respective fiscal year, the Institute for Research and Community Service hereby certifies that:',
+        pembuka:
+            'Berdasarkan hasil evaluasi substantif laporan akhir dan verifikasi luaran penelitian tahun anggaran berkenaan, dengan ini Lembaga Penelitian dan Pengabdian kepada Masyarakat (LPPM) menerangkan bahwa:',
+        pembukaEn:
+            'Based on the substantive evaluation of the final report and output verification for the respective fiscal year, the Institute for Research and Community Service hereby certifies that:',
         researcherName: 'Lead Researcher Name',
         nidn: 'NIDN / NIP',
         faculty: 'Faculty / Study Program',
@@ -1359,15 +1363,18 @@ export const en = {
         grantSchema: 'Research Scheme',
         contractNumber: 'Contract Number',
         academicYear: 'Fiscal / Academic Year',
-        penutup: 'Telah menyelesaikan seluruh rangkaian kegiatan penelitian, penyerahan laporan akhir 100%, serta pemenuhan seluruh target luaran wajib dengan hasil:',
-        penutupEn: 'Has successfully fulfilled all research commitments, submitted the 100% final report, and satisfied all mandatory deliverable requirements with results:',
+        penutup:
+            'Telah menyelesaikan seluruh rangkaian kegiatan penelitian, penyerahan laporan akhir 100%, serta pemenuhan seluruh target luaran wajib dengan hasil:',
+        penutupEn:
+            'Has successfully fulfilled all research commitments, submitted the 100% final report, and satisfied all mandatory deliverable requirements with results:',
         finalGrade: 'Final Substantive Score',
         predicate: 'Graduation Predicate',
         statusSelesai: '[COMPLETED & ARCHIVED]',
         issuedAt: 'Issued in',
         issuedDate: 'Date of Issuance',
         authorizedSignatory: 'Chairman of LPPM',
-        digitalSignatureNotice: 'This document is digitally signed and officially authenticated through the Integrated Research System of Muhammadiyah Higher Education Institutions (Litabmas Muhammadiyah).',
+        digitalSignatureNotice:
+            'This document is digitally signed and officially authenticated through the Integrated Research System of Muhammadiyah Higher Education Institutions (Litabmas Muhammadiyah).',
         qrVerificationTitle: 'Document Authenticity Integrity Code',
         qrVerificationScan: 'Scan to verify digital signature authenticity and integrity.',
         canonicalUrlLabel: 'Verification URL',

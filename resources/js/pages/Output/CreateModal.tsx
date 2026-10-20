@@ -1,28 +1,15 @@
-import React from 'react';
-import { useForm } from '@inertiajs/react';
-import { BookMarked, BookOpen, Box, Cpu, FileCheck2, Loader2, ShieldCheck, X } from 'lucide-react';
-import { useTranslation } from '@/hooks/use-translation';
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PDFUploader } from '@/components/ui/PDFUploader';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/hooks/use-translation';
+import { useForm } from '@inertiajs/react';
+import { BookMarked, BookOpen, Box, FileCheck2, Loader2, ShieldCheck } from 'lucide-react';
+import React from 'react';
 
 export interface ProposalOption {
     id: number;
@@ -39,17 +26,10 @@ export interface CreateModalProps {
     onSuccess?: () => void;
 }
 
-export const CreateModal: React.FC<CreateModalProps> = ({
-    open,
-    onOpenChange,
-    proposals = [],
-    initialProposalId,
-    onSuccess,
-}) => {
+export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, proposals = [], initialProposalId, onSuccess }) => {
     const { t } = useTranslation();
 
-    const defaultProposalId =
-        initialProposalId ?? (proposals.length > 0 ? proposals[0].id : '');
+    const defaultProposalId = initialProposalId ?? (proposals.length > 0 ? proposals[0].id : '');
 
     const { data, setData, post, processing, errors, reset, clearErrors } = useForm<{
         id_proposal: string | number;
@@ -133,25 +113,18 @@ export const CreateModal: React.FC<CreateModalProps> = ({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto bg-white p-6 shadow-xl sm:rounded-xl">
                 <DialogHeader className="border-b border-slate-200 pb-4">
-                    <DialogTitle className="font-serif text-2xl font-bold tracking-tight text-slate-900">
-                        {t.output.modalTitle}
-                    </DialogTitle>
-                    <DialogDescription className="font-sans text-sm text-slate-600">
-                        {t.output.modalSubtitle}
-                    </DialogDescription>
+                    <DialogTitle className="font-serif text-2xl font-bold tracking-tight text-slate-900">{t.output.modalTitle}</DialogTitle>
+                    <DialogDescription className="font-sans text-sm text-slate-600">{t.output.modalSubtitle}</DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6 pt-2">
                     {/* Proposal Selection */}
                     <div className="space-y-1.5">
-                        <Label htmlFor="id_proposal" className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                        <Label htmlFor="id_proposal" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
                             {t.output.proposal} <span className="text-rose-600">*</span>
                         </Label>
                         {proposals.length > 0 ? (
-                            <Select
-                                value={String(data.id_proposal)}
-                                onValueChange={(val) => setData('id_proposal', Number(val))}
-                            >
+                            <Select value={String(data.id_proposal)} onValueChange={(val) => setData('id_proposal', Number(val))}>
                                 <SelectTrigger id="id_proposal" className="w-full bg-white text-slate-800">
                                     <SelectValue placeholder={t.output.selectProposalPlaceholder} />
                                 </SelectTrigger>
@@ -173,14 +146,12 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                 className="bg-white"
                             />
                         )}
-                        {errors.id_proposal && (
-                            <p className="text-xs font-medium text-rose-600">{errors.id_proposal}</p>
-                        )}
+                        {errors.id_proposal && <p className="text-xs font-medium text-rose-600">{errors.id_proposal}</p>}
                     </div>
 
                     {/* Target Status (Wajib vs Tambahan) */}
                     <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/70 p-4">
-                        <Label className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                        <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
                             {t.output.targetStatus} <span className="text-rose-600">*</span>
                         </Label>
                         <div className="grid grid-cols-2 gap-3">
@@ -194,18 +165,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                 }`}
                             >
                                 <div>
-                                    <span className="block text-sm font-semibold text-slate-900">
-                                        {t.output.mandatory}
-                                    </span>
-                                    <span className="text-xs text-slate-500">
-                                        {t.output.mandatoryBadge}
-                                    </span>
+                                    <span className="block text-sm font-semibold text-slate-900">{t.output.mandatory}</span>
+                                    <span className="text-xs text-slate-500">{t.output.mandatoryBadge}</span>
                                 </div>
-                                <FileCheck2
-                                    className={`h-5 w-5 ${
-                                        data.target_status === 'Wajib' ? 'text-blue-900' : 'text-slate-400'
-                                    }`}
-                                />
+                                <FileCheck2 className={`h-5 w-5 ${data.target_status === 'Wajib' ? 'text-blue-900' : 'text-slate-400'}`} />
                             </button>
 
                             <button
@@ -218,36 +181,22 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                 }`}
                             >
                                 <div>
-                                    <span className="block text-sm font-semibold text-slate-900">
-                                        {t.output.additional}
-                                    </span>
-                                    <span className="text-xs text-slate-500">
-                                        {t.output.additionalBadge}
-                                    </span>
+                                    <span className="block text-sm font-semibold text-slate-900">{t.output.additional}</span>
+                                    <span className="text-xs text-slate-500">{t.output.additionalBadge}</span>
                                 </div>
-                                <FileCheck2
-                                    className={`h-5 w-5 ${
-                                        data.target_status === 'Tambahan' ? 'text-blue-900' : 'text-slate-400'
-                                    }`}
-                                />
+                                <FileCheck2 className={`h-5 w-5 ${data.target_status === 'Tambahan' ? 'text-blue-900' : 'text-slate-400'}`} />
                             </button>
                         </div>
                         <p className="text-xs text-slate-500">{t.output.targetHelper}</p>
-                        {errors.target_status && (
-                            <p className="text-xs font-medium text-rose-600">{errors.target_status}</p>
-                        )}
+                        {errors.target_status && <p className="text-xs font-medium text-rose-600">{errors.target_status}</p>}
                     </div>
 
                     {/* Cluster Tabs Switcher */}
                     <div className="space-y-3">
-                        <Label className="text-xs font-semibold uppercase tracking-wider text-slate-700">
+                        <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
                             {t.output.cluster} <span className="text-rose-600">*</span>
                         </Label>
-                        <Tabs
-                            value={data.tipe_luaran}
-                            onValueChange={handleClusterChange}
-                            className="w-full"
-                        >
+                        <Tabs value={data.tipe_luaran} onValueChange={handleClusterChange} className="w-full">
                             <TabsList className="grid w-full grid-cols-4 bg-slate-100 p-1">
                                 <TabsTrigger
                                     value="Journal"
@@ -293,9 +242,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             placeholder={t.output.articleTitlePlaceholder}
                                             className="bg-white"
                                         />
-                                        {errors.judul_artikel && (
-                                            <p className="text-xs text-rose-600">{errors.judul_artikel}</p>
-                                        )}
+                                        {errors.judul_artikel && <p className="text-xs text-rose-600">{errors.judul_artikel}</p>}
                                     </div>
 
                                     <div className="space-y-1 sm:col-span-2">
@@ -309,9 +256,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             placeholder={t.output.journalNamePlaceholder}
                                             className="bg-white"
                                         />
-                                        {errors.nama_jurnal && (
-                                            <p className="text-xs text-rose-600">{errors.nama_jurnal}</p>
-                                        )}
+                                        {errors.nama_jurnal && <p className="text-xs text-rose-600">{errors.nama_jurnal}</p>}
                                     </div>
 
                                     <div className="space-y-1">
@@ -325,19 +270,14 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             placeholder={t.output.issnPlaceholder}
                                             className="bg-white font-mono"
                                         />
-                                        {errors.issn && (
-                                            <p className="text-xs text-rose-600">{errors.issn}</p>
-                                        )}
+                                        {errors.issn && <p className="text-xs text-rose-600">{errors.issn}</p>}
                                     </div>
 
                                     <div className="space-y-1">
                                         <Label htmlFor="indeksasi" className="text-xs font-medium text-slate-700">
                                             {t.output.indexation} <span className="text-rose-600">*</span>
                                         </Label>
-                                        <Select
-                                            value={data.indeksasi}
-                                            onValueChange={(val) => setData('indeksasi', val)}
-                                        >
+                                        <Select value={data.indeksasi} onValueChange={(val) => setData('indeksasi', val)}>
                                             <SelectTrigger id="indeksasi" className="bg-white">
                                                 <SelectValue placeholder={t.output.indexationPlaceholder} />
                                             </SelectTrigger>
@@ -351,19 +291,14 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                                 <SelectItem value="Nasional">Nasional</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {errors.indeksasi && (
-                                            <p className="text-xs text-rose-600">{errors.indeksasi}</p>
-                                        )}
+                                        {errors.indeksasi && <p className="text-xs text-rose-600">{errors.indeksasi}</p>}
                                     </div>
 
                                     <div className="space-y-1">
                                         <Label htmlFor="status_publikasi" className="text-xs font-medium text-slate-700">
                                             {t.output.pubStatus} <span className="text-rose-600">*</span>
                                         </Label>
-                                        <Select
-                                            value={data.status_publikasi}
-                                            onValueChange={(val) => setData('status_publikasi', val)}
-                                        >
+                                        <Select value={data.status_publikasi} onValueChange={(val) => setData('status_publikasi', val)}>
                                             <SelectTrigger id="status_publikasi" className="bg-white">
                                                 <SelectValue placeholder={t.output.pubStatusPlaceholder} />
                                             </SelectTrigger>
@@ -373,9 +308,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                                 <SelectItem value="Submitted">Submitted</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {errors.status_publikasi && (
-                                            <p className="text-xs text-rose-600">{errors.status_publikasi}</p>
-                                        )}
+                                        {errors.status_publikasi && <p className="text-xs text-rose-600">{errors.status_publikasi}</p>}
                                     </div>
 
                                     <div className="space-y-1">
@@ -390,9 +323,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             className="bg-white font-mono"
                                         />
                                         <p className="text-[11px] text-slate-500">{t.output.doiHelp}</p>
-                                        {errors.doi_url && (
-                                            <p className="text-xs font-medium text-rose-600">{errors.doi_url}</p>
-                                        )}
+                                        {errors.doi_url && <p className="text-xs font-medium text-rose-600">{errors.doi_url}</p>}
                                     </div>
                                 </div>
                             </TabsContent>
@@ -411,9 +342,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             placeholder={t.output.bookTitlePlaceholder}
                                             className="bg-white"
                                         />
-                                        {errors.judul_buku && (
-                                            <p className="text-xs text-rose-600">{errors.judul_buku}</p>
-                                        )}
+                                        {errors.judul_buku && <p className="text-xs text-rose-600">{errors.judul_buku}</p>}
                                     </div>
 
                                     <div className="space-y-1">
@@ -428,9 +357,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             className="bg-white font-mono"
                                         />
                                         <p className="text-[11px] text-slate-500">{t.output.isbnHelp}</p>
-                                        {errors.isbn && (
-                                            <p className="text-xs font-medium text-rose-600">{errors.isbn}</p>
-                                        )}
+                                        {errors.isbn && <p className="text-xs font-medium text-rose-600">{errors.isbn}</p>}
                                     </div>
 
                                     <div className="space-y-1">
@@ -444,9 +371,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             placeholder={t.output.publisherPlaceholder}
                                             className="bg-white"
                                         />
-                                        {errors.penerbit && (
-                                            <p className="text-xs text-rose-600">{errors.penerbit}</p>
-                                        )}
+                                        {errors.penerbit && <p className="text-xs text-rose-600">{errors.penerbit}</p>}
                                     </div>
 
                                     <div className="space-y-1">
@@ -460,9 +385,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             onChange={(e) => setData('tahun_terbit', e.target.value)}
                                             className="bg-white font-mono"
                                         />
-                                        {errors.tahun_terbit && (
-                                            <p className="text-xs text-rose-600">{errors.tahun_terbit}</p>
-                                        )}
+                                        {errors.tahun_terbit && <p className="text-xs text-rose-600">{errors.tahun_terbit}</p>}
                                     </div>
 
                                     <div className="space-y-1">
@@ -477,9 +400,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             placeholder="120"
                                             className="bg-white font-mono"
                                         />
-                                        {errors.jumlah_halaman && (
-                                            <p className="text-xs text-rose-600">{errors.jumlah_halaman}</p>
-                                        )}
+                                        {errors.jumlah_halaman && <p className="text-xs text-rose-600">{errors.jumlah_halaman}</p>}
                                     </div>
                                 </div>
                             </TabsContent>
@@ -498,19 +419,14 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             placeholder={t.output.creationTitlePlaceholder}
                                             className="bg-white"
                                         />
-                                        {errors.judul_ciptaan && (
-                                            <p className="text-xs text-rose-600">{errors.judul_ciptaan}</p>
-                                        )}
+                                        {errors.judul_ciptaan && <p className="text-xs text-rose-600">{errors.judul_ciptaan}</p>}
                                     </div>
 
                                     <div className="space-y-1">
                                         <Label htmlFor="jenis_hki" className="text-xs font-medium text-slate-700">
                                             {t.output.hkiType} <span className="text-rose-600">*</span>
                                         </Label>
-                                        <Select
-                                            value={data.jenis_hki}
-                                            onValueChange={(val) => setData('jenis_hki', val)}
-                                        >
+                                        <Select value={data.jenis_hki} onValueChange={(val) => setData('jenis_hki', val)}>
                                             <SelectTrigger id="jenis_hki" className="bg-white">
                                                 <SelectValue placeholder={t.output.hkiTypePlaceholder} />
                                             </SelectTrigger>
@@ -520,9 +436,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                                 <SelectItem value="Desain_Industri">Desain Industri</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        {errors.jenis_hki && (
-                                            <p className="text-xs text-rose-600">{errors.jenis_hki}</p>
-                                        )}
+                                        {errors.jenis_hki && <p className="text-xs text-rose-600">{errors.jenis_hki}</p>}
                                     </div>
 
                                     <div className="space-y-1">
@@ -537,9 +451,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             className="bg-white font-mono"
                                         />
                                         <p className="text-[11px] text-slate-500">{t.output.regNumberHelp}</p>
-                                        {errors.nomor_pendaftaran && (
-                                            <p className="text-xs font-medium text-rose-600">{errors.nomor_pendaftaran}</p>
-                                        )}
+                                        {errors.nomor_pendaftaran && <p className="text-xs font-medium text-rose-600">{errors.nomor_pendaftaran}</p>}
                                     </div>
 
                                     <div className="space-y-1 sm:col-span-2">
@@ -553,9 +465,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             placeholder={t.output.certNumberPlaceholder}
                                             className="bg-white font-mono"
                                         />
-                                        {errors.nomor_sertifikat && (
-                                            <p className="text-xs text-rose-600">{errors.nomor_sertifikat}</p>
-                                        )}
+                                        {errors.nomor_sertifikat && <p className="text-xs text-rose-600">{errors.nomor_sertifikat}</p>}
                                     </div>
                                 </div>
                             </TabsContent>
@@ -574,9 +484,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             placeholder={t.output.productNamePlaceholder}
                                             className="bg-white"
                                         />
-                                        {errors.nama_produk && (
-                                            <p className="text-xs text-rose-600">{errors.nama_produk}</p>
-                                        )}
+                                        {errors.nama_produk && <p className="text-xs text-rose-600">{errors.nama_produk}</p>}
                                     </div>
 
                                     <div className="space-y-1">
@@ -591,9 +499,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                                             placeholder={t.output.descriptionPlaceholder}
                                             className="bg-white"
                                         />
-                                        {errors.deskripsi_produk && (
-                                            <p className="text-xs text-rose-600">{errors.deskripsi_produk}</p>
-                                        )}
+                                        {errors.deskripsi_produk && <p className="text-xs text-rose-600">{errors.deskripsi_produk}</p>}
                                     </div>
 
                                     <div className="space-y-1">
@@ -634,9 +540,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                             helperText={t.output.fileUploadHelp}
                             required
                         />
-                        {errors.file_dokumen && (
-                            <p className="text-xs font-medium text-rose-600">{errors.file_dokumen}</p>
-                        )}
+                        {errors.file_dokumen && <p className="text-xs font-medium text-rose-600">{errors.file_dokumen}</p>}
                     </div>
 
                     {/* Footer Actions */}
@@ -650,11 +554,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({
                         >
                             {t.output.cancel}
                         </Button>
-                        <Button
-                            type="submit"
-                            disabled={processing || !data.file_dokumen}
-                            className="bg-blue-900 text-white hover:bg-blue-800"
-                        >
+                        <Button type="submit" disabled={processing || !data.file_dokumen} className="bg-blue-900 text-white hover:bg-blue-800">
                             {processing ? (
                                 <span className="flex items-center gap-1.5">
                                     <Loader2 className="h-4 w-4 animate-spin" />

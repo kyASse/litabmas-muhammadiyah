@@ -1288,7 +1288,8 @@ export const id: TranslationType = {
         finalReportFileLabel: 'Berkas Laporan Akhir (PDF)',
         finalReportFileHelp: 'Dokumen laporan akhir resmi yang merangkum hasil, metodologi, dan pencapaian target luaran.',
         summaryLabel: 'Ringkasan Hasil & Dampak Penelitian',
-        summaryPlaceholder: 'Uraikan ringkasan eksekutif hasil riset, capaian luaran, metodologi yang diimplementasikan, serta manfaat bagi masyarakat/institusi (minimal 50 karakter)...',
+        summaryPlaceholder:
+            'Uraikan ringkasan eksekutif hasil riset, capaian luaran, metodologi yang diimplementasikan, serta manfaat bagi masyarakat/institusi (minimal 50 karakter)...',
         summaryHelp: 'Wajib diisi minimal 50 karakter.',
         submitFinalReport: 'Ajukan Laporan Akhir',
         submitting: 'Mengajukan Laporan Akhir...',
@@ -1324,7 +1325,8 @@ export const id: TranslationType = {
         saveEvaluation: 'Simpan Penilaian Evaluasi',
         savingEvaluation: 'Menyimpan Penilaian...',
         generateSktsConfirmTitle: 'Terbitkan Sertifikat SKTS Resmi?',
-        generateSktsConfirmDesc: 'Tindakan ini akan menerbitkan nomor unik SKTS institusi, menutup kontrak secara permanen, dan mengunci seluruh data usulan menjadi arsip baca-saja.',
+        generateSktsConfirmDesc:
+            'Tindakan ini akan menerbitkan nomor unik SKTS institusi, menutup kontrak secara permanen, dan mengunci seluruh data usulan menjadi arsip baca-saja.',
         confirmGenerateSkts: 'Konfirmasi & Terbitkan SKTS',
         generatingSkts: 'Menerbitkan SKTS...',
         terminateModalTitle: 'Terminasi Riset (Kondisi Kahar / Force Majeure)',
@@ -1354,8 +1356,10 @@ export const id: TranslationType = {
         decreeNumber: 'Nomor Surat Keputusan / SKTS',
         institutionHeader: 'LEMBAGA PENELITIAN DAN PENGABDIAN KEPADA MASYARAKAT',
         councilHeader: 'MAJELIS PENDIDIKAN TINGGI PENELITIAN DAN PENGEMBANGAN PIMPINAN PUSAT MUHAMMADIYAH',
-        pembuka: 'Berdasarkan hasil evaluasi substantif laporan akhir dan verifikasi luaran penelitian tahun anggaran berkenaan, dengan ini Lembaga Penelitian dan Pengabdian kepada Masyarakat (LPPM) menerangkan bahwa:',
-        pembukaEn: 'Based on the substantive evaluation of the final report and output verification for the respective fiscal year, the Institute for Research and Community Service hereby certifies that:',
+        pembuka:
+            'Berdasarkan hasil evaluasi substantif laporan akhir dan verifikasi luaran penelitian tahun anggaran berkenaan, dengan ini Lembaga Penelitian dan Pengabdian kepada Masyarakat (LPPM) menerangkan bahwa:',
+        pembukaEn:
+            'Based on the substantive evaluation of the final report and output verification for the respective fiscal year, the Institute for Research and Community Service hereby certifies that:',
         researcherName: 'Nama Ketua Peneliti',
         nidn: 'NIDN / NIP',
         faculty: 'Fakultas / Program Studi',
@@ -1364,15 +1368,18 @@ export const id: TranslationType = {
         grantSchema: 'Skema Penelitian',
         contractNumber: 'Nomor Kontrak',
         academicYear: 'Tahun Anggaran',
-        penutup: 'Telah menyelesaikan seluruh rangkaian kegiatan penelitian, penyerahan laporan akhir 100%, serta pemenuhan seluruh target luaran wajib dengan hasil:',
-        penutupEn: 'Has successfully fulfilled all research commitments, submitted the 100% final report, and satisfied all mandatory deliverable requirements with results:',
+        penutup:
+            'Telah menyelesaikan seluruh rangkaian kegiatan penelitian, penyerahan laporan akhir 100%, serta pemenuhan seluruh target luaran wajib dengan hasil:',
+        penutupEn:
+            'Has successfully fulfilled all research commitments, submitted the 100% final report, and satisfied all mandatory deliverable requirements with results:',
         finalGrade: 'Nilai Akhir Substansi',
         predicate: 'Predikat Kelulusan',
         statusSelesai: '[SELESAI & TERARSIP]',
         issuedAt: 'Diterbitkan di',
         issuedDate: 'Tanggal Pengesahan',
         authorizedSignatory: 'Ketua LPPM',
-        digitalSignatureNotice: 'Dokumen ini disahkan secara digital dan terautentikasi melalui Sistem Informasi Penelitian Terintegrasi Perguruan Tinggi Muhammadiyah (Litabmas Muhammadiyah).',
+        digitalSignatureNotice:
+            'Dokumen ini disahkan secara digital dan terautentikasi melalui Sistem Informasi Penelitian Terintegrasi Perguruan Tinggi Muhammadiyah (Litabmas Muhammadiyah).',
         qrVerificationTitle: 'Kode Integritas & Keaslian Dokumen',
         qrVerificationScan: 'Pindai untuk memverifikasi keabsahan tanda tangan digital dan keaslian naskah SKTS.',
         canonicalUrlLabel: 'Tautan Verifikasi',

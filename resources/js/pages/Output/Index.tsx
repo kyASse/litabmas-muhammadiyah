@@ -1,29 +1,6 @@
-import React, { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
-import {
-    Award,
-    BookMarked,
-    BookOpen,
-    Box,
-    CheckCircle2,
-    Clock,
-    Download,
-    ExternalLink,
-    FileText,
-    Layers,
-    Lock,
-    Plus,
-    ShieldCheck,
-    Trash2,
-} from 'lucide-react';
-import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { useTranslation } from '@/hooks/use-translation';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { MetricCard } from '@/components/ui/MetricCard';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { StatusBadge } from '@/components/ui/StatusBadge';
-import { TabularFigure } from '@/components/ui/TabularFigure';
-import { Button } from '@/components/ui/button';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -34,6 +11,13 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
+import { BookMarked, BookOpen, Box, CheckCircle2, Clock, Download, ExternalLink, Layers, Lock, Plus, ShieldCheck, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import CreateModal, { type ProposalOption } from './CreateModal';
 
 export interface JournalOutputData {
@@ -134,9 +118,7 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
 
     // Calculate quick metrics
     const totalCount = outputs?.total ?? dataList.length;
-    const mandatoryVerifiedCount = dataList.filter(
-        (o) => o.target_status === 'Wajib' && o.status_verifikasi === 'Verified'
-    ).length;
+    const mandatoryVerifiedCount = dataList.filter((o) => o.target_status === 'Wajib' && o.status_verifikasi === 'Verified').length;
     const additionalCount = dataList.filter((o) => o.target_status === 'Tambahan').length;
     const pendingCount = dataList.filter((o) => o.status_verifikasi === 'Submitted').length;
 
@@ -246,7 +228,7 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                 <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left text-sm text-slate-600">
-                            <thead className="border-b border-slate-200 bg-slate-50/75 text-xs font-semibold uppercase tracking-wider text-slate-700">
+                            <thead className="border-b border-slate-200 bg-slate-50/75 text-xs font-semibold tracking-wider text-slate-700 uppercase">
                                 <tr>
                                     <th scope="col" className="px-6 py-3.5">
                                         {t.output.proposal}
@@ -279,12 +261,8 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
                                                     <BookOpen className="h-6 w-6" />
                                                 </div>
-                                                <h3 className="font-serif text-base font-semibold text-slate-800">
-                                                    {t.output.empty}
-                                                </h3>
-                                                <p className="text-xs text-slate-500">
-                                                    {t.output.emptySub}
-                                                </p>
+                                                <h3 className="font-serif text-base font-semibold text-slate-800">{t.output.empty}</h3>
+                                                <p className="text-xs text-slate-500">{t.output.emptySub}</p>
                                                 <Button
                                                     type="button"
                                                     onClick={() => setCreateModalOpen(true)}
@@ -312,9 +290,7 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                 {/* Proposal */}
                                                 <td className="px-6 py-4">
                                                     <div className="max-w-xs space-y-0.5">
-                                                        <span className="font-mono text-xs font-semibold text-slate-400">
-                                                            #{output.id_proposal}
-                                                        </span>
+                                                        <span className="font-mono text-xs font-semibold text-slate-400">#{output.id_proposal}</span>
                                                         <p className="line-clamp-2 font-serif text-sm font-medium text-slate-900">
                                                             {output.proposal?.judul ?? '-'}
                                                         </p>
@@ -359,10 +335,8 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                                 </p>
                                                                 <p className="text-xs text-slate-600">
                                                                     {journal.nama_jurnal} |{' '}
-                                                                    <span className="font-medium text-slate-800">
-                                                                        {journal.indeksasi}
-                                                                    </span>{' '}
-                                                                    ({journal.status_publikasi})
+                                                                    <span className="font-medium text-slate-800">{journal.indeksasi}</span> (
+                                                                    {journal.status_publikasi})
                                                                 </p>
                                                                 {journal.doi_url && (
                                                                     <a
@@ -375,8 +349,7 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                                         rel="noopener noreferrer"
                                                                         className="inline-flex items-center gap-1 font-mono text-xs text-blue-900 hover:underline"
                                                                     >
-                                                                        <span className="font-semibold">DOI:</span>{' '}
-                                                                        {journal.doi_url}
+                                                                        <span className="font-semibold">DOI:</span> {journal.doi_url}
                                                                         <ExternalLink className="h-3 w-3" />
                                                                     </a>
                                                                 )}
@@ -385,39 +358,30 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
 
                                                         {output.tipe_luaran === 'Book' && book && (
                                                             <>
-                                                                <p className="font-serif text-sm font-semibold text-slate-900">
-                                                                    {book.judul_buku}
-                                                                </p>
+                                                                <p className="font-serif text-sm font-semibold text-slate-900">{book.judul_buku}</p>
                                                                 <p className="text-xs text-slate-600">
                                                                     {book.penerbit} ({book.tahun_terbit})
                                                                     {book.jumlah_halaman ? ` • ${book.jumlah_halaman} hlm` : ''}
                                                                 </p>
                                                                 <p className="font-mono text-xs text-slate-700">
-                                                                    <span className="font-semibold text-slate-500">ISBN:</span>{' '}
-                                                                    {book.isbn}
+                                                                    <span className="font-semibold text-slate-500">ISBN:</span> {book.isbn}
                                                                 </p>
                                                             </>
                                                         )}
 
                                                         {output.tipe_luaran === 'Hki' && hki && (
                                                             <>
-                                                                <p className="font-serif text-sm font-semibold text-slate-900">
-                                                                    {hki.judul_ciptaan}
-                                                                </p>
-                                                                <p className="text-xs text-slate-600">
-                                                                    {hki.jenis_hki.replace(/_/g, ' ')}
-                                                                </p>
-                                                                <div className="flex flex-wrap gap-2 text-xs font-mono text-slate-700">
+                                                                <p className="font-serif text-sm font-semibold text-slate-900">{hki.judul_ciptaan}</p>
+                                                                <p className="text-xs text-slate-600">{hki.jenis_hki.replace(/_/g, ' ')}</p>
+                                                                <div className="flex flex-wrap gap-2 font-mono text-xs text-slate-700">
                                                                     {hki.nomor_pendaftaran && (
                                                                         <span>
-                                                                            <span className="text-slate-500">Reg:</span>{' '}
-                                                                            {hki.nomor_pendaftaran}
+                                                                            <span className="text-slate-500">Reg:</span> {hki.nomor_pendaftaran}
                                                                         </span>
                                                                     )}
                                                                     {hki.nomor_sertifikat && (
                                                                         <span>
-                                                                            <span className="text-slate-500">Sert:</span>{' '}
-                                                                            {hki.nomor_sertifikat}
+                                                                            <span className="text-slate-500">Sert:</span> {hki.nomor_sertifikat}
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -434,17 +398,13 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                                         TKT {product.tingkat_kesiapan_teknologi}
                                                                     </span>
                                                                 </div>
-                                                                <p className="line-clamp-2 text-xs text-slate-600">
-                                                                    {product.deskripsi_produk}
-                                                                </p>
+                                                                <p className="line-clamp-2 text-xs text-slate-600">{product.deskripsi_produk}</p>
                                                             </>
                                                         )}
 
                                                         {output.status_verifikasi === 'Rejected' && output.catatan_verifikasi && (
                                                             <div className="mt-1.5 rounded-md border border-rose-200 bg-rose-50/70 p-2 text-xs text-rose-800">
-                                                                <span className="font-bold">
-                                                                    {t.output.verificationNotes}:
-                                                                </span>{' '}
+                                                                <span className="font-bold">{t.output.verificationNotes}:</span>{' '}
                                                                 {output.catatan_verifikasi}
                                                             </div>
                                                         )}
@@ -470,17 +430,18 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                 </td>
 
                                                 {/* Reported Date */}
-                                                <td className="px-6 py-4 whitespace-nowrap font-mono text-xs text-slate-500">
+                                                <td className="px-6 py-4 font-mono text-xs whitespace-nowrap text-slate-500">
                                                     {output.tanggal_pelaporan
-                                                        ? new Date(output.tanggal_pelaporan).toLocaleDateString(
-                                                              locale === 'id' ? 'id-ID' : 'en-US',
-                                                              { day: '2-digit', month: 'short', year: 'numeric' }
-                                                          )
+                                                        ? new Date(output.tanggal_pelaporan).toLocaleDateString(locale === 'id' ? 'id-ID' : 'en-US', {
+                                                              day: '2-digit',
+                                                              month: 'short',
+                                                              year: 'numeric',
+                                                          })
                                                         : '-'}
                                                 </td>
 
                                                 {/* Actions */}
-                                                <td className="px-6 py-4 whitespace-nowrap text-right">
+                                                <td className="px-6 py-4 text-right whitespace-nowrap">
                                                     <div className="flex items-center justify-end gap-2">
                                                         {fileUrl ? (
                                                             <a
@@ -491,14 +452,10 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                                 title={t.output.downloadPdf}
                                                             >
                                                                 <Download className="h-3.5 w-3.5" />
-                                                                <span className="hidden sm:inline">
-                                                                    {t.output.downloadPdf}
-                                                                </span>
+                                                                <span className="hidden sm:inline">{t.output.downloadPdf}</span>
                                                             </a>
                                                         ) : (
-                                                            <span className="text-xs text-slate-400">
-                                                                {t.output.noDocument}
-                                                            </span>
+                                                            <span className="text-xs text-slate-400">{t.output.noDocument}</span>
                                                         )}
 
                                                         <Button
@@ -512,17 +469,9 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                                     ? 'cursor-not-allowed text-slate-300'
                                                                     : 'text-rose-600 hover:bg-rose-50 hover:text-rose-800'
                                                             }`}
-                                                            title={
-                                                                locked
-                                                                    ? t.output.readOnlyLock
-                                                                    : t.output.delete
-                                                            }
+                                                            title={locked ? t.output.readOnlyLock : t.output.delete}
                                                         >
-                                                            {locked ? (
-                                                                <Lock className="h-4 w-4" />
-                                                            ) : (
-                                                                <Trash2 className="h-4 w-4" />
-                                                            )}
+                                                            {locked ? <Lock className="h-4 w-4" /> : <Trash2 className="h-4 w-4" />}
                                                         </Button>
                                                     </div>
                                                 </td>
@@ -552,8 +501,8 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                             link.active
                                                 ? 'bg-blue-900 text-white'
                                                 : link.url
-                                                ? 'text-slate-700 hover:bg-slate-200'
-                                                : 'cursor-not-allowed text-slate-400'
+                                                  ? 'text-slate-700 hover:bg-slate-200'
+                                                  : 'cursor-not-allowed text-slate-400'
                                         }`}
                                         dangerouslySetInnerHTML={{ __html: link.label }}
                                     />
@@ -565,31 +514,18 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
             </div>
 
             {/* Create Output Modal */}
-            <CreateModal
-                open={createModalOpen}
-                onOpenChange={setCreateModalOpen}
-                proposals={proposals}
-            />
+            <CreateModal open={createModalOpen} onOpenChange={setCreateModalOpen} proposals={proposals} />
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={Boolean(outputToDelete)} onOpenChange={(open) => !open && setOutputToDelete(null)}>
                 <AlertDialogContent className="bg-white">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="font-serif text-lg font-bold text-slate-900">
-                            {t.output.delete}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription className="text-sm text-slate-600">
-                            {t.output.deleteConfirm}
-                        </AlertDialogDescription>
+                        <AlertDialogTitle className="font-serif text-lg font-bold text-slate-900">{t.output.delete}</AlertDialogTitle>
+                        <AlertDialogDescription className="text-sm text-slate-600">{t.output.deleteConfirm}</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="border-slate-300 text-slate-700">
-                            {t.common.cancel}
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleDelete}
-                            className="bg-rose-600 text-white hover:bg-rose-700"
-                        >
+                        <AlertDialogCancel className="border-slate-300 text-slate-700">{t.common.cancel}</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-rose-600 text-white hover:bg-rose-700">
                             {t.output.delete}
                         </AlertDialogAction>
                     </AlertDialogFooter>

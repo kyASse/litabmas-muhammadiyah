@@ -1,18 +1,9 @@
-import React from 'react';
-import { Head, Link } from '@inertiajs/react';
-import {
-    ArrowLeft,
-    Award,
-    CheckCircle2,
-    FileCheck,
-    Printer,
-    QrCode,
-    ShieldCheck,
-} from 'lucide-react';
-import { useTranslation } from '@/hooks/use-translation';
-import { TabularFigure } from '@/components/ui/TabularFigure';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { TabularFigure } from '@/components/ui/TabularFigure';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft, Award, CheckCircle2, Printer } from 'lucide-react';
 import { type EvaluationDetail, type ProposalDetail, type UniversityDetail } from './Show';
 
 interface Props {
@@ -40,9 +31,10 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
     });
 
     const city = university?.city || 'Yogyakarta';
-    const verificationUrl = typeof window !== 'undefined'
-        ? `${window.location.origin}/proposals/${proposal.id}/skts-certificate`
-        : `/proposals/${proposal.id}/skts-certificate`;
+    const verificationUrl =
+        typeof window !== 'undefined'
+            ? `${window.location.origin}/proposals/${proposal.id}/skts-certificate`
+            : `/proposals/${proposal.id}/skts-certificate`;
 
     return (
         <div className="min-h-screen bg-slate-100 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100 print:bg-white print:p-0 print:text-black">
@@ -95,7 +87,7 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
                     <LanguageSwitcher variant="compact" />
                     <Button
                         onClick={() => window.print()}
-                        className="flex items-center gap-2 bg-brand-primary text-xs font-semibold text-white hover:bg-brand-primary-hover shadow-xs"
+                        className="flex items-center gap-2 bg-brand-primary text-xs font-semibold text-white shadow-xs hover:bg-brand-primary-hover"
                     >
                         <Printer className="h-4 w-4" />
                         {t.skts.printButton}
@@ -111,7 +103,7 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
                     <div className="absolute top-2 left-2 h-4 w-4 border-t-2 border-l-2 border-slate-900" />
                     <div className="absolute top-2 right-2 h-4 w-4 border-t-2 border-r-2 border-slate-900" />
                     <div className="absolute bottom-2 left-2 h-4 w-4 border-b-2 border-l-2 border-slate-900" />
-                    <div className="absolute bottom-2 right-2 h-4 w-4 border-b-2 border-r-2 border-slate-900" />
+                    <div className="absolute right-2 bottom-2 h-4 w-4 border-r-2 border-b-2 border-slate-900" />
 
                     {/* ── Official Institutional Kop Surat ── */}
                     <header className="text-center">
@@ -122,20 +114,20 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
                             </div>
 
                             <div className="text-center">
-                                <div className="font-serif text-[11px] font-semibold tracking-wider uppercase text-slate-700">
+                                <div className="font-serif text-[11px] font-semibold tracking-wider text-slate-700 uppercase">
                                     {t.skts.councilHeader}
                                 </div>
-                                <div className="font-serif text-xl font-black uppercase tracking-tight text-slate-900 sm:text-2xl">
+                                <div className="font-serif text-xl font-black tracking-tight text-slate-900 uppercase sm:text-2xl">
                                     {universityName}
                                 </div>
-                                <div className="font-serif text-sm font-bold tracking-normal uppercase text-brand-primary">
+                                <div className="font-serif text-sm font-bold tracking-normal text-brand-primary uppercase">
                                     {t.skts.institutionHeader}
                                 </div>
                             </div>
                         </div>
 
                         {/* Institutional Address */}
-                        <div className="mt-2 text-[11px] font-sans text-slate-600">
+                        <div className="mt-2 font-sans text-[11px] text-slate-600">
                             {[
                                 university?.address,
                                 university?.city,
@@ -155,10 +147,10 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
 
                     {/* ── Certificate Title & Official SKTS Number ── */}
                     <div className="my-8 text-center">
-                        <h1 className="font-serif text-2xl font-black tracking-wider uppercase text-slate-900 sm:text-3xl">
+                        <h1 className="font-serif text-2xl font-black tracking-wider text-slate-900 uppercase sm:text-3xl">
                             {t.skts.certificateTitle}
                         </h1>
-                        <div className="mt-0.5 font-sans text-xs font-semibold tracking-widest uppercase text-slate-500">
+                        <div className="mt-0.5 font-sans text-xs font-semibold tracking-widest text-slate-500 uppercase">
                             {t.skts.certificateSubtitle}
                         </div>
                         <div className="mt-3 inline-flex items-center gap-2 rounded-sm border border-slate-300 bg-slate-50 px-4 py-1.5 font-mono text-xs font-bold tracking-wider text-slate-900">
@@ -168,7 +160,7 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
                     </div>
 
                     {/* ── Preamble ── */}
-                    <p className="font-serif text-xs leading-relaxed text-justify text-slate-800 sm:text-sm">
+                    <p className="text-justify font-serif text-xs leading-relaxed text-slate-800 sm:text-sm">
                         {locale === 'id' ? t.skts.pembuka : t.skts.pembukaEn}
                     </p>
 
@@ -177,108 +169,68 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
                         <table className="w-full text-left font-serif text-xs sm:text-sm">
                             <tbody className="divide-y divide-slate-100">
                                 <tr>
-                                    <td className="w-48 bg-slate-50/70 px-4 py-2 font-bold text-slate-700">
-                                        {t.skts.researcherName}
-                                    </td>
+                                    <td className="w-48 bg-slate-50/70 px-4 py-2 font-bold text-slate-700">{t.skts.researcherName}</td>
                                     <td className="w-4 text-center font-bold text-slate-500">:</td>
-                                    <td className="px-4 py-2 font-bold text-slate-900">
-                                        {proposal.user?.name || '-'}
-                                    </td>
+                                    <td className="px-4 py-2 font-bold text-slate-900">{proposal.user?.name || '-'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">
-                                        {t.skts.nidn}
-                                    </td>
+                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">{t.skts.nidn}</td>
                                     <td className="text-center font-bold text-slate-500">:</td>
-                                    <td className="px-4 py-2 font-mono text-xs text-slate-800">
-                                        {proposal.user?.nidn || '-'}
-                                    </td>
+                                    <td className="px-4 py-2 font-mono text-xs text-slate-800">{proposal.user?.nidn || '-'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">
-                                        {t.skts.faculty}
-                                    </td>
+                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">{t.skts.faculty}</td>
                                     <td className="text-center font-bold text-slate-500">:</td>
                                     <td className="px-4 py-2 text-slate-800">
-                                        {[proposal.user?.study_program, proposal.user?.faculty]
-                                            .filter(Boolean)
-                                            .join(' / ') || '-'}
+                                        {[proposal.user?.study_program, proposal.user?.faculty].filter(Boolean).join(' / ') || '-'}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">
-                                        {t.skts.institution}
-                                    </td>
+                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">{t.skts.institution}</td>
                                     <td className="text-center font-bold text-slate-500">:</td>
-                                    <td className="px-4 py-2 font-semibold text-slate-800">
-                                        {universityName}
-                                    </td>
+                                    <td className="px-4 py-2 font-semibold text-slate-800">{universityName}</td>
                                 </tr>
                                 <tr>
-                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">
-                                        {t.skts.researchTitle}
-                                    </td>
+                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">{t.skts.researchTitle}</td>
                                     <td className="text-center font-bold text-slate-500">:</td>
-                                    <td className="px-4 py-2 font-serif font-bold italic leading-snug text-slate-900">
-                                        "{proposalTitle}"
-                                    </td>
+                                    <td className="px-4 py-2 font-serif leading-snug font-bold text-slate-900 italic">"{proposalTitle}"</td>
                                 </tr>
                                 <tr>
-                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">
-                                        {t.skts.grantSchema}
-                                    </td>
+                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">{t.skts.grantSchema}</td>
                                     <td className="text-center font-bold text-slate-500">:</td>
-                                    <td className="px-4 py-2 text-slate-800">
-                                        {proposal.researchSchema?.nama_skema || '-'}
-                                    </td>
+                                    <td className="px-4 py-2 text-slate-800">{proposal.researchSchema?.nama_skema || '-'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">
-                                        {t.skts.contractNumber}
-                                    </td>
+                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">{t.skts.contractNumber}</td>
                                     <td className="text-center font-bold text-slate-500">:</td>
-                                    <td className="px-4 py-2 font-mono text-xs text-slate-800">
-                                        {proposal.contract?.nomor_kontrak || '-'}
-                                    </td>
+                                    <td className="px-4 py-2 font-mono text-xs text-slate-800">{proposal.contract?.nomor_kontrak || '-'}</td>
                                 </tr>
                                 <tr>
-                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">
-                                        {t.skts.academicYear}
-                                    </td>
+                                    <td className="bg-slate-50/70 px-4 py-2 font-semibold text-slate-700">{t.skts.academicYear}</td>
                                     <td className="text-center font-bold text-slate-500">:</td>
-                                    <td className="px-4 py-2 font-mono text-xs text-slate-800">
-                                        {currentYear}
-                                    </td>
+                                    <td className="px-4 py-2 font-mono text-xs text-slate-800">{currentYear}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
 
                     {/* ── Closing Statement ── */}
-                    <p className="font-serif text-xs leading-relaxed text-justify text-slate-800 sm:text-sm">
+                    <p className="text-justify font-serif text-xs leading-relaxed text-slate-800 sm:text-sm">
                         {locale === 'id' ? t.skts.penutup : t.skts.penutupEn}
                     </p>
 
                     {/* ── Final Grade & Predicate Box ── */}
                     <div className="my-6 flex flex-col items-center justify-between gap-4 rounded-lg border-2 border-slate-900 bg-slate-50/60 p-5 sm:flex-row">
                         <div>
-                            <div className="font-serif text-xs font-semibold uppercase tracking-wider text-slate-600">
-                                {t.skts.finalGrade}
-                            </div>
+                            <div className="font-serif text-xs font-semibold tracking-wider text-slate-600 uppercase">{t.skts.finalGrade}</div>
                             <div className="mt-1 flex items-baseline gap-2 font-mono text-2xl font-black text-slate-900 sm:text-3xl">
-                                {evaluation?.skor_akhir_substansi ? (
-                                    <TabularFigure value={Number(evaluation.skor_akhir_substansi)} />
-                                ) : (
-                                    '92.50'
-                                )}
+                                {evaluation?.skor_akhir_substansi ? <TabularFigure value={Number(evaluation.skor_akhir_substansi)} /> : '92.50'}
                                 <span className="text-xs font-normal text-slate-500">/ 100.00</span>
                             </div>
                         </div>
 
                         <div className="text-center sm:text-right">
-                            <div className="font-serif text-xs font-semibold uppercase tracking-wider text-slate-600">
-                                {t.skts.predicate}
-                            </div>
+                            <div className="font-serif text-xs font-semibold tracking-wider text-slate-600 uppercase">{t.skts.predicate}</div>
                             <div className="mt-1">
                                 <span className="inline-flex rounded-md border border-slate-900 bg-brand-primary px-4 py-1.5 font-mono text-xs font-bold text-white shadow-xs">
                                     {evaluation?.rekomendasi_kelulusan === 'Lulus_Memuaskan'
@@ -298,11 +250,7 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
                             <div className="flex items-center gap-3">
                                 {/* Vector SVG Integrity Authentication Grid */}
                                 <div className="flex h-24 w-24 shrink-0 flex-col items-center justify-center rounded-lg border-2 border-slate-900 bg-white p-2 shadow-xs">
-                                    <svg
-                                        viewBox="0 0 100 100"
-                                        className="h-full w-full fill-slate-900"
-                                        xmlns="http://www.w3.org/2000/svg"
-                                    >
+                                    <svg viewBox="0 0 100 100" className="h-full w-full fill-slate-900" xmlns="http://www.w3.org/2000/svg">
                                         {/* QR Position Finder Markers */}
                                         <rect x="5" y="5" width="28" height="28" fill="#0f172a" />
                                         <rect x="9" y="9" width="20" height="20" fill="#ffffff" />
@@ -335,15 +283,11 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
                                 </div>
 
                                 <div className="space-y-1">
-                                    <div className="font-sans text-[11px] font-bold uppercase tracking-wider text-slate-900">
+                                    <div className="font-sans text-[11px] font-bold tracking-wider text-slate-900 uppercase">
                                         {t.skts.qrVerificationTitle}
                                     </div>
-                                    <div className="font-sans text-[10px] leading-tight text-slate-500">
-                                        {t.skts.qrVerificationScan}
-                                    </div>
-                                    <div className="font-mono text-[9px] text-slate-400 break-all">
-                                        {verificationUrl}
-                                    </div>
+                                    <div className="font-sans text-[10px] leading-tight text-slate-500">{t.skts.qrVerificationScan}</div>
+                                    <div className="font-mono text-[9px] break-all text-slate-400">{verificationUrl}</div>
                                 </div>
                             </div>
                         </div>
@@ -353,12 +297,8 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
                             <div className="font-serif text-xs text-slate-700">
                                 {city}, {formattedDate}
                             </div>
-                            <div className="mt-0.5 font-serif text-xs font-bold uppercase text-slate-900">
-                                {t.skts.authorizedSignatory}
-                            </div>
-                            <div className="font-serif text-[11px] text-slate-600">
-                                {universityName}
-                            </div>
+                            <div className="mt-0.5 font-serif text-xs font-bold text-slate-900 uppercase">{t.skts.authorizedSignatory}</div>
+                            <div className="font-serif text-[11px] text-slate-600">{universityName}</div>
 
                             {/* Digital Sign Seal Stamp */}
                             <div className="my-3 flex items-center justify-center sm:justify-end">
@@ -368,20 +308,16 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
                                 </div>
                             </div>
 
-                            <div className="font-serif text-xs font-bold underline text-slate-900">
+                            <div className="font-serif text-xs font-bold text-slate-900 underline">
                                 {evaluation?.evaluator?.name || 'Prof. Dr. H. Administrator Riset, M.Sc.'}
                             </div>
-                            <div className="font-mono text-[10px] text-slate-600">
-                                NIDN: 0015087501
-                            </div>
+                            <div className="font-mono text-[10px] text-slate-600">NIDN: 0015087501</div>
                         </div>
                     </div>
 
                     {/* ── Security & Canonical Archive Footer ── */}
                     <footer className="mt-8 border-t border-slate-200 pt-3 text-center">
-                        <p className="font-sans text-[10px] text-slate-500">
-                            {t.skts.digitalSignatureNotice}
-                        </p>
+                        <p className="font-sans text-[10px] text-slate-500">{t.skts.digitalSignatureNotice}</p>
                     </footer>
                 </div>
             </main>

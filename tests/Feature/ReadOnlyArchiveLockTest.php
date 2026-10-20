@@ -11,6 +11,7 @@ use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Tests\TestCase;
 
 class ReadOnlyArchiveLockTest extends TestCase
@@ -157,7 +158,7 @@ class ReadOnlyArchiveLockTest extends TestCase
             'tipe_dokumen' => 'Proposal_Utama',
         ]);
 
-        $this->expectException(\Symfony\Component\HttpKernel\Exception\HttpException::class);
+        $this->expectException(HttpException::class);
         $this->expectExceptionMessage('[TERKUNCI] Data usulan telah berstatus Selesai dan terkunci permanen sebagai Arsip Baca-Saja.');
 
         $doc->update(['nama_file' => 'dokumen_diubah.pdf']);
