@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Traits\EnforcesReadOnlyArchive;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ProposalDocument extends Model
 {
-    use HasFactory;
+    use EnforcesReadOnlyArchive, HasFactory;
 
     /**
      * The table associated with the model.

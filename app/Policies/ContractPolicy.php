@@ -53,6 +53,10 @@ class ContractPolicy
      */
     public function update(User $user, Contract $contract): bool
     {
+        if ($contract->proposal?->evaluation?->status_penelitian === 'Selesai') {
+            return false;
+        }
+
         // Only super admin and admin kampus can update contracts
         if ($user->hasRole('super_admin') || $user->hasRole('admin_kampus')) {
             // Admin kampus can only update contracts from their university
@@ -71,6 +75,10 @@ class ContractPolicy
      */
     public function delete(User $user, Contract $contract): bool
     {
+        if ($contract->proposal?->evaluation?->status_penelitian === 'Selesai') {
+            return false;
+        }
+
         // Only super admin can delete contracts
         return $user->hasRole('super_admin');
     }

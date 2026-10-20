@@ -9,11 +9,12 @@ use App\Http\Controllers\Admin\LppmApprovalController as AdminLppmApprovalContro
 use App\Http\Controllers\Admin\MonevReportController as AdminMonevReportController;
 use App\Http\Controllers\Admin\MonevScheduleCtrl as AdminMonevScheduleCtrl;
 use App\Http\Controllers\Admin\OutputReportController as AdminOutputReportController;
-use App\Http\Controllers\Admin\OutputVerifyCtrl as AdminOutputVerifyCtrl;
+use App\Http\Controllers\Admin\OutputVerifyController as AdminOutputVerifyController;
 use App\Http\Controllers\Admin\ProposalController as AdminProposalController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\ScheduleController as AdminScheduleController;
 use App\Http\Controllers\Admin\SettingsCtrl as AdminSettingsCtrl;
+use App\Http\Controllers\Admin\SktsController;
 use App\Http\Controllers\Admin\UniversityController as AdminUniversityController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\UserRoleController as AdminUserRoleController;
@@ -107,6 +108,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/proposals/documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
     Route::get('/proposals/{proposal}/download', [ProposalController::class, 'downloadDocument'])->name('proposals.download');
 
+    // SKTS Certificate & Evaluation
+    Route::get('/evaluations/show', [EvaluationController::class, 'show'])->name('evaluations.show.query');
+    Route::get('/evaluations/my-final-report', [EvaluationController::class, 'show'])->name('evaluations.my-final-report');
+    Route::get('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'show'])->name('evaluations.show');
+    Route::get('/proposals/{proposal}/skts-certificate', [EvaluationController::class, 'certificate'])->name('evaluations.certificate');
+    Route::get('/proposals/{proposal}/skts', [EvaluationController::class, 'certificate'])->name('evaluations.skts.show');
+
     /*
     |--------------------------------------------------------------------------
     | Grup Peneliti / Dosen (PRD Bab 7.1)
@@ -143,20 +151,16 @@ Route::middleware(['auth'])->group(function () {
         // Research Outputs (Luaran Penelitian)
         Route::get('/outputs', [OutputController::class, 'index'])->name('outputs.index');
         Route::get('/outputs/create', [OutputController::class, 'create'])->name('outputs.create');
-        Route::post('/outputs', [OutputController::class, 'storeJournal'])->name('outputs.store');
+        Route::post('/outputs', [OutputController::class, 'store'])->name('outputs.store');
         Route::get('/outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('/outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
         Route::delete('/outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
 
-        Route::post('/outputs/journal', [OutputController::class, 'storeJournal'])->name('outputs.store-journal');
-        Route::post('/outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
-        Route::post('/outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
-        Route::post('/outputs/products', [OutputController::class, 'storeProduct'])->name('outputs.products.store');
         Route::post('/outputs/products/{product}/upload', [OutputDocController::class, 'upload'])->name('outputs.products.upload-doc');
         Route::delete('/outputs/products/{product}/upload', [OutputDocController::class, 'destroy'])->name('outputs.products.delete-doc');
 
-        // Final Report / Evaluation
-        Route::get('/evaluations/my-final-report', [EvaluationController::class, 'show'])->name('evaluations.my-final-report');
+        // Final Report / Evaluation Submission
+        Route::post('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'store'])->name('evaluations.store');
 
         // Funding Info for Peneliti
         Route::get('/funding', [UserFundingController::class, 'index'])->name('funding.index');
@@ -284,16 +288,30 @@ Route::middleware(['auth'])->group(function () {
         });
 
         // Output Verification & Reports
-        Route::prefix('output-verify')->name('output-verify.')->group(function () {
-            Route::get('/', [AdminOutputVerifyCtrl::class, 'index'])->name('index');
-            Route::post('{output}', [AdminOutputVerifyCtrl::class, 'verify'])->name('verify');
+        Route::prefix('outputs')->name('outputs.')->group(function () {
+            Route::get('/', [AdminOutputVerifyController::class, 'index'])->name('index');
+            Route::get('/verify', [AdminOutputVerifyController::class, 'index'])->name('verify-page');
+            Route::post('{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('verify');
         });
-        Route::post('/output/{output}/verify', [AdminOutputVerifyCtrl::class, 'verify'])->name('output.verify');
+        Route::post('/outputs/{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('outputs.verify');
+        Route::prefix('output-verify')->name('output-verify.')->group(function () {
+            Route::get('/', [AdminOutputVerifyController::class, 'index'])->name('index');
+            Route::post('{output}', [AdminOutputVerifyController::class, 'verify'])->name('verify');
+        });
+        Route::post('/output/{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('output.verify');
         Route::get('output/report', [AdminOutputReportController::class, 'index'])->name('output.report');
         Route::get('output/export', [AdminOutputReportController::class, 'export'])->name('output.export');
 
-        // Final Certification (SKTS)
-        Route::post('/evaluations/{id}/certify', [EvaluationController::class, 'generateSkts'])->name('evaluations.certify');
+        // SKTS & Final Evaluation Management
+        Route::get('/evaluations', [EvaluationController::class, 'show'])->name('evaluations.index');
+        Route::get('/evaluations/show', [EvaluationController::class, 'show'])->name('evaluations.show');
+        Route::get('/evaluations/{proposal}', [EvaluationController::class, 'show'])->name('evaluations.proposal.show');
+        Route::get('/proposals/{proposal}/evaluate', [EvaluationController::class, 'show'])->name('proposals.evaluate.show');
+        Route::get('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'show'])->name('proposals.final-evaluation.show');
+        Route::post('/proposals/{proposal}/evaluate', [SktsController::class, 'evaluate'])->name('proposals.evaluate');
+        Route::post('/proposals/{proposal}/skts', [SktsController::class, 'generateSkts'])->name('proposals.skts');
+        Route::post('/proposals/{proposal}/terminate', [SktsController::class, 'terminateForceMajeure'])->name('proposals.terminate');
+        Route::post('/evaluations/{proposal}/certify', [SktsController::class, 'generateSkts'])->name('evaluations.certify');
 
         // Schedules
         Route::resource('schedules', AdminScheduleController::class);

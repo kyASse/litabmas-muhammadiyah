@@ -4,65 +4,51 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Evaluation extends Model
 {
     use HasFactory;
 
+    protected $table = 'evaluations';
+
+    public const REKOMENDASI_MEMUASKAN = 'Lulus_Memuaskan';
+
+    public const REKOMENDASI_CUKUP = 'Lulus_Cukup';
+
+    public const REKOMENDASI_TIDAK_LULUS = 'Tidak_Lulus';
+
+    public const STATUS_DALAM_EVALUASI = 'Dalam_Evaluasi';
+
+    public const STATUS_SELESAI = 'Selesai';
+
+    public const STATUS_GAGAL = 'Gagal';
+
     protected $fillable = [
-        'progress_report_id',
-        'reviewer_id',
-        'score',
-        'notes',
-        'status',
-        'evaluated_at',
+        'id_proposal',
+        'id_evaluator',
+        'file_laporan_akhir',
+        'ringkasan_hasil',
+        'persentase_capaian_luaran',
+        'skor_akhir_substansi',
+        'rekomendasi_kelulusan',
+        'nomor_skts',
+        'file_skts_path',
+        'status_penelitian',
     ];
 
-    protected function casts(): array
+    protected $casts = [
+        'persentase_capaian_luaran' => 'integer',
+        'skor_akhir_substansi' => 'decimal:2',
+    ];
+
+    public function proposal(): BelongsTo
     {
-        return [
-            'score' => 'integer',
-            'evaluated_at' => 'datetime',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-        ];
+        return $this->belongsTo(Proposal::class, 'id_proposal');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relationships
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Get the progress report being evaluated.
-     */
-    public function progressReport()
+    public function evaluator(): BelongsTo
     {
-        return $this->belongsTo(ProgressReport::class);
-    }
-
-    /**
-     * Get the reviewer who evaluated.
-     */
-    public function reviewer()
-    {
-        return $this->belongsTo(User::class, 'reviewer_id');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Scopes
-    |--------------------------------------------------------------------------
-    */
-
-    public function scopePending($query)
-    {
-        return $query->where('status', 'pending');
-    }
-
-    public function scopeReviewed($query)
-    {
-        return $query->where('status', 'reviewed');
+        return $this->belongsTo(User::class, 'id_evaluator');
     }
 }

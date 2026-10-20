@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Traits\EnforcesReadOnlyArchive;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Funding extends Model
 {
-    use HasFactory, SoftDeletes;
+    use EnforcesReadOnlyArchive, HasFactory, SoftDeletes;
 
     public const STATUS_PENDING = 'Pending';
 
@@ -31,7 +32,7 @@ class Funding extends Model
 
     public const STATUS_APPROVED = 'Pending';
 
-    public const STATUS_CANCELLED = 'Pending';
+    public const STATUS_CANCELLED = 'Cancelled';
 
     /**
      * The attributes that are mass assignable.

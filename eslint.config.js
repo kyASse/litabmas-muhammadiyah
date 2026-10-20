@@ -40,7 +40,7 @@ export default [
         },
     },
     {
-        ignores: ['vendor/**', 'node_modules/**', 'public/**', 'build/**', 'bootstrap/ssr/**', 'tailwind.config.js', 'resources/js/ziggy.js'],
+        ignores: ['vendor/**', 'node_modules/**', 'public/**', 'build/**', 'bootstrap/ssr/**', 'tailwind.config.js', 'resources/js/ziggy.js', '.agents/**', '.claude/**'],
     },
     prettier, // Turn off all rules that might conflict with Prettier
 ];

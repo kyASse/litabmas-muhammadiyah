@@ -48,6 +48,10 @@ class ResearchOutputPolicy
      */
     public function update(User $user, ResearchOutput $output): bool
     {
+        if ($output->proposal?->evaluation?->status_penelitian === 'Selesai') {
+            return false;
+        }
+
         if ($user->isSuperAdmin()) {
             return true;
         }
@@ -68,6 +72,10 @@ class ResearchOutputPolicy
      */
     public function delete(User $user, ResearchOutput $output): bool
     {
+        if ($output->proposal?->evaluation?->status_penelitian === 'Selesai') {
+            return false;
+        }
+
         if ($user->isSuperAdmin()) {
             return true;
         }
