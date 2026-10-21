@@ -169,6 +169,27 @@ jobs:
           ssh-keyscan -p "${SSH_PORT:-65002}" -H "$SSH_HOST" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+      - name: Create Remote Pre-Deploy Backup Snapshot
+        if: ${{ needs.quality-gate.outputs.dry_run != 'true' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT || 65002 }}
+          command_timeout: 5m
+          script: |
+            CORE_PATH="${{ secrets.HOSTINGER_REMOTE_CORE_PATH }}"
+            CORE_PATH="${CORE_PATH%/}"
+            BACKUP_PATH="${CORE_PATH}_backup"
+            if [ -d "$CORE_PATH" ]; then
+              echo "[INFO] Creating snapshot backup from $CORE_PATH to $BACKUP_PATH"
+              mkdir -p "$BACKUP_PATH"
+              rsync -a --delete "$CORE_PATH/" "$BACKUP_PATH/" || true
+            else
+              echo "[INFO] Core path $CORE_PATH does not exist yet. Skipping snapshot backup."
+            fi
+
       - name: Synchronize Application Core via RSync
         if: ${{ needs.quality-gate.outputs.dry_run != 'true' }}
         env:
@@ -182,6 +203,10 @@ jobs:
           rsync -avz \
             -e "ssh -p $PORT -o StrictHostKeyChecking=yes" \
             --exclude='.git*' \
+            --exclude='.github/' \
+            --exclude='.agents/' \
+            --exclude='.superpowers/' \
+            --exclude='docs/' \
             --exclude='node_modules/' \
             --exclude='tests/' \
             --exclude='public/' \
@@ -221,11 +246,15 @@ jobs:
           port: ${{ secrets.HOSTINGER_SSH_PORT || 65002 }}
           command_timeout: 10m
           script: |
-            mkdir -p ~/litabmas_core_backup && rsync -a --delete ~/litabmas_core/ ~/litabmas_core_backup/ || true
-            cd ${{ secrets.HOSTINGER_REMOTE_CORE_PATH }} && php artisan down --retry=60 || true
+            CORE_PATH="${{ secrets.HOSTINGER_REMOTE_CORE_PATH }}"
+            CORE_PATH="${CORE_PATH%/}"
+            cd "$CORE_PATH" || { echo "[ERROR] Failed to navigate to $CORE_PATH"; exit 1; }
+            php artisan down --retry=60 || true
             chmod -R 775 storage bootstrap/cache
             php artisan migrate --force
-            ln -sfn ../litabmas_core/storage/app/public ${{ secrets.HOSTINGER_REMOTE_PUBLIC_PATH }}/storage || php artisan storage:link
+            CORE_BASENAME=$(basename "$CORE_PATH")
+            ln -sfn "../${CORE_BASENAME}/storage/app/public" "${{ secrets.HOSTINGER_REMOTE_PUBLIC_PATH }}/storage" || php artisan storage:link
+            php artisan optimize:clear
             php artisan optimize
             php artisan up
             curl -sSf -k -m 15 "${{ secrets.APP_URL }}" > /dev/null && echo "[PASSED] Smoke test succeeded"
