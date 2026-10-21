@@ -1,0 +1,231 @@
+name: Hostinger Shared Hosting Deployment
+
+on:
+  push:
+    branches:
+      - development
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target Deployment Environment'
+        type: choice
+        options:
+          - staging
+          - production
+        default: 'staging'
+      dry_run:
+        description: 'Dry run deployment (validate & test without syncing files)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  quality-gate:
+    name: Quality Gate (CI)
+    runs-on: ubuntu-latest
+    outputs:
+      target_env: ${{ steps.resolve-env.outputs.target_env }}
+      dry_run: ${{ steps.resolve-env.outputs.dry_run }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Resolve Target Environment and Execution Mode
+        id: resolve-env
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "target_env=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ] || [ "${{ github.event.inputs.dry_run }}" = true ]; then
+              echo "dry_run=true" >> $GITHUB_OUTPUT
+            else
+              echo "dry_run=false" >> $GITHUB_OUTPUT
+            fi
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            echo "target_env=production" >> $GITHUB_OUTPUT
+            echo "dry_run=false" >> $GITHUB_OUTPUT
+          else
+            echo "target_env=staging" >> $GITHUB_OUTPUT
+            echo "dry_run=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_sqlite, sqlite3
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Install PHP Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Run Laravel Pint Check
+        run: ./vendor/bin/pint --test
+
+      - name: Run TypeScript Type Check
+        run: npm run types
+
+      - name: Setup SQLite Testing Environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          mkdir -p database
+          touch database/database.sqlite
+          sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=sqlite/' .env
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=database\/database.sqlite/' .env
+          php artisan migrate:fresh --seed --force
+
+      - name: Run Pest Tests
+        run: ./vendor/bin/pest
+
+  build-and-deploy:
+    name: Build and Deploy (CD)
+    needs: quality-gate
+    runs-on: ubuntu-latest
+    environment: ${{ needs.quality-gate.outputs.target_env }}
+    env:
+      TARGET_ENV: ${{ needs.quality-gate.outputs.target_env }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Display Deployment Context
+        run: |
+          echo "[INFO] Deployment Target Environment: ${{ env.TARGET_ENV }}"
+          echo "[INFO] Dry Run Mode: ${{ needs.quality-gate.outputs.dry_run }}"
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Build Frontend Assets
+        run: npm run build
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install Production Backend Dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
+      - name: Prepare Public Payload for Hostinger
+        run: |
+          cp -r public public_dist
+          node scripts/hostinger-prepare-public.js public_dist litabmas_core
+
+      - name: Report Dry Run Status
+        if: ${{ needs.quality-gate.outputs.dry_run == 'true' }}
+        run: |
+          echo "[INFO] Dry run deployment enabled. Build and packaging completed successfully. Skipping file synchronization and remote execution."
+
+      - name: Setup SSH Agent
+        if: ${{ needs.quality-gate.outputs.dry_run != 'true' }}
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.HOSTINGER_SSH_KEY }}
+
+      - name: Configure Known Hosts
+        if: ${{ needs.quality-gate.outputs.dry_run != 'true' }}
+        env:
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT || 65002 }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -p "${SSH_PORT:-65002}" -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Synchronize Application Core via RSync
+        if: ${{ needs.quality-gate.outputs.dry_run != 'true' }}
+        env:
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT || 65002 }}
+          SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          REMOTE_CORE_PATH: ${{ secrets.HOSTINGER_REMOTE_CORE_PATH }}
+        run: |
+          PORT="${SSH_PORT:-65002}"
+          TARGET_DIR="${REMOTE_CORE_PATH%/}/"
+          rsync -avz \
+            -e "ssh -p $PORT -o StrictHostKeyChecking=yes" \
+            --exclude='.git*' \
+            --exclude='node_modules/' \
+            --exclude='tests/' \
+            --exclude='public/' \
+            --exclude='public_dist/' \
+            --exclude='.env*' \
+            --exclude='phpunit.xml' \
+            --exclude='pest.xml' \
+            --exclude='README.md' \
+            --exclude='storage/logs/*.log' \
+            --exclude='storage/framework/cache/data/*' \
+            --exclude='storage/framework/sessions/*' \
+            --exclude='storage/framework/views/*' \
+            ./ "$SSH_USER@$SSH_HOST:$TARGET_DIR"
+
+      - name: Synchronize Public Web Root via RSync
+        if: ${{ needs.quality-gate.outputs.dry_run != 'true' }}
+        env:
+          SSH_HOST: ${{ secrets.HOSTINGER_SSH_HOST }}
+          SSH_PORT: ${{ secrets.HOSTINGER_SSH_PORT || 65002 }}
+          SSH_USER: ${{ secrets.HOSTINGER_SSH_USER }}
+          REMOTE_PUBLIC_PATH: ${{ secrets.HOSTINGER_REMOTE_PUBLIC_PATH }}
+        run: |
+          PORT="${SSH_PORT:-65002}"
+          TARGET_DIR="${REMOTE_PUBLIC_PATH%/}/"
+          rsync -avz \
+            -e "ssh -p $PORT -o StrictHostKeyChecking=yes" \
+            --exclude='storage' \
+            public_dist/ "$SSH_USER@$SSH_HOST:$TARGET_DIR"
+
+      - name: Execute Post-Deployment Remote Commands
+        if: ${{ needs.quality-gate.outputs.dry_run != 'true' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT || 65002 }}
+          command_timeout: 10m
+          script: |
+            mkdir -p ~/litabmas_core_backup && rsync -a --delete ~/litabmas_core/ ~/litabmas_core_backup/ || true
+            cd ${{ secrets.HOSTINGER_REMOTE_CORE_PATH }} && php artisan down --retry=60 || true
+            chmod -R 775 storage bootstrap/cache
+            php artisan migrate --force
+            ln -sfn ../litabmas_core/storage/app/public ${{ secrets.HOSTINGER_REMOTE_PUBLIC_PATH }}/storage || php artisan storage:link
+            php artisan optimize
+            php artisan up
+            curl -sSf -k -m 15 "${{ secrets.APP_URL }}" > /dev/null && echo "[PASSED] Smoke test succeeded"
