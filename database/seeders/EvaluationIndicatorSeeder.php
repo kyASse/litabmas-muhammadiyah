@@ -193,14 +193,14 @@ class EvaluationIndicatorSeeder extends Seeder
         // Calculate and display total weight
         $totalWeight = array_sum(array_column($indicators, 'weight'));
 
-        $this->command->info('✅ '.count($indicators).' Evaluation Indicators created successfully!');
-        $this->command->info('📊 Total Weight: '.$totalWeight.' points');
+        $this->command->info('[SUKSES] '.count($indicators).' Evaluation Indicators created successfully!');
+        $this->command->info('[DATA] Total Weight: '.$totalWeight.' points');
         $this->command->info('');
-        $this->command->info('📋 Breakdown by category:');
+        $this->command->info('[INFO] Breakdown by category:');
         $this->command->info('  • Kelengkapan Administrasi: 6.50 points (4 indicators)');
         $this->command->info('  • Kualitas Konten: 8.50 points (4 indicators)');
         $this->command->info('  • Proses Editorial: 9.00 points (4 indicators)');
         $this->command->info('');
-        $this->command->info('💡 These indicators will be migrated to v1.1 hierarchical structure by DataMigrationSeeder');
+        $this->command->info('[CATATAN] These indicators will be migrated to v1.1 hierarchical structure by DataMigrationSeeder');
     }
 }

@@ -30,7 +30,7 @@ class AssessmentSeeder extends Seeder
         // Initialize Faker
         $this->faker = FakerFactory::create('id_ID');
 
-        $this->command->info('📊 Seeding Sample Assessments with Journal Metadata...');
+        $this->command->info('[DATA] Seeding Sample Assessments with Journal Metadata...');
 
         // Get required IDs
         $journalIds = DB::table('journals')->pluck('id', 'title')->toArray();
@@ -38,7 +38,7 @@ class AssessmentSeeder extends Seeder
         $indicators = EvaluationIndicator::active()->get();
 
         if (empty($journalIds) || empty($userIds) || $indicators->isEmpty()) {
-            $this->command->warn('⚠️  Required data (journals, users, or indicators) not found. Skipping assessment seeding.');
+            $this->command->warn('[PERINGATAN] Required data (journals, users, or indicators) not found. Skipping assessment seeding.');
 
             return;
         }
@@ -244,7 +244,7 @@ class AssessmentSeeder extends Seeder
             $this->createSampleResponses($assessment4->id, $indicators, 80); // 80% completion rate
         }
 
-        $this->command->info('✅ Sample Assessments with Journal Metadata seeded successfully!');
+        $this->command->info('[SUKSES] Sample Assessments with Journal Metadata seeded successfully!');
         $this->command->info('   - Assessment 1: SUBMITTED with complete metadata (2 issues)');
         $this->command->info('   - Assessment 2: REVIEWED with full metadata (3 issues)');
         $this->command->info('   - Assessment 3: DRAFT with partial metadata (1 issue)');

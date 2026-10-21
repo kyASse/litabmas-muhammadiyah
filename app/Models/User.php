@@ -237,30 +237,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Scope to get users pending approval
-     */
-    public function scopePendingApproval($query)
-    {
-        return $query->where('approval_status', 'pending');
-    }
-
-    /**
-     * Scope to get approved users
-     */
-    public function scopeApproved($query)
-    {
-        return $query->where('approval_status', 'approved');
-    }
-
-    /**
-     * Scope to get rejected users
-     */
-    public function scopeRejected($query)
-    {
-        return $query->where('approval_status', 'rejected');
-    }
-
-    /**
      * Scope to get Super Admins
      */
     public function scopeSuperAdmins($query)

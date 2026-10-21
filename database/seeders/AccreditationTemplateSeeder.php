@@ -21,7 +21,7 @@ class AccreditationTemplateSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('📋 Seeding Accreditation Templates...');
+        $this->command->info('[INFO] Seeding Accreditation Templates...');
 
         $templates = [
             // Template 1: BAN-PT Akreditasi (Active)
@@ -53,11 +53,11 @@ class AccreditationTemplateSeeder extends Seeder
             AccreditationTemplate::create($template);
             $templateNum = $index + 1;
             $active = $template['is_active'] ? 'true' : 'false';
-            $this->command->info("  ✓ Created template {$templateNum}/2: {$template['name']} (type={$template['type']}, active={$active})");
+            $this->command->info("  [OK] Created template {$templateNum}/2: {$template['name']} (type={$template['type']}, active={$active})");
         }
 
         $templatesCount = count($templates);
-        $this->command->info("✨ Successfully seeded {$templatesCount} accreditation templates!");
+        $this->command->info("[BARU] Successfully seeded {$templatesCount} accreditation templates!");
         $this->command->newLine();
     }
 }

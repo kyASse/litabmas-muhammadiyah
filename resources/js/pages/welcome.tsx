@@ -14,7 +14,6 @@ import {
     CheckCircle2,
     FileText,
     GraduationCap,
-    Layers,
     LayoutDashboard,
     Lock,
     Search,
@@ -107,13 +106,6 @@ export default function Welcome() {
                             <a href="#pilar-tata-kelola" className="transition-colors hover:text-blue-900 dark:hover:text-blue-400">
                                 {t.welcome.governanceNav}
                             </a>
-                            <Link
-                                href={route('design-system-preview')}
-                                className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 transition hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                            >
-                                <Layers className="h-3.5 w-3.5 text-blue-900 dark:text-blue-400" />
-                                {t.welcome.designSystemNav}
-                            </Link>
                         </div>
 
                         {/* Auth Navigation & LanguageSwitcher */}
@@ -171,15 +163,15 @@ export default function Welcome() {
                                     </Button>
                                 </Link>
 
-                                <Link href={route('design-system-preview')}>
+                                <a href="#skema-riset">
                                     <Button
                                         variant="outline"
                                         className="h-11 gap-2 rounded-lg border-slate-300 bg-white px-6 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                                     >
-                                        <Layers className="h-4 w-4 text-blue-900 dark:text-blue-400" />
-                                        <span>{t.welcome.previewDesignSystem}</span>
+                                        <BookOpen className="h-4 w-4 text-blue-900 dark:text-blue-400" />
+                                        <span>{t.welcome.exploreSchemes}</span>
                                     </Button>
-                                </Link>
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -397,10 +389,6 @@ export default function Welcome() {
                                 <span className="text-slate-300 dark:text-slate-700">|</span>
                                 <Link href={route('register')} className="hover:text-blue-900 dark:hover:text-white">
                                     {t.navigation.register}
-                                </Link>
-                                <span className="text-slate-300 dark:text-slate-700">|</span>
-                                <Link href={route('design-system-preview')} className="hover:text-blue-900 dark:hover:text-white">
-                                    {t.welcome.designSystemNav}
                                 </Link>
                             </div>
                         </div>

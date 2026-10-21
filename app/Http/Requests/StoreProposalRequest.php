@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Proposal;
 use App\Models\ResearchSchema;
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -130,6 +131,24 @@ class StoreProposalRequest extends FormRequest
                             '[DOKUMEN_TIDAK_VALID] Berkas dokumen proposal harus berupa berkas PDF.'
                         );
                     }
+                }
+            }
+
+            // 3. Duplicate title check per user per schema in the current calendar year (rules.md Bab 2.2 Aturan 2)
+            $userId = $this->user()?->id;
+            $judul = trim((string) ($this->judul_penelitian ?? $this->title ?? ''));
+            if ($userId && $this->id_skema_pendanaan && $judul !== '') {
+                $duplicateExists = Proposal::where('id_pengusul', $userId)
+                    ->where('id_skema_pendanaan', $this->id_skema_pendanaan)
+                    ->whereRaw('LOWER(TRIM(judul_penelitian)) = ?', [strtolower($judul)])
+                    ->whereYear('created_at', now()->year)
+                    ->exists();
+
+                if ($duplicateExists) {
+                    $validator->errors()->add(
+                        'judul_penelitian',
+                        '[DUPLIKASI_JUDUL] Anda telah mengajukan proposal dengan judul yang sama pada skema dan tahun anggaran ini.'
+                    );
                 }
             }
         });

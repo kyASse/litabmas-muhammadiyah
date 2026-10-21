@@ -23,10 +23,10 @@ $tables = [
     'evaluation_indicators',
 ];
 
-echo '📊 Table Existence Check:'.PHP_EOL;
+echo ' Table Existence Check:'.PHP_EOL;
 foreach ($tables as $table) {
     $exists = Schema::hasTable($table);
-    $status = $exists ? '✓ EXISTS' : '✗ DROPPED';
+    $status = $exists ? ' EXISTS' : ' DROPPED';
     echo "  {$status}: {$table}".PHP_EOL;
 }
 
@@ -34,10 +34,10 @@ echo PHP_EOL;
 
 // Check evaluation_indicators structure
 if (Schema::hasTable('evaluation_indicators')) {
-    echo '📋 Evaluation Indicators Table:'.PHP_EOL;
+    echo ' Evaluation Indicators Table:'.PHP_EOL;
 
     $hasSubCategoryId = Schema::hasColumn('evaluation_indicators', 'sub_category_id');
-    echo '  • sub_category_id column: '.($hasSubCategoryId ? '✓ EXISTS' : '✗ REMOVED').PHP_EOL;
+    echo '  • sub_category_id column: '.($hasSubCategoryId ? ' EXISTS' : ' REMOVED').PHP_EOL;
 
     $count = EvaluationIndicator::count();
     echo "  • Total indicators: {$count}".PHP_EOL;
@@ -54,4 +54,4 @@ if (Schema::hasTable('evaluation_indicators')) {
 }
 
 echo PHP_EOL;
-echo '✨ Rollback verification complete!'.PHP_EOL;
+echo ' Rollback verification complete!'.PHP_EOL;

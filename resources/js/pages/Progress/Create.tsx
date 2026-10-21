@@ -119,14 +119,14 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                         </Link>
                     </Button>
                     <div>
-                        <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">{t.monev.createProgressTitle}</h1>
+                        <h1 className="font-sans text-xl font-bold tracking-tight text-foreground sm:text-2xl">{t.monev.createProgressTitle}</h1>
                         <p className="text-xs text-muted-foreground">{t.monev.createProgressSubtitle}</p>
                     </div>
                 </div>
 
                 <Card className="border-border shadow-sm">
                     <CardHeader className="border-b border-border/70 bg-slate-50/50 dark:bg-slate-900/30">
-                        <CardTitle className="font-serif text-lg font-bold">{t.monev.createProgressTitle}</CardTitle>
+                        <CardTitle className="font-sans text-lg font-bold">{t.monev.createProgressTitle}</CardTitle>
                         <CardDescription className="text-xs">{t.monev.activeWindowNotice}</CardDescription>
                     </CardHeader>
 

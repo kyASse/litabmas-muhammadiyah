@@ -63,6 +63,29 @@ class ResearchOutput extends Model
         'tanggal_pelaporan' => 'date',
     ];
 
+    protected $appends = [
+        'type',
+        'status',
+        'year',
+    ];
+
+    public function getTypeAttribute(): ?string
+    {
+        return $this->attributes['tipe_luaran'] ?? ($this->attributes['type'] ?? null);
+    }
+
+    public function getStatusAttribute(): ?string
+    {
+        return $this->attributes['status_verifikasi'] ?? ($this->attributes['status'] ?? null);
+    }
+
+    public function getYearAttribute(): ?int
+    {
+        $date = $this->tanggal_pelaporan ?? $this->created_at;
+
+        return $date ? (int) date('Y', strtotime($date)) : null;
+    }
+
     public function proposal(): BelongsTo
     {
         return $this->belongsTo(Proposal::class, 'id_proposal');

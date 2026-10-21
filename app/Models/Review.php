@@ -19,6 +19,12 @@ class Review extends Model
      */
     protected $table = 'reviews';
 
+    public const STATUS_ASSIGNED = 'Assigned';
+
+    public const STATUS_IN_PROGRESS = 'In_Progress';
+
+    public const STATUS_COMPLETED = 'Completed';
+
     /**
      * The attributes that are mass assignable.
      *

@@ -24,11 +24,11 @@ class PresentationDemoSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🚀 Starting Presentation Demo Seeder...');
+        $this->command->info('[INFO] Starting Presentation Demo Seeder...');
         $this->command->newLine();
 
         // 1. Seed base data
-        $this->command->info('📋 Seeding base data...');
+        $this->command->info('[INFO] Seeding base data...');
         $this->call([
             RoleSeeder::class,
             ScientificFieldSeeder::class,
@@ -37,12 +37,12 @@ class PresentationDemoSeeder extends Seeder
         $this->command->newLine();
 
         // 2. Create demo users
-        $this->command->info('👥 Creating demo users...');
+        $this->command->info('[INFO] Creating demo users...');
         $this->createDemoUsers();
         $this->command->newLine();
 
         // Success message
-        $this->command->info('✅ Presentation Demo Seeder completed successfully!');
+        $this->command->info('[SUKSES] Presentation Demo Seeder completed successfully!');
         $this->command->newLine();
         $this->displayLoginCredentials();
     }
@@ -127,7 +127,7 @@ class PresentationDemoSeeder extends Seeder
 
         DB::table('users')->insert($users);
 
-        $this->command->info('✓ Created 3 demo users: DIKTI (Super Admin), LPPM (Admin Kampus - UAD), Editor (User - UAD)');
+        $this->command->info('[OK] Created 3 demo users: DIKTI (Super Admin), LPPM (Admin Kampus - UAD), Editor (User - UAD)');
     }
 
     /**
@@ -135,13 +135,13 @@ class PresentationDemoSeeder extends Seeder
      */
     private function displayLoginCredentials(): void
     {
-        $this->command->info('📧 Demo Login Credentials:');
+        $this->command->info(' Demo Login Credentials:');
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->info('DIKTI:  dikti@journalmu.org  / password123');
         $this->command->info('LPPM:   lppm@journalmu.org   / password123');
         $this->command->info('Editor: editor@journalmu.org / password123');
         $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         $this->command->newLine();
-        $this->command->warn('⚠️  IMPORTANT: Change passwords after presentation!');
+        $this->command->warn('[PERINGATAN] IMPORTANT: Change passwords after presentation!');
     }
 }

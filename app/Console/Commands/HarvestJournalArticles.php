@@ -122,7 +122,7 @@ class HarvestJournalArticles extends Command
             return Command::FAILURE;
         }
 
-        $this->info("\n✅ Harvesting completed successfully!");
+        $this->info("\n[SUKSES] Harvesting completed successfully!");
 
         return Command::SUCCESS;
     }

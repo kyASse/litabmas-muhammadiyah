@@ -16,7 +16,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { BookMarked, BookOpen, Box, CheckCircle2, Clock, Download, ExternalLink, Layers, Lock, Plus, ShieldCheck, Trash2 } from 'lucide-react';
+import { BookMarked, Box, CheckCircle2, Clock, Download, ExternalLink, FileText, Layers, Lock, Plus, ShieldCheck, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import CreateModal, { type ProposalOption } from './CreateModal';
 
@@ -106,7 +106,12 @@ export interface IndexProps {
 
 export default function Index({ outputs, proposals = [] }: IndexProps) {
     const { t, locale } = useTranslation();
-    const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [createModalOpen, setCreateModalOpen] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return new URLSearchParams(window.location.search).get('create') === '1';
+        }
+        return false;
+    });
     const [outputToDelete, setOutputToDelete] = useState<ResearchOutputItem | null>(null);
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -167,7 +172,7 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                 <PageHeader
                     title={t.output.title}
                     subtitle={t.output.pageSubtitle}
-                    isEditorialSerif
+                    isEditorialSerif={false}
                     actions={
                         <Button
                             type="button"
@@ -259,7 +264,7 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                         <td colSpan={7} className="px-6 py-12 text-center">
                                             <div className="mx-auto max-w-sm space-y-3">
                                                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                                                    <BookOpen className="h-6 w-6" />
+                                                    <FileText className="h-6 w-6" />
                                                 </div>
                                                 <h3 className="font-serif text-base font-semibold text-slate-800">{t.output.empty}</h3>
                                                 <p className="text-xs text-slate-500">{t.output.emptySub}</p>
@@ -301,7 +306,7 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     {output.tipe_luaran === 'Journal' && (
                                                         <span className="inline-flex items-center gap-1 rounded-md border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-800">
-                                                            <BookOpen className="h-3.5 w-3.5" />
+                                                            <FileText className="h-3.5 w-3.5" />
                                                             {t.output.journalShort}
                                                         </span>
                                                     )}

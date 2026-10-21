@@ -101,7 +101,7 @@ export default function Index({ proposals, filters }: IndexProps) {
             <div className="container mx-auto space-y-6 p-4 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">{t.proposalList.pageTitle}</h1>
+                        <h1 className="font-sans text-xl font-bold tracking-tight text-foreground sm:text-2xl">{t.proposalList.pageTitle}</h1>
                         <p className="text-sm text-muted-foreground">{t.proposalList.pageSubtitle}</p>
                     </div>
                     <Link href={route('proposal.create')}>

@@ -125,7 +125,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                 {/* Header Section */}
                 <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                        <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">{t.monev.progressListTitle}</h1>
+                        <h1 className="font-sans text-xl font-bold tracking-tight text-foreground sm:text-2xl">{t.monev.progressListTitle}</h1>
                         <p className="mt-1 text-sm text-muted-foreground">{t.monev.progressListSubtitle}</p>
                     </div>
 

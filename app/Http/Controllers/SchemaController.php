@@ -116,7 +116,7 @@ class SchemaController extends Controller
         $proposals = $proposalsQuery->paginate($request->input('per_page', 10))->withQueryString();
 
         return Inertia::render('Admin/Schema/Show', [
-            'schema' => new SchemaResource($schema),
+            'schema' => (new SchemaResource($schema))->resolve(),
             'proposals' => $proposals,
             'filters' => [
                 'search' => $request->search ?? '',

@@ -19,6 +19,7 @@ import {
     GraduationCap,
     LayoutGrid,
     Settings,
+    ShieldCheck,
     UserCheck,
     Users,
 } from 'lucide-react';
@@ -46,6 +47,11 @@ export function AppSidebar() {
                 title: t.navigation.universities,
                 href: '/admin/universities',
                 icon: Building2,
+            },
+            {
+                title: t.navigation.campusAdmins,
+                href: '/admin/admin-kampus',
+                icon: ShieldCheck,
             },
             {
                 title: t.navigation.users,
@@ -76,14 +82,39 @@ export function AppSidebar() {
                 icon: FileText,
             },
             {
+                title: t.navigation.reviewerAssignment,
+                href: '/admin/reviewer/assign',
+                icon: UserCheck,
+            },
+            {
                 title: t.navigation.monev,
                 href: '/admin/monev',
                 icon: CalendarDays,
+                items: [
+                    {
+                        title: t.navigation.monev,
+                        href: '/admin/monev',
+                    },
+                    {
+                        title: t.navigation.monevSchedules,
+                        href: '/admin/monev-schedules',
+                    },
+                ],
             },
             {
                 title: t.navigation.outputs,
-                href: '/admin/output',
+                href: '/admin/outputs',
                 icon: Award,
+                items: [
+                    {
+                        title: t.navigation.outputs,
+                        href: '/admin/outputs',
+                    },
+                    {
+                        title: t.navigation.outputReports,
+                        href: '/admin/output/report',
+                    },
+                ],
             },
             {
                 title: t.navigation.graduationSkts,
@@ -102,6 +133,16 @@ export function AppSidebar() {
                 title: t.navigation.tranchesDisbursement,
                 href: '/finance/fundings',
                 icon: CreditCard,
+                items: [
+                    {
+                        title: t.navigation.tranchesDisbursement,
+                        href: '/finance/fundings',
+                    },
+                    {
+                        title: t.navigation.disbursementLogs,
+                        href: '/finance/funding/logs',
+                    },
+                ],
             },
             {
                 title: t.navigation.financialReports,
@@ -118,12 +159,12 @@ export function AppSidebar() {
             },
             {
                 title: t.navigation.reviews,
-                href: '/reviewer/proposals',
+                href: '/reviewer/assignments',
                 icon: UserCheck,
             },
             {
                 title: t.navigation.monevEvaluation,
-                href: '/reviewer/monev',
+                href: '/reviewer/evaluations',
                 icon: CalendarDays,
             },
         ];
@@ -133,6 +174,11 @@ export function AppSidebar() {
                 title: t.navigation.proposals,
                 href: '/proposals',
                 icon: FileText,
+            },
+            {
+                title: t.navigation.userFunding,
+                href: '/funding',
+                icon: CreditCard,
             },
             {
                 title: t.navigation.progressReports,
@@ -156,12 +202,14 @@ export function AppSidebar() {
     const isReviewerOnly =
         !hasRole(ROLE_NAMES.SUPER_ADMIN) && !hasRole(ROLE_NAMES.ADMIN_KAMPUS) && !hasRole(ROLE_NAMES.ADMIN_KEUANGAN) && hasRole(ROLE_NAMES.REVIEWER);
 
+    const dashboardHref = hasRole(ROLE_NAMES.ADMIN_KAMPUS) ? '/admin/dashboard' : '/dashboard';
+
     const baseNavItems: NavItem[] = isReviewerOnly
         ? []
         : [
               {
                   title: t.navigation.dashboard,
-                  href: '/dashboard',
+                  href: dashboardHref,
                   icon: LayoutGrid,
               },
           ];
@@ -170,11 +218,11 @@ export function AppSidebar() {
 
     return (
         <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+            <SidebarHeader className="pr-12 md:pr-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <Link href={dashboardHref} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -182,11 +230,11 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="px-1 py-1">
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
-            <SidebarFooter>
+            <SidebarFooter className="border-t border-sidebar-border/40 p-2">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

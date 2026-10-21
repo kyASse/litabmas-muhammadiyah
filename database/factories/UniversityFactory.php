@@ -23,6 +23,7 @@ class UniversityFactory extends Factory
             'address' => $this->faker->address(),
             'logo' => null,
             'contact_email' => $this->faker->unique()->safeEmail(),
+            'is_active' => true,
         ];
     }
 }

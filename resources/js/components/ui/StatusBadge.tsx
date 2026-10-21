@@ -22,6 +22,7 @@ export type BadgeStatusType =
   | 'Completed_SKTS' 
   | 'Terminated'
   | 'Active'
+  | 'Inactive'
   | 'Signed'
   | 'Pending'
   | 'Disbursed'
@@ -63,6 +64,7 @@ export function normalizeStatus(status: string): string {
   if (s === 'completed_skts' || s === 'selesai (skts)' || s === 'selesai' || s === 'completed') return 'Completed_SKTS';
   if (s === 'terminated' || s === 'dibatalkan' || s === 'force majeure / dibatalkan') return 'Terminated';
   if (s === 'active' || s === 'aktif') return 'Active';
+  if (s === 'inactive' || s === 'tidak aktif' || s === 'nonaktif') return 'Inactive';
   if (s === 'signed' || s === 'ditandatangani') return 'Signed';
   if (s === 'pending' || s === 'menunggu') return 'Pending';
   if (s === 'disbursed' || s === 'dicairkan') return 'Disbursed';
@@ -145,8 +147,13 @@ const statusMap: Record<string, StatusConfig> = {
   },
   Active: {
     label: '[ACTIVE]',
-    classes: 'bg-blue-50 text-blue-800 border-blue-200',
-    icon: FileCheck,
+    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800',
+    icon: CheckCircle2,
+  },
+  Inactive: {
+    label: '[INACTIVE]',
+    classes: 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
+    icon: XCircle,
   },
   Signed: {
     label: '[SIGNED]',

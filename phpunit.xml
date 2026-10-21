@@ -33,6 +33,12 @@
             <file>tests/Feature/Settings/PasswordUpdateTest.php</file>
             <file>tests/Feature/Settings/ProfileUpdateTest.php</file>
             <file>tests/Feature/User/FundingTest.php</file>
+            <file>tests/Feature/OutputDeduplicationTest.php</file>
+            <file>tests/Feature/FinalEvaluationPreconditionTest.php</file>
+            <file>tests/Feature/ReadOnlyArchiveLockTest.php</file>
+            <file>tests/Feature/CriticalEdgeCasesTest.php</file>
+            <file>tests/Feature/SecurityValidationTest.php</file>
+            <file>tests/Feature/ProductionDemoSeederTest.php</file>
         </testsuite>
     </testsuites>
     <source>

@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Proposal;
+use App\Models\Role;
 use App\Models\University;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -45,7 +48,7 @@ class UniversityController extends Controller
 
             // Get universities with counts
             $universities = $query
-                ->withCount(['users', 'journals'])
+                ->withCount(['users', 'proposals', 'researchSchemas'])
                 ->orderBy('name')
                 ->paginate(10)
                 ->withQueryString()
@@ -66,7 +69,8 @@ class UniversityController extends Controller
                     'profile_description' => $university->profile_description,
                     'is_active' => $university->is_active,
                     'users_count' => $university->users_count,
-                    'journals_count' => $university->journals_count,
+                    'proposals_count' => $university->proposals_count ?? 0,
+                    'research_schemas_count' => $university->research_schemas_count ?? 0,
                     'full_address' => $university->full_address,
                     'created_at' => $university->created_at->format('Y-m-d'),
                 ]);
@@ -74,7 +78,7 @@ class UniversityController extends Controller
             // Admin Kampus & User can only see their own university
             $universities = $query
                 ->where('id', $request->user()->university_id)
-                ->withCount(['users', 'journals'])
+                ->withCount(['users', 'proposals', 'researchSchemas'])
                 ->paginate(10)
                 ->through(fn ($university) => [
                     'id' => $university->id,
@@ -84,13 +88,20 @@ class UniversityController extends Controller
                     'city' => $university->city,
                     'province' => $university->province,
                     'users_count' => $university->users_count,
-                    'journals_count' => $university->journals_count,
+                    'proposals_count' => $university->proposals_count ?? 0,
+                    'research_schemas_count' => $university->research_schemas_count ?? 0,
                 ]);
         }
 
         return Inertia::render('Admin/Universities/Index', [
             'universities' => $universities,
             'filters' => $request->only(['search', 'is_active', 'accreditation_status', 'cluster']),
+            'stats' => [
+                'total_universities' => University::count(),
+                'active_tenants' => University::where('is_active', true)->count(),
+                'total_proposals' => Proposal::count(),
+                'total_researchers' => User::whereHas('role', fn ($q) => $q->where('name', Role::PENELITI))->orWhereHas('roles', fn ($q) => $q->where('name', Role::PENELITI))->count(),
+            ],
             'can' => [
                 'create' => $request->user()->can('create', University::class),
             ],
@@ -153,7 +164,7 @@ class UniversityController extends Controller
         $this->authorize('view', $university);
 
         // Load relationships
-        $university->load(['users.role', 'journals']);
+        $university->load(['users.role', 'adminKampus.role', 'researchSchemas', 'proposals']);
 
         return Inertia::render('Admin/Universities/Show', [
             'university' => [
@@ -177,19 +188,29 @@ class UniversityController extends Controller
                 'full_address' => $university->full_address,
                 'created_at' => $university->created_at->format('Y-m-d H:i'),
                 'updated_at' => $university->updated_at->format('Y-m-d H:i'),
-                'users_count' => $university->users->count(),
-                'journals_count' => $university->journals->count(),
+                'users_count' => $university->users()->count(),
+                'admin_kampus_count' => $university->adminKampus()->count(),
+                'research_schemas_count' => $university->researchSchemas()->count(),
+                'proposals_count' => $university->proposals()->count(),
             ],
             'users' => $university->users->map(fn ($user) => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->role->display_name,
+                'role' => $user->role?->display_name ?? 'User',
             ]),
-            'journals' => $university->journals->map(fn ($journal) => [
-                'id' => $journal->id,
-                'title' => $journal->title,
-                'issn' => $journal->issn,
+            'admin_kampus' => $university->adminKampus->map(fn ($admin) => [
+                'id' => $admin->id,
+                'name' => $admin->name,
+                'email' => $admin->email,
+                'role' => $admin->role?->display_name ?? 'Admin Kampus',
+            ]),
+            'research_schemas' => $university->researchSchemas->map(fn ($schema) => [
+                'id' => $schema->id,
+                'nama_skema' => $schema->nama_skema,
+                'anggaran_maksimal' => $schema->biaya_maksimal,
+                'biaya_maksimal' => $schema->biaya_maksimal,
+                'is_active' => $schema->is_active,
             ]),
             'can' => [
                 'update' => $request->user()->can('update', $university),
@@ -273,9 +294,9 @@ class UniversityController extends Controller
         // Check authorization
         $this->authorize('delete', $university);
 
-        // Check if university has journals
-        if ($university->journals()->count() > 0) {
-            return back()->with('error', 'Cannot delete university with existing journals.');
+        // Check if university has proposals
+        if ($university->proposals()->count() > 0) {
+            return back()->with('error', 'Cannot delete university with existing proposals.');
         }
 
         // Soft delete university

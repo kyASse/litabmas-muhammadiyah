@@ -3,7 +3,8 @@ import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
 
 export interface BreadcrumbItem {
-  label: string;
+  label?: string;
+  title?: string;
   href?: string;
 }
 
@@ -36,11 +37,11 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
                   href={crumb.href}
                   className="hover:text-blue-900 transition-colors truncate max-w-xs"
                 >
-                  {crumb.label}
+                  {crumb.label || crumb.title}
                 </Link>
               ) : (
                 <span className="text-slate-800 font-medium truncate max-w-sm">
-                  {crumb.label}
+                  {crumb.label || crumb.title}
                 </span>
               )}
             </React.Fragment>

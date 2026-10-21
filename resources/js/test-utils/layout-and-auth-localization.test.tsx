@@ -140,6 +140,38 @@ describe('Layout and Auth Localization', () => {
         expect(emojiRegex.test(container.textContent || '')).toBe(false);
     });
 
+    it('renders Welcome page with PTMA Muhammadiyah branding without RPL-2026, standalone integrated research, or design system preview button', () => {
+        const { container } = render(
+            <TranslationProvider>
+                <Welcome />
+            </TranslationProvider>,
+        );
+
+        const pageText = container.textContent || '';
+        // Ban internal development code names
+        expect(pageText).not.toContain('RPL-2026');
+        expect(pageText.toLowerCase()).not.toContain('standalone integrated research');
+
+        // Verify branding and domain
+        expect(pageText).toContain('riset.portalmu.org');
+        expect(pageText).toContain('PTMA MUHAMMADIYAH');
+
+        // Verify no links or buttons to design-system-preview exist in the DOM
+        const previewLinks = container.querySelectorAll('a[href*="design-system-preview"]');
+        expect(previewLinks.length).toBe(0);
+
+        // Switch language to ID and check Indonesian text as well
+        const compactSwitcher = screen.getAllByText('[en]')[0];
+        fireEvent.click(compactSwitcher);
+
+        const idPageText = container.textContent || '';
+        expect(idPageText).not.toContain('RPL-2026');
+        expect(idPageText.toLowerCase()).not.toContain('standalone integrated research');
+        expect(idPageText.toLowerCase()).not.toContain('penelitian terintegrasi standalone');
+        expect(idPageText).toContain('riset.portalmu.org');
+        expect(container.querySelectorAll('a[href*="design-system-preview"]').length).toBe(0);
+    });
+
     it('renders Login page with segmented LanguageSwitcher and localized form fields', () => {
         const { container } = render(
             <TranslationProvider>
