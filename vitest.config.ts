@@ -25,7 +25,11 @@ export default defineConfig({
                 statements: 70,
             },
         },
-        include: ['resources/js/**/*.test.{ts,tsx}', 'resources/js/**/__tests__/**/*.{ts,tsx}'],
+        include: [
+            'resources/js/**/*.test.{ts,tsx}',
+            'resources/js/**/__tests__/**/*.{ts,tsx}',
+            'tests/**/*.test.{js,ts}',
+        ],
     },
     resolve: {
         alias: {
