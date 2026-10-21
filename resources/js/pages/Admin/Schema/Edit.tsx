@@ -2,12 +2,13 @@
  * SchemaEdit Component
  *
  * @description
- * Form page for editing an existing Research Schema (Skema Penelitian).
- * Super Admin / LPPM can update the schema name and description.
+ * Form page for editing an existing Research Scheme (Skema Penelitian).
+ * Admin Kampus / LPPM can update schema name and description.
  *
  * @route GET /admin/schema/{schema}/edit
  * @route PUT /admin/schema/{schema}
  */
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,61 +32,67 @@ interface Schema {
 }
 
 interface Props {
-    schema: Schema;
+    schema: Schema | { data: Schema };
 }
 
 export default function SchemaEdit({ schema }: Props) {
     const { t } = useTranslation();
+    const schemaData = (schema && 'data' in schema ? schema.data : schema) as Schema;
+    const schemaId = schemaData?.id;
+    const schemaName = schemaData?.name || '';
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Dashboard',
+            title: t.navigation.dashboard,
             href: '/dashboard',
         },
         {
-            title: 'Skema Penelitian',
+            title: t.adminSchema.pageTitle,
             href: route('admin.schema.index'),
         },
         {
-            title: schema.name,
-            href: route('admin.schema.edit', schema.id),
+            title: schemaName,
+            href: schemaId ? route('admin.schema.edit', schemaId) : '#',
         },
         {
-            title: 'Edit',
-            href: route('admin.schema.edit', schema.id),
+            title: t.common.edit,
+            href: schemaId ? route('admin.schema.edit', schemaId) : '#',
         },
     ];
 
     const { data, setData, put, processing, errors } = useForm({
-        name: schema.name,
-        description: schema.description || '',
+        name: schemaName,
+        description: schemaData?.description || '',
     });
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        put(route('admin.schema.update', schema.id), {
+        if (!schemaId) return;
+        put(route('admin.schema.update', schemaId), {
             onSuccess: () => {
-                toast.success('Skema Penelitian berhasil diperbarui.');
+                toast.success(t.adminSchema.saveSuccess);
             },
             onError: () => {
-                toast.error('Gagal memperbarui skema. Periksa kembali form.');
+                toast.error(t.adminSchema.saveError);
             },
         });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`${t.adminSchema.editTitle} - ${schema.name}`} />
+            <Head title={`${t.adminSchema.editTitle} - ${schemaName}`} />
 
-            <div className="mx-auto max-w-2xl space-y-6">
+            <div className="mx-auto max-w-3xl space-y-6 p-4 sm:p-6 lg:p-8">
                 <PageHeader
                     title={t.adminSchema.editTitle}
-                    subtitle={schema.name}
-                    isEditorialSerif={true}
+                    subtitle={schemaName}
+                    isEditorialSerif={false}
+                    breadcrumbs={breadcrumbs}
                     actions={<LanguageSwitcher variant="compact" />}
                 />
 
                 <div className="flex items-center">
-                    <Button variant="ghost" size="sm" className="gap-2" asChild>
+                    <Button variant="ghost" size="sm" className="gap-2 text-slate-600 hover:text-slate-900" asChild>
                         <Link href={route('admin.schema.index')}>
                             <ArrowLeft className="h-4 w-4" />
                             {t.common.back}
@@ -94,46 +101,48 @@ export default function SchemaEdit({ schema }: Props) {
                 </div>
 
                 {/* Form */}
-                <Card className="border-slate-200 shadow-sm">
-                    <CardHeader>
-                        <CardTitle className="font-serif text-lg font-semibold">{t.adminSchema.editTitle}</CardTitle>
-                        <CardDescription>{t.adminSchema.editSubtitle}</CardDescription>
+                <Card className="border-slate-200 bg-white shadow-xs">
+                    <CardHeader className="border-b border-slate-100">
+                        <CardTitle className="text-base font-bold text-slate-900">{t.adminSchema.editTitle}</CardTitle>
+                        <CardDescription className="text-xs text-slate-500">{t.adminSchema.editSubtitle}</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Nama Skema */}
                             <div className="space-y-2">
-                                <Label htmlFor="name">
-                                    {t.adminSchema.tableColName} <span className="text-destructive">*</span>
+                                <Label htmlFor="name" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    {t.adminSchema.tableColName} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
                                     id="name"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
-                                    placeholder="Contoh: Penelitian Dasar, Penelitian Terapan, PDUPT..."
-                                    className={errors.name ? 'border-destructive' : ''}
+                                    placeholder={t.adminSchema.namePlaceholder}
+                                    className={`border-slate-300 bg-white text-sm text-slate-900 ${errors.name ? 'border-rose-500' : ''}`}
                                 />
-                                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-                                <p className="text-xs text-muted-foreground">Nama skema harus unik dan belum digunakan oleh skema lain.</p>
+                                {errors.name && <p className="text-xs text-rose-600">{errors.name}</p>}
+                                <p className="text-xs text-slate-400">{t.adminSchema.nameUniqueHint}</p>
                             </div>
 
                             {/* Deskripsi */}
                             <div className="space-y-2">
-                                <Label htmlFor="description">{t.adminSchema.tableColDesc}</Label>
+                                <Label htmlFor="description" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    {t.adminSchema.tableColDesc}
+                                </Label>
                                 <Textarea
                                     id="description"
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
-                                    placeholder="Deskripsi singkat mengenai skema penelitian ini..."
+                                    placeholder={t.adminSchema.descPlaceholder}
                                     rows={4}
-                                    className={errors.description ? 'border-destructive' : ''}
+                                    className={`border-slate-300 bg-white text-sm text-slate-900 ${errors.description ? 'border-rose-500' : ''}`}
                                 />
-                                {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
-                                <p className="text-xs text-muted-foreground">Opsional. Maksimal 1000 karakter.</p>
+                                {errors.description && <p className="text-xs text-rose-600">{errors.description}</p>}
+                                <p className="text-xs text-slate-400">{t.adminSchema.descMaxHint}</p>
                             </div>
 
                             {/* Actions */}
-                            <div className="flex justify-end gap-3 border-t pt-6">
+                            <div className="flex justify-end gap-3 border-t border-slate-100 pt-6">
                                 <Button type="button" variant="outline" asChild>
                                     <Link href={route('admin.schema.index')}>{t.common.cancel}</Link>
                                 </Button>

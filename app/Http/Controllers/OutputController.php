@@ -112,17 +112,7 @@ class OutputController extends Controller
     {
         abort_if(! auth()->check(), 403, '[BLOKIR] Anda harus login untuk mengakses halaman ini.');
 
-        $outputTypes = [
-            'Journal' => 'Jurnal / Publikasi Ilmiah',
-            'Book' => 'Buku / Modul Ajar',
-            'Hki' => 'Hak Kekayaan Intelektual (HKI)',
-            'Product' => 'Produk / Prototipe',
-        ];
-
-        return Inertia::render('Output/Create', [
-            'outputTypes' => $outputTypes,
-            'journals' => [],
-        ]);
+        return redirect()->route('outputs.index', ['create' => '1']);
     }
 
     /**

@@ -18,7 +18,7 @@ echo '=== STEP 4: SEED VERIFICATION ==='.PHP_EOL;
 echo PHP_EOL;
 
 // 1. Templates
-echo '📋 1. ACCREDITATION TEMPLATES'.PHP_EOL;
+echo ' 1. ACCREDITATION TEMPLATES'.PHP_EOL;
 $templates = AccreditationTemplate::all();
 echo "  Total: {$templates->count()}".PHP_EOL;
 foreach ($templates as $template) {
@@ -28,7 +28,7 @@ foreach ($templates as $template) {
 echo PHP_EOL;
 
 // 2. Categories
-echo '📊 2. EVALUATION CATEGORIES'.PHP_EOL;
+echo ' 2. EVALUATION CATEGORIES'.PHP_EOL;
 $categories = EvaluationCategory::with('template')->orderBy('template_id')->orderBy('display_order')->get();
 echo "  Total: {$categories->count()}".PHP_EOL;
 foreach ($categories->groupBy('template_id') as $templateId => $cats) {
@@ -41,7 +41,7 @@ foreach ($categories->groupBy('template_id') as $templateId => $cats) {
 echo PHP_EOL;
 
 // 3. Sub-Categories
-echo '📑 3. EVALUATION SUB-CATEGORIES'.PHP_EOL;
+echo ' 3. EVALUATION SUB-CATEGORIES'.PHP_EOL;
 $subCategories = EvaluationSubCategory::with('category')->get();
 echo "  Total: {$subCategories->count()}".PHP_EOL;
 $grouped = $subCategories->groupBy('category.name');
@@ -51,7 +51,7 @@ foreach ($grouped as $categoryName => $subs) {
 echo PHP_EOL;
 
 // 4. Indicators Migration Status
-echo '🔄 4. INDICATORS MIGRATION STATUS'.PHP_EOL;
+echo ' 4. INDICATORS MIGRATION STATUS'.PHP_EOL;
 $totalIndicators = EvaluationIndicator::count();
 $hierarchical = EvaluationIndicator::whereNotNull('sub_category_id')->count();
 $legacy = EvaluationIndicator::whereNull('sub_category_id')->count();
@@ -61,7 +61,7 @@ echo "  • Legacy (v1.0): {$legacy}".PHP_EOL;
 echo PHP_EOL;
 
 // 5. Essay Questions
-echo '📝 5. ESSAY QUESTIONS'.PHP_EOL;
+echo ' 5. ESSAY QUESTIONS'.PHP_EOL;
 $essays = EssayQuestion::with('category.template')->get();
 echo "  Total: {$essays->count()}".PHP_EOL;
 foreach ($essays->groupBy('category.template.name') as $templateName => $essayGroup) {
@@ -74,7 +74,7 @@ foreach ($essays->groupBy('category.template.name') as $templateName => $essayGr
 echo PHP_EOL;
 
 // 6. Hierarchical Structure Validation
-echo '🔍 6. HIERARCHICAL STRUCTURE VALIDATION'.PHP_EOL;
+echo ' 6. HIERARCHICAL STRUCTURE VALIDATION'.PHP_EOL;
 
 // Check template -> category -> subcategory -> indicator chain
 $banptTemplate = AccreditationTemplate::where('type', 'akreditasi')->where('is_active', true)->first();
@@ -106,14 +106,14 @@ if ($banptTemplate) {
     echo "    Total indicator weight: {$indicatorWeight}".PHP_EOL;
 
     $weightMatch = abs($totalWeight - $indicatorWeight) < 0.01;
-    $status = $weightMatch ? '✓ VALIDATED' : '✗ MISMATCH';
+    $status = $weightMatch ? ' VALIDATED' : ' MISMATCH';
     echo "    Weight consistency: {$status}".PHP_EOL;
 }
 
 echo PHP_EOL;
 
 // 7. Sample Data Check
-echo '📄 7. SAMPLE DATA CHECK'.PHP_EOL;
+echo ' 7. SAMPLE DATA CHECK'.PHP_EOL;
 $sampleIndicator = EvaluationIndicator::with('subCategory.category.template')->first();
 if ($sampleIndicator) {
     echo "  Sample Indicator: {$sampleIndicator->code}".PHP_EOL;
@@ -129,12 +129,12 @@ if ($sampleIndicator) {
 echo PHP_EOL;
 
 // 8. Final Summary
-echo '✅ STEP 4 VERIFICATION SUMMARY'.PHP_EOL;
-echo "  ✓ Templates created: {$templates->count()}/2".PHP_EOL;
-echo "  ✓ Categories created: {$categories->count()}/6".PHP_EOL;
-echo "  ✓ Sub-categories created: {$subCategories->count()}/12".PHP_EOL;
-echo "  ✓ Indicators migrated: {$hierarchical}/{$totalIndicators}".PHP_EOL;
-echo "  ✓ Essays created: {$essays->count()}/6".PHP_EOL;
+echo ' STEP 4 VERIFICATION SUMMARY'.PHP_EOL;
+echo "   Templates created: {$templates->count()}/2".PHP_EOL;
+echo "   Categories created: {$categories->count()}/6".PHP_EOL;
+echo "   Sub-categories created: {$subCategories->count()}/12".PHP_EOL;
+echo "   Indicators migrated: {$hierarchical}/{$totalIndicators}".PHP_EOL;
+echo "   Essays created: {$essays->count()}/6".PHP_EOL;
 echo PHP_EOL;
 
 $allPassed = $templates->count() === 2
@@ -145,7 +145,7 @@ $allPassed = $templates->count() === 2
     && $essays->count() === 6;
 
 if ($allPassed) {
-    echo '🎉 ALL TESTS PASSED! Step 4 completed successfully!'.PHP_EOL;
+    echo ' ALL TESTS PASSED! Step 4 completed successfully!'.PHP_EOL;
 } else {
-    echo '⚠️  WARNING: Some validations failed. Please review above.'.PHP_EOL;
+    echo '️  WARNING: Some validations failed. Please review above.'.PHP_EOL;
 }

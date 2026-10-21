@@ -531,7 +531,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="icon"
-                                                                    onClick={() => router.get(route('admin.schema.show', schema.id))}
+                                                                    onClick={() => schema?.id && router.get(route('admin.schema.show', schema.id))}
                                                                     className="h-8 w-8 text-neutral-500 hover:bg-blue-500/10 hover:text-blue-600"
                                                                 >
                                                                     <Eye className="h-4 w-4" />
@@ -604,7 +604,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                             <Button
                                                 variant="outline"
                                                 size="icon"
-                                                onClick={() => router.get(route('admin.schema.show', schema.id))}
+                                                onClick={() => schema?.id && router.get(route('admin.schema.show', schema.id))}
                                                 className="h-8 w-8 text-neutral-500 hover:bg-blue-500/10 hover:text-blue-600"
                                             >
                                                 <Eye className="h-4 w-4" />

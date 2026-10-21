@@ -95,9 +95,9 @@ class ScrapeMAJUJournals extends Command
         $this->newLine(2);
 
         // Summary
-        $this->info("✅ Successfully scraped: {$this->scrapedCount} journals");
+        $this->info("[SUKSES] Successfully scraped: {$this->scrapedCount} journals");
         if ($this->errorCount > 0) {
-            $this->warn("⚠️  Errors encountered: {$this->errorCount}");
+            $this->warn("[PERINGATAN] Errors encountered: {$this->errorCount}");
         }
 
         if ($dryRun) {

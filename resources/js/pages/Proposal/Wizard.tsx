@@ -57,16 +57,16 @@ export interface TeamMember {
     alokasi_jam_per_minggu: number;
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Usulan Riset', href: '/proposals' },
-    { title: 'Formulir Pengajuan Terpadu', href: '/proposals/create' },
-];
-
 export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
     const { t, format, locale } = useTranslation();
     const pageProps = usePage<SharedData>().props;
     const currentUser = pageProps.auth?.user;
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: t.navigation.dashboard, href: '/dashboard' },
+        { title: t.navigation.proposals, href: '/proposals' },
+        { title: t.proposalWizard.pageTitle, href: '/proposals/create' },
+    ];
 
     const [currentStep, setCurrentStep] = useState<number>(1);
     const [lastSavedTime, setLastSavedTime] = useState<string | null>(null);
@@ -334,7 +334,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
 
             <div className="container mx-auto max-w-5xl space-y-6 p-4 pb-24 sm:p-6 lg:p-8">
                 {/* Page Header */}
-                <PageHeader title={t.proposalWizard.pageTitle} subtitle={t.proposalWizard.pageSubtitle} isEditorialSerif={true} />
+                <PageHeader title={t.proposalWizard.pageTitle} subtitle={t.proposalWizard.pageSubtitle} isEditorialSerif={false} />
 
                 {/* 4-Step Stepper */}
                 <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">

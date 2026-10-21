@@ -13,7 +13,7 @@ class OAIPMHTestSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🔬 Adding OAI-PMH URLs for testing...');
+        $this->command->info(' Adding OAI-PMH URLs for testing...');
 
         // Real OAI-PMH endpoints from Indonesian journals
         // Using public and reliably accessible endpoints
@@ -26,7 +26,7 @@ class OAIPMHTestSeeder extends Seeder
         $journals = Journal::take(3)->get();
 
         if ($journals->count() < 3) {
-            $this->command->warn('⚠️  Not enough journals in database. Please run DatabaseSeeder first.');
+            $this->command->warn('[PERINGATAN] Not enough journals in database. Please run DatabaseSeeder first.');
 
             return;
         }
@@ -36,15 +36,15 @@ class OAIPMHTestSeeder extends Seeder
                 $journal->update([
                     'oai_urls' => [$testUrls[$index]],
                 ]);
-                $this->command->info("  ✓ Updated: {$journal->title}");
+                $this->command->info("  [OK] Updated: {$journal->title}");
                 $this->command->info("    OAI-PMH: {$testUrls[$index]}");
             }
         }
 
         $this->command->info('');
-        $this->command->info('✅ OAI-PMH test URLs added successfully!');
+        $this->command->info('[SUKSES] OAI-PMH test URLs added successfully!');
         $this->command->info('');
-        $this->command->info('📚 Next steps:');
+        $this->command->info('[BUKU] Next steps:');
         $this->command->info('   Run: php artisan journals:harvest-articles --all');
         $this->command->info('   Or:  php artisan journals:harvest-articles 1');
     }

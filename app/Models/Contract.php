@@ -130,6 +130,14 @@ class Contract extends Model
     }
 
     /**
+     * Relasi laporan kemajuan (ProgressReport) melalui id_proposal.
+     */
+    public function progressReports(): HasMany
+    {
+        return $this->hasMany(ProgressReport::class, 'id_proposal', 'id_proposal');
+    }
+
+    /**
      * Relasi ke lampiran dokumen kontrak (legacy support).
      */
     public function documents(): HasMany

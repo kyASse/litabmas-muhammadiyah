@@ -11,7 +11,7 @@
  - agar konsisten dengan TopLecturerList.tsx dan mudah diubah di satu tempat.
  */
 
-import { BookOpen, Flame } from 'lucide-react';
+import { FileText, Flame } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface Research {
@@ -59,7 +59,7 @@ export default function TopResearchList({ data }: Props) {
             {/* Header */}
             <div className="flex items-center gap-3 border-b border-white/10 bg-gradient-to-r from-[var(--color-surface-header-research)] to-[var(--color-surface-base)] px-5 py-4">
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-green-500/20 text-green-400">
-                    <BookOpen size={18} strokeWidth={2.2} />
+                    <FileText size={18} strokeWidth={2.2} />
                 </span>
                 <div>
                     <p className="text-xs font-semibold tracking-widest text-green-400 uppercase">Leaderboard</p>
@@ -84,7 +84,7 @@ export default function TopResearchList({ data }: Props) {
                 {/* Error State */}
                 {error && (
                     <div className="flex h-full flex-col items-center justify-center py-10 text-white/30">
-                        <BookOpen size={32} className="mb-2 opacity-40" />
+                        <FileText size={32} className="mb-2 opacity-40" />
                         <p className="text-sm">Gagal memuat data.</p>
                     </div>
                 )}
@@ -92,7 +92,7 @@ export default function TopResearchList({ data }: Props) {
                 {/* Empty State */}
                 {!loading && !error && researchList.length === 0 && (
                     <div className="flex h-full flex-col items-center justify-center py-10 text-white/30">
-                        <BookOpen size={32} className="mb-2 opacity-40" />
+                        <FileText size={32} className="mb-2 opacity-40" />
                         <p className="text-sm">Belum ada penelitian aktif.</p>
                     </div>
                 )}

@@ -1,152 +1,85 @@
-/**
- * UsersShow Component for Super Admin
- *
- * @description
- * A detailed view page for displaying comprehensive information about a user (Pengelola Jurnal).
- * This component shows the user's profile, contact information, assigned university, managed journals,
- * reviewer status, statistics, and activity logs. It provides functionality to view, edit, and toggle
- * the active status of the user.
- *
- * @component
- *
- * @interface User
- * @property {number} id - Unique identifier for the user
- * @property {string} name - Full name of the user
- * @property {string} email - Email address
- * @property {string|null} phone - Phone number
- * @property {string|null} avatar_url - URL to the profile avatar image
- * @property {boolean} is_active - Account active status
- * @property {boolean} is_reviewer - Reviewer status (v1.1 feature)
- * @property {Object|null} university - Associated university information
- * @property {number} university.id - University unique identifier
- * @property {string} university.name - Full university name
- * @property {string} university.short_name - Abbreviated university name
- * @property {string} university.code - University code
- * @property {string} university.city - City where university is located
- * @property {string} university.province - Province where university is located
- * @property {string|null} last_login_at - Timestamp of last login
- * @property {string} created_at - Account creation timestamp
- * @property {string} updated_at - Last update timestamp
- * @property {number} journals_count - Number of journals managed by this user
- *
- * @interface Journal
- * @property {number} id - Unique identifier for the journal
- * @property {string} title - Journal title
- * @property {string} issn - International Standard Serial Number
- * @property {string|null} scientific_field - Scientific field/discipline of the journal
- * @property {string} created_at - Journal creation timestamp
- *
- * @interface Props
- * @property {User} user - The user data to display
- * @property {Journal[]} journals - Array of journals managed by this user
- *
- * @param {Props} props - Component props
- * @param {User} props.user - User details
- * @param {Journal[]} props.journals - List of managed journals
- *
- * @returns The rendered user detail page
- *
- * @example
- * ```tsx
- * <UsersShow
- *   user={userData}
- *   journals={journalsList}
- * />
- * ```
- *
- * @features
- * - Display user profile with avatar
- * - Show contact information (email, phone)
- * - Display assigned university details
- * - Show reviewer badge if is_reviewer=true
- * - List all managed journals in a table
- * - Show statistics (journals count)
- * - Display activity information (last login, created at, updated at)
- * - Toggle active/inactive status
- * - Navigate to edit page
- * - Breadcrumb navigation with User Management parent
- * - Dark mode support
- * - Blue color scheme
- *
- * @route GET /admin/users/{id}
- *
- * @requires @inertiajs/react
- * @requires @/components/ui/button
- * @requires @/components/ui/badge
- * @requires @/components/ui/table
- * @requires @/layouts/app-layout
- * @requires lucide-react
- *
- * @author JurnalMU Team
- * @filepath /resources/js/pages/Admin/Users/Show.tsx
- */
-import { Badge } from '@/components/ui/badge';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { TabularFigure } from '@/components/ui/TabularFigure';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, Award, BookOpen, Building2, Calendar, Edit, Mail, MapPin, Phone, Shield, UserCheck } from 'lucide-react';
-import { toast } from 'sonner';
+import {
+    ArrowLeft,
+    Briefcase,
+    Building2,
+    Calendar,
+    CheckSquare,
+    Clock,
+    Edit,
+    FileText,
+    Mail,
+    MapPin,
+    Phone,
+    Power,
+    ShieldCheck,
+    User,
+} from 'lucide-react';
+import { useState } from 'react';
 
-interface User {
+export interface UserRole {
+    id: number;
+    name: string;
+    display_name?: string;
+}
+
+export interface UniversityInfo {
+    id: number;
+    name: string;
+    short_name?: string;
+    code: string;
+    city?: string | null;
+    province?: string | null;
+}
+
+export interface UserDetail {
     id: number;
     name: string;
     email: string;
-    phone: string | null;
-    avatar_url: string | null;
+    phone?: string | null;
+    position?: string | null;
+    avatar_url?: string | null;
     is_active: boolean;
-    is_reviewer: boolean;
-    scientific_field: {
-        id: number;
-        name: string;
-        code: string;
-    } | null;
-    university: {
-        id: number;
-        name: string;
-        short_name: string;
-        code: string;
-        city: string;
-        province: string;
-    } | null;
-    last_login_at: string | null;
+    is_reviewer?: boolean;
+    roles?: UserRole[];
+    university?: UniversityInfo | null;
+    last_login_at?: string | null;
     created_at: string;
     updated_at: string;
-    journals_count: number;
+    proposals_count: number;
+    reviews_count: number;
 }
 
-interface Journal {
-    id: number;
-    title: string;
-    issn: string;
-    scientific_field: string | null;
-    created_at: string;
+export interface ShowProps {
+    user: UserDetail;
 }
 
-interface Props {
-    user: User;
-    journals: Journal[];
-}
+export default function UsersShow({ user }: ShowProps) {
+    const { t, format } = useTranslation();
+    const [showToggleDialog, setShowToggleDialog] = useState(false);
 
-export default function UsersShow({ user, journals }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
-        {
-            title: 'Dashboard',
-            href: '/dashboard',
-        },
-        {
-            title: 'User Management',
-            href: '#',
-        },
-        {
-            title: 'Pengelola Jurnal',
-            href: '/admin/users',
-        },
-        {
-            title: user.name,
-            href: `/admin/users/${user.id}`,
-        },
+        { title: t.navigation.dashboard, href: '/dashboard' },
+        { title: t.navigation.users, href: '/admin/users' },
+        { title: user.name, href: `/admin/users/${user.id}` },
     ];
 
     const handleToggleActive = () => {
@@ -154,246 +87,275 @@ export default function UsersShow({ user, journals }: Props) {
             route('admin.users.toggle-active', user.id),
             {},
             {
-                onSuccess: () => {
-                    toast.success(`User ${user.is_active ? 'deactivated' : 'activated'} successfully`);
-                },
-                onError: () => {
-                    toast.error('Failed to update user status');
-                },
+                preserveScroll: true,
+                onFinish: () => setShowToggleDialog(false),
             },
         );
     };
 
+    const getRoleBadgeClasses = (roleName: string): string => {
+        const normalized = roleName.toLowerCase().trim();
+        if (normalized.includes('super admin')) {
+            return 'bg-rose-50 text-rose-700 border-rose-200';
+        }
+        if (normalized.includes('admin kampus')) {
+            return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+        }
+        if (normalized.includes('admin keuangan')) {
+            return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        }
+        if (normalized.includes('reviewer')) {
+            return 'bg-purple-50 text-purple-700 border-purple-200';
+        }
+        if (normalized.includes('peneliti')) {
+            return 'bg-blue-50 text-blue-700 border-blue-200';
+        }
+        return 'bg-slate-100 text-slate-700 border-slate-300';
+    };
+
+    const initials =
+        (user.name || '')
+            .split(' ')
+            .slice(0, 2)
+            .map((part) => part[0])
+            .join('')
+            .toUpperCase() || 'U';
+
+    const roles = user.roles || [];
+    const hasReviewerRole = roles.some((r) => (r.name || '').toLowerCase() === 'reviewer');
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={user.name} />
+            <Head title={`${user.name} - ${t.adminUsers.userDetails}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-                    {/* Header */}
-                    <div className="mb-6">
-                        <Link href={route('admin.users.index')}>
-                            <Button variant="ghost" className="mb-4">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to List
+            <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+                {/* Standardized PageHeader */}
+                <PageHeader
+                    title={user.name}
+                    subtitle={user.position || user.email}
+                    isEditorialSerif={false}
+                    breadcrumbs={[
+                        { label: t.navigation?.dashboard || 'Dashboard', href: '/dashboard' },
+                        { label: t.adminUsers.title, href: route('admin.users.index') },
+                        { label: user.name },
+                    ]}
+                    badge={<StatusBadge status={user.is_active ? 'Active' : 'Inactive'} />}
+                    actions={
+                        <div className="flex items-center gap-2">
+                            <Button asChild variant="outline" size="sm" className="font-sans text-sm">
+                                <Link href={route('admin.users.index')}>
+                                    <ArrowLeft className="mr-1.5 h-4 w-4" />
+                                    {t.adminUsers.backToList}
+                                </Link>
                             </Button>
-                        </Link>
-                        <div className="flex flex-col items-start gap-4 sm:flex-row sm:justify-between">
-                            <div className="flex w-full flex-col items-start gap-4 sm:w-auto sm:flex-row">
-                                {user.avatar_url ? (
-                                    <img src={user.avatar_url} alt={user.name} className="h-20 w-20 rounded-full" />
-                                ) : (
-                                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/20">
-                                        <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                            {user.name.charAt(0).toUpperCase()}
-                                        </span>
+
+                            <Button asChild variant="outline" size="sm" className="font-sans text-sm">
+                                <Link href={route('admin.users.edit', user.id)}>
+                                    <Edit className="mr-1.5 h-4 w-4" />
+                                    {t.adminUsers.editUser}
+                                </Link>
+                            </Button>
+
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowToggleDialog(true)}
+                                className={`font-sans text-sm ${
+                                    user.is_active
+                                        ? 'border-rose-200 text-rose-700 hover:bg-rose-50'
+                                        : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'
+                                }`}
+                            >
+                                <Power className="mr-1.5 h-4 w-4" />
+                                {user.is_active ? t.adminUsers.deactivate : t.adminUsers.activate}
+                            </Button>
+                        </div>
+                    }
+                />
+
+                {/* 2-Column Grid */}
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                    {/* Left Column (2 cols width on large screens) */}
+                    <div className="space-y-6 lg:col-span-2">
+                        {/* Profile & Contact Details Card */}
+                        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                            <div className="flex items-start gap-4 border-b border-slate-100 pb-6">
+                                <Avatar className="h-16 w-16 border border-slate-200">
+                                    {user.avatar_url && <AvatarImage src={user.avatar_url} alt={user.name} />}
+                                    <AvatarFallback className="bg-slate-100 font-sans text-xl font-semibold text-slate-700">
+                                        {initials}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div className="space-y-1">
+                                    <h2 className="font-serif text-xl font-bold text-slate-900">{user.name}</h2>
+                                    <p className="font-sans text-sm text-slate-600">{user.position || t.adminUsers.notSet}</p>
+                                    <p className="font-mono text-xs text-slate-400">ID #{user.id}</p>
+                                </div>
+                            </div>
+
+                            <div className="mt-6 space-y-4">
+                                <h3 className="font-sans text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                    {t.adminUsers.contactInfo}
+                                </h3>
+
+                                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div className="flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50/50 p-3.5">
+                                        <Mail className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                                        <div>
+                                            <p className="font-sans text-xs text-slate-500">{t.adminUsers.email}</p>
+                                            <p className="font-mono text-sm break-all text-slate-900">{user.email}</p>
+                                        </div>
                                     </div>
-                                )}
-                                <div>
-                                    <div className="flex items-center gap-3">
-                                        <UserCheck className="h-8 w-8 shrink-0 text-blue-600 dark:text-blue-400" />
-                                        <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{user.name}</h1>
+
+                                    <div className="flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50/50 p-3.5">
+                                        <Phone className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                                        <div>
+                                            <p className="font-sans text-xs text-slate-500">{t.adminUsers.phone}</p>
+                                            <p className="font-mono text-sm text-slate-900">{user.phone || t.adminUsers.notSet}</p>
+                                        </div>
                                     </div>
-                                    <p className="mt-1 text-muted-foreground">Pengelola Jurnal Details</p>
-                                    <div className="mt-2 flex flex-wrap items-center gap-2">
-                                        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                                            <UserCheck className="mr-1 h-3 w-3" />
-                                            Pengelola Jurnal
-                                        </Badge>
-                                        {user.is_reviewer && (
-                                            <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400">
-                                                <Award className="mr-1 h-3 w-3" />
-                                                Reviewer
-                                            </Badge>
-                                        )}
-                                        {user.is_active ? (
-                                            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">Active</Badge>
-                                        ) : (
-                                            <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400">Inactive</Badge>
-                                        )}
+
+                                    <div className="flex items-start gap-3 rounded-lg border border-slate-100 bg-slate-50/50 p-3.5 sm:col-span-2">
+                                        <Briefcase className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                                        <div>
+                                            <p className="font-sans text-xs text-slate-500">{t.adminUsers.position}</p>
+                                            <p className="font-sans text-sm text-slate-900">{user.position || t.adminUsers.notSet}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="flex w-full gap-2 sm:w-auto">
-                                <Button className="flex-1 sm:flex-none" variant={user.is_active ? 'outline' : 'default'} onClick={handleToggleActive}>
-                                    {user.is_active ? 'Deactivate' : 'Activate'}
-                                </Button>
-                                <Link href={route('admin.users.edit', user.id)} className="flex-1 sm:flex-none">
-                                    <Button className="flex w-full items-center justify-center gap-2">
-                                        <Edit className="h-4 w-4" />
-                                        Edit
-                                    </Button>
-                                </Link>
+
+                            {/* University Affiliation */}
+                            <div className="mt-6 space-y-3 border-t border-slate-100 pt-6">
+                                <h3 className="font-sans text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                    {t.adminUsers.universityAffiliation}
+                                </h3>
+
+                                {user.university ? (
+                                    <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/40 p-4">
+                                        <div className="flex items-center gap-2">
+                                            <Building2 className="h-4 w-4 shrink-0 text-blue-900" />
+                                            <span className="font-sans text-sm font-semibold text-slate-800">{user.university.name}</span>
+                                            {user.university.code && (
+                                                <span className="rounded bg-slate-200/80 px-1.5 py-0.5 font-mono text-xs text-slate-700">
+                                                    {user.university.code}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {(user.university.city || user.university.province) && (
+                                            <div className="flex items-center gap-1.5 pl-6 font-sans text-xs text-slate-600">
+                                                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                                                <span>{[user.university.city, user.university.province].filter(Boolean).join(', ')}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="font-sans text-sm text-slate-500 italic">{t.adminUsers.globalTenant}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Research Activity Card */}
+                        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                            <h3 className="mb-4 font-sans text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                {t.adminUsers.researchActivity}
+                            </h3>
+
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div className="rounded-lg border border-blue-100 bg-blue-50/40 p-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-sans text-xs font-medium text-blue-900">{t.adminUsers.proposalsAuthored}</span>
+                                        <FileText className="h-5 w-5 text-blue-800" />
+                                    </div>
+                                    <div className="mt-3">
+                                        <TabularFigure value={user.proposals_count} type="integer" size="2xl" weight="bold" align="left" />
+                                    </div>
+                                    <p className="mt-1 font-sans text-xs text-slate-500">{t.adminUsers.proposalsCountDesc}</p>
+                                </div>
+
+                                <div className="rounded-lg border border-purple-100 bg-purple-50/40 p-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-sans text-xs font-medium text-purple-900">{t.adminUsers.reviewsAssigned}</span>
+                                        <CheckSquare className="h-5 w-5 text-purple-800" />
+                                    </div>
+                                    <div className="mt-3">
+                                        <TabularFigure value={user.reviews_count} type="integer" size="2xl" weight="bold" align="left" />
+                                    </div>
+                                    <p className="mt-1 font-sans text-xs text-slate-500">{t.adminUsers.reviewsCountDesc}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        {/* Left Column - Details */}
-                        <div className="space-y-6 lg:col-span-2">
-                            {/* Contact Information */}
-                            <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                <h2 className="mb-4 text-xl font-semibold text-foreground">Contact Information</h2>
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <Mail className="h-5 w-5 text-muted-foreground" />
-                                        <div>
-                                            <p className="text-sm text-muted-foreground">Email</p>
-                                            <p className="text-foreground">{user.email}</p>
-                                        </div>
-                                    </div>
-                                    {user.phone && (
-                                        <div className="flex items-center gap-3">
-                                            <Phone className="h-5 w-5 text-muted-foreground" />
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Phone</p>
-                                                <p className="text-foreground">{user.phone}</p>
-                                            </div>
-                                        </div>
+                    {/* Right Column (1 col width on large screens) */}
+                    <div className="space-y-6">
+                        {/* System Roles & Permissions Card */}
+                        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                            <h3 className="mb-4 font-sans text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                {t.adminUsers.systemRoles}
+                            </h3>
+
+                            <div className="space-y-3">
+                                <p className="font-sans text-xs text-slate-600">{t.adminUsers.assignedRoles}:</p>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {roles.length > 0 ? (
+                                        roles.map((r) => (
+                                            <span
+                                                key={r.id}
+                                                className={`inline-flex items-center rounded-md border px-2.5 py-1 font-sans text-xs font-medium ${getRoleBadgeClasses(
+                                                    r.name,
+                                                )}`}
+                                            >
+                                                <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
+                                                {r.display_name || r.name}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <span className="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 font-sans text-xs text-slate-600">
+                                            <User className="mr-1.5 h-3.5 w-3.5" />
+                                            {t.adminUsers.generalUser}
+                                        </span>
+                                    )}
+
+                                    {user.is_reviewer && !hasReviewerRole && (
+                                        <span className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 font-sans text-xs font-medium text-purple-700">
+                                            <ShieldCheck className="mr-1.5 h-3.5 w-3.5" />
+                                            {t.adminUsers.roleReviewer}
+                                        </span>
                                     )}
                                 </div>
                             </div>
-
-                            {/* Scientific Field Information */}
-                            {user.scientific_field && (
-                                <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                    <h2 className="mb-4 text-xl font-semibold text-foreground">Scientific Field</h2>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            <Shield className="h-5 w-5 text-muted-foreground" />
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Bidang Ilmu</p>
-                                                <p className="font-semibold text-foreground">
-                                                    {user.scientific_field.code} - {user.scientific_field.name}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* University Information */}
-                            {user.university && (
-                                <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                    <h2 className="mb-4 text-xl font-semibold text-foreground">University Assignment</h2>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3">
-                                            <Building2 className="h-5 w-5 text-muted-foreground" />
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">University</p>
-                                                <p className="font-semibold text-foreground">
-                                                    {user.university.code} - {user.university.name}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        {(user.university.city || user.university.province) && (
-                                            <div className="flex items-center gap-3">
-                                                <MapPin className="h-5 w-5 text-muted-foreground" />
-                                                <div>
-                                                    <p className="text-sm text-muted-foreground">Location</p>
-                                                    <p className="text-foreground">
-                                                        {user.university.city}, {user.university.province}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Managed Journals */}
-                            <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                <h2 className="mb-4 text-xl font-semibold text-foreground">Managed Journals ({journals.length})</h2>
-                                {journals.length === 0 ? (
-                                    <p className="py-4 text-center text-muted-foreground">No journals managed yet</p>
-                                ) : (
-                                    <div className="overflow-x-auto">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead className="min-w-[150px]">Journal Title</TableHead>
-                                                    <TableHead className="min-w-[100px]">ISSN</TableHead>
-                                                    <TableHead className="min-w-[150px]">Scientific Field</TableHead>
-                                                    <TableHead className="min-w-[100px]">Created</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {journals.map((journal) => (
-                                                    <TableRow key={journal.id}>
-                                                        <TableCell className="font-medium">{journal.title}</TableCell>
-                                                        <TableCell>{journal.issn}</TableCell>
-                                                        <TableCell>{journal.scientific_field || '-'}</TableCell>
-                                                        <TableCell>{new Date(journal.created_at).toLocaleDateString('id-ID')}</TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                )}
-                            </div>
                         </div>
 
-                        {/* Right Column - Stats & Activity */}
-                        <div className="space-y-6">
-                            {/* Statistics */}
-                            <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                <h2 className="mb-4 text-xl font-semibold text-foreground">Statistics</h2>
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                                        <div className="flex items-center gap-3">
-                                            <BookOpen className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Journals</p>
-                                                <p className="text-2xl font-bold text-foreground">{user.journals_count}</p>
-                                            </div>
-                                        </div>
+                        {/* Account Timestamps & Security Card */}
+                        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                            <h3 className="mb-4 font-sans text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                {t.adminUsers.accountLogs}
+                            </h3>
+
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-3">
+                                    <Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                                    <div>
+                                        <p className="font-sans text-xs text-slate-500">{t.adminUsers.lastLogin}</p>
+                                        <p className="font-mono text-xs text-slate-800">{user.last_login_at || t.adminUsers.neverLoggedIn}</p>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Activity */}
-                            <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                <h2 className="mb-4 text-xl font-semibold text-foreground">Activity</h2>
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3">
-                                        <Calendar className="h-5 w-5 text-muted-foreground" />
-                                        <div>
-                                            <p className="text-sm text-muted-foreground">Last Login</p>
-                                            <p className="text-foreground">
-                                                {user.last_login_at
-                                                    ? new Date(user.last_login_at).toLocaleString('id-ID', {
-                                                          dateStyle: 'medium',
-                                                          timeStyle: 'short',
-                                                      })
-                                                    : 'Never'}
-                                            </p>
-                                        </div>
+                                <div className="flex items-start gap-3">
+                                    <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                                    <div>
+                                        <p className="font-sans text-xs text-slate-500">{t.adminUsers.accountCreated}</p>
+                                        <p className="font-mono text-xs text-slate-800">{user.created_at}</p>
                                     </div>
-                                    <div className="flex items-center gap-3">
-                                        <Calendar className="h-5 w-5 text-muted-foreground" />
-                                        <div>
-                                            <p className="text-sm text-muted-foreground">Created At</p>
-                                            <p className="text-foreground">
-                                                {new Date(user.created_at).toLocaleDateString('id-ID', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <Calendar className="h-5 w-5 text-muted-foreground" />
-                                        <div>
-                                            <p className="text-sm text-muted-foreground">Updated At</p>
-                                            <p className="text-foreground">
-                                                {new Date(user.updated_at).toLocaleDateString('id-ID', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                })}
-                                            </p>
-                                        </div>
+                                </div>
+
+                                <div className="flex items-start gap-3">
+                                    <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+                                    <div>
+                                        <p className="font-sans text-xs text-slate-500">{t.adminUsers.lastUpdated}</p>
+                                        <p className="font-mono text-xs text-slate-800">{user.updated_at}</p>
                                     </div>
                                 </div>
                             </div>
@@ -401,6 +363,37 @@ export default function UsersShow({ user, journals }: Props) {
                     </div>
                 </div>
             </div>
+
+            {/* Toggle Status Confirmation Dialog */}
+            <AlertDialog open={showToggleDialog} onOpenChange={setShowToggleDialog}>
+                <AlertDialogContent className="font-sans">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>
+                            {user.is_active ? t.adminUsers.confirmDeactivateTitle : t.adminUsers.confirmActivateTitle}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                            {user.is_active
+                                ? format(t.adminUsers.confirmDeactivateDesc, {
+                                      name: user.name,
+                                      email: user.email,
+                                  })
+                                : format(t.adminUsers.confirmActivateDesc, {
+                                      name: user.name,
+                                      email: user.email,
+                                  })}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel onClick={() => setShowToggleDialog(false)}>{t.adminUsers.cancelButton}</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleToggleActive}
+                            className={user.is_active ? 'bg-rose-600 text-white hover:bg-rose-700' : 'bg-emerald-600 text-white hover:bg-emerald-700'}
+                        >
+                            {user.is_active ? t.adminUsers.deactivate : t.adminUsers.activate}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </AppLayout>
     );
 }

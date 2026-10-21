@@ -5,14 +5,12 @@ use App\Http\Controllers\Admin\AssignController as AdminAssignController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DecisionController as AdminDecisionController;
 use App\Http\Controllers\Admin\LogController as AdminLogController;
-use App\Http\Controllers\Admin\LppmApprovalController as AdminLppmApprovalController;
 use App\Http\Controllers\Admin\MonevReportController as AdminMonevReportController;
 use App\Http\Controllers\Admin\MonevScheduleCtrl as AdminMonevScheduleCtrl;
 use App\Http\Controllers\Admin\OutputReportController as AdminOutputReportController;
 use App\Http\Controllers\Admin\OutputVerifyController as AdminOutputVerifyController;
 use App\Http\Controllers\Admin\ProposalController as AdminProposalController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
-use App\Http\Controllers\Admin\ScheduleController as AdminScheduleController;
 use App\Http\Controllers\Admin\SettingsCtrl as AdminSettingsCtrl;
 use App\Http\Controllers\Admin\SktsController;
 use App\Http\Controllers\Admin\UniversityController as AdminUniversityController;
@@ -313,9 +311,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/proposals/{proposal}/terminate', [SktsController::class, 'terminateForceMajeure'])->name('proposals.terminate');
         Route::post('/evaluations/{proposal}/certify', [SktsController::class, 'generateSkts'])->name('evaluations.certify');
 
-        // Schedules
-        Route::resource('schedules', AdminScheduleController::class);
-
         // Dashboard Admin Kampus / LPPM
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     });
@@ -342,14 +337,6 @@ Route::middleware(['auth'])->group(function () {
             ->name('users.toggle-active');
         Route::delete('users/revoke/{id}', [AdminUserRoleController::class, 'revoke'])
             ->name('users.revoke');
-
-        // LPPM Approval Workflow
-        Route::post('users/{user}/approve-lppm', [AdminLppmApprovalController::class, 'approve'])
-            ->name('users.approve-lppm');
-        Route::post('users/{user}/reject-lppm', [AdminLppmApprovalController::class, 'reject'])
-            ->name('users.reject-lppm');
-        Route::post('users/{user}/revert-lppm', [AdminLppmApprovalController::class, 'revert'])
-            ->name('users.revert-lppm');
 
         // System Logs & Settings
         Route::get('/logs', [AdminLogController::class, 'index'])->name('logs.index');

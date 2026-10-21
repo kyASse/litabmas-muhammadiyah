@@ -1,18 +1,12 @@
 /**
- * ReviewSummary – Rekapitulasi Penilaian Proposal Riset & Keputusan LPPM
+ * ReviewSummary – Research Proposal Review Recapitulation & Decision
  *
  * @description
- * Halaman analitik rekapitulasi penilaian proposal riset untuk Super Admin dan Admin Kampus.
- * Meringkas nilai rata-rata dari multi-reviewer, persentase kelulusan, serta menyediakan
- * fitur penetapan keputusan Diterima/Ditolak langsung oleh Admin Kampus / LPPM.
+ * Analytical review summary for institutional LPPM administrators and Super Admin.
+ * Aggregates multi-reviewer rubric scores, pass recommendations, and facilitates final
+ * funding approval/rejection decisions.
  *
- * @features
- * - Sesuai PRD Modul 2: Tabel analitik nilai rata-rata multi-reviewer & penetapan keputusan LPPM
- * - Integrasi Service: ReviewCalculationService (Rata-rata & statistik global)
- * - Integrasi Controller: DecisionController (POST /admin/decision/decide)
- *
- * @route GET /admin/reviews/summary
- * @author FAHMI HIDAYAT
+ * @filepath resources/js/pages/Admin/Reviewer/Summary.tsx
  */
 
 import { Badge } from '@/components/ui/badge';
@@ -21,21 +15,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { MetricCard } from '@/components/ui/MetricCard';
+import PageHeader from '@/components/ui/PageHeader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import StatusBadge from '@/components/ui/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { Award, BarChart3, CheckCircle2, Clock, FileText, Layers, Search, UserCheck, X, XCircle } from 'lucide-react';
+import { Award, CheckCircle2, FileText, Layers, Search, UserCheck, X, XCircle } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
-
-// ─── Breadcrumbs ────────────────────────────────────────────────────────────
-
-const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Rekap Review Proposal', href: '/admin/reviews/summary' },
-];
 
 // ─── Interfaces ──────────────────────────────────────────────────────────────
 
@@ -96,44 +88,16 @@ interface Props {
     filters?: Filters;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-function formatScore(value: number | string | null | undefined, decimals = 2): string {
-    if (value === null || value === undefined || value === '') return '–';
-    const num = Number(value);
-    if (isNaN(num)) return '–';
-    return num.toFixed(decimals);
-}
-
-function ProposalStatusBadge({ status }: { status: string }) {
-    const s = (status ?? '').toLowerCase();
-    if (s === 'diterima' || s === 'approved') {
-        return (
-            <Badge variant="outline" className="gap-1 border-emerald-500/40 bg-emerald-500/10 font-medium text-emerald-700 dark:text-emerald-400">
-                <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
-                Diterima
-            </Badge>
-        );
-    }
-    if (s === 'ditolak' || s === 'rejected') {
-        return (
-            <Badge variant="outline" className="gap-1 border-destructive/40 bg-destructive/10 font-medium text-destructive">
-                <XCircle className="h-3 w-3 text-destructive" />
-                Ditolak
-            </Badge>
-        );
-    }
-    return (
-        <Badge variant="outline" className="gap-1 border-amber-500/40 bg-amber-500/10 font-medium text-amber-700 dark:text-amber-400">
-            <Clock className="h-3 w-3 text-amber-600 dark:text-amber-400" />
-            {status}
-        </Badge>
-    );
-}
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ReviewSummary({ proposalSummary, filterOptions = {}, filters = {} }: Props) {
+    const { t } = useTranslation();
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: t.navigation.dashboard, href: '/dashboard' },
+        { title: t.adminReviewsSummary.pageTitle, href: '/admin/reviews/summary' },
+    ];
+
     // Filters
     const [search, setSearch] = useState(filters.search ?? '');
     const [universityId, setUniversityId] = useState(filters.university_id ?? '');
@@ -194,102 +158,85 @@ export default function ReviewSummary({ proposalSummary, filterOptions = {}, fil
     const propTotal = proposalSummary?.total ?? 0;
     const propApproved = proposalSummary?.approved ?? 0;
     const propRejected = proposalSummary?.rejected ?? 0;
-    const propAvgScore = proposalSummary?.avg_score ?? null;
+    const propAvgScore = proposalSummary?.avg_score ?? 0;
     const proposalsList = proposalSummary?.proposals ?? [];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Rekap Review Proposal Riset" />
+            <Head title={t.adminReviewsSummary.pageTitle} />
 
-            <div className="flex flex-col gap-6 p-6">
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
                 {/* Page Header */}
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">Rekapitulasi Penilaian Proposal Riset</h1>
-                        <p className="mt-1 text-sm text-muted-foreground">
-                            Meringkas nilai rata-rata dari multi-reviewer dan penentuan keputusan akhir LPPM untuk proposal penelitian.
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2 shadow-sm">
-                        <BarChart3 className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-semibold text-foreground">{propTotal} Total Proposal</span>
-                    </div>
-                </div>
+                <PageHeader
+                    title={t.adminReviewsSummary.pageTitle}
+                    subtitle={t.adminReviewsSummary.pageSubtitle}
+                    isEditorialSerif={false}
+                    breadcrumbs={breadcrumbs}
+                    actions={<LanguageSwitcher variant="compact" />}
+                />
 
-                {/* Summary Stat Cards */}
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-4">
-                    <Card className="border-border bg-card shadow-sm">
-                        <CardContent className="flex items-center gap-4 p-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                                <Layers className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Total Proposal</p>
-                                <p className="text-2xl font-bold text-foreground">{propTotal}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                {/* Summary Stat Metric Cards */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <MetricCard
+                        title={t.adminReviewsSummary.statTotalProposals}
+                        value={propTotal}
+                        type="integer"
+                        icon={Layers}
+                        iconBgClass="bg-blue-50"
+                        iconColorClass="text-blue-900"
+                    />
 
-                    <Card className="border-border bg-card shadow-sm">
-                        <CardContent className="flex items-center gap-4 p-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                                <CheckCircle2 className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Diterima / Lolos</p>
-                                <p className="text-2xl font-bold text-foreground">{propApproved}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <MetricCard
+                        title={t.adminReviewsSummary.statApproved}
+                        value={propApproved}
+                        type="integer"
+                        icon={CheckCircle2}
+                        iconBgClass="bg-emerald-50"
+                        iconColorClass="text-emerald-700"
+                    />
 
-                    <Card className="border-border bg-card shadow-sm">
-                        <CardContent className="flex items-center gap-4 p-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10 text-destructive">
-                                <XCircle className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Ditolak / Revisi</p>
-                                <p className="text-2xl font-bold text-foreground">{propRejected}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <MetricCard
+                        title={t.adminReviewsSummary.statRejected}
+                        value={propRejected}
+                        type="integer"
+                        icon={XCircle}
+                        iconBgClass="bg-rose-50"
+                        iconColorClass="text-rose-700"
+                    />
 
-                    <Card className="border-border bg-card shadow-sm">
-                        <CardContent className="flex items-center gap-4 p-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-                                <Award className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <p className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Rata-rata Skor Review</p>
-                                <p className="text-2xl font-bold text-foreground">{formatScore(propAvgScore)}</p>
-                            </div>
-                        </CardContent>
-                    </Card>
+                    <MetricCard
+                        title={t.adminReviewsSummary.statAvgScore}
+                        value={Number(propAvgScore).toFixed(2)}
+                        type="score"
+                        icon={Award}
+                        iconBgClass="bg-amber-50"
+                        iconColorClass="text-amber-700"
+                    />
                 </div>
 
                 {/* Filter Bar */}
-                <Card className="border-border bg-card shadow-sm">
+                <Card className="border-slate-200 bg-white shadow-xs">
                     <CardContent className="p-4">
                         <form onSubmit={handleSearchSubmit} className="flex flex-wrap items-center gap-3">
-                            <div className="flex min-w-[240px] flex-1 items-center gap-2 rounded-lg border border-border bg-background px-3 py-2">
-                                <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+                            <div className="flex min-w-[240px] flex-1 items-center gap-2 rounded-lg border border-slate-300 bg-slate-50/50 px-3 py-2">
+                                <Search className="h-4 w-4 shrink-0 text-slate-400" />
                                 <Input
                                     id="search-proposal"
                                     type="text"
-                                    placeholder="Cari judul proposal..."
+                                    placeholder={t.adminReviewsSummary.searchPlaceholder}
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="h-auto border-0 bg-transparent p-0 text-sm focus-visible:ring-0"
+                                    className="h-auto border-0 bg-transparent p-0 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:ring-0"
                                 />
                             </div>
 
                             {filterOptions.universities && filterOptions.universities.length > 0 && (
                                 <Select value={universityId} onValueChange={(val) => setUniversityId(val)}>
-                                    <SelectTrigger className="w-[200px] border-border bg-background text-sm">
-                                        <SelectValue placeholder="Semua Universitas" />
+                                    <SelectTrigger className="w-[200px] border-slate-300 bg-white text-sm">
+                                        <SelectValue placeholder={t.navigation.universities} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Semua Universitas</SelectItem>
+                                        <SelectItem value="">{t.adminReviewsSummary.allStatuses}</SelectItem>
                                         {filterOptions.universities.map((u) => (
                                             <SelectItem key={u.value} value={String(u.value)}>
                                                 {u.label}
@@ -299,11 +246,13 @@ export default function ReviewSummary({ proposalSummary, filterOptions = {}, fil
                                 </Select>
                             )}
 
-                            <Button type="submit">Cari</Button>
+                            <Button type="submit" className="bg-blue-900 text-white hover:bg-blue-800">
+                                {t.common.filter}
+                            </Button>
 
                             {(search || universityId) && (
-                                <Button type="button" variant="ghost" onClick={handleResetFilters}>
-                                    <X className="mr-1.5 h-3.5 w-3.5" /> Reset
+                                <Button type="button" variant="ghost" onClick={handleResetFilters} className="text-slate-500 hover:text-slate-800">
+                                    <X className="mr-1.5 h-3.5 w-3.5" /> {t.common.reset}
                                 </Button>
                             )}
                         </form>
@@ -311,50 +260,62 @@ export default function ReviewSummary({ proposalSummary, filterOptions = {}, fil
                 </Card>
 
                 {/* Proposal Analytical Summary Table */}
-                <Card className="border-border bg-card shadow-sm">
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-lg font-bold text-foreground">Tabel Analitik Rekapitulasi Proposal</CardTitle>
-                        <CardDescription>Meringkas nilai rata-rata dari multi-reviewer beserta tombol eksekusi keputusan akhir LPPM.</CardDescription>
+                <Card className="border-slate-200 bg-white shadow-xs">
+                    <CardHeader className="border-b border-slate-100 pb-3">
+                        <CardTitle className="text-base font-bold text-slate-900">{t.adminReviewsSummary.pageTitle}</CardTitle>
+                        <CardDescription className="text-xs text-slate-500">{t.adminReviewsSummary.pageSubtitle}</CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-border hover:bg-transparent">
-                                    <TableHead className="w-[30%]">Judul Proposal & Pengusul</TableHead>
-                                    <TableHead>Skema</TableHead>
-                                    <TableHead className="text-center">Reviewer Ditugaskan</TableHead>
-                                    <TableHead className="text-center">Rata-rata Skor</TableHead>
-                                    <TableHead className="text-center">Rekomendasi Reviewer</TableHead>
-                                    <TableHead className="text-center">Status LPPM</TableHead>
-                                    <TableHead className="text-right">Keputusan LPPM</TableHead>
+                                <TableRow className="border-b border-slate-200 bg-slate-100 hover:bg-slate-100">
+                                    <TableHead className="w-[30%] text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                        {t.adminReviewsSummary.tableColTitle}
+                                    </TableHead>
+                                    <TableHead className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                        {t.adminReviewsSummary.tableColSchema}
+                                    </TableHead>
+                                    <TableHead className="text-center text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                        {t.adminReviewsSummary.tableColReviewers}
+                                    </TableHead>
+                                    <TableHead className="text-center text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                        {t.adminReviewsSummary.tableColAvgScore}
+                                    </TableHead>
+                                    <TableHead className="text-center text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                        {t.adminReviewsSummary.tableColDecision}
+                                    </TableHead>
+                                    <TableHead className="text-right text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                        {t.adminReviewsSummary.tableColActions}
+                                    </TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {proposalsList.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
-                                            <FileText className="mx-auto mb-2 h-8 w-8 opacity-40" />
-                                            <p className="text-sm font-medium">Belum ada proposal penelitian untuk direkap.</p>
+                                        <TableCell colSpan={6} className="py-12 text-center text-slate-500">
+                                            <FileText className="mx-auto mb-2 h-8 w-8 text-slate-300" />
+                                            <p className="text-sm font-medium">{t.adminReviewsSummary.emptyTitle}</p>
+                                            <p className="mt-1 text-xs text-slate-400">{t.adminReviewsSummary.emptySubtitle}</p>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     proposalsList.map((item) => (
-                                        <TableRow key={item.id} className="border-border">
+                                        <TableRow key={item.id} className="border-b border-slate-100 hover:bg-slate-50/70">
                                             <TableCell>
-                                                <p className="line-clamp-2 font-medium text-foreground">{item.judul}</p>
-                                                <p className="mt-0.5 text-xs text-muted-foreground">
+                                                <p className="line-clamp-2 font-medium text-slate-900">{item.judul}</p>
+                                                <p className="mt-0.5 text-xs text-slate-500">
                                                     {item.author_name} • {item.university_name}
                                                 </p>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant="outline" className="font-normal">
+                                                <Badge variant="outline" className="border-slate-300 bg-slate-50 font-normal text-slate-700">
                                                     {item.schema_name}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell className="text-center">
                                                 <div className="flex flex-col items-center gap-1">
-                                                    <span className="text-xs font-semibold text-foreground">
-                                                        {item.completed_reviews} / {item.total_reviews} Selesai
+                                                    <span className="text-xs font-semibold text-slate-700">
+                                                        {item.completed_reviews} / {item.total_reviews}
                                                     </span>
                                                     <div className="flex flex-wrap justify-center gap-1">
                                                         {item.reviewers?.map((r) => (
@@ -372,45 +333,25 @@ export default function ReviewSummary({ proposalSummary, filterOptions = {}, fil
                                             </TableCell>
                                             <TableCell className="text-center">
                                                 {item.avg_score !== null ? (
-                                                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                                                        {formatScore(item.avg_score)} / 100
+                                                    <span className="font-mono font-bold text-slate-900">
+                                                        {Number(item.avg_score).toFixed(2)} / 100
                                                     </span>
                                                 ) : (
-                                                    <span className="text-xs text-muted-foreground">— Belum Ada —</span>
+                                                    <span className="text-xs text-slate-400">-</span>
                                                 )}
                                             </TableCell>
                                             <TableCell className="text-center">
-                                                <div className="flex justify-center gap-1 text-xs">
-                                                    {item.recommendations?.['Diterima'] > 0 && (
-                                                        <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 font-medium text-emerald-700 dark:text-emerald-400">
-                                                            {item.recommendations['Diterima']} Terima
-                                                        </span>
-                                                    )}
-                                                    {item.recommendations?.['Revisi'] > 0 && (
-                                                        <span className="rounded bg-amber-500/10 px-1.5 py-0.5 font-medium text-amber-700 dark:text-amber-400">
-                                                            {item.recommendations['Revisi']} Revisi
-                                                        </span>
-                                                    )}
-                                                    {item.recommendations?.['Ditolak'] > 0 && (
-                                                        <span className="rounded bg-destructive/10 px-1.5 py-0.5 font-medium text-destructive">
-                                                            {item.recommendations['Ditolak']} Tolak
-                                                        </span>
-                                                    )}
-                                                    {item.completed_reviews === 0 && <span className="text-muted-foreground">—</span>}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-center">
-                                                <ProposalStatusBadge status={item.status_proposal} />
+                                                <StatusBadge status={item.status_proposal} />
                                             </TableCell>
                                             <TableCell className="text-right">
                                                 <Button
                                                     size="sm"
                                                     variant="outline"
                                                     onClick={() => openDecisionModal(item)}
-                                                    className="gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
+                                                    className="gap-1.5 border-blue-900 text-blue-900 hover:bg-blue-50"
                                                 >
                                                     <UserCheck className="h-3.5 w-3.5" />
-                                                    Tetapkan Keputusan
+                                                    {t.adminReviewsSummary.decideBtn}
                                                 </Button>
                                             </TableCell>
                                         </TableRow>
@@ -424,40 +365,40 @@ export default function ReviewSummary({ proposalSummary, filterOptions = {}, fil
 
             {/* Decision Modal Dialog */}
             <Dialog open={isDecisionModalOpen} onOpenChange={setIsDecisionModalOpen}>
-                <DialogContent className="max-w-md rounded-xl border-border bg-card p-6 shadow-xl">
+                <DialogContent className="max-w-md rounded-xl border-slate-200 bg-white p-6 shadow-xl">
                     <DialogHeader>
-                        <DialogTitle className="text-lg font-bold text-foreground">Penetapan Keputusan LPPM</DialogTitle>
-                        <DialogDescription className="text-xs text-muted-foreground">{selectedProposal?.judul}</DialogDescription>
+                        <DialogTitle className="text-base font-bold text-slate-900">{t.adminReviewsSummary.decisionModalTitle}</DialogTitle>
+                        <DialogDescription className="line-clamp-2 text-xs text-slate-500">{selectedProposal?.judul}</DialogDescription>
                     </DialogHeader>
 
                     {selectedProposal && (
                         <form onSubmit={handleDecisionSubmit} className="space-y-4 pt-2">
                             {/* Summary of Reviewers */}
-                            <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3 text-xs">
+                            <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Pengusul:</span>
-                                    <span className="font-medium text-foreground">{selectedProposal.author_name}</span>
+                                    <span className="text-slate-500">{t.adminProposals.tableColAuthor}:</span>
+                                    <span className="font-medium text-slate-900">{selectedProposal.author_name}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Rata-rata Skor Reviewer:</span>
-                                    <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                                        {formatScore(selectedProposal.avg_score)} / 100
+                                    <span className="text-slate-500">{t.adminReviewsSummary.tableColAvgScore}:</span>
+                                    <span className="font-mono font-bold text-emerald-700">
+                                        {selectedProposal.avg_score !== null ? Number(selectedProposal.avg_score).toFixed(2) : '-'} / 100
                                     </span>
                                 </div>
                             </div>
 
                             {/* Decision Select */}
                             <div className="space-y-1.5">
-                                <Label htmlFor="decision-select" className="text-sm font-medium text-foreground">
-                                    Keputusan Akhir <span className="text-destructive">*</span>
+                                <Label htmlFor="decision-select" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    {t.adminReviewsSummary.tableColDecision} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Select value={decisionValue} onValueChange={(val: 'approved' | 'rejected') => setDecisionValue(val)}>
-                                    <SelectTrigger id="decision-select" className="border-border bg-background">
-                                        <SelectValue placeholder="Pilih keputusan" />
+                                    <SelectTrigger id="decision-select" className="border-slate-300 bg-white text-sm">
+                                        <SelectValue placeholder={t.adminReviewsSummary.decideBtn} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="approved">Diterima (Setuju Lolos Seleksi)</SelectItem>
-                                        <SelectItem value="rejected">Ditolak (Tidak Lolos)</SelectItem>
+                                        <SelectItem value="approved">{t.adminReviewsSummary.decisionOptionApprove}</SelectItem>
+                                        <SelectItem value="rejected">{t.adminReviewsSummary.decisionOptionReject}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -465,29 +406,29 @@ export default function ReviewSummary({ proposalSummary, filterOptions = {}, fil
                             {/* Rejection Reason (Required if rejected) */}
                             {decisionValue === 'rejected' && (
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="rejection-reason" className="text-sm font-medium text-foreground">
-                                        Alasan Penolakan <span className="text-destructive">*</span>
+                                    <Label htmlFor="rejection-reason" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                        {t.adminReviewsSummary.decisionNotesLabel} <span className="text-rose-500">*</span>
                                     </Label>
                                     <Textarea
                                         id="rejection-reason"
                                         rows={3}
                                         value={rejectionReason}
                                         onChange={(e) => setRejectionReason(e.target.value)}
-                                        placeholder="Tuliskan alasan penolakan minimal 10 karakter..."
+                                        placeholder={t.adminReviewsSummary.decisionNotesPlaceholder}
                                         required
                                         minLength={10}
-                                        className="resize-none border-border bg-background text-sm"
+                                        className="resize-none border-slate-300 bg-white text-sm text-slate-900"
                                     />
                                 </div>
                             )}
 
                             {/* Actions */}
-                            <div className="flex justify-end gap-2 border-t border-border pt-2">
+                            <div className="flex justify-end gap-2 border-t border-slate-100 pt-3">
                                 <Button type="button" variant="outline" onClick={() => setIsDecisionModalOpen(false)}>
-                                    Batal
+                                    {t.common.cancel}
                                 </Button>
-                                <Button type="submit" disabled={isSubmitting} className="bg-primary text-primary-foreground">
-                                    Simpan Keputusan
+                                <Button type="submit" disabled={isSubmitting} className="bg-blue-900 text-white hover:bg-blue-800">
+                                    {isSubmitting ? t.common.loading : t.adminReviewsSummary.confirmDecisionBtn}
                                 </Button>
                             </div>
                         </form>

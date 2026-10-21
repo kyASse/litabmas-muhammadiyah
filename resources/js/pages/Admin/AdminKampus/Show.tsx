@@ -1,134 +1,56 @@
-/**
- * AdminKampusShow Component
- *
- * @description
- * A detailed view page for displaying comprehensive information about a campus administrator (Admin Kampus).
- * This component shows the admin's profile, contact information, assigned university, managed journals,
- * statistics, and activity logs. It provides functionality to view, edit, and toggle the active status
- * of the admin kampus.
- *
- * @component
- *
- * @interface AdminKampus
- * @property {number} id - Unique identifier for the admin kampus
- * @property {string} name - Full name of the admin kampus
- * @property {string} email - Email address
- * @property {string} phone - Phone number
- * @property {string} position - Job position/title
- * @property {string} avatar_url - URL to the profile avatar image
- * @property {boolean} is_active - Account active status
- * @property {Object|null} university - Associated university information
- * @property {number} university.id - University unique identifier
- * @property {string} university.name - Full university name
- * @property {string} university.short_name - Abbreviated university name
- * @property {string} university.code - University code
- * @property {string} university.city - City where university is located
- * @property {string} university.province - Province where university is located
- * @property {string} last_login_at - Timestamp of last login
- * @property {string} created_at - Account creation timestamp
- * @property {string} updated_at - Last update timestamp
- * @property {number} journals_count - Number of journals managed by this admin
- * @property {number} managed_users_count - Number of users under this admin's management
- *
- * @interface Journal
- * @property {number} id - Unique identifier for the journal
- * @property {string} title - Journal title
- * @property {string} issn - International Standard Serial Number
- * @property {string} scientific_field - Scientific field/discipline of the journal
- *
- * @interface Props
- * @property {AdminKampus} adminKampus - The admin kampus data to display
- * @property {Journal[]} journals - Array of journals managed by this admin
- *
- * @param {Props} props - Component props
- * @param {AdminKampus} props.adminKampus - Admin kampus details
- * @param {Journal[]} props.journals - List of managed journals
- *
- * @returns The rendered admin kampus detail page
- *
- * @example
- * ```tsx
- * <AdminKampusShow
- *   adminKampus={adminKampusData}
- *   journals={journalsList}
- * />
- * ```
- *
- * @features
- * - Display admin kampus profile with avatar
- * - Show contact information (email, phone, position)
- * - Display assigned university details
- * - List all managed journals in a table
- * - Show statistics (journals count, managed users count)
- * - Display activity information (last login, created at, updated at)
- * - Toggle active/inactive status
- * - Navigate to edit page
- * - Breadcrumb navigation
- * - Dark mode support
- *
- * @route GET /admin/admin-kampus/{id}
- *
- * @requires @inertiajs/react
- * @requires @/components/ui/button
- * @requires @/components/ui/badge
- * @requires @/components/ui/table
- * @requires @/layouts/app-layout
- * @requires lucide-react
- *
- * @author JurnalMU Team
- * @filepath /resources/js/pages/Admin/AdminKampus/Show.tsx
- */
-import { Badge } from '@/components/ui/badge';
+import { MetricCard } from '@/components/ui/MetricCard';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router } from '@inertiajs/react';
-import { ArrowLeft, BookOpen, Briefcase, Building2, Calendar, Edit, Mail, MapPin, Phone, Shield, Users } from 'lucide-react';
+import { ArrowLeft, Briefcase, Building2, Calendar, Clock, Edit, FileText, Mail, MapPin, Phone, Power, ShieldCheck, Users } from 'lucide-react';
+import { useState } from 'react';
 
-interface AdminKampus {
+interface AdminKampusDetail {
     id: number;
     name: string;
     email: string;
-    phone: string;
-    position: string;
-    avatar_url: string;
+    phone: string | null;
+    position: string | null;
+    avatar_url: string | null;
     is_active: boolean;
     university: {
         id: number;
         name: string;
-        short_name: string;
-        code: string;
-        city: string;
-        province: string;
+        short_name?: string;
+        code?: string;
+        city?: string;
+        province?: string;
     } | null;
-    last_login_at: string;
+    last_login_at: string | null;
     created_at: string;
     updated_at: string;
-    journals_count: number;
+    managed_proposals_count: number;
+    managed_reviewers_count: number;
     managed_users_count: number;
 }
 
-interface Journal {
-    id: number;
-    title: string;
-    issn: string;
-    scientific_field: string;
-}
-
 interface Props {
-    adminKampus: AdminKampus;
-    journals: Journal[];
+    adminKampus: AdminKampusDetail;
 }
 
-export default function AdminKampusShow({ adminKampus, journals }: Props) {
+export default function AdminKampusShow({ adminKampus }: Props) {
+    const { t } = useTranslation();
+    const [toggleDialogOpen, setToggleDialogOpen] = useState(false);
+    const [processing, setProcessing] = useState(false);
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
-            title: 'Dashboard',
+            title: t.navigation?.dashboard || 'Dashboard',
             href: '/dashboard',
         },
         {
-            title: 'Admin Kampus',
+            title: t.adminCampusAdmins.title,
             href: '/admin/admin-kampus',
         },
         {
@@ -138,219 +60,249 @@ export default function AdminKampusShow({ adminKampus, journals }: Props) {
     ];
 
     const handleToggleActive = () => {
-        router.post(route('admin.admin-kampus.toggle-active', adminKampus.id));
+        setProcessing(true);
+        router.post(
+            route('admin.admin-kampus.toggle-active', adminKampus.id),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => setToggleDialogOpen(false),
+                onFinish: () => setProcessing(false),
+            },
+        );
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={adminKampus.name} />
+            <Head title={`${adminKampus.name} - ${t.adminCampusAdmins.showTitle}`} />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-                    {/* Header */}
-                    <div className="mb-6">
-                        <Link href={route('admin.admin-kampus.index')}>
-                            <Button variant="ghost" className="mb-4 w-full justify-start sm:w-auto">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to List
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
+                {/* Page Header */}
+                <PageHeader
+                    title={adminKampus.name}
+                    subtitle={adminKampus.position || t.adminCampusAdmins.showTitle}
+                    badge={<StatusBadge status={adminKampus.is_active ? 'Active' : 'Inactive'} />}
+                    actions={
+                        <div className="flex items-center gap-2">
+                            <Link href={route('admin.admin-kampus.index')}>
+                                <Button variant="outline" size="sm" className="flex items-center gap-1.5 text-xs">
+                                    <ArrowLeft className="h-4 w-4" />
+                                    {t.adminCampusAdmins.backToList}
+                                </Button>
+                            </Link>
+                            <Link href={route('admin.admin-kampus.edit', adminKampus.id)}>
+                                <Button size="sm" className="flex items-center gap-1.5 bg-blue-900 text-xs text-white hover:bg-blue-800">
+                                    <Edit className="h-4 w-4" />
+                                    {t.common.edit}
+                                </Button>
+                            </Link>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setToggleDialogOpen(true)}
+                                className={`flex items-center gap-1.5 text-xs ${
+                                    adminKampus.is_active
+                                        ? 'border-amber-300 text-amber-700 hover:bg-amber-50'
+                                        : 'border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+                                }`}
+                            >
+                                <Power className="h-4 w-4" />
+                                {adminKampus.is_active ? t.adminCampusAdmins.deactivateAccount : t.adminCampusAdmins.activateAccount}
                             </Button>
-                        </Link>
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                            <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left">
-                                {adminKampus.avatar_url ? (
-                                    <img src={adminKampus.avatar_url} alt={adminKampus.name} className="h-20 w-20 shrink-0 rounded-full" />
-                                ) : (
-                                    <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20">
-                                        <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                            {adminKampus.name.charAt(0).toUpperCase()}
-                                        </span>
-                                    </div>
-                                )}
-                                <div className="flex flex-col items-center sm:items-start">
-                                    <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{adminKampus.name}</h1>
-                                    <div className="mt-2 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-                                        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
-                                            <Shield className="mr-1 h-3 w-3" />
-                                            Admin Kampus
-                                        </Badge>
-                                        {adminKampus.is_active ? (
-                                            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400">Active</Badge>
-                                        ) : (
-                                            <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400">Inactive</Badge>
-                                        )}
-                                    </div>
+                        </div>
+                    }
+                />
+
+                {/* Managed Research Metrics Cards */}
+                <div>
+                    <h2 className="mb-3 text-xs font-semibold tracking-wider text-slate-500 uppercase">{t.adminCampusAdmins.managedMetricsTitle}</h2>
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                        <MetricCard
+                            title={t.adminCampusAdmins.managedProposals}
+                            value={adminKampus.managed_proposals_count}
+                            type="integer"
+                            icon={FileText}
+                            iconBgClass="bg-blue-50"
+                            iconColorClass="text-blue-900"
+                        />
+                        <MetricCard
+                            title={t.adminCampusAdmins.managedReviewers}
+                            value={adminKampus.managed_reviewers_count}
+                            type="integer"
+                            icon={ShieldCheck}
+                            iconBgClass="bg-emerald-50"
+                            iconColorClass="text-emerald-700"
+                        />
+                        <MetricCard
+                            title={t.adminCampusAdmins.managedUsers}
+                            value={adminKampus.managed_users_count}
+                            type="integer"
+                            icon={Users}
+                            iconBgClass="bg-indigo-50"
+                            iconColorClass="text-indigo-700"
+                        />
+                    </div>
+                </div>
+
+                {/* Main Information Grid */}
+                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    {/* Administrator Profile Card */}
+                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                        <div className="flex items-center gap-4 border-b border-slate-100 pb-5">
+                            <Avatar className="h-16 w-16 border-2 border-slate-200">
+                                <AvatarImage src={adminKampus.avatar_url || ''} alt={adminKampus.name} />
+                                <AvatarFallback className="bg-blue-50 text-lg font-bold text-blue-900">
+                                    {adminKampus.name.slice(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <h3 className="text-lg font-semibold text-slate-900">{adminKampus.name}</h3>
+                                <p className="font-mono text-xs text-slate-500">{adminKampus.email}</p>
+                                <div className="mt-2">
+                                    <StatusBadge status={adminKampus.is_active ? 'Active' : 'Ditolak'} />
                                 </div>
                             </div>
-                            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-                                <Button
-                                    className="w-full sm:w-auto"
-                                    variant={adminKampus.is_active ? 'outline' : 'default'}
-                                    onClick={handleToggleActive}
-                                >
-                                    {adminKampus.is_active ? 'Deactivate' : 'Activate'}
-                                </Button>
-                                <Button className="w-full sm:w-auto" asChild>
-                                    <Link href={route('admin.admin-kampus.edit', adminKampus.id)}>
-                                        <Edit className="mr-2 h-4 w-4" />
-                                        Edit
-                                    </Link>
-                                </Button>
+                        </div>
+
+                        <div className="mt-5 space-y-3">
+                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
+                                <span className="flex items-center gap-2 text-slate-500">
+                                    <Mail className="h-4 w-4 text-slate-400" />
+                                    {t.adminCampusAdmins.emailLabel}
+                                </span>
+                                <span className="font-mono text-slate-900">{adminKampus.email}</span>
+                            </div>
+
+                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
+                                <span className="flex items-center gap-2 text-slate-500">
+                                    <Phone className="h-4 w-4 text-slate-400" />
+                                    {t.adminCampusAdmins.phoneLabel}
+                                </span>
+                                <span className="font-mono text-slate-900">{adminKampus.phone || '-'}</span>
+                            </div>
+
+                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
+                                <span className="flex items-center gap-2 text-slate-500">
+                                    <Briefcase className="h-4 w-4 text-slate-400" />
+                                    {t.adminCampusAdmins.positionLabel}
+                                </span>
+                                <span className="font-medium text-slate-900">{adminKampus.position || '-'}</span>
+                            </div>
+
+                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
+                                <span className="flex items-center gap-2 text-slate-500">
+                                    <Clock className="h-4 w-4 text-slate-400" />
+                                    {t.adminCampusAdmins.lastLogin}
+                                </span>
+                                <span className="font-mono text-slate-700">{adminKampus.last_login_at || t.adminCampusAdmins.neverLoggedIn}</span>
+                            </div>
+
+                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
+                                <span className="flex items-center gap-2 text-slate-500">
+                                    <Calendar className="h-4 w-4 text-slate-400" />
+                                    {t.adminCampusAdmins.createdAt}
+                                </span>
+                                <span className="font-mono text-slate-700">{adminKampus.created_at}</span>
+                            </div>
+
+                            <div className="flex items-center justify-between py-2 text-xs">
+                                <span className="flex items-center gap-2 text-slate-500">
+                                    <Calendar className="h-4 w-4 text-slate-400" />
+                                    {t.adminCampusAdmins.updatedAt}
+                                </span>
+                                <span className="font-mono text-slate-700">{adminKampus.updated_at}</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                        {/* Left Column - Details */}
-                        <div className="space-y-6 lg:col-span-2">
-                            {/* Contact Information */}
-                            <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                <h2 className="mb-4 text-xl font-semibold text-foreground">Contact Information</h2>
-                                <div className="space-y-4">
-                                    <div className="flex w-full items-center gap-3 overflow-hidden">
-                                        <Mail className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm text-muted-foreground">Email</p>
-                                            <p className="truncate text-foreground">{adminKampus.email}</p>
-                                        </div>
-                                    </div>
-                                    {adminKampus.phone && (
-                                        <div className="flex w-full items-center gap-3 overflow-hidden">
-                                            <Phone className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-sm text-muted-foreground">Phone</p>
-                                                <p className="truncate text-foreground">{adminKampus.phone}</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {adminKampus.position && (
-                                        <div className="flex w-full items-center gap-3 overflow-hidden">
-                                            <Briefcase className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-sm text-muted-foreground">Position</p>
-                                                <p className="truncate text-foreground">{adminKampus.position}</p>
-                                            </div>
-                                        </div>
-                                    )}
+                    {/* University Affiliation Card */}
+                    <div className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                        <div>
+                            <div className="mb-4 flex items-center gap-3 border-b border-slate-100 pb-4">
+                                <div className="rounded-lg border border-blue-100 bg-blue-50 p-2.5 text-blue-900">
+                                    <Building2 className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-semibold text-slate-900">{t.adminCampusAdmins.universityAffiliation}</h3>
+                                    <p className="text-xs text-slate-500">{adminKampus.university ? adminKampus.university.name : '-'}</p>
                                 </div>
                             </div>
 
-                            {/* University Information */}
-                            {adminKampus.university && (
-                                <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                    <h2 className="mb-4 text-xl font-semibold text-foreground">University Assignment</h2>
-                                    <div className="space-y-4">
-                                        <div className="flex w-full items-center gap-3 overflow-hidden">
-                                            <Building2 className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                            <div className="min-w-0 flex-1">
-                                                <p className="text-sm text-muted-foreground">University</p>
-                                                <p className="truncate font-semibold text-foreground">
-                                                    {adminKampus.university.code} - {adminKampus.university.name}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        {(adminKampus.university.city || adminKampus.university.province) && (
-                                            <div className="flex w-full items-center gap-3 overflow-hidden">
-                                                <MapPin className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                                <div className="min-w-0 flex-1">
-                                                    <p className="text-sm text-muted-foreground">Location</p>
-                                                    <p className="truncate text-foreground">
-                                                        {adminKampus.university.city}, {adminKampus.university.province}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        )}
+                            {adminKampus.university ? (
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
+                                        <span className="text-slate-500">{t.adminCampusAdmins.colUniversity}</span>
+                                        <span className="text-right font-semibold text-slate-900">{adminKampus.university.name}</span>
                                     </div>
+
+                                    {adminKampus.university.code && (
+                                        <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
+                                            <span className="text-slate-500">{t.adminCampusAdmins.code}</span>
+                                            <span className="font-mono font-medium text-slate-800">{adminKampus.university.code}</span>
+                                        </div>
+                                    )}
+
+                                    {(adminKampus.university.city || adminKampus.university.province) && (
+                                        <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
+                                            <span className="flex items-center gap-1.5 text-slate-500">
+                                                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                                                {t.adminCampusAdmins.cityProvince}
+                                            </span>
+                                            <span className="text-right font-medium text-slate-800">
+                                                {[adminKampus.university.city, adminKampus.university.province].filter(Boolean).join(', ')}
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
+                            ) : (
+                                <div className="py-6 text-center text-xs text-slate-400">-</div>
                             )}
-
-                            {/* Managed Journals */}
-                            <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                <h2 className="mb-4 text-xl font-semibold text-foreground">Managed Journals ({journals.length})</h2>
-                                {journals.length === 0 ? (
-                                    <p className="py-4 text-center text-muted-foreground">No journals managed yet</p>
-                                ) : (
-                                    <div className="overflow-x-auto rounded-md border">
-                                        <Table className="min-w-full">
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead className="min-w-[200px]">Journal Title</TableHead>
-                                                    <TableHead className="min-w-[150px]">ISSN</TableHead>
-                                                    <TableHead className="min-w-[200px]">Scientific Field</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {journals.map((journal) => (
-                                                    <TableRow key={journal.id}>
-                                                        <TableCell className="font-medium">{journal.title}</TableCell>
-                                                        <TableCell>{journal.issn}</TableCell>
-                                                        <TableCell>{journal.scientific_field || '-'}</TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                )}
-                            </div>
                         </div>
 
-                        {/* Right Column - Stats & Activity */}
-                        <div className="space-y-6">
-                            {/* Statistics */}
-                            <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                <h2 className="mb-4 text-xl font-semibold text-foreground">Statistics</h2>
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
-                                        <div className="flex items-center gap-3">
-                                            <BookOpen className="h-8 w-8 text-green-600 dark:text-green-400" />
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Journals</p>
-                                                <p className="text-2xl font-bold text-foreground">{adminKampus.journals_count}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center justify-between rounded-lg bg-blue-50 p-4 dark:bg-blue-900/20">
-                                        <div className="flex items-center gap-3">
-                                            <Users className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                                            <div>
-                                                <p className="text-sm text-muted-foreground">Managed Users</p>
-                                                <p className="text-2xl font-bold text-foreground">{adminKampus.managed_users_count}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div className="mt-6 rounded-md border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
+                            <div className="mb-1 flex items-center gap-2 font-medium text-slate-900">
+                                <ShieldCheck className="h-4 w-4 text-blue-900" />
+                                <span>{t.adminCampusAdmins.tabActive}</span>
                             </div>
-
-                            {/* Activity */}
-                            <div className="rounded-lg border border-sidebar-border/70 bg-card p-6 shadow-sm dark:border-sidebar-border">
-                                <h2 className="mb-4 text-xl font-semibold text-foreground">Activity</h2>
-                                <div className="space-y-4">
-                                    <div className="flex w-full items-center gap-3 overflow-hidden">
-                                        <Calendar className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm text-muted-foreground">Last Login</p>
-                                            <p className="truncate text-foreground">{adminKampus.last_login_at || 'Never'}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex w-full items-center gap-3 overflow-hidden">
-                                        <Calendar className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm text-muted-foreground">Created At</p>
-                                            <p className="truncate text-foreground">{adminKampus.created_at}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex w-full items-center gap-3 overflow-hidden">
-                                        <Calendar className="h-5 w-5 shrink-0 text-muted-foreground" />
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm text-muted-foreground">Updated At</p>
-                                            <p className="truncate text-foreground">{adminKampus.updated_at}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <p className="leading-relaxed">{t.adminCampusAdmins.description}</p>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {/* Modal: Toggle Active */}
+            <Dialog open={toggleDialogOpen} onOpenChange={setToggleDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-slate-900">
+                            <Power className="h-5 w-5 text-blue-900" />
+                            {t.adminCampusAdmins.confirmToggleTitle}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-slate-600">{t.adminCampusAdmins.confirmToggleDesc}</DialogDescription>
+                    </DialogHeader>
+
+                    <div className="space-y-1 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
+                        <div className="font-semibold text-slate-900">{adminKampus.name}</div>
+                        <div className="font-mono text-slate-600">{adminKampus.email}</div>
+                        <div className="pt-1">
+                            <StatusBadge status={adminKampus.is_active ? 'Active' : 'Ditolak'} />
+                        </div>
+                    </div>
+
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button variant="outline" onClick={() => setToggleDialogOpen(false)} disabled={processing} className="text-xs">
+                            {t.common.cancel}
+                        </Button>
+                        <Button
+                            onClick={handleToggleActive}
+                            disabled={processing}
+                            className="bg-blue-900 text-xs font-medium text-white hover:bg-blue-800"
+                        >
+                            {processing ? t.common.loading : t.adminCampusAdmins.toggleStatus}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }

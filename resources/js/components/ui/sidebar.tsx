@@ -1,7 +1,8 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeftIcon } from "lucide-react"
+import { Menu, PanelLeftIcon } from "lucide-react"
+import { router } from "@inertiajs/react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -107,6 +108,20 @@ function SidebarProvider({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [toggleSidebar])
 
+  // Automatically close mobile navigation drawer when user navigates
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const removeListener = router.on("navigate", () => {
+        if (isMobile) {
+          setOpenMobile(false)
+        }
+      })
+      return () => {
+        removeListener()
+      }
+    }
+  }, [isMobile, setOpenMobile])
+
   // We add a state so that we can do data-state="expanded" or "collapsed".
   // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed"
@@ -182,22 +197,19 @@ function Sidebar({
     return (
       <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
         <SheetHeader className="sr-only">
-          <SheetTitle>Sidebar</SheetTitle>
-          <SheetDescription>Displays the mobile sidebar.</SheetDescription>
+          <SheetTitle>Navigation Menu</SheetTitle>
+          <SheetDescription>Displays the mobile navigation drawer from top.</SheetDescription>
         </SheetHeader>
         <SheetContent
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
-          style={
-            {
-              "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties
-          }
-          side={side}
+          className="bg-sidebar text-sidebar-foreground inset-x-0 top-0 max-h-[85vh] w-full rounded-b-2xl border-b border-sidebar-border/80 p-0 shadow-2xl transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-300 [&>button]:top-3.5 [&>button]:right-4 [&>button]:h-8 [&>button]:w-8 [&>button]:rounded-md [&>button]:border [&>button]:border-sidebar-border/70 [&>button]:bg-sidebar-accent/40 [&>button]:text-sidebar-foreground [&>button]:hover:bg-sidebar-accent"
+          side="top"
         >
-          <div className="flex h-full w-full flex-col">{children}</div>
+          <div className="flex max-h-[85vh] w-full flex-col overflow-hidden">
+            {children}
+          </div>
         </SheetContent>
       </Sheet>
     )
@@ -253,7 +265,7 @@ function SidebarTrigger({
   onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, isMobile } = useSidebar()
 
   return (
     <Button
@@ -261,15 +273,20 @@ function SidebarTrigger({
       data-slot="sidebar-trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7", className)}
+      className={cn(
+        "h-8 w-8 text-slate-700 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-slate-800",
+        isMobile && "h-10 w-10 min-h-[44px] min-w-[44px] p-2 rounded-lg",
+        className
+      )}
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
       }}
+      aria-label={isMobile ? "Toggle Navigation Menu" : "Toggle Sidebar"}
       {...props}
     >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
+      {isMobile ? <Menu className="h-5 w-5" /> : <PanelLeftIcon className="h-4 w-4" />}
+      <span className="sr-only">{isMobile ? "Menu" : "Toggle Sidebar"}</span>
     </Button>
   )
 }

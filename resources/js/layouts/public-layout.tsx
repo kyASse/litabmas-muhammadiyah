@@ -23,7 +23,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                                 <img src={logoUrl} alt="Majelis Diktilitbang" className="h-8 w-8 object-contain" />
                             </div>
                             <span className="font-heading text-2xl font-bold" style={{ fontFamily: '"El Messiri", sans-serif' }}>
-                                Journal MU
+                                {t.common.appName}
                             </span>
                         </Link>
 
@@ -78,7 +78,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             Contact Support
                         </a>
                     </div>
-                    <p>&copy; {new Date().getFullYear()} JurnalMu - Muhammadiyah Higher Education Research Network.</p>
+                    <p>(c) {new Date().getFullYear()} SIM-Penelitian - Muhammadiyah Higher Education Research Network.</p>
                     {pageProps.laravelVersion && pageProps.phpVersion && (
                         <p className="mt-2">
                             Laravel v{pageProps.laravelVersion} (PHP v{pageProps.phpVersion})

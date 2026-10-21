@@ -9,15 +9,18 @@ import {
     SidebarMenuSubButton,
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar';
+import { useTranslation } from '@/hooks/use-translation';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
 
-export function NavMain({ items = [] }: { items: NavItem[] }) {
+export function NavMain({ items = [], label }: { items: NavItem[]; label?: string }) {
     const page = usePage();
+    const { t } = useTranslation();
+
     return (
         <SidebarGroup className="py-2">
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupLabel>{label ?? t.navigation.menuPlatform}</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => {
                     // Compute isActive for parent based on whether any subitem matches current URL

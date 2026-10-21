@@ -60,6 +60,7 @@ export default function Show({ proposal }: ShowProps) {
     const { t } = useTranslation();
     const { auth } = usePage<any>().props;
     const isOwner = auth?.user?.id === proposal.user?.id;
+    const canEdit = isOwner && (proposal.status_proposal === 'Draft' || proposal.status_proposal === 'Revisi');
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t.navigation.dashboard, href: route('dashboard') },
@@ -78,12 +79,12 @@ export default function Show({ proposal }: ShowProps) {
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                         <div>
-                            <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground">{t.proposalDetail.pageTitle}</h1>
+                            <h1 className="font-sans text-xl font-bold tracking-tight text-foreground sm:text-2xl">{t.proposalDetail.pageTitle}</h1>
                             <p className="text-sm text-muted-foreground">{t.proposalDetail.pageSubtitle}</p>
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                        {isOwner && (
+                        {canEdit && (
                             <Link href={route('proposal.edit', proposal.id)}>
                                 <Button variant="outline">
                                     <Edit className="mr-2 h-4 w-4" />

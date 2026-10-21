@@ -31,7 +31,7 @@ class DebugOAIPMH extends Command
         $filename = 'storage/logs/oai_debug_'.date('YmdHis').'.xml';
         file_put_contents($filename, $response->body());
 
-        $this->info("✓ Response saved to: $filename");
+        $this->info("[OK] Response saved to: $filename");
         $this->newLine();
 
         // Parse XML
@@ -71,7 +71,7 @@ class DebugOAIPMH extends Command
             $count = is_array($results) ? count($results) : 0;
 
             if ($count > 0) {
-                $this->info("✓ $label: $count found");
+                $this->info("[OK] $label: $count found");
                 $this->line("  Pattern: $pattern");
 
                 // Show first result structure
@@ -87,7 +87,7 @@ class DebugOAIPMH extends Command
                     }
                 }
             } else {
-                $this->warn("✗ $label: not found");
+                $this->warn("[NOT FOUND] $label: not found");
             }
             $this->newLine();
         }

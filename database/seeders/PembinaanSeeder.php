@@ -24,7 +24,7 @@ class PembinaanSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🎓 Seeding Pembinaan System Data...');
+        $this->command->info('[AKADEMIK] Seeding Pembinaan System Data...');
 
         // Get required IDs
         $journalIds = DB::table('journals')->pluck('id', 'title')->toArray();
@@ -33,7 +33,7 @@ class PembinaanSeeder extends Seeder
         $superAdminId = DB::table('users')->where('role_id', DB::table('roles')->where('name', 'Super Admin')->value('id'))->value('id');
 
         if (empty($journalIds) || empty($userIds)) {
-            $this->command->warn('⚠️  Required data (journals or users) not found. Skipping pembinaan seeding.');
+            $this->command->warn('[PERINGATAN] Required data (journals or users) not found. Skipping pembinaan seeding.');
 
             return;
         }
@@ -53,7 +53,7 @@ class PembinaanSeeder extends Seeder
         // Create Reviews
         $this->createReviews($assignments, $userIds);
 
-        $this->command->info('✅ Pembinaan System Data Seeded Successfully!');
+        $this->command->info('[SUKSES] Pembinaan System Data Seeded Successfully!');
     }
 
     /**
@@ -116,7 +116,7 @@ class PembinaanSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        $this->command->info('     ✓ Created '.count($programs).' programs');
+        $this->command->info('     [OK] Created '.count($programs).' programs');
 
         return $programs;
     }
@@ -144,7 +144,7 @@ class PembinaanSeeder extends Seeder
         ]));
 
         if (count($availableJournals) < 3) {
-            $this->command->warn('     ⚠️  Insufficient journals. Need at least 3 journals.');
+            $this->command->warn('     [PERINGATAN] Insufficient journals. Need at least 3 journals.');
 
             return $registrations;
         }
@@ -279,7 +279,7 @@ class PembinaanSeeder extends Seeder
             ]);
         }
 
-        $this->command->info('     ✓ Created '.count($registrations).' registrations');
+        $this->command->info('     [OK] Created '.count($registrations).' registrations');
 
         return $registrations;
     }
@@ -341,7 +341,7 @@ class PembinaanSeeder extends Seeder
             }
         }
 
-        $this->command->info('     ✓ Created '.$attachmentCount.' attachments');
+        $this->command->info('     [OK] Created '.$attachmentCount.' attachments');
     }
 
     /**
@@ -357,7 +357,7 @@ class PembinaanSeeder extends Seeder
         $reviewerIds = DB::table('users')->where('is_reviewer', true)->pluck('id')->toArray();
 
         if (empty($reviewerIds)) {
-            $this->command->warn('     ⚠️  No reviewers found. Skipping reviewer assignments.');
+            $this->command->warn('     [PERINGATAN] No reviewers found. Skipping reviewer assignments.');
 
             return $assignments;
         }
@@ -415,7 +415,7 @@ class PembinaanSeeder extends Seeder
             $reviewerIndex++;
         }
 
-        $this->command->info('     ✓ Created '.count($assignments).' reviewer assignments');
+        $this->command->info('     [OK] Created '.count($assignments).' reviewer assignments');
 
         return $assignments;
     }
@@ -474,6 +474,6 @@ class PembinaanSeeder extends Seeder
             $feedbackIndex++;
         }
 
-        $this->command->info('     ✓ Created '.$reviewCount.' reviews');
+        $this->command->info('     [OK] Created '.$reviewCount.' reviews');
     }
 }
