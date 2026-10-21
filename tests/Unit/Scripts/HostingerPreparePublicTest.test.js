@@ -32,4 +32,34 @@ require __DIR__.'/../vendor/autoload.php';
         const modified = generateHostingerIndexPhp(originalContent, 'custom_app_dir');
         expect(modified).toBe("require __DIR__.'/../custom_app_dir/vendor/autoload.php';");
     });
+
+    it('mendukung penulisan path menggunakan tanda petik ganda (double quotes)', () => {
+        const originalContent = `<?php
+
+use Illuminate\\Http\\Request;
+
+define('LARAVEL_START', microtime(true));
+
+if (file_exists($maintenance = __DIR__."/../storage/framework/maintenance.php")) {
+    require $maintenance;
+}
+
+require __DIR__."/../vendor/autoload.php";
+
+(require_once __DIR__."/../bootstrap/app.php")
+    ->handleRequest(Request::capture());
+`;
+
+        const coreDir = 'litabmas_core';
+        const modified = generateHostingerIndexPhp(originalContent, coreDir);
+
+        expect(modified).toContain('__DIR__."/../litabmas_core/storage/framework/maintenance.php"');
+        expect(modified).toContain('__DIR__."/../litabmas_core/vendor/autoload.php"');
+        expect(modified).toContain('__DIR__."/../litabmas_core/bootstrap/app.php"');
+    });
+
+    it('mendukung double quotes dengan custom core folder name', () => {
+        const singleLine = 'require __DIR__."/../vendor/autoload.php";';
+        expect(generateHostingerIndexPhp(singleLine, 'my_core')).toBe('require __DIR__."/../my_core/vendor/autoload.php";');
+    });
 });

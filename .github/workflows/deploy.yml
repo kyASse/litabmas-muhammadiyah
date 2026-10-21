@@ -90,6 +90,9 @@ jobs:
       - name: Run TypeScript Type Check
         run: npm run types
 
+      - name: Run Script Unit Tests
+        run: npx vitest run tests/Unit/Scripts/
+
       - name: Setup SQLite Testing Environment
         run: |
           cp .env.example .env
@@ -143,9 +146,12 @@ jobs:
         run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
 
       - name: Prepare Public Payload for Hostinger
+        env:
+          REMOTE_CORE_PATH: ${{ secrets.HOSTINGER_REMOTE_CORE_PATH }}
         run: |
           cp -r public public_dist
-          node scripts/hostinger-prepare-public.js public_dist litabmas_core
+          CORE_DIR=$(basename "${REMOTE_CORE_PATH%/}")
+          node scripts/hostinger-prepare-public.js public_dist "${CORE_DIR:-litabmas_core}"
 
       - name: Report Dry Run Status
         if: ${{ needs.quality-gate.outputs.dry_run == 'true' }}
@@ -185,7 +191,7 @@ jobs:
             if [ -d "$CORE_PATH" ]; then
               echo "[INFO] Creating snapshot backup from $CORE_PATH to $BACKUP_PATH"
               mkdir -p "$BACKUP_PATH"
-              rsync -a --delete "$CORE_PATH/" "$BACKUP_PATH/" || true
+              rsync -a --delete --exclude='storage/' "$CORE_PATH/" "$BACKUP_PATH/" || true
             else
               echo "[INFO] Core path $CORE_PATH does not exist yet. Skipping snapshot backup."
             fi
@@ -257,4 +263,5 @@ jobs:
             php artisan optimize:clear
             php artisan optimize
             php artisan up
-            curl -sSf -k -m 15 "${{ secrets.APP_URL }}" > /dev/null && echo "[PASSED] Smoke test succeeded"
+            APP_URL="${{ secrets.APP_URL }}"
+            curl -sSfL -k -m 15 "${APP_URL}" > /dev/null && echo "[PASSED] Smoke test succeeded"

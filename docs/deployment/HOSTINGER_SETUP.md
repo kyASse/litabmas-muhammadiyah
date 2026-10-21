@@ -56,6 +56,9 @@ Hostinger Shared Hosting menggunakan port SSH kustom (**65002**), bukan port sta
    - **SSH Username**: Contoh `u123456789`.
    - **SSH Password**: Kata sandi akun hosting (digunakan jika otentikasi kunci belum terpasang).
 
+> [!IMPORTANT]
+> **Catatan Alamat IP Dinamis GitHub Actions**: Pada menu Akses SSH hPanel, jangan membatasi atau mengaktifkan pembatasan daftar putih (*IP whitelisting*) untuk koneksi SSH. Mesin virtual GitHub Actions runner beroperasi pada rentang alamat IP publik dinamis yang selalu berubah setiap kali alur kerja dieksekusi. Membatasi akses SSH ke IP tertentu akan menyebabkan koneksi CI/CD ditolak (*connection refused / timed out*). Otentikasi telah diamankan sepenuhnya menggunakan pasangan kunci SSH (*SSH key pair*).
+
 ### Langkah 1.2: Pembuatan Pasangan Kunci SSH (SSH Key Pair)
 Otentikasi deployment wajib menggunakan kunci SSH berbasis kriptografi modern (disarankan `ed25519` atau `rsa 4096-bit`) tanpa *passphrase* agar dapat dieksekusi secara otomatis oleh GitHub Actions.
 
@@ -332,16 +335,17 @@ Siklus deployment yang dieksekusi oleh pipeline GitHub Actions terdiri dari urut
 [Step 1: Quality Gate]
   ├── Validasi gaya kode: ./vendor/bin/pint --test
   ├── Validasi tipe frontend: npm run types
+  ├── Pengujian unit skrip: npx vitest run tests/Unit/Scripts/
   └── Pengujian unit & fitur: ./vendor/bin/pest
 
 [Step 2: Build & Packaging (Runner-Side)]
   ├── Instalasi dependensi npm: npm ci
   ├── Kompilasi bundel aset: npm run build
   ├── Instalasi dependensi komposer: composer install --no-dev --prefer-dist --optimize-autoloader
-  └── Modifikasi index.php: node scripts/hostinger-prepare-public.js ./public litabmas_core
+  └── Modifikasi index.php: node scripts/hostinger-prepare-public.js public_dist "${CORE_DIR:-litabmas_core}"
 
 [Step 3: Transfer RSync over SSH]
-  ├── Snapshot pencadangan: rsync ~/litabmas_core/ ke ~/litabmas_core_backup/
+  ├── Snapshot pencadangan: rsync ~/litabmas_core/ ke ~/litabmas_core_backup/ (exclude: storage/)
   ├── Sinkronisasi direktori core (exclude: .env, storage, .git)
   └── Sinkronisasi direktori public (exclude: storage symlink)
 
@@ -479,11 +483,14 @@ Setelah tindakan rollback selesai dilaksanakan, pastikan melakukan verifikasi te
   ls -la ~/public_html/storage
   ```
 
-### 4. Galat Koneksi SSH: "Permission denied (publickey)" saat GitHub Actions Berjalan
-- **Penyebab**: Format kunci privat pada secret `HOSTINGER_SSH_KEY` tidak lengkap atau kunci publik belum terdaftar di `~/.ssh/authorized_keys`.
+### 4. Galat Koneksi SSH: "Permission denied (publickey)" atau "Connection timed out" saat GitHub Actions Berjalan
+- **Penyebab**:
+  - Format kunci privat pada secret `HOSTINGER_SSH_KEY` tidak lengkap atau kunci publik belum terdaftar di `~/.ssh/authorized_keys`.
+  - Fitur pembatasan IP (*IP whitelisting*) pada menu Akses SSH hPanel dalam kondisi aktif. Karena runner GitHub Actions menggunakan kumpulan IP publik dinamis yang selalu berubah setiap kali dieksekusi, koneksi akan dicegat jika IP dibatasi.
 - **Solusi**:
   - Pastikan seluruh string kunci privat dari `-----BEGIN ...` hingga `-----END ...` tersalin sempurna ke GitHub Secret.
   - Periksa izin direktori di server: `chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys`.
+  - Nonaktifkan pembatasan IP di menu Akses SSH hPanel agar seluruh rentang IP GitHub Actions runner dapat terhubung dengan otentikasi kunci SSH.
 
 ### 5. Galat Hostinger CLI: "Allowed memory size of ... bytes exhausted"
 - **Penyebab**: Perintah artisan atau composer melebihi batas memori PHP CLI Hostinger.
