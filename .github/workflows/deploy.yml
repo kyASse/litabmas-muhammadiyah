@@ -303,6 +303,8 @@ jobs:
               echo "[INFO] Application encryption key is already configured in .env."
             fi
 
+            mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views
+            touch storage/logs/laravel.log
             "$PHP_BIN" artisan down --retry=60 || true
             chmod -R 775 storage bootstrap/cache
             chmod 644 .env || true
@@ -314,8 +316,10 @@ jobs:
             if ! curl -sSfL -k -m 15 "${APP_URL}" > /dev/null; then
               echo "[ERROR] Smoke check failed. Showing response headers:"
               curl -sIL -k -m 15 "${APP_URL}" | head -n 25 || true
-              echo "[DIAGNOSTIC] Recent entries from storage/logs/laravel.log:"
-              tail -n 40 storage/logs/laravel.log || true
+              echo "[DIAGNOSTIC] Response body:"
+              curl -sSL -k -m 15 "${APP_URL}" | head -n 35 || true
+              echo "[DIAGNOSTIC] Recent entries from storage/logs/:"
+              tail -n 40 storage/logs/*.log 2>/dev/null || true
               exit 1
             fi
             echo "[PASSED] Smoke test succeeded"
