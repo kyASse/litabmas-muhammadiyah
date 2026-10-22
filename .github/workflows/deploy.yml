@@ -273,14 +273,45 @@ jobs:
               PHP_BIN="/opt/alt/php84/usr/bin/php"
             fi
             echo "[INFO] Using PHP CLI: $($PHP_BIN -v | head -n 1)"
+            APP_URL="${{ secrets.APP_URL }}"
+            APP_URL="${APP_URL%/}"
+
+            if [ ! -f .env ]; then
+              echo "[WARNING] .env file not found in $CORE_PATH. Initializing default .env..."
+              cat << EOF > .env
+APP_NAME="SIM Litabmas Standalone"
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_URL="${APP_URL}"
+LOG_CHANNEL=stack
+LOG_LEVEL=info
+DB_CONNECTION=sqlite
+SESSION_DRIVER=database
+QUEUE_CONNECTION=database
+CACHE_STORE=database
+EOF
+            fi
+
+            if ! grep -qE '^APP_KEY=base64:.+' .env; then
+              echo "[INFO] APP_KEY is missing or empty in .env. Generating application key..."
+              if ! grep -q '^APP_KEY=' .env; then
+                echo "APP_KEY=" >> .env
+              fi
+              "$PHP_BIN" artisan key:generate --force
+              echo "[PASSED] Application encryption key generated successfully."
+            else
+              echo "[INFO] Application encryption key is already configured in .env."
+            fi
+
             "$PHP_BIN" artisan down --retry=60 || true
             chmod -R 775 storage bootstrap/cache
+            chmod 644 .env || true
             "$PHP_BIN" artisan migrate --force
             ln -sfn "${CORE_PATH}/storage/app/public" "${PUBLIC_PATH}/storage" || "$PHP_BIN" artisan storage:link
             "$PHP_BIN" artisan optimize:clear
             "$PHP_BIN" artisan optimize
             "$PHP_BIN" artisan up
-            APP_URL="${{ secrets.APP_URL }}"
             if ! curl -sSfL -k -m 15 "${APP_URL}" > /dev/null; then
               echo "[ERROR] Smoke check failed. Showing response headers:"
               curl -sIL -k -m 15 "${APP_URL}" | head -n 25 || true
