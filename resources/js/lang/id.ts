@@ -60,6 +60,14 @@ export const id: TranslationType = {
         settings: 'Pengaturan',
         logout: 'Keluar',
     },
+    theme: {
+        light: 'Terang',
+        dark: 'Gelap',
+        system: 'Sistem',
+        toggleTheme: 'Ganti tema',
+        switchToLight: 'Beralih ke mode terang',
+        switchToDark: 'Beralih ke mode gelap',
+    },
     statuses: {
         Draft: '[DRAFT]',
         Submitted: '[DIAJUKAN]',
