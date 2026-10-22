@@ -151,10 +151,10 @@ jobs:
       - name: Prepare Public Payload for Hostinger
         env:
           REMOTE_CORE_PATH: ${{ secrets.HOSTINGER_REMOTE_CORE_PATH }}
+          REMOTE_PUBLIC_PATH: ${{ secrets.HOSTINGER_REMOTE_PUBLIC_PATH }}
         run: |
           cp -r public public_dist
-          CORE_DIR=$(basename "${REMOTE_CORE_PATH%/}")
-          node scripts/hostinger-prepare-public.js public_dist "${CORE_DIR:-litabmas_core}"
+          node scripts/hostinger-prepare-public.js public_dist "$REMOTE_CORE_PATH" "$REMOTE_PUBLIC_PATH"
 
       - name: Report Dry Run Status
         if: ${{ needs.quality-gate.outputs.dry_run == 'true' }}
@@ -257,12 +257,13 @@ jobs:
           script: |
             CORE_PATH="${{ secrets.HOSTINGER_REMOTE_CORE_PATH }}"
             CORE_PATH="${CORE_PATH%/}"
+            PUBLIC_PATH="${{ secrets.HOSTINGER_REMOTE_PUBLIC_PATH }}"
+            PUBLIC_PATH="${PUBLIC_PATH%/}"
             cd "$CORE_PATH" || { echo "[ERROR] Failed to navigate to $CORE_PATH"; exit 1; }
             php artisan down --retry=60 || true
             chmod -R 775 storage bootstrap/cache
             php artisan migrate --force
-            CORE_BASENAME=$(basename "$CORE_PATH")
-            ln -sfn "../${CORE_BASENAME}/storage/app/public" "${{ secrets.HOSTINGER_REMOTE_PUBLIC_PATH }}/storage" || php artisan storage:link
+            ln -sfn "${CORE_PATH}/storage/app/public" "${PUBLIC_PATH}/storage" || php artisan storage:link
             php artisan optimize:clear
             php artisan optimize
             php artisan up
