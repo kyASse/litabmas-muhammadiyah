@@ -93,6 +93,9 @@ jobs:
       - name: Run Script Unit Tests
         run: npx vitest run tests/Unit/Scripts/
 
+      - name: Build Frontend Assets
+        run: npm run build
+
       - name: Setup SQLite Testing Environment
         run: |
           cp .env.example .env

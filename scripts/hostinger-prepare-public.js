@@ -1,8 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import process from 'node:process';
 
 export function generateHostingerIndexPhp(content, coreDirName = 'litabmas_core') {
-    const cleanCoreDir = coreDirName.replace(/^[\/\\]+|[\/\\]+$/g, '');
+    const cleanCoreDir = coreDirName.replace(/^[/\\]+|[/\\]+$/g, '');
     return content.replace(
         /__DIR__\s*\.\s*(['"])\/\.\.\/(storage|vendor|bootstrap)\//g,
         (_match, quote, folder) => `__DIR__.${quote}/../${cleanCoreDir}/${folder}/`
@@ -13,7 +14,7 @@ function runCli() {
     const args = process.argv.slice(2);
     const targetDir = args[0] || 'public_dist';
     const coreDir = args[1] || 'litabmas_core';
-    const cleanCoreDir = coreDir.replace(/^[\/\\]+|[\/\\]+$/g, '');
+    const cleanCoreDir = coreDir.replace(/^[/\\]+|[/\\]+$/g, '');
 
     const indexPhpPath = path.resolve(targetDir, 'index.php');
     if (!fs.existsSync(indexPhpPath)) {
