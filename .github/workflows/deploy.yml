@@ -126,6 +126,16 @@ jobs:
           echo "[INFO] Deployment Target Environment: ${{ env.TARGET_ENV }}"
           echo "[INFO] Dry Run Mode: ${{ needs.quality-gate.outputs.dry_run }}"
 
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: none
+
+      - name: Install Production Backend Dependencies
+        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+
       - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
@@ -137,16 +147,6 @@ jobs:
 
       - name: Build Frontend Assets
         run: npm run build
-
-      - name: Setup PHP 8.4
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          tools: composer:v2
-          coverage: none
-
-      - name: Install Production Backend Dependencies
-        run: composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
 
       - name: Prepare Public Payload for Hostinger
         env:
