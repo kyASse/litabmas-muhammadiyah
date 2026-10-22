@@ -103,6 +103,29 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
+### Langkah 1.5: Konfigurasi Versi PHP 8.4 di hPanel & Terminal SSH
+Aplikasi sistem penelitian Litabmas berjalan di atas **PHP 8.4** (memenuhi kebutuhan dependensi backend Laravel 12 dan Symfony 8.1). Hostinger CloudLinux menyediakan PHP 8.4, namun Anda wajib memastikannya aktif untuk web domain dan terminal CLI:
+
+1. **Pengaturan PHP Web di hPanel**:
+   - Buka **hPanel** -> **Tingkat Lanjut (Advanced)** -> **Konfigurasi PHP (PHP Configuration)**.
+   - Pilih domain atau subdomain target (`riset.portalmu.org`).
+   - Ubah versi PHP menjadi **PHP 8.4**.
+   - Klik tombol **Perbarui (Update)** untuk menyimpan.
+2. **Pengaturan PHP CLI di Terminal Hostinger (Opsional untuk Akses Manual SSH)**:
+   - Secara bawaan, perintah `php` di terminal SSH Hostinger merujuk ke PHP 8.2 (`/usr/bin/php`).
+   - Binary PHP 8.4 Hostinger CloudLinux terletak di `/opt/alt/php84/usr/bin/php`.
+   - Agar perintah `php` di terminal interaktif langsung menggunakan PHP 8.4, tambahkan alias ke `~/.bashrc`:
+     ```bash
+     echo "alias php='/opt/alt/php84/usr/bin/php'" >> ~/.bashrc
+     echo "alias composer='/opt/alt/php84/usr/bin/php /usr/lib/composer/composer.phar'" >> ~/.bashrc
+     source ~/.bashrc
+     ```
+   - Verifikasi versi PHP CLI:
+     ```bash
+     /opt/alt/php84/usr/bin/php -v
+     ```
+   *(Catatan: Pipeline GitHub Actions otomatis mendeteksi dan menggunakan binary `/opt/alt/php84/usr/bin/php` saat menjalankan perintah post-deployment).*
+
 > [!NOTE]
 > Uji koneksi tanpa sandi dari terminal lokal untuk memastikan otentikasi kunci berhasil sebelum melanjutkan ke konfigurasi GitHub Actions:
 > ```bash
@@ -313,8 +336,10 @@ Jika Anda membutuhkan data awal (seperti akun awal Super Admin atau master unive
 ```bash
 cd ~/litabmas_core
 
-# Jalankan seeder produksi
-php artisan db:seed --force
+# Jalankan seeder produksi (gunakan binary PHP 8.4 atau alias)
+/opt/alt/php84/usr/bin/php artisan db:seed --force
+# Atau jika alias ~/.bashrc telah aktif:
+# php artisan db:seed --force
 ```
 
 ---
@@ -381,6 +406,8 @@ Prosedur pemulihan bencana (*disaster recovery*) wajib dijalankan saat terjadi k
 
 ### Skenario A: Rollback Berkas Aplikasi (File Rollback)
 Gunakan prosedur ini apabila terjadi galat logika kode, kesalahan berkas build aset, atau error runtime PHP setelah sinkronisasi RSync.
+
+*(Catatan: Jika alias `~/.bashrc` belum disetel, gunakan `/opt/alt/php84/usr/bin/php` sebagai pengganti `php`).*
 
 ```bash
 # 1. Masuk ke server Hostinger via SSH
@@ -508,6 +535,26 @@ Setelah tindakan rollback selesai dilaksanakan, pastikan melakukan verifikasi te
 - **Solusi**:
   Jalankan perintah dengan parameter bypass memori sementara:
   ```bash
-  php -d memory_limit=512M artisan optimize
+  /opt/alt/php84/usr/bin/php -d memory_limit=512M artisan optimize
   ```
   *(Catatan: Proses kompilasi aset frontend dan dependensi backend berat telah dipindahkan seutuhnya ke runner GitHub Actions untuk mencegah kendala ini).*
+
+### 6. Galat Composer: "Composer detected issues in your platform: Your Composer dependencies require a PHP version '>= 8.4.1'. You are running 8.2.x"
+- **Penyebab**:
+  - Dependensi Symfony 8.1 dan Laravel 12 yang diinstal di runner GitHub Actions (PHP 8.4) memerlukan runtime PHP `>= 8.4.1`.
+  - Terminal SSH remote Hostinger secara bawaan mengeksekusi `/usr/bin/php` yang mengarah ke PHP 8.2 (`8.2.34`).
+- **Solusi**:
+  - Gunakan binary PHP 8.4 CloudLinux di Hostinger: `/opt/alt/php84/usr/bin/php`.
+  - Skrip pipeline `.github/workflows/deploy.yml` telah diprogram untuk otomatis mendeteksi binary ini (`PHP_BIN=/opt/alt/php84/usr/bin/php`).
+  - Untuk eksekusi manual via SSH, jalankan artisan dengan: `/opt/alt/php84/usr/bin/php artisan <perintah>`.
+
+### 7. Galat cURL: "(22) The requested URL returned error: 500" saat Smoke Test
+- **Penyebab**:
+  - Web server (LiteSpeed / PHP-FPM) pada domain masih dikonfigurasikan pada versi PHP yang lebih rendah dari 8.4 (contoh: PHP 8.2 atau PHP 8.3).
+  - Ketika `index.php` memuat `vendor/autoload.php`, berkas `vendor/composer/platform_check.php` melemparkan exception fatal karena versi PHP web server tidak memenuhi syarat `>= 8.4.1`.
+- **Solusi**:
+  - Buka **hPanel** -> **Tingkat Lanjut** -> **Konfigurasi PHP**.
+  - Pilih domain target (`riset.portalmu.org`).
+  - Ubah versi PHP menjadi **PHP 8.4**.
+  - Klik **Perbarui (Update)**.
+  - Setelah itu, reload domain atau ulangi smoke test cURL.
