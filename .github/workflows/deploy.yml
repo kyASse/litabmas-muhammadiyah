@@ -281,4 +281,11 @@ jobs:
             "$PHP_BIN" artisan optimize
             "$PHP_BIN" artisan up
             APP_URL="${{ secrets.APP_URL }}"
-            curl -sSfL -k -m 15 "${APP_URL}" > /dev/null && echo "[PASSED] Smoke test succeeded"
+            if ! curl -sSfL -k -m 15 "${APP_URL}" > /dev/null; then
+              echo "[ERROR] Smoke check failed. Showing response headers:"
+              curl -sIL -k -m 15 "${APP_URL}" | head -n 25 || true
+              echo "[DIAGNOSTIC] Recent entries from storage/logs/laravel.log:"
+              tail -n 40 storage/logs/laravel.log || true
+              exit 1
+            fi
+            echo "[PASSED] Smoke test succeeded"
