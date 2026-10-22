@@ -8,8 +8,6 @@ use App\Models\EssayQuestion;
 use App\Models\EvaluationCategory;
 use App\Models\EvaluationIndicator;
 use App\Models\EvaluationSubCategory;
-use App\Models\Journal;
-use App\Models\JournalAssessment;
 use App\Models\PlagiarismCheck;
 use App\Models\Proposal;
 use App\Models\ResearchOutput;
@@ -22,8 +20,6 @@ use App\Policies\EssayQuestionPolicy;
 use App\Policies\EvaluationCategoryPolicy;
 use App\Policies\EvaluationIndicatorPolicy;
 use App\Policies\EvaluationSubCategoryPolicy;
-use App\Policies\JournalAssessmentPolicy;
-use App\Policies\JournalPolicy;
 use App\Policies\PlagiarismCheckPolicy;
 use App\Policies\ProposalPolicy;
 use App\Policies\ResearchOutputPolicy;
@@ -50,8 +46,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register policies
         Gate::policy(User::class, UserPolicy::class);
-        Gate::policy(Journal::class, JournalPolicy::class);
-        Gate::policy(JournalAssessment::class, JournalAssessmentPolicy::class);
         Gate::policy(University::class, UniversityPolicy::class);
         Gate::policy(ContractDocument::class, ContractDocumentPolicy::class);
         Gate::policy(PlagiarismCheck::class, PlagiarismCheckPolicy::class);
@@ -83,14 +77,6 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('manage-announcements', function ($user) {
             return $user->isSuperAdmin();
-        });
-
-        Gate::define('view-all-journals', function ($user) {
-            return $user->isSuperAdmin();
-        });
-
-        Gate::define('view-university-journals', function ($user) {
-            return $user->isAdminKampus();
         });
 
         // Custom gates for role and university assignment

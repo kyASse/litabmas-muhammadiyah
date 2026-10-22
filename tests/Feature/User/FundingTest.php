@@ -33,18 +33,19 @@ class FundingTest extends TestCase
         // Create roles
         $this->userRole = Role::firstOrCreate(['name' => Role::USER], ['display_name' => Role::USER]);
 
-        // Create users
-        $this->user = User::factory()->create();
-        $this->user->roles()->attach($this->userRole);
-
-        $this->otherUser = User::factory()->create();
-        $this->otherUser->roles()->attach($this->userRole);
-
         $this->university = University::factory()->create();
         $this->researchSchema = ResearchSchema::create([
+            'university_id' => $this->university->id,
             'name' => 'Skema Penelitian Unggulan',
             'description' => 'Skema untuk pengujian',
         ]);
+
+        // Create users
+        $this->user = User::factory()->create(['university_id' => $this->university->id]);
+        $this->user->roles()->attach($this->userRole);
+
+        $this->otherUser = User::factory()->create(['university_id' => $this->university->id]);
+        $this->otherUser->roles()->attach($this->userRole);
     }
 
     /**
@@ -53,7 +54,9 @@ class FundingTest extends TestCase
     private function createProposalFor(User $user): Proposal
     {
         return Proposal::factory()->create([
+            'university_id' => $user->university_id ?? $this->university->id,
             'user_id' => $user->id,
+            'id_pengusul' => $user->id,
             'research_schema_id' => $this->researchSchema->id,
         ]);
     }

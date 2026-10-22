@@ -29,15 +29,15 @@ class ShowHarvestingLogs extends Command
 
         $logs = $query->limit(10)->get();
 
-        $this->info('📊 OAI-PMH Harvesting Logs (Last 10)');
+        $this->info('[LOG] OAI-PMH Harvesting Logs (Last 10)');
         $this->newLine();
 
         foreach ($logs as $log) {
             $statusIcon = match ($log->status) {
-                'success' => '✅',
-                'partial' => '⚠️',
-                'failed' => '❌',
-                default => '❓'
+                'success' => '[SUKSES]',
+                'partial' => '[PARSIAL]',
+                'failed' => '[GAGAL]',
+                default => '[STATUS]'
             };
 
             $this->line("<fg=cyan>$statusIcon {$log->journal_title}</> (ID: {$log->journal_id})");

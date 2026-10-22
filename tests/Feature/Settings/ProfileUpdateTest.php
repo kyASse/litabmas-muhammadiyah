@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\ScientificField;
 use App\Models\User;
 
 test('profile page is displayed', function () {
@@ -142,7 +141,7 @@ test('profile update rejects phone number exceeding 20 characters', function () 
         ->assertSessionHasErrors('phone');
 });
 
-test('profile update rejects position exceeding 100 characters', function () {
+test('profile update rejects faculty exceeding 150 characters', function () {
     $this->seedRoles();
     $user = User::factory()->user()->create();
 
@@ -151,12 +150,12 @@ test('profile update rejects position exceeding 100 characters', function () {
         ->patch('/settings/profile', [
             'name' => $user->name,
             'email' => $user->email,
-            'position' => str_repeat('A', 101),
+            'faculty' => str_repeat('A', 151),
         ])
-        ->assertSessionHasErrors('position');
+        ->assertSessionHasErrors('faculty');
 });
 
-test('profile update saves phone and position fields', function () {
+test('profile update saves phone and faculty fields', function () {
     $this->seedRoles();
     $user = User::factory()->user()->create();
 
@@ -165,43 +164,13 @@ test('profile update saves phone and position fields', function () {
             'name' => 'Updated Name',
             'email' => $user->email,
             'phone' => '+6281234567890',
-            'position' => 'Senior Researcher',
+            'faculty' => 'Fakultas Teknik',
         ])
         ->assertSessionHasNoErrors();
 
     $user->refresh();
     expect($user->phone)->toBe('+6281234567890');
-    expect($user->position)->toBe('Senior Researcher');
-});
-
-test('profile update with valid scientific field assigns it correctly', function () {
-    $this->seedRoles();
-    $user = User::factory()->user()->create();
-    $field = ScientificField::factory()->create(['is_active' => true]);
-
-    $this->actingAs($user)
-        ->patch('/settings/profile', [
-            'name' => $user->name,
-            'email' => $user->email,
-            'scientific_field_id' => $field->id,
-        ])
-        ->assertSessionHasNoErrors();
-
-    expect($user->fresh()->scientific_field_id)->toBe($field->id);
-});
-
-test('profile update with nonexistent scientific field is rejected', function () {
-    $this->seedRoles();
-    $user = User::factory()->user()->create();
-
-    $this->actingAs($user)
-        ->from('/settings/profile')
-        ->patch('/settings/profile', [
-            'name' => $user->name,
-            'email' => $user->email,
-            'scientific_field_id' => 99999,
-        ])
-        ->assertSessionHasErrors('scientific_field_id');
+    expect($user->faculty)->toBe('Fakultas Teknik');
 });
 
 test('profile update requires name to be present', function () {

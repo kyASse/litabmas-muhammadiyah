@@ -4,6 +4,15 @@ Dokumentasi proyek Jurnal MU telah diorganisir ke dalam beberapa folder untuk me
 
 ## 📋 Struktur Folder
 
+### [technical](./technical/)
+Dokumentasi teknis komprehensif Sistem Penelitian Terintegrasi Standalone (arsitektur, skema database, sistem desain antarmuka, aturan bisnis, dan roadmap pengembangan).
+- `README.md` - Pusat navigasi dan indeks dokumentasi teknis (*Technical Documentation Hub*).
+- `architecture.md` - Cetak biru arsitektur sistem, isolasi multi-tenancy, otorisasi RBAC, dan alur siklus hidup riset.
+- `schema.md` - Kamus data 21 tabel bersih, diagram ERD Mermaid, integritas kunci asing, dan strategi pengindeksan.
+- `design.md` - Sistem desain antarmuka *Hybrid Scholarly Enterprise*, token desain, tipografi ganda, dan pratinjau komponen.
+- `rules.md` - Logika bisnis transaksional 6 fase riset, penanganan defensif 11 kasus batas (*edge cases*), dan standar kualitas.
+- `stages.md` - Tahapan pengembangan & roadmap rilis 5 hari (15-20 Oktober 2026) dengan pendekatan *Vertical Slice*.
+
 ### 📅 [guidence rpl 2026](./guidence%20rpl%202026/)
 Dokumen panduan utama, roadmap, dan spesifikasi proyek (perencanaan sistem penelitian).
 - `BUKU_PANDUAN_RPL.md` - Buku panduan utama Rekayasa Perangkat Lunak 2026.
@@ -104,6 +113,8 @@ Kumpulan tangkapan layar (screenshot) tampilan antarmuka dan error terkait.
 
 | Document | Link |
 |----------|------|
+| Dokumentasi Teknis Standalone | [docs/technical/README.md](./technical/README.md) |
+| PRD Sistem Penelitian Standalone | [PRD_Sistem_Penelitian_Terintegrasi_Standalone.md](./PRD_Sistem_Penelitian_Terintegrasi_Standalone.md) |
 | Spesifikasi PRD Utama | [Product Requirement Document](./guidence%20rpl%202026/Product_Requirement_Document.md) ✨ |
 | Buku Panduan RPL | [BUKU_PANDUAN_RPL.md](./guidence%20rpl%202026/BUKU_PANDUAN_RPL.md) |
 | Panduan pemeliharaan sistem | [MAINTENANCE.md](./development/MAINTENANCE.md) |

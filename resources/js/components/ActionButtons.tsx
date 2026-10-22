@@ -52,8 +52,8 @@ interface ActionButtonsProps {
 // ─── Status Labels ────────────────────────────────────────────────────────────
 
 const STATUS_LABELS: Record<string, string> = {
-    Administrasi_Valid: '✓ Valid Administrasi',
-    Ditolak: '✗ Sudah ditolak',
+    Administrasi_Valid: 'Valid Administrasi',
+    Ditolak: 'Sudah ditolak',
     Draft: 'Belum disubmit',
 };
 

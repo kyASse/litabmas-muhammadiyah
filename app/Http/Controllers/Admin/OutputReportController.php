@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ResearchOutput;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Inertia\Response;
 use Maatwebsite\Excel\Facades\Excel;
@@ -40,15 +40,24 @@ class OutputReportController extends Controller
         $user = Auth::user();
 
         /* ── 1. Main outputs list ───────────────────────────────────────── */
+        $statusCol = Schema::hasColumn('research_outputs', 'status_verifikasi') ? 'status_verifikasi' : 'status';
+        $typeCol = Schema::hasColumn('research_outputs', 'tipe_luaran') ? 'tipe_luaran' : 'type';
+
         $outputsQuery = ResearchOutput::with(['user.university'])
-            ->where('status', 'verified')
-            ->when($type, fn ($q) => $q->where('type', $type))
-            ->when($year, fn ($q) => $q->where('year', $year));
+            ->whereIn($statusCol, ['Verified', 'verified'])
+            ->when($type, fn ($q) => $q->where($typeCol, $type))
+            ->when($year, function ($q) use ($year) {
+                if (Schema::hasColumn('research_outputs', 'tanggal_pelaporan')) {
+                    $q->whereYear('tanggal_pelaporan', $year);
+                } else {
+                    $q->whereYear('created_at', $year);
+                }
+            });
 
         // Multi-tenancy filters
         if ($user->isAdminKampus()) {
             $outputsQuery->whereHas('user', function ($uq) use ($user) {
-                $uq->where('university_id', $user->university_id);
+                $uq->where('users.university_id', $user->university_id);
             });
         } elseif (! $user->isSuperAdmin()) {
             $outputsQuery->where('user_id', $user->id);
@@ -57,75 +66,34 @@ class OutputReportController extends Controller
         $outputs = $outputsQuery->orderBy('created_at', 'desc')->get();
 
         /* ── 2. Stats by type (honours active filters) ──────────────────── */
-        $statsRowsQuery = DB::table('outputs as o')
-            ->whereNull('o.deleted_at')
-            ->where('o.status', 'verified')
-            ->when($type, fn ($q) => $q->where('o.type', $type))
-            ->when($year, fn ($q) => $q->where('o.year', $year));
-
-        // Multi-tenancy for stats by type
-        if ($user->isAdminKampus()) {
-            $statsRowsQuery->join('users as u', 'u.id', '=', 'o.user_id')
-                ->where('u.university_id', $user->university_id);
-        } elseif (! $user->isSuperAdmin()) {
-            $statsRowsQuery->where('o.user_id', $user->id);
-        }
-
-        $statsRows = $statsRowsQuery->select('o.type', DB::raw('COUNT(o.id) as total'))
-            ->groupBy('o.type')
-            ->orderBy('o.type')
-            ->get();
-
         $typeLabels = [
-            'Jurnal' => 'Jurnal',
-            'Buku' => 'Buku',
-            'HKI' => 'HKI',
-            'Produk' => 'Produk',
+            'Journal' => 'Jurnal',
+            'Book' => 'Buku',
+            'Hki' => 'HKI',
+            'Product' => 'Produk',
         ];
-        $knownTypes = array_keys($typeLabels);
 
         $statsByType = collect($typeLabels)
-            ->map(fn (string $label, string $t) => [
-                'category' => $t,
-                'label' => $label,
-                'total' => (int) ($statsRows->firstWhere('type', $t)?->total ?? 0),
-            ])
-            ->values()
-            ->concat(
-                $statsRows
-                    ->filter(fn ($r) => ! in_array($r->type, $knownTypes))
-                    ->map(fn ($r) => [
-                        'category' => $r->type,
-                        'label' => ucfirst($r->type),
-                        'total' => (int) $r->total,
-                    ])
-            )
+            ->map(function ($label, $key) use ($outputs, $typeCol) {
+                return [
+                    'category' => $key,
+                    'label' => $label,
+                    'total' => $outputs->where($typeCol, $key)->count(),
+                ];
+            })
             ->values();
 
         /* ── 3. Stats by year (honours active filters) ──────────────────── */
-        $yearRowsQuery = DB::table('outputs as o')
-            ->whereNull('o.deleted_at')
-            ->where('o.status', 'verified')
-            ->when($type, fn ($q) => $q->where('o.type', $type))
-            ->when($year, fn ($q) => $q->where('o.year', $year));
+        $statsByYear = $outputs->groupBy(function ($item) {
+            $d = $item->tanggal_pelaporan ?? $item->created_at;
 
-        // Multi-tenancy for stats by year
-        if ($user->isAdminKampus()) {
-            $yearRowsQuery->join('users as u', 'u.id', '=', 'o.user_id')
-                ->where('u.university_id', $user->university_id);
-        } elseif (! $user->isSuperAdmin()) {
-            $yearRowsQuery->where('o.user_id', $user->id);
-        }
-
-        $yearRows = $yearRowsQuery->select('o.year', DB::raw('COUNT(o.id) as total'))
-            ->groupBy('o.year')
-            ->orderBy('o.year')
-            ->get();
-
-        $statsByYear = $yearRows->map(fn ($r) => [
-            'year' => (int) $r->year,
-            'total' => (int) $r->total,
-        ])->values();
+            return $d ? date('Y', strtotime((string) $d)) : date('Y');
+        })->map(function ($group, $y) {
+            return [
+                'year' => (int) $y,
+                'total' => $group->count(),
+            ];
+        })->values();
 
         /* ── 4. Render ──────────────────────────────────────────────────── */
         return Inertia::render('Admin/Output/Report', [

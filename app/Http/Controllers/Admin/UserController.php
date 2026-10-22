@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Role;
-use App\Models\ScientificField;
 use App\Models\University;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -17,24 +16,25 @@ use Inertia\Response;
 class UserController extends Controller
 {
     /**
-     * Display a listing of Users (Pengelola Jurnal).
+     * Display a listing of Users.
      */
     public function index(Request $request): Response
     {
         // Only Super Admin can access
         $this->authorize('manage-users');
 
-        // Base query for User role only (including new Pengelola Jurnal role)
+        // Base query for all system users
         $query = User::query()
-            ->with(['role', 'roles', 'university'])
-            ->where(function ($q) {
-                $q->whereHas('role', function ($query) {
-                    $query->whereIn('name', ['User', 'Pengelola Jurnal']);
-                })
-                    ->orWhereHas('roles', function ($query) {
-                        $query->whereIn('name', ['User', 'Pengelola Jurnal']);
-                    });
+            ->with(['role', 'roles', 'university']);
+
+        // Filter by Role if requested
+        if ($request->filled('role')) {
+            $roleName = $request->role;
+            $query->where(function ($q) use ($roleName) {
+                $q->whereHas('role', fn ($r) => $r->where('name', $roleName))
+                    ->orWhereHas('roles', fn ($r) => $r->where('name', $roleName));
             });
+        }
 
         // Apply filters if any
         if ($request->has('search') && $request->search) {
@@ -63,7 +63,6 @@ class UserController extends Controller
 
         // Get Users with counts
         $users = $query
-            ->withCount('journals')
             ->orderBy('name')
             ->paginate(10)
             ->withQueryString()
@@ -99,7 +98,6 @@ class UserController extends Controller
                         'short_name' => $user->university->short_name,
                         'code' => $user->university->code,
                     ] : null,
-                    'journals_count' => $user->journals_count ?? 0,
                     'last_login_at' => $user->last_login_at?->format('Y-m-d H:i:s'),
                     'created_at' => $user->created_at->format('Y-m-d H:i:s'),
                 ];
@@ -109,13 +107,19 @@ class UserController extends Controller
         $universities = Cache::remember('universities.active.list', 3600, function () {
             return University::where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+                ->get(['id', 'name', 'code']);
         });
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'universities' => $universities,
-            'filters' => $request->only(['search', 'university_id', 'is_active', 'is_reviewer']),
+            'stats' => [
+                'total_users' => User::count(),
+                'active_users' => User::where('is_active', true)->count(),
+                'reviewers_count' => User::where('is_reviewer', true)->orWhereHas('roles', fn ($q) => $q->where('name', Role::REVIEWER))->count(),
+                'researchers_count' => User::whereHas('role', fn ($q) => $q->where('name', Role::PENELITI))->orWhereHas('roles', fn ($q) => $q->where('name', Role::PENELITI))->count(),
+            ],
+            'filters' => $request->only(['search', 'university_id', 'is_active', 'is_reviewer', 'role']),
         ]);
     }
 
@@ -130,7 +134,7 @@ class UserController extends Controller
         $universities = Cache::remember('universities.active.list', 3600, function () {
             return University::where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+                ->get(['id', 'name', 'code']);
         });
 
         // Get assignable roles (not Super Admin)
@@ -139,11 +143,7 @@ class UserController extends Controller
             ->orderBy('display_name')
             ->get(['id', 'name', 'display_name', 'description']);
 
-        // Get all active scientific fields
-        $scientificFields = ScientificField::query()
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name', 'code']);
+        $scientificFields = [];
 
         return Inertia::render('Admin/Users/Create', [
             'universities' => $universities,
@@ -167,7 +167,6 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:20',
             'position' => 'nullable|string|max:100',
             'university_id' => 'required|exists:universities,id',
-            'scientific_field_id' => 'nullable|exists:scientific_fields,id',
             'role_ids' => 'required|array|min:1',
             'role_ids.*' => 'required|exists:roles,id',
             'is_active' => 'required|boolean',
@@ -184,7 +183,6 @@ class UserController extends Controller
             'phone' => $validated['phone'] ?? null,
             'position' => $validated['position'] ?? null,
             'university_id' => $validated['university_id'],
-            'scientific_field_id' => $validated['scientific_field_id'] ?? null,
             'role_id' => $primaryRoleId, // Set primary role for backwards compatibility
             'is_active' => $validated['is_active'],
             'is_reviewer' => false, // Will be set by role assignment
@@ -213,13 +211,24 @@ class UserController extends Controller
     {
         $this->authorize('manage-users');
 
-        // Verify it's a User
-        if (! $user->isUser()) {
-            abort(404, 'Pengelola Jurnal not found.');
-        }
-
         // Load relationships
-        $user->load(['role', 'university', 'scientificField', 'journals.scientificField']);
+        $user->load(['role', 'roles', 'university', 'proposals', 'reviews']);
+
+        // Get all roles for this user
+        $userRoles = $user->roles->map(fn ($role) => [
+            'id' => $role->id,
+            'name' => $role->name,
+            'display_name' => $role->display_name,
+        ])->toArray();
+
+        // Add primary role if not already in roles array
+        if ($user->role && ! collect($userRoles)->contains('id', $user->role->id)) {
+            $userRoles[] = [
+                'id' => $user->role->id,
+                'name' => $user->role->name,
+                'display_name' => $user->role->display_name,
+            ];
+        }
 
         return Inertia::render('Admin/Users/Show', [
             'user' => [
@@ -231,11 +240,8 @@ class UserController extends Controller
                 'avatar_url' => $user->avatar_url,
                 'is_active' => $user->is_active,
                 'is_reviewer' => $user->is_reviewer ?? false,
-                'scientific_field' => $user->scientificField ? [
-                    'id' => $user->scientificField->id,
-                    'name' => $user->scientificField->name,
-                    'code' => $user->scientificField->code,
-                ] : null,
+                'roles' => $userRoles,
+                'scientific_field' => null,
                 'university' => $user->university ? [
                     'id' => $user->university->id,
                     'name' => $user->university->name,
@@ -247,14 +253,9 @@ class UserController extends Controller
                 'last_login_at' => $user->last_login_at?->format('Y-m-d H:i'),
                 'created_at' => $user->created_at->format('Y-m-d H:i'),
                 'updated_at' => $user->updated_at->format('Y-m-d H:i'),
-                'journals_count' => $user->journals->count(),
+                'proposals_count' => $user->proposals()->count(),
+                'reviews_count' => $user->reviews()->count(),
             ],
-            'journals' => $user->journals->map(fn ($journal) => [
-                'id' => $journal->id,
-                'title' => $journal->title,
-                'issn' => $journal->issn,
-                'scientific_field' => $journal->scientificField?->name,
-            ]),
         ]);
     }
 
@@ -265,17 +266,17 @@ class UserController extends Controller
     {
         $this->authorize('manage-users');
 
-        // Verify it's a User
-        if (! $user->isUser() && ! $user->isPengelolaJurnal()) {
-            abort(404, 'User not found.');
+        // Prevent unauthorized editing of Super Admin
+        if ($user->isSuperAdmin() && ! $request->user()->isSuperAdmin()) {
+            abort(403, 'Unauthorized to edit Super Administrator.');
         }
 
-        $user->load(['university', 'roles', 'scientificField']);
+        $user->load(['university', 'roles']);
 
         // Get all active universities
         $universities = University::active()
             ->orderBy('name')
-            ->get(['id', 'name', 'short_name', 'code']);
+            ->get(['id', 'name', 'code']);
 
         // Get assignable roles (not Super Admin)
         $roles = Role::query()
@@ -283,11 +284,7 @@ class UserController extends Controller
             ->orderBy('display_name')
             ->get(['id', 'name', 'display_name', 'description']);
 
-        // Get all active scientific fields
-        $scientificFields = ScientificField::query()
-            ->where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name', 'code']);
+        $scientificFields = [];
 
         // Get user's current role IDs
         $userRoleIds = $user->roles->pluck('id')->toArray();
@@ -305,7 +302,7 @@ class UserController extends Controller
                 'phone' => $user->phone,
                 'position' => $user->position,
                 'university_id' => $user->university_id,
-                'scientific_field_id' => $user->scientific_field_id,
+                'scientific_field_id' => null,
                 'is_active' => $user->is_active,
                 'is_reviewer' => $user->is_reviewer ?? false,
                 'role_ids' => $userRoleIds,
@@ -323,9 +320,9 @@ class UserController extends Controller
     {
         $this->authorize('manage-users');
 
-        // Verify it's a User
-        if (! $user->isUser() && ! $user->isPengelolaJurnal()) {
-            abort(404, 'User not found.');
+        // Prevent unauthorized editing of Super Admin
+        if ($user->isSuperAdmin() && ! $request->user()->isSuperAdmin()) {
+            abort(403, 'Unauthorized to edit Super Administrator.');
         }
 
         // Validate request
@@ -336,7 +333,6 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:20',
             'position' => 'nullable|string|max:100',
             'university_id' => 'required|exists:universities,id',
-            'scientific_field_id' => 'nullable|exists:scientific_fields,id',
             'role_ids' => 'required|array|min:1',
             'role_ids.*' => 'required|exists:roles,id',
             'is_active' => 'boolean',
@@ -352,7 +348,6 @@ class UserController extends Controller
             'phone' => $validated['phone'] ?? null,
             'position' => $validated['position'] ?? null,
             'university_id' => $validated['university_id'],
-            'scientific_field_id' => $validated['scientific_field_id'] ?? null,
             'role_id' => $primaryRoleId, // Update primary role
             'is_active' => $validated['is_active'] ?? $user->is_active,
         ]);
@@ -391,21 +386,21 @@ class UserController extends Controller
         // Load role relationship
         $user->load('role');
 
-        // Verify it's a User
-        if (! $user->isUser()) {
-            abort(404, 'Pengelola Jurnal not found.');
+        // Prevent deleting Super Admin
+        if ($user->isSuperAdmin()) {
+            abort(403, 'Cannot delete Super Administrator.');
         }
 
-        // Check if User has managed journals
-        if ($user->journals()->count() > 0) {
-            return back()->with('error', 'Cannot delete Pengelola Jurnal with existing journals. Please reassign or delete journals first.');
+        // Check if User has proposals
+        if ($user->proposals()->count() > 0) {
+            return back()->with('error', 'Cannot delete user with existing proposals.');
         }
 
         // Soft delete User
         $user->delete();
 
         return redirect()->route('admin.users.index')
-            ->with('success', 'Pengelola Jurnal deleted successfully.');
+            ->with('success', 'User deleted successfully.');
     }
 
     /**
@@ -418,9 +413,9 @@ class UserController extends Controller
         // Load role relationship
         $user->load('role');
 
-        // Verify it's a User
-        if (! $user->isUser()) {
-            abort(404, 'Pengelola Jurnal not found.');
+        // Prevent deactivating Super Admin
+        if ($user->isSuperAdmin()) {
+            abort(403, 'Cannot deactivate Super Administrator.');
         }
 
         // Toggle active status
@@ -430,6 +425,6 @@ class UserController extends Controller
 
         $status = $user->is_active ? 'activated' : 'deactivated';
 
-        return back()->with('success', "Pengelola Jurnal {$status} successfully.");
+        return back()->with('success', "User {$status} successfully.");
     }
 }

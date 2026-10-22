@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\ProfileUpdateRequest;
-use App\Models\ScientificField;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,14 +20,9 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): Response
     {
-        $scientificFields = ScientificField::where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name', 'code']);
-
         return Inertia::render('settings/profile', [
             'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
             'status' => $request->session()->get('status'),
-            'scientificFields' => $scientificFields,
         ]);
     }
 

@@ -1,43 +1,3 @@
-/**
- * UniversitiesIndex Component
- *
- * @description
- * A comprehensive list view page for managing universities (PTM) in the system.
- * This component provides filtering, searching, pagination, and CRUD operations for universities.
- * It displays university information including code, name, location, stats (users/journals), and status.
- *
- * @component
- *
- * @interface University
- * @property {number} id - Unique identifier for the university
- * @property {string} code - University code (e.g., UAD, UMY)
- * @property {string} name - Full name of the university
- * @property {string} short_name - Abbreviated name
- * @property {string} city - City location
- * @property {string} province - Province location
- * @property {boolean} is_active - Active status
- * @property {number} users_count - Number of users in this university
- * @property {number} journals_count - Number of journals in this university
- * @property {string} created_at - Creation timestamp
- *
- * @interface Props
- * @property {Object} universities - Paginated university data
- * @property {Object} filters - Current filter values
- * @property {Object} can - Permissions
- *
- * @route GET /admin/universities
- *
- * @requires @inertiajs/react
- * @requires @/components/ui/button
- * @requires @/components/ui/input
- * @requires @/components/ui/table
- * @requires @/components/ui/badge
- * @requires @/layouts/app-layout
- * @requires lucide-react
- *
- * @author JurnalMU Team
- * @filepath /resources/js/pages/Admin/Universities/Index.tsx
- */
 import {
     AlertDialog,
     AlertDialogAction,
@@ -52,46 +12,63 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { MetricCard } from '@/components/ui/MetricCard';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { StatusBadge } from '@/components/ui/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TabularFigure } from '@/components/ui/TabularFigure';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { BookOpen, Building2, ChevronLeft, ChevronRight, Edit, Eye, Plus, Search, Trash2, Users } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import {
+    AlertTriangle,
+    Building2,
+    CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
+    Edit,
+    Eye,
+    FileText,
+    Plus,
+    Power,
+    Search,
+    Trash2,
+    Users,
+    X,
+} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-    {
-        title: 'Universities',
-        href: '/admin/universities',
-    },
-];
 
 interface University {
     id: number;
     code: string;
-    ptm_code?: string;
+    ptm_code?: string | null;
     name: string;
-    short_name: string;
-    city: string;
-    province: string;
-    phone: string;
-    email: string;
-    website: string;
-    logo_url: string;
-    accreditation_status?: string;
-    cluster?: string;
-    profile_description?: string;
+    short_name?: string | null;
+    city?: string | null;
+    province?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    website?: string | null;
+    logo_url?: string | null;
+    accreditation_status?: string | null;
+    cluster?: string | null;
+    profile_description?: string | null;
     is_active: boolean;
     users_count: number;
-    journals_count: number;
-    full_address: string;
+    proposals_count: number;
+    research_schemas_count: number;
+    full_address?: string | null;
     created_at: string;
+}
+
+interface Stats {
+    total_universities: number;
+    active_tenants: number;
+    total_proposals: number;
+    total_researchers: number;
 }
 
 interface Props {
@@ -108,25 +85,33 @@ interface Props {
         }>;
     };
     filters: {
-        search: string;
-        is_active: string;
-        accreditation_status: string;
-        cluster: string;
+        search?: string;
+        is_active?: string;
+        accreditation_status?: string;
+        cluster?: string;
     };
+    stats: Stats;
     can: {
         create: boolean;
     };
 }
 
-export default function UniversitiesIndex({ universities, filters, can }: Props) {
+export default function UniversitiesIndex({ universities, filters, stats, can }: Props) {
+    const { t } = useTranslation();
     const { flash } = usePage<SharedData>().props;
-    const [search, setSearch] = useState(filters.search || '');
-    const [isActiveFilter, setIsActiveFilter] = useState(filters.is_active || '');
-    const [accreditationFilter, setAccreditationFilter] = useState(filters.accreditation_status || '');
-    const [clusterFilter, setClusterFilter] = useState(filters.cluster || '');
-    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; universityId?: number; universityName?: string }>({ open: false });
 
-    // Convert flash messages to toast notifications
+    const [search, setSearch] = useState(filters.search || '');
+    const [isActiveFilter, setIsActiveFilter] = useState(filters.is_active || 'all');
+    const [accreditationFilter, setAccreditationFilter] = useState(filters.accreditation_status || 'all');
+    const [clusterFilter, setClusterFilter] = useState(filters.cluster || 'all');
+
+    const [toggleDialog, setToggleDialog] = useState<{ open: boolean; university?: University }>({
+        open: false,
+    });
+    const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; university?: University }>({
+        open: false,
+    });
+
     useEffect(() => {
         if (flash?.success) {
             toast.success(flash.success);
@@ -136,451 +121,510 @@ export default function UniversitiesIndex({ universities, filters, can }: Props)
         }
     }, [flash]);
 
-    const handleSearch = (e: React.FormEvent) => {
+    const handleFilterSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         router.get(
             route('admin.universities.index'),
             {
-                search,
-                is_active: isActiveFilter === 'all' ? '' : isActiveFilter,
-                accreditation_status: accreditationFilter === 'all' ? '' : accreditationFilter,
-                cluster: clusterFilter === 'all' ? '' : clusterFilter,
+                search: search || undefined,
+                is_active: isActiveFilter === 'all' ? undefined : isActiveFilter,
+                accreditation_status: accreditationFilter === 'all' ? undefined : accreditationFilter,
+                cluster: clusterFilter === 'all' ? undefined : clusterFilter,
             },
-            { preserveState: true },
+            { preserveState: true, preserveScroll: true },
         );
     };
 
-    const openDeleteDialog = (id: number, name: string) => {
-        setDeleteDialog({ open: true, universityId: id, universityName: name });
+    const handleReset = () => {
+        setSearch('');
+        setIsActiveFilter('all');
+        setAccreditationFilter('all');
+        setClusterFilter('all');
+        router.get(route('admin.universities.index'));
     };
 
-    const confirmDelete = () => {
-        if (deleteDialog.universityId) {
-            router.delete(route('admin.universities.destroy', deleteDialog.universityId), {
+    const handleToggleStatus = () => {
+        if (!toggleDialog.university) return;
+        router.post(
+            route('admin.universities.toggle-active', toggleDialog.university.id),
+            {},
+            {
+                preserveScroll: true,
                 onSuccess: () => {
-                    toast.success('University deleted successfully');
-                    setDeleteDialog({ open: false });
+                    setToggleDialog({ open: false });
                 },
-                onError: () => {
-                    toast.error('Failed to delete university');
-                },
-            });
-        }
+            },
+        );
     };
+
+    const handleDelete = () => {
+        if (!deleteDialog.university) return;
+        router.delete(route('admin.universities.destroy', deleteDialog.university.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setDeleteDialog({ open: false });
+            },
+        });
+    };
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t.navigation?.dashboard || 'Dashboard',
+            href: '/dashboard',
+        },
+        {
+            title: t.adminUniversities.title,
+            href: route('admin.universities.index'),
+        },
+    ];
+
+    const hasActiveFilters = Boolean(
+        search ||
+            (isActiveFilter && isActiveFilter !== 'all') ||
+            (accreditationFilter && accreditationFilter !== 'all') ||
+            (clusterFilter && clusterFilter !== 'all'),
+    );
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Universities Management" />
+            <Head title={t.adminUniversities.title} />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-                    {/* Header */}
-                    <div className="mb-6">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <h1 className="flex items-center gap-2 text-3xl font-bold text-foreground">
-                                    <Building2 className="h-8 w-8 text-green-600 dark:text-green-400" />
-                                    Universities Management
-                                </h1>
-                                <p className="mt-1 text-muted-foreground">Manage Perguruan Tinggi Muhammadiyah (PTM) and their details</p>
-                            </div>
-                            {can.create && (
-                                <Link href={route('admin.universities.create')}>
-                                    <Button className="flex w-full items-center gap-2 md:w-auto">
-                                        <Plus className="h-4 w-4" />
-                                        Add University
-                                    </Button>
-                                </Link>
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6">
+                <PageHeader
+                    title={t.adminUniversities.title}
+                    subtitle={t.adminUniversities.description}
+                    breadcrumbs={[{ label: t.navigation?.dashboard || 'Dashboard', href: '/dashboard' }, { label: t.adminUniversities.title }]}
+                    actions={
+                        can.create ? (
+                            <Link href={route('admin.universities.create')}>
+                                <Button className="gap-2 bg-blue-900 text-white hover:bg-blue-800">
+                                    <Plus className="h-4 w-4" />
+                                    {t.adminUniversities.addUniversity}
+                                </Button>
+                            </Link>
+                        ) : undefined
+                    }
+                />
+
+                {/* 4 Metric Cards */}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <MetricCard
+                        title={t.adminUniversities.totalUniversities}
+                        value={stats.total_universities}
+                        type="integer"
+                        icon={Building2}
+                        iconBgClass="bg-blue-50 dark:bg-blue-950/40"
+                        iconColorClass="text-blue-900 dark:text-blue-400"
+                    />
+                    <MetricCard
+                        title={t.adminUniversities.activeTenants}
+                        value={stats.active_tenants}
+                        type="integer"
+                        icon={CheckCircle2}
+                        iconBgClass="bg-emerald-50 dark:bg-emerald-950/40"
+                        iconColorClass="text-emerald-700 dark:text-emerald-400"
+                    />
+                    <MetricCard
+                        title={t.adminUniversities.totalProposals}
+                        value={stats.total_proposals}
+                        type="integer"
+                        icon={FileText}
+                        iconBgClass="bg-indigo-50 dark:bg-indigo-950/40"
+                        iconColorClass="text-indigo-700 dark:text-indigo-400"
+                    />
+                    <MetricCard
+                        title={t.adminUniversities.totalResearchers}
+                        value={stats.total_researchers}
+                        type="integer"
+                        icon={Users}
+                        iconBgClass="bg-purple-50 dark:bg-purple-950/40"
+                        iconColorClass="text-purple-700 dark:text-purple-400"
+                    />
+                </div>
+
+                {/* Filter Bar */}
+                <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-neutral-900">
+                    <form onSubmit={handleFilterSubmit} className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                        <div className="relative flex-1">
+                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                            <Input
+                                type="text"
+                                placeholder={t.adminUniversities.searchPlaceholder}
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="pl-9"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:flex lg:items-center">
+                            <Select value={isActiveFilter} onValueChange={(val) => setIsActiveFilter(val)}>
+                                <SelectTrigger className="w-full lg:w-36">
+                                    <SelectValue placeholder={t.adminUniversities.allStatus} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">{t.adminUniversities.allStatus}</SelectItem>
+                                    <SelectItem value="1">{t.adminUniversities.active}</SelectItem>
+                                    <SelectItem value="0">{t.adminUniversities.inactive}</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={accreditationFilter} onValueChange={(val) => setAccreditationFilter(val)}>
+                                <SelectTrigger className="w-full lg:w-44">
+                                    <SelectValue placeholder={t.adminUniversities.allAccreditation} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">{t.adminUniversities.allAccreditation}</SelectItem>
+                                    <SelectItem value="Unggul">Unggul</SelectItem>
+                                    <SelectItem value="Baik Sekali">Baik Sekali</SelectItem>
+                                    <SelectItem value="Baik">Baik</SelectItem>
+                                    <SelectItem value="Cukup">Cukup</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={clusterFilter} onValueChange={(val) => setClusterFilter(val)}>
+                                <SelectTrigger className="w-full lg:w-40">
+                                    <SelectValue placeholder={t.adminUniversities.allCluster} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">{t.adminUniversities.allCluster}</SelectItem>
+                                    <SelectItem value="Mandiri">Mandiri</SelectItem>
+                                    <SelectItem value="Utama">Utama</SelectItem>
+                                    <SelectItem value="Madya">Madya</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Button type="submit" variant="default" className="gap-1.5 bg-blue-900 text-white hover:bg-blue-800">
+                                {t.adminUniversities.apply}
+                            </Button>
+                            {hasActiveFilters && (
+                                <Button type="button" variant="outline" onClick={handleReset} className="gap-1.5 text-slate-600">
+                                    <X className="h-4 w-4" />
+                                    {t.adminUniversities.reset}
+                                </Button>
                             )}
                         </div>
-                    </div>
+                    </form>
+                </div>
 
-                    {/* Flash Messages */}
-                    {flash?.success && (
-                        <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800 dark:border-green-900 dark:bg-green-900/20 dark:text-green-300">
-                            {flash.success}
+                {/* Mobile View: Cards */}
+                <div className="grid grid-cols-1 gap-4 md:hidden">
+                    {universities.data.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center text-slate-500 dark:border-slate-700">
+                            {t.adminUniversities.noUniversities}
                         </div>
-                    )}
-                    {flash?.error && (
-                        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 dark:border-red-900 dark:bg-red-900/20 dark:text-red-300">
-                            {flash.error}
-                        </div>
-                    )}
-
-                    {/* Filters */}
-                    <div className="mb-6 rounded-lg border border-sidebar-border/70 bg-card p-4 shadow-sm dark:border-sidebar-border">
-                        <form onSubmit={handleSearch} className="flex flex-col gap-4">
-                            <div className="flex flex-col gap-4 sm:flex-row">
-                                <div className="flex-1">
-                                    <div className="relative">
-                                        <Search className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 transform text-muted-foreground" />
-                                        <Input
-                                            type="text"
-                                            placeholder="Search by name, code, PTM code, or city..."
-                                            value={search}
-                                            onChange={(e) => setSearch(e.target.value)}
-                                            className="pl-10"
-                                        />
-                                    </div>
-                                </div>
-
-                                <Select value={isActiveFilter} onValueChange={(value) => setIsActiveFilter(value)}>
-                                    <SelectTrigger className="w-full sm:w-48">
-                                        <SelectValue placeholder="All Status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Status</SelectItem>
-                                        <SelectItem value="1">Active</SelectItem>
-                                        <SelectItem value="0">Inactive</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="flex flex-col gap-4 sm:flex-row">
-                                <Select value={accreditationFilter} onValueChange={(value) => setAccreditationFilter(value)}>
-                                    <SelectTrigger className="w-full sm:w-48">
-                                        <SelectValue placeholder="All Accreditation" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Accreditation</SelectItem>
-                                        <SelectItem value="Unggul">Unggul</SelectItem>
-                                        <SelectItem value="Baik Sekali">Baik Sekali</SelectItem>
-                                        <SelectItem value="Baik">Baik</SelectItem>
-                                        <SelectItem value="Cukup">Cukup</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                <Select value={clusterFilter} onValueChange={(value) => setClusterFilter(value)}>
-                                    <SelectTrigger className="w-full sm:w-48">
-                                        <SelectValue placeholder="All Cluster" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Cluster</SelectItem>
-                                        <SelectItem value="Mandiri">Mandiri</SelectItem>
-                                        <SelectItem value="Utama">Utama</SelectItem>
-                                        <SelectItem value="Madya">Madya</SelectItem>
-                                    </SelectContent>
-                                </Select>
-
-                                <Button type="submit" className="w-full sm:w-32">
-                                    Search
-                                </Button>
-                                {(search ||
-                                    (isActiveFilter && isActiveFilter !== 'all') ||
-                                    (accreditationFilter && accreditationFilter !== 'all') ||
-                                    (clusterFilter && clusterFilter !== 'all')) && (
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        className="w-full sm:w-32"
-                                        onClick={() => {
-                                            setSearch('');
-                                            setIsActiveFilter('all');
-                                            setAccreditationFilter('all');
-                                            setClusterFilter('all');
-                                            router.get(route('admin.universities.index'));
-                                        }}
-                                    >
-                                        Clear
-                                    </Button>
-                                )}
-                            </div>
-                        </form>
-                    </div>
-
-                    {/* Mobile Card View */}
-                    <div className="mb-6 grid grid-cols-1 gap-4 md:hidden">
-                        {universities.data.length === 0 ? (
-                            <Card className="flex flex-col items-center justify-center border-dashed p-8 text-center">
-                                <p className="text-muted-foreground">No universities found.</p>
-                            </Card>
-                        ) : (
-                            universities.data.map((university) => (
-                                <Card key={university.id} className="overflow-hidden">
-                                    <CardHeader className="border-b bg-muted/20 pb-4">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <div>
-                                                <CardTitle className="text-lg leading-tight">{university.name}</CardTitle>
-                                                {university.short_name && (
-                                                    <p className="mt-1 text-sm text-muted-foreground">{university.short_name}</p>
-                                                )}
-                                                <div className="mt-2 flex items-center gap-2">
-                                                    <Badge variant="outline" className="font-mono text-xs">
-                                                        {university.code}
+                    ) : (
+                        universities.data.map((uni) => (
+                            <Card key={uni.id} className="overflow-hidden border-slate-200 shadow-xs dark:border-slate-800">
+                                <CardHeader className="border-b border-slate-100 bg-slate-50/50 pb-3 dark:border-slate-800 dark:bg-slate-900/50">
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div className="space-y-1">
+                                            <CardTitle className="text-base font-semibold text-slate-900 dark:text-slate-100">{uni.name}</CardTitle>
+                                            {uni.short_name && <p className="text-xs text-slate-500">{uni.short_name}</p>}
+                                            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                                                <Badge variant="outline" className="font-mono text-xs">
+                                                    {uni.code}
+                                                </Badge>
+                                                {uni.ptm_code && (
+                                                    <Badge variant="secondary" className="font-mono text-xs">
+                                                        PTM: {uni.ptm_code}
                                                     </Badge>
-                                                    {university.ptm_code && (
-                                                        <Badge variant="outline" className="font-mono text-xs">
-                                                            {university.ptm_code}
-                                                        </Badge>
-                                                    )}
-                                                </div>
+                                                )}
                                             </div>
-                                            {university.is_active ? (
-                                                <Badge className="border-0 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:text-green-300">
-                                                    Active
+                                        </div>
+                                        <div>
+                                            <StatusBadge status={uni.is_active ? 'Active' : 'Inactive'} size="sm" />
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="grid gap-2.5 pt-3 text-sm">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        {uni.accreditation_status && (
+                                            <Badge variant="outline" className="text-xs">
+                                                {uni.accreditation_status}
+                                            </Badge>
+                                        )}
+                                        {uni.cluster && (
+                                            <Badge variant="secondary" className="text-xs">
+                                                {uni.cluster}
+                                            </Badge>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <span className="text-xs text-slate-500">{t.adminUniversities.colCity}: </span>
+                                        <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                            {uni.city && uni.province ? `${uni.city}, ${uni.province}` : '-'}
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2 rounded-md bg-slate-50 p-2.5 text-center dark:bg-slate-800/60">
+                                        <div>
+                                            <span className="text-xs text-slate-500">{t.adminUniversities.colResearchers}</span>
+                                            <div className="mt-0.5">
+                                                <TabularFigure value={uni.users_count} type="integer" align="center" size="lg" weight="bold" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span className="text-xs text-slate-500">{t.adminUniversities.colProposals}</span>
+                                            <div className="mt-0.5">
+                                                <TabularFigure value={uni.proposals_count} type="integer" align="center" size="lg" weight="bold" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                                <CardFooter className="flex items-center justify-end gap-2 border-t border-slate-100 bg-slate-50/30 p-2.5 dark:border-slate-800 dark:bg-slate-900">
+                                    <Link href={route('admin.universities.show', uni.id)}>
+                                        <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                                            <Eye className="h-3.5 w-3.5" />
+                                            {t.adminUniversities.viewDetail}
+                                        </Button>
+                                    </Link>
+                                    {can.create && (
+                                        <>
+                                            <Link href={route('admin.universities.edit', uni.id)}>
+                                                <Button variant="outline" size="sm" className="gap-1.5 text-xs">
+                                                    <Edit className="h-3.5 w-3.5" />
+                                                    {t.adminUniversities.editUniversity}
+                                                </Button>
+                                            </Link>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setToggleDialog({ open: true, university: uni })}
+                                                className="gap-1.5 text-xs text-slate-700 dark:text-slate-300"
+                                            >
+                                                <Power className="h-3.5 w-3.5" />
+                                                {t.adminUniversities.toggleStatus}
+                                            </Button>
+                                        </>
+                                    )}
+                                </CardFooter>
+                            </Card>
+                        ))
+                    )}
+                </div>
+
+                {/* Desktop View: Table */}
+                <div className="hidden overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs md:block dark:border-slate-800 dark:bg-slate-900">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="border-b border-slate-200 bg-slate-50/75 dark:border-slate-800 dark:bg-slate-800/50">
+                                <TableHead className="w-20 font-semibold">{t.adminUniversities.colCode}</TableHead>
+                                <TableHead className="w-24 font-semibold">{t.adminUniversities.colPtmCode}</TableHead>
+                                <TableHead className="font-semibold">{t.adminUniversities.colName}</TableHead>
+                                <TableHead className="w-28 font-semibold">{t.adminUniversities.colAccreditation}</TableHead>
+                                <TableHead className="w-24 font-semibold">{t.adminUniversities.colCluster}</TableHead>
+                                <TableHead className="w-36 font-semibold">{t.adminUniversities.colCity}</TableHead>
+                                <TableHead className="w-24 text-center font-semibold">{t.adminUniversities.colResearchers}</TableHead>
+                                <TableHead className="w-24 text-center font-semibold">{t.adminUniversities.colProposals}</TableHead>
+                                <TableHead className="w-24 text-center font-semibold">{t.adminUniversities.colStatus}</TableHead>
+                                <TableHead className="w-28 text-right font-semibold">{t.adminUniversities.colActions}</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {universities.data.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={10} className="py-12 text-center text-slate-500">
+                                        {t.adminUniversities.noUniversities}
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                universities.data.map((uni) => (
+                                    <TableRow
+                                        key={uni.id}
+                                        className="border-b border-slate-100 hover:bg-slate-50/50 dark:border-slate-800 dark:hover:bg-slate-800/30"
+                                    >
+                                        <TableCell className="font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">
+                                            {uni.code}
+                                        </TableCell>
+                                        <TableCell className="font-mono text-xs text-slate-600 dark:text-slate-400">{uni.ptm_code || '-'}</TableCell>
+                                        <TableCell>
+                                            <div>
+                                                <div className="font-medium text-slate-900 dark:text-slate-100">{uni.name}</div>
+                                                {uni.short_name && <div className="text-xs text-slate-500">{uni.short_name}</div>}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            {uni.accreditation_status ? (
+                                                <Badge variant="outline" className="text-xs font-medium">
+                                                    {uni.accreditation_status}
                                                 </Badge>
                                             ) : (
-                                                <Badge variant="secondary">Inactive</Badge>
+                                                <span className="text-xs text-slate-400">-</span>
                                             )}
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="grid gap-3 pt-4">
-                                        {(university.accreditation_status || university.cluster) && (
-                                            <div className="flex flex-wrap gap-2">
-                                                {university.accreditation_status && (
-                                                    <Badge variant="outline" className="font-medium">
-                                                        {university.accreditation_status}
-                                                    </Badge>
-                                                )}
-                                                {university.cluster && (
-                                                    <Badge variant="secondary" className="font-medium">
-                                                        {university.cluster}
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        <div>
-                                            <p className="text-sm font-medium text-muted-foreground">Location</p>
-                                            <p className="text-sm">
-                                                {university.city && university.province ? (
-                                                    <>
-                                                        {university.city}, {university.province}
-                                                    </>
-                                                ) : (
-                                                    <span className="text-muted-foreground">-</span>
-                                                )}
-                                            </p>
-                                        </div>
-
-                                        <div className="mt-1 grid grid-cols-2 gap-4 rounded-md bg-muted/50 p-3">
-                                            <div>
-                                                <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                                                    <Users className="h-3.5 w-3.5" />
-                                                    Users
-                                                </div>
-                                                <p className="mt-1 text-2xl font-semibold">{university.users_count}</p>
-                                            </div>
-                                            <div>
-                                                <div className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground">
-                                                    <BookOpen className="h-3.5 w-3.5" />
-                                                    Journals
-                                                </div>
-                                                <p className="mt-1 text-2xl font-semibold">{university.journals_count}</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                    <CardFooter className="flex gap-2 border-t bg-muted/10 p-3">
-                                        <Link href={route('admin.universities.show', university.id)} className="flex-1">
-                                            <Button variant="outline" size="sm" className="w-full gap-2">
-                                                <Eye className="h-4 w-4" />
-                                                View
-                                            </Button>
-                                        </Link>
-                                        {can.create && (
-                                            <>
-                                                <Link href={route('admin.universities.edit', university.id)} className="flex-1">
-                                                    <Button variant="outline" size="sm" className="w-full gap-2">
-                                                        <Edit className="h-4 w-4" />
-                                                        Edit
+                                        </TableCell>
+                                        <TableCell>
+                                            {uni.cluster ? (
+                                                <Badge variant="secondary" className="text-xs font-medium">
+                                                    {uni.cluster}
+                                                </Badge>
+                                            ) : (
+                                                <span className="text-xs text-slate-400">-</span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-xs text-slate-600 dark:text-slate-400">
+                                            {uni.city && uni.province ? `${uni.city}, ${uni.province}` : '-'}
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <TabularFigure value={uni.users_count} type="integer" align="center" size="sm" />
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <TabularFigure value={uni.proposals_count} type="integer" align="center" size="sm" />
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <StatusBadge status={uni.is_active ? 'Active' : 'Inactive'} size="sm" />
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Link href={route('admin.universities.show', uni.id)}>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-slate-600 hover:text-blue-900"
+                                                        title={t.adminUniversities.viewDetail}
+                                                    >
+                                                        <Eye className="h-4 w-4" />
                                                     </Button>
                                                 </Link>
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    className="flex-1 gap-2 border-destructive/20 text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                                                    onClick={() => openDeleteDialog(university.id, university.name)}
-                                                >
-                                                    <Trash2 className="h-4 w-4" />
-                                                    Delete
-                                                </Button>
-                                            </>
-                                        )}
-                                    </CardFooter>
-                                </Card>
-                            ))
-                        )}
-                    </div>
-
-                    {/* Table */}
-                    <div className="hidden overflow-hidden rounded-lg border border-sidebar-border/70 bg-card shadow-sm md:block dark:border-sidebar-border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Code</TableHead>
-                                    <TableHead>PTM Code</TableHead>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Accreditation</TableHead>
-                                    <TableHead>Cluster</TableHead>
-                                    <TableHead>Location</TableHead>
-                                    <TableHead className="text-center">Status</TableHead>
-                                    <TableHead className="text-center">
-                                        <div className="flex items-center justify-center gap-1">
-                                            <Users className="h-4 w-4" />
-                                            Users
-                                        </div>
-                                    </TableHead>
-                                    <TableHead className="text-center">
-                                        <div className="flex items-center justify-center gap-1">
-                                            <BookOpen className="h-4 w-4" />
-                                            Journals
-                                        </div>
-                                    </TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {universities.data.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={10} className="py-8 text-center text-muted-foreground">
-                                            No universities found.
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    universities.data.map((university) => (
-                                        <TableRow key={university.id}>
-                                            <TableCell className="font-medium">{university.code}</TableCell>
-                                            <TableCell className="font-mono text-sm">
-                                                {university.ptm_code || <span className="text-muted-foreground">-</span>}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div>
-                                                    <div className="font-semibold text-foreground">{university.name}</div>
-                                                    {university.short_name && (
-                                                        <div className="text-sm text-muted-foreground">{university.short_name}</div>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                {university.accreditation_status ? (
-                                                    <Badge variant="outline" className="font-medium">
-                                                        {university.accreditation_status}
-                                                    </Badge>
-                                                ) : (
-                                                    <span className="text-muted-foreground">-</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                {university.cluster ? (
-                                                    <Badge variant="secondary" className="font-medium">
-                                                        {university.cluster}
-                                                    </Badge>
-                                                ) : (
-                                                    <span className="text-muted-foreground">-</span>
-                                                )}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="text-sm">
-                                                    {university.city && university.province ? (
-                                                        <>
-                                                            {university.city}, {university.province}
-                                                        </>
-                                                    ) : (
-                                                        <span className="text-muted-foreground">-</span>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-center">
-                                                {university.is_active ? (
-                                                    <Badge className="border-0 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900 dark:text-green-300">
-                                                        Active
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="secondary">Inactive</Badge>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-center">{university.users_count}</TableCell>
-                                            <TableCell className="text-center">{university.journals_count}</TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <Link href={route('admin.universities.show', university.id)}>
-                                                        <Button variant="ghost" size="icon" title="View Details">
-                                                            <Eye className="h-4 w-4" />
-                                                        </Button>
-                                                    </Link>
-                                                    {can.create && (
-                                                        <>
-                                                            <Link href={route('admin.universities.edit', university.id)}>
-                                                                <Button variant="ghost" size="icon" title="Edit">
-                                                                    <Edit className="h-4 w-4" />
-                                                                </Button>
-                                                            </Link>
+                                                {can.create && (
+                                                    <>
+                                                        <Link href={route('admin.universities.edit', uni.id)}>
                                                             <Button
                                                                 variant="ghost"
                                                                 size="icon"
-                                                                className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                                                                onClick={() => openDeleteDialog(university.id, university.name)}
-                                                                title="Delete"
+                                                                className="h-8 w-8 text-slate-600 hover:text-blue-900"
+                                                                title={t.adminUniversities.editUniversity}
                                                             >
-                                                                <Trash2 className="h-4 w-4" />
+                                                                <Edit className="h-4 w-4" />
                                                             </Button>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                                                        </Link>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className={`h-8 w-8 ${
+                                                                uni.is_active
+                                                                    ? 'text-amber-600 hover:bg-amber-50 hover:text-amber-700'
+                                                                    : 'text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700'
+                                                            }`}
+                                                            onClick={() => setToggleDialog({ open: true, university: uni })}
+                                                            title={t.adminUniversities.toggleStatus}
+                                                        >
+                                                            <Power className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="h-8 w-8 text-rose-600 hover:bg-rose-50 hover:text-rose-700"
+                                                            onClick={() => setDeleteDialog({ open: true, university: uni })}
+                                                            title={t.adminUniversities.deleteUniversity}
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
 
-                        {/* Pagination */}
-                        {universities.last_page > 1 && (
-                            <div className="border-t border-sidebar-border/70 px-6 py-4 dark:border-sidebar-border">
-                                <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-                                    <div className="text-center text-sm text-muted-foreground md:text-left">
-                                        Showing {(universities.current_page - 1) * universities.per_page + 1} to{' '}
-                                        {Math.min(universities.current_page * universities.per_page, universities.total)} of {universities.total}{' '}
-                                        results
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        {universities.links.map((link, index) => {
-                                            if (link.url === null) return null;
-
-                                            const isFirst = index === 0;
-                                            const isLast = index === universities.links.length - 1;
-
-                                            return (
-                                                <Link key={index} href={link.url} preserveState preserveScroll>
-                                                    <Button
-                                                        variant={link.active ? 'default' : 'outline'}
-                                                        size="sm"
-                                                        disabled={!link.url}
-                                                        className={link.active ? '' : 'text-muted-foreground'}
-                                                    >
-                                                        {isFirst ? (
-                                                            <ChevronLeft className="h-4 w-4" />
-                                                        ) : isLast ? (
-                                                            <ChevronRight className="h-4 w-4" />
-                                                        ) : (
-                                                            <span dangerouslySetInnerHTML={{ __html: link.label }} />
-                                                        )}
-                                                    </Button>
-                                                </Link>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
+                    {/* Pagination */}
+                    {universities.last_page > 1 && (
+                        <div className="flex flex-col items-center justify-between gap-4 border-t border-slate-200 px-6 py-4 sm:flex-row dark:border-slate-800">
+                            <div className="text-xs text-slate-500">
+                                Showing {(universities.current_page - 1) * universities.per_page + 1} to{' '}
+                                {Math.min(universities.current_page * universities.per_page, universities.total)} of {universities.total} entries
                             </div>
-                        )}
-                    </div>
+                            <div className="flex items-center gap-1">
+                                {universities.links.map((link, index) => {
+                                    if (link.url === null) return null;
+                                    const isFirst = index === 0;
+                                    const isLast = index === universities.links.length - 1;
+
+                                    return (
+                                        <Link key={index} href={link.url} preserveState preserveScroll>
+                                            <Button
+                                                variant={link.active ? 'default' : 'outline'}
+                                                size="sm"
+                                                className={`h-8 px-3 text-xs ${
+                                                    link.active ? 'bg-blue-900 text-white hover:bg-blue-800' : 'text-slate-600 hover:text-slate-900'
+                                                }`}
+                                            >
+                                                {isFirst ? (
+                                                    <ChevronLeft className="h-3.5 w-3.5" />
+                                                ) : isLast ? (
+                                                    <ChevronRight className="h-3.5 w-3.5" />
+                                                ) : (
+                                                    <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                )}
+                                            </Button>
+                                        </Link>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            {/* Toggle Status Confirmation Dialog */}
+            <AlertDialog open={toggleDialog.open} onOpenChange={(open) => setToggleDialog({ ...toggleDialog, open })}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <div className="flex items-center gap-2">
+                            <div className="rounded-full bg-amber-50 p-2 text-amber-600 dark:bg-amber-950/40">
+                                <AlertTriangle className="h-5 w-5" />
+                            </div>
+                            <AlertDialogTitle>{t.adminUniversities.confirmToggleTitle}</AlertDialogTitle>
+                        </div>
+                        <AlertDialogDescription className="space-y-2 pt-2 text-sm text-slate-600 dark:text-slate-400">
+                            <p>
+                                <strong>{toggleDialog.university?.name}</strong>
+                            </p>
+                            <p>{t.adminUniversities.confirmToggleDesc}</p>
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>{t.adminUniversities.cancel}</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleToggleStatus} className="bg-blue-900 text-white hover:bg-blue-800">
+                            {toggleDialog.university?.is_active ? t.adminUniversities.deactivate : t.adminUniversities.activate}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* Delete Confirmation Dialog */}
             <AlertDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ ...deleteDialog, open })}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete University</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            Are you sure you want to delete <strong>{deleteDialog.universityName}</strong>? This action cannot be undone and all
-                            associated data will be permanently removed.
+                        <div className="flex items-center gap-2">
+                            <div className="rounded-full bg-rose-50 p-2 text-rose-600 dark:bg-rose-950/40">
+                                <AlertTriangle className="h-5 w-5" />
+                            </div>
+                            <AlertDialogTitle>{t.adminUniversities.deleteConfirmTitle}</AlertDialogTitle>
+                        </div>
+                        <AlertDialogDescription className="space-y-2 pt-2 text-sm text-slate-600 dark:text-slate-400">
+                            <p>
+                                <strong>{deleteDialog.university?.name}</strong>
+                            </p>
+                            <p>{t.adminUniversities.deleteConfirmDesc}</p>
+                            {deleteDialog.university && deleteDialog.university.proposals_count > 0 && (
+                                <p className="font-medium text-rose-600">{t.adminUniversities.deleteCannotDeleteWithProposals}</p>
+                            )}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-                            Delete
+                        <AlertDialogCancel>{t.adminUniversities.cancel}</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDelete}
+                            disabled={Boolean(deleteDialog.university && deleteDialog.university.proposals_count > 0)}
+                            className="bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50"
+                        >
+                            {t.adminUniversities.deleteUniversity}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

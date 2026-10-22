@@ -47,6 +47,15 @@ class University extends Model
         'deleted_at' => 'datetime',
     ];
 
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var list<string>
+     */
+    protected $appends = [
+        'short_name',
+    ];
+
     /*
     |--------------------------------------------------------------------------
     | Relationships
@@ -128,9 +137,7 @@ class University extends Model
 
         return $query->where(function ($q) use ($search) {
             $q->where('name', 'like', "%{$search}%")
-                ->orWhere('code', 'like', "%{$search}%")
-                ->orWhere('ptm_code', 'like', "%{$search}%")
-                ->orWhere('short_name', 'like', "%{$search}%");
+                ->orWhere('code', 'like', "%{$search}%");
         });
     }
 
@@ -163,6 +170,14 @@ class University extends Model
     | Accessors
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Get short name for display, defaulting to code or name.
+     */
+    public function getShortNameAttribute(): ?string
+    {
+        return $this->attributes['short_name'] ?? $this->code ?? $this->name ?? null;
+    }
 
     /**
      * Get full

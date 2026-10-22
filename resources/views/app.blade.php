@@ -31,13 +31,14 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'Journal MU') }}</title>
+        <title inertia>{{ config('app.name', 'SIM-Penelitian Multi-Kampus') }}</title>
 
         <link rel="icon" href="{{ asset('logo_dark.png') }}" type="image/png">
         <link rel="apple-touch-icon" href="{{ asset('logo_dark.png') }}">
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500;1,6..72,600;1,6..72,700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
 
         @routes
         @viteReactRefresh

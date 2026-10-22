@@ -6,10 +6,39 @@
 >
     <testsuites>
         <testsuite name="Unit">
-            <directory>tests/Unit</directory>
+            <file>tests/Unit/ExampleTest.php</file>
+            <file>tests/Unit/Models/Day3ModelAlignmentTest.php</file>
+            <file>tests/Unit/Models/ProposalMemberTest.php</file>
+            <file>tests/Unit/OAIPMHHarvesterTest.php</file>
         </testsuite>
         <testsuite name="Feature">
-            <directory>tests/Feature</directory>
+            <file>tests/Feature/ExampleTest.php</file>
+            <file>tests/Feature/DatabaseSeederTest.php</file>
+            <file>tests/Feature/QualityGateDay1Test.php</file>
+            <file>tests/Feature/TenantScopeTest.php</file>
+            <file>tests/Feature/UserRoleHelperTest.php</file>
+            <file>tests/Feature/SchemaControllerTest.php</file>
+            <file>tests/Feature/ProposalSubmissionTest.php</file>
+            <file>tests/Feature/ReviewAssignmentCoITest.php</file>
+            <file>tests/Feature/ContractFundingCalculationTest.php</file>
+            <file>tests/Feature/MonevGatekeeperTest.php</file>
+            <file>tests/Feature/DashboardTest.php</file>
+            <file>tests/Feature/Admin/ProposalShowTest.php</file>
+            <file>tests/Feature/Auth/AuthenticationTest.php</file>
+            <file>tests/Feature/Auth/EmailVerificationTest.php</file>
+            <file>tests/Feature/Auth/PasswordConfirmationTest.php</file>
+            <file>tests/Feature/Auth/PasswordResetTest.php</file>
+            <file>tests/Feature/Auth/RegistrationTest.php</file>
+            <file>tests/Feature/Settings/AvatarTest.php</file>
+            <file>tests/Feature/Settings/PasswordUpdateTest.php</file>
+            <file>tests/Feature/Settings/ProfileUpdateTest.php</file>
+            <file>tests/Feature/User/FundingTest.php</file>
+            <file>tests/Feature/OutputDeduplicationTest.php</file>
+            <file>tests/Feature/FinalEvaluationPreconditionTest.php</file>
+            <file>tests/Feature/ReadOnlyArchiveLockTest.php</file>
+            <file>tests/Feature/CriticalEdgeCasesTest.php</file>
+            <file>tests/Feature/SecurityValidationTest.php</file>
+            <file>tests/Feature/ProductionDemoSeederTest.php</file>
         </testsuite>
     </testsuites>
     <source>

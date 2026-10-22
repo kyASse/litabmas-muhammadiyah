@@ -2,47 +2,47 @@
  * SchemaCreate Component
  *
  * @description
- * Form page for creating a new Research Schema (Skema Penelitian).
- * Super Admin can add new schemas with a name and optional description.
+ * Form page for creating a new Research Scheme (Skema Penelitian).
+ * Admin Kampus / LPPM can add new competitive funding schemes.
  *
  * @route GET  /admin/schema/create
  * @route POST /admin/schema
- *
- * @features
- * - Create new research schema
- * - Name field (required, unique)
- * - Description field (optional)
- * - Form validation with error messages
- *
- * @author JurnalMU Team
  */
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import PageHeader from '@/components/ui/PageHeader';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, FlaskConical } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import React from 'react';
 import { toast } from 'sonner';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-    {
-        title: 'Skema Penelitian',
-        href: route('admin.schema.index'),
-    },
-    {
-        title: 'Tambah Skema',
-        href: route('admin.schema.create'),
-    },
-];
+import { route } from 'ziggy-js';
 
 export default function SchemaCreate() {
+    const { t } = useTranslation();
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t.navigation.dashboard,
+            href: '/dashboard',
+        },
+        {
+            title: t.adminSchema.pageTitle,
+            href: route('admin.schema.index'),
+        },
+        {
+            title: t.adminSchema.createTitle,
+            href: route('admin.schema.create'),
+        },
+    ];
+
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         description: '',
@@ -52,84 +52,84 @@ export default function SchemaCreate() {
         e.preventDefault();
         post(route('admin.schema.store'), {
             onSuccess: () => {
-                toast.success('Skema Penelitian berhasil ditambahkan.');
+                toast.success(t.adminSchema.saveSuccess);
             },
             onError: () => {
-                toast.error('Gagal menambahkan skema. Periksa kembali form.');
+                toast.error(t.adminSchema.saveError);
             },
         });
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Tambah Skema Penelitian" />
+            <Head title={t.adminSchema.createTitle} />
 
-            <div className="mx-auto max-w-2xl space-y-8">
-                {/* Header */}
-                <div className="space-y-3">
-                    <Button variant="ghost" size="sm" className="h-auto gap-2 p-0" asChild>
+            <div className="mx-auto max-w-3xl space-y-6 p-4 sm:p-6 lg:p-8">
+                <PageHeader
+                    title={t.adminSchema.createTitle}
+                    subtitle={t.adminSchema.createSubtitle}
+                    isEditorialSerif={false}
+                    breadcrumbs={breadcrumbs}
+                    actions={<LanguageSwitcher variant="compact" />}
+                />
+
+                <div className="flex items-center">
+                    <Button variant="ghost" size="sm" className="gap-2 text-slate-600 hover:text-slate-900" asChild>
                         <Link href={route('admin.schema.index')}>
                             <ArrowLeft className="h-4 w-4" />
-                            Kembali ke Daftar
+                            {t.common.back}
                         </Link>
                     </Button>
-                    <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                            <FlaskConical className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                            <h1 className="text-3xl font-bold tracking-tight">Tambah Skema Penelitian</h1>
-                            <p className="mt-1 text-sm text-muted-foreground">Tambahkan skema penelitian baru ke dalam sistem</p>
-                        </div>
-                    </div>
                 </div>
 
                 {/* Form */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Informasi Skema</CardTitle>
-                        <CardDescription>Isi detail skema penelitian yang akan ditambahkan</CardDescription>
+                <Card className="border-slate-200 bg-white shadow-xs">
+                    <CardHeader className="border-b border-slate-100">
+                        <CardTitle className="text-base font-bold text-slate-900">{t.adminSchema.createTitle}</CardTitle>
+                        <CardDescription className="text-xs text-slate-500">{t.adminSchema.createSubtitle}</CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-6">
                         <form onSubmit={handleSubmit} className="space-y-6">
                             {/* Nama Skema */}
                             <div className="space-y-2">
-                                <Label htmlFor="name">
-                                    Nama Skema <span className="text-destructive">*</span>
+                                <Label htmlFor="name" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    {t.adminSchema.tableColName} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
                                     id="name"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
-                                    placeholder="Contoh: Penelitian Dasar, Penelitian Terapan, PDUPT..."
-                                    className={errors.name ? 'border-destructive' : ''}
+                                    placeholder={t.adminSchema.namePlaceholder}
+                                    className={`border-slate-300 bg-white text-sm text-slate-900 ${errors.name ? 'border-rose-500' : ''}`}
                                 />
-                                {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
-                                <p className="text-xs text-muted-foreground">Nama skema harus unik dan belum digunakan.</p>
+                                {errors.name && <p className="text-xs text-rose-600">{errors.name}</p>}
+                                <p className="text-xs text-slate-400">{t.adminSchema.nameUniqueHint}</p>
                             </div>
 
                             {/* Deskripsi */}
                             <div className="space-y-2">
-                                <Label htmlFor="description">Deskripsi</Label>
+                                <Label htmlFor="description" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    {t.adminSchema.tableColDesc}
+                                </Label>
                                 <Textarea
                                     id="description"
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
-                                    placeholder="Deskripsi singkat mengenai skema penelitian ini..."
+                                    placeholder={t.adminSchema.descPlaceholder}
                                     rows={4}
-                                    className={errors.description ? 'border-destructive' : ''}
+                                    className={`border-slate-300 bg-white text-sm text-slate-900 ${errors.description ? 'border-rose-500' : ''}`}
                                 />
-                                {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
-                                <p className="text-xs text-muted-foreground">Opsional. Maksimal 1000 karakter.</p>
+                                {errors.description && <p className="text-xs text-rose-600">{errors.description}</p>}
+                                <p className="text-xs text-slate-400">{t.adminSchema.descMaxHint}</p>
                             </div>
 
                             {/* Actions */}
-                            <div className="flex justify-end gap-3 border-t pt-6">
+                            <div className="flex justify-end gap-3 border-t border-slate-100 pt-6">
                                 <Button type="button" variant="outline" asChild>
-                                    <Link href={route('admin.schema.index')}>Batal</Link>
+                                    <Link href={route('admin.schema.index')}>{t.common.cancel}</Link>
                                 </Button>
-                                <Button type="submit" disabled={processing}>
-                                    {processing ? 'Menyimpan...' : 'Simpan Skema'}
+                                <Button type="submit" disabled={processing} className="bg-blue-900 text-white hover:bg-blue-800">
+                                    {processing ? t.common.loading : t.common.save}
                                 </Button>
                             </div>
                         </form>

@@ -68,24 +68,31 @@ test('admin kampus is scoped to their university data', function () {
         'university_id' => $uniB->id,
     ]);
 
-    $schema = ResearchSchema::create(['name' => 'Skema A']);
+    $schema = ResearchSchema::create([
+        'university_id' => $uniA->id,
+        'nama_skema' => 'Skema A',
+        'tanggal_mulai' => now()->toDateString(),
+        'tanggal_selesai' => now()->addMonths(6)->toDateString(),
+    ]);
 
     // Proposal A (Univ A)
     $proposalA = Proposal::create([
+        'university_id' => $uniA->id,
         'title' => 'Proposal Univ A',
         'description' => 'Desc A',
         'user_id' => $dosenA->id,
         'research_schema_id' => $schema->id,
-        'status_proposal' => 'Diterima',
+        'status_proposal' => 'Administrasi_Valid',
     ]);
 
     // Proposal B (Univ B)
     $proposalB = Proposal::create([
+        'university_id' => $uniB->id,
         'title' => 'Proposal Univ B',
         'description' => 'Desc B',
         'user_id' => $dosenB->id,
         'research_schema_id' => $schema->id,
-        'status_proposal' => 'Diterima',
+        'status_proposal' => 'Administrasi_Valid',
     ]);
 
     // Contract A (Univ A)
@@ -94,10 +101,9 @@ test('admin kampus is scoped to their university data', function () {
         'proposal_id' => $proposalA->id,
         'contract_number' => 'CON-A',
         'title' => 'Contract A',
-        'status' => 'active',
+        'status' => 'Active',
+        'tanggal_kontrak' => now()->toDateString(),
         'contract_value' => 5000000,
-        'party_1' => 'Pihak 1',
-        'party_2' => 'Pihak 2',
     ]);
 
     // Contract B (Univ B)
@@ -106,10 +112,9 @@ test('admin kampus is scoped to their university data', function () {
         'proposal_id' => $proposalB->id,
         'contract_number' => 'CON-B',
         'title' => 'Contract B',
-        'status' => 'active',
+        'status' => 'Active',
+        'tanggal_kontrak' => now()->toDateString(),
         'contract_value' => 7000000,
-        'party_1' => 'Pihak 1',
-        'party_2' => 'Pihak 2',
     ]);
 
     $response = $this->actingAs($adminA)->get('/admin/dashboard');
@@ -119,6 +124,6 @@ test('admin kampus is scoped to their university data', function () {
         ->component('Dashboard/Admin')
         ->where('stats.total_proposals', 1)
         ->where('stats.approved_proposals', 1)
-        ->where('stats.total_absorbed_funding', 5000000.0)
+        ->where('stats.total_absorbed_funding', fn ($val) => (float) $val === 5000000.0)
     );
 });

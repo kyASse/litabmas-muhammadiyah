@@ -61,7 +61,7 @@ class UniversityPolicy
      *
      * Rules:
      * - Only Super Admin can delete universities
-     * - Cannot delete if university has journals
+     * - Cannot delete if university has proposals
      */
     public function delete(User $user, University $university): bool
     {
@@ -69,8 +69,8 @@ class UniversityPolicy
             return false;
         }
 
-        // Prevent deletion if the university has associated journals
-        return $university->journals()->count() === 0;
+        // Prevent deletion if the university has associated proposals
+        return $university->proposals()->count() === 0;
     }
 
     /**

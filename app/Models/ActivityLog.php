@@ -11,8 +11,13 @@ class ActivityLog extends Model
     use HasFactory;
 
     protected $fillable = [
-        'submission_id',
         'user_id',
+        'university_id',
+        'activity',
+        'ip_address',
+        'user_agent',
+        // Virtual / legacy aliases
+        'submission_id',
         'action',
         'description',
     ];
@@ -46,13 +51,29 @@ class ActivityLog extends Model
 
     /*
     |--------------------------------------------------------------------------
-    | Accessors
+    | Accessors & Mutators
     |--------------------------------------------------------------------------
     */
 
+    public function setActionAttribute($value): void
+    {
+        if (empty($this->attributes['activity'])) {
+            $this->attributes['activity'] = (string) $value;
+        }
+    }
+
+    public function setDescriptionAttribute($value): void
+    {
+        if (isset($this->attributes['activity']) && $this->attributes['activity'] !== '') {
+            $this->attributes['activity'] .= ' - '.$value;
+        } else {
+            $this->attributes['activity'] = (string) $value;
+        }
+    }
+
     public function getIdSubmissionAttribute(): ?int
     {
-        return $this->submission_id;
+        return $this->attributes['submission_id'] ?? null;
     }
 
     public function getIdUserAttribute(): ?int
@@ -67,11 +88,11 @@ class ActivityLog extends Model
 
     public function getActionTypeAttribute(): string
     {
-        return $this->action;
+        return $this->attributes['action'] ?? ($this->activity ? explode(' - ', $this->activity)[0] : 'ACTIVITY');
     }
 
     public function getActivityDescriptionAttribute(): ?string
     {
-        return $this->description;
+        return $this->attributes['description'] ?? $this->activity;
     }
 }

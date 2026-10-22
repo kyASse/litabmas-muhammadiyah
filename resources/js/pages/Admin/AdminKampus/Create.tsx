@@ -1,116 +1,22 @@
-/**
- * AdminKampusCreate Component
- *
- * @description
- * A comprehensive form page for creating new campus administrator (Admin Kampus) accounts.
- * This component provides a multi-section form interface for entering admin information,
- * including personal details, account credentials, university assignment, and initial status.
- *
- * @component
- *
- * @interface University
- * @property {number} id - Unique identifier for the university
- * @property {string} name - Full name of the university
- * @property {string} short_name - Abbreviated university name
- * @property {string} code - University code
- *
- * @interface Props
- * @property {University[]} universities - Array of available universities for assignment
- *
- * @param {Props} props - Component props
- * @param {University[]} props.universities - List of universities to assign admin to
- *
- * @returns The rendered admin kampus creation form
- *
- * @example
- * ```tsx
- * <AdminKampusCreate
- *   universities={universitiesList}
- * />
- * ```
- *
- * @features
- * - Personal Information Section
- *   - Full name (required)
- *   - Email address (required, must be unique)
- *   - Phone number (optional)
- *   - Position/title (optional)
- * - Account Information Section
- *   - Password (required, minimum 8 characters)
- *   - Password confirmation (required, must match)
- * - University Assignment Section
- *   - Select university from dropdown (required)
- *   - Shows university code and name
- * - Status Section
- *   - Active/inactive checkbox toggle
- *   - Default: Active
- * - Form validation with error display
- * - Loading state during submission
- * - Cancel and submit buttons
- * - Breadcrumb navigation
- * - Dark mode support
- * - Responsive layout
- *
- * @formData
- * @property {string} name - Admin's full name
- * @property {string} email - Login email address
- * @property {string} password - Account password
- * @property {string} password_confirmation - Password confirmation
- * @property {string} phone - Contact phone number
- * @property {string} position - Job position or title
- * @property {string} university_id - Assigned university ID
- * @property {boolean} is_active - Account active status (default: true)
- *
- * @route GET /admin/admin-kampus/create
- * @route POST /admin/admin-kampus (form submission)
- *
- * @requires @inertiajs/react
- * @requires @/components/ui/button
- * @requires @/components/ui/input
- * @requires @/components/ui/label
- * @requires @/components/ui/select
- * @requires @/layouts/app-layout
- * @requires lucide-react
- *
- * @validation
- * - name: required
- * - email: required, valid email format, unique in users table
- * - password: required, minimum 8 characters
- * - password_confirmation: required, must match password
- * - university_id: required, must exist in universities table
- *
- * @author JurnalMU Team
- * @filepath /resources/js/pages/Admin/AdminKampus/Create.tsx
- */
+import InputError from '@/components/input-error';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { UniversityCombobox } from '@/components/ui/university-combobox';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft } from 'lucide-react';
-
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-    {
-        title: 'Admin Kampus',
-        href: '/admin/admin-kampus',
-    },
-    {
-        title: 'Create',
-        href: '/admin/admin-kampus/create',
-    },
-];
+import { ArrowLeft, Building2, KeyRound, ShieldCheck, User } from 'lucide-react';
+import React from 'react';
 
 interface University {
     id: number;
     name: string;
-    short_name: string;
     code: string;
+    short_name?: string;
 }
 
 interface Props {
@@ -118,6 +24,23 @@ interface Props {
 }
 
 export default function AdminKampusCreate({ universities }: Props) {
+    const { t } = useTranslation();
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t.navigation?.dashboard || 'Dashboard',
+            href: '/dashboard',
+        },
+        {
+            title: t.adminCampusAdmins.title,
+            href: '/admin/admin-kampus',
+        },
+        {
+            title: t.adminCampusAdmins.createTitle,
+            href: '/admin/admin-kampus/create',
+        },
+    ];
+
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         email: '',
@@ -126,7 +49,7 @@ export default function AdminKampusCreate({ universities }: Props) {
         phone: '',
         position: '',
         university_id: '',
-        is_active: true as boolean,
+        is_active: true,
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -136,189 +59,190 @@ export default function AdminKampusCreate({ universities }: Props) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Create Admin Kampus" />
+            <Head title={t.adminCampusAdmins.createTitle} />
 
-            <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4 sm:p-6">
-                <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
-                    {/* Header */}
-                    <div className="mb-6">
+            <div className="mx-auto flex h-full w-full max-w-4xl flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
+                {/* Page Header */}
+                <PageHeader
+                    title={t.adminCampusAdmins.createTitle}
+                    subtitle={t.adminCampusAdmins.createDescription}
+                    actions={
                         <Link href={route('admin.admin-kampus.index')}>
-                            <Button variant="ghost" className="mb-4">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to List
+                            <Button variant="outline" size="sm" className="flex items-center gap-1.5 text-xs">
+                                <ArrowLeft className="h-4 w-4" />
+                                {t.adminCampusAdmins.backToList}
                             </Button>
                         </Link>
-                        <h1 className="text-3xl font-bold text-foreground">Create New Admin Kampus</h1>
-                        <p className="mt-1 text-muted-foreground">Add a new university administrator</p>
-                    </div>
+                    }
+                />
 
-                    {/* Form */}
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Personal Information */}
-                        <div className="space-y-4">
-                            <h3 className="border-b border-sidebar-border/70 pb-2 text-lg font-semibold text-foreground dark:border-sidebar-border">
-                                Personal Information
-                            </h3>
+                <form onSubmit={handleSubmit} className="w-full space-y-6">
+                    {/* Section 1: Personal Information */}
+                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5">
+                            <User className="h-5 w-5 text-blue-900" />
+                            <h2 className="text-sm font-semibold text-slate-900">{t.adminCampusAdmins.personalInfo}</h2>
+                        </div>
 
-                            {/* Name */}
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <Label htmlFor="name">
-                                    Full Name <span className="text-red-500">*</span>
+                                <Label htmlFor="name" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                    {t.adminCampusAdmins.nameLabel} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
                                     id="name"
+                                    type="text"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
-                                    placeholder="e.g., Dr. Ahmad Fauzi, M.Kom"
+                                    placeholder={t.adminCampusAdmins.namePlaceholder}
+                                    className="text-sm"
+                                    autoFocus
                                     required
-                                    className="mt-2"
                                 />
-                                {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}
+                                <InputError message={errors.name} className="mt-1" />
                             </div>
 
-                            {/* Email */}
                             <div>
-                                <Label htmlFor="email">
-                                    Email <span className="text-red-500">*</span>
+                                <Label htmlFor="email" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                    {t.adminCampusAdmins.emailLabel} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
                                     id="email"
                                     type="email"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
-                                    placeholder="e.g., admin.uad@ajm.ac.id"
+                                    placeholder={t.adminCampusAdmins.emailPlaceholder}
+                                    className="text-sm"
                                     required
-                                    className="mt-2"
                                 />
-                                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
+                                <InputError message={errors.email} className="mt-1" />
                             </div>
 
-                            {/* Phone */}
                             <div>
-                                <Label htmlFor="phone">Phone Number</Label>
+                                <Label htmlFor="phone" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                    {t.adminCampusAdmins.phoneLabel}
+                                </Label>
                                 <Input
                                     id="phone"
-                                    type="tel"
+                                    type="text"
                                     value={data.phone}
                                     onChange={(e) => setData('phone', e.target.value)}
-                                    placeholder="e.g., 0274-563515"
-                                    className="mt-2"
+                                    placeholder={t.adminCampusAdmins.phonePlaceholder}
+                                    className="font-mono text-sm"
                                 />
-                                {errors.phone && <p className="mt-1 text-sm text-red-600">{errors.phone}</p>}
+                                <InputError message={errors.phone} className="mt-1" />
                             </div>
 
-                            {/* Position */}
                             <div>
-                                <Label htmlFor="position">Position / Title</Label>
+                                <Label htmlFor="position" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                    {t.adminCampusAdmins.positionLabel}
+                                </Label>
                                 <Input
                                     id="position"
+                                    type="text"
                                     value={data.position}
                                     onChange={(e) => setData('position', e.target.value)}
-                                    placeholder="e.g., Kepala LPPM"
-                                    className="mt-2"
+                                    placeholder={t.adminCampusAdmins.positionPlaceholder}
+                                    className="text-sm"
                                 />
-                                {errors.position && <p className="mt-1 text-sm text-red-600">{errors.position}</p>}
+                                <InputError message={errors.position} className="mt-1" />
                             </div>
                         </div>
+                    </div>
 
-                        {/* Account Information */}
-                        <div className="space-y-4">
-                            <h3 className="border-b border-sidebar-border/70 pb-2 text-lg font-semibold text-foreground dark:border-sidebar-border">
-                                Account Information
-                            </h3>
+                    {/* Section 2: Account Credentials */}
+                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5">
+                            <KeyRound className="h-5 w-5 text-blue-900" />
+                            <h2 className="text-sm font-semibold text-slate-900">{t.adminCampusAdmins.accountCredentials}</h2>
+                        </div>
 
-                            {/* Password */}
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <Label htmlFor="password">
-                                    Password <span className="text-red-500">*</span>
+                                <Label htmlFor="password" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                    {t.adminCampusAdmins.passwordLabel} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
                                     id="password"
                                     type="password"
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
+                                    placeholder={t.adminCampusAdmins.passwordPlaceholder}
+                                    className="font-mono text-sm"
                                     required
-                                    className="mt-2"
                                 />
-                                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
-                                <p className="mt-1 text-sm text-muted-foreground">Minimum 8 characters</p>
+                                <InputError message={errors.password} className="mt-1" />
                             </div>
 
-                            {/* Password Confirmation */}
                             <div>
-                                <Label htmlFor="password_confirmation">
-                                    Confirm Password <span className="text-red-500">*</span>
+                                <Label htmlFor="password_confirmation" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                    {t.adminCampusAdmins.confirmPasswordLabel} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
                                     id="password_confirmation"
                                     type="password"
                                     value={data.password_confirmation}
                                     onChange={(e) => setData('password_confirmation', e.target.value)}
+                                    placeholder={t.adminCampusAdmins.confirmPasswordPlaceholder}
+                                    className="font-mono text-sm"
                                     required
-                                    className="mt-2"
                                 />
+                                <InputError message={errors.password_confirmation} className="mt-1" />
                             </div>
                         </div>
+                    </div>
 
-                        {/* University Assignment */}
-                        <div className="space-y-4">
-                            <h3 className="border-b border-sidebar-border/70 pb-2 text-lg font-semibold text-foreground dark:border-sidebar-border">
-                                University Assignment
-                            </h3>
+                    {/* Section 3: University Assignment */}
+                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5">
+                            <Building2 className="h-5 w-5 text-blue-900" />
+                            <h2 className="text-sm font-semibold text-slate-900">{t.adminCampusAdmins.universityAffiliation}</h2>
+                        </div>
 
-                            {/* University */}
+                        <div>
+                            <Label htmlFor="university_id" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                {t.adminCampusAdmins.universityLabel} <span className="text-rose-500">*</span>
+                            </Label>
+                            <UniversityCombobox
+                                universities={universities}
+                                value={data.university_id}
+                                onValueChange={(val) => setData('university_id', val)}
+                                placeholder={t.adminCampusAdmins.selectUniversity}
+                                error={errors.university_id}
+                            />
+                            <InputError message={errors.university_id} className="mt-1" />
+                        </div>
+                    </div>
+
+                    {/* Section 4: Account Status */}
+                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5">
+                            <ShieldCheck className="h-5 w-5 text-blue-900" />
+                            <h2 className="text-sm font-semibold text-slate-900">{t.adminCampusAdmins.activeStatus}</h2>
+                        </div>
+
+                        <div className="flex items-center justify-between">
                             <div>
-                                <Label htmlFor="university_id">
-                                    University <span className="text-red-500">*</span>
-                                </Label>
-                                <div className="mt-2">
-                                    <UniversityCombobox
-                                        universities={universities}
-                                        value={data.university_id.toString()}
-                                        onValueChange={(value) => setData('university_id', value)}
-                                        placeholder="Select University"
-                                        error={errors.university_id}
-                                    />
-                                    <p className="mt-1 text-sm text-muted-foreground">
-                                        This admin will manage journals and users for this university
-                                    </p>
-                                </div>
+                                <p className="text-sm font-medium text-slate-900">{t.adminCampusAdmins.activeStatus}</p>
+                                <p className="text-xs text-slate-500">{t.adminCampusAdmins.activeDescription}</p>
                             </div>
+                            <Switch checked={data.is_active} onCheckedChange={(val) => setData('is_active', val)} />
                         </div>
+                        <InputError message={errors.is_active} />
+                    </div>
 
-                        {/* Status */}
-                        <div className="space-y-4">
-                            <h3 className="border-b border-sidebar-border/70 pb-2 text-lg font-semibold text-foreground dark:border-sidebar-border">
-                                Status
-                            </h3>
-
-                            <div className="flex items-center space-x-2">
-                                <input
-                                    id="is_active"
-                                    type="checkbox"
-                                    checked={data.is_active}
-                                    onChange={(e) => setData('is_active', e.target.checked)}
-                                    className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                                />
-                                <Label htmlFor="is_active" className="cursor-pointer">
-                                    Active (Admin can login and manage their university)
-                                </Label>
-                            </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex flex-col-reverse items-stretch justify-end gap-4 border-t border-sidebar-border/70 pt-6 sm:flex-row sm:items-center dark:border-sidebar-border">
-                            <Link href={route('admin.admin-kampus.index')}>
-                                <Button type="button" variant="outline">
-                                    Cancel
-                                </Button>
-                            </Link>
-                            <Button type="submit" disabled={processing}>
-                                {processing ? 'Creating...' : 'Create Admin Kampus'}
+                    {/* Form Action Buttons */}
+                    <div className="flex items-center justify-end gap-3 pt-2">
+                        <Link href={route('admin.admin-kampus.index')}>
+                            <Button type="button" variant="outline" disabled={processing} className="text-xs">
+                                {t.common.cancel}
                             </Button>
-                        </div>
-                    </form>
-                </div>
+                        </Link>
+                        <Button type="submit" disabled={processing} className="bg-blue-900 px-6 text-xs font-medium text-white hover:bg-blue-800">
+                            {processing ? t.common.loading : t.adminCampusAdmins.createTitle}
+                        </Button>
+                    </div>
+                </form>
             </div>
         </AppLayout>
     );

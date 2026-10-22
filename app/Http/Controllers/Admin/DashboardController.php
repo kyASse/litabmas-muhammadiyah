@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -22,24 +23,30 @@ class DashboardController extends Controller
         $isAdminKampus = $user->isAdminKampus() && ! $user->isSuperAdmin();
         $universityId = $user->university_id;
 
+        $userCol = Schema::hasColumn('proposals', 'id_pengusul') ? 'id_pengusul' : 'user_id';
+        $titleCol = Schema::hasColumn('proposals', 'judul_penelitian') ? 'judul_penelitian' : 'title';
+
         // 1. Proposal Queries & Stats
         $proposalQuery = DB::table('proposals');
         if ($isAdminKampus) {
-            $proposalQuery->join('users', 'proposals.user_id', '=', 'users.id')
+            $proposalQuery->join('users', "proposals.{$userCol}", '=', 'users.id')
                 ->where('users.university_id', $universityId);
         }
 
         $totalProposals = $proposalQuery->count();
-        $approvedProposals = (clone $proposalQuery)->where('status_proposal', 'Diterima')->count();
-        $rejectedProposals = (clone $proposalQuery)->where('status_proposal', 'Ditolak')->count();
+        $approvedProposals = (clone $proposalQuery)->whereIn('status_proposal', ['Diterima', 'approved', 'Administrasi_Valid', 'administrasi_valid', 'Lolos_Didanai', 'lolos_didanai'])->count();
+        $rejectedProposals = (clone $proposalQuery)->whereIn('status_proposal', ['Ditolak', 'rejected', 'ditolak'])->count();
         $successRate = $totalProposals > 0 ? round(($approvedProposals / $totalProposals) * 100, 2) : 0.0;
 
         // 2. Funding queries from contracts table
-        $contractQuery = DB::table('contracts')->whereIn('status', ['active', 'completed']);
+        $danaCol = Schema::hasColumn('contracts', 'dana_disetujui') ? 'dana_disetujui' : 'contract_value';
+        $statusCol = Schema::hasColumn('contracts', 'status_kontrak') ? 'status_kontrak' : 'status';
+
+        $contractQuery = DB::table('contracts')->whereIn($statusCol, ['Active', 'active', 'completed', 'Signed', 'Closed']);
         if ($isAdminKampus) {
             $contractQuery->where('university_id', $universityId);
         }
-        $totalAbsorbedFunding = $contractQuery->sum('contract_value');
+        $totalAbsorbedFunding = $contractQuery->sum($danaCol);
 
         $stats = [
             'total_proposals' => $totalProposals,
@@ -52,23 +59,27 @@ class DashboardController extends Controller
         // 3. Yearly funding aggregation
         $yearlyFundingData = $this->getFundingChart($isAdminKampus, $universityId);
 
-        // 4. Faculty Performance grouped by Scientific Fields
-        $facultyPerformanceQuery = DB::table('proposals')
-            ->join('users', 'proposals.user_id', '=', 'users.id')
-            ->join('scientific_fields', 'users.scientific_field_id', '=', 'scientific_fields.id')
-            ->select(
-                'scientific_fields.name as faculty_name',
-                DB::raw('COUNT(proposals.id) as submitted'),
-                DB::raw('SUM(CASE WHEN proposals.status_proposal = "Diterima" THEN 1 ELSE 0 END) as accepted')
-            );
+        // 4. Faculty Performance grouped by Scientific Fields or Fallback
+        if (Schema::hasTable('scientific_fields')) {
+            $facultyPerformanceQuery = DB::table('proposals')
+                ->join('users', "proposals.{$userCol}", '=', 'users.id')
+                ->join('scientific_fields', 'users.scientific_field_id', '=', 'scientific_fields.id')
+                ->select(
+                    'scientific_fields.name as faculty_name',
+                    DB::raw('COUNT(proposals.id) as submitted'),
+                    DB::raw('SUM(CASE WHEN proposals.status_proposal IN ("Diterima", "Administrasi_Valid", "approved") THEN 1 ELSE 0 END) as accepted')
+                );
 
-        if ($isAdminKampus) {
-            $facultyPerformanceQuery->where('users.university_id', $universityId);
+            if ($isAdminKampus) {
+                $facultyPerformanceQuery->where('users.university_id', $universityId);
+            }
+
+            $facultyPerformance = $facultyPerformanceQuery
+                ->groupBy('scientific_fields.id', 'scientific_fields.name')
+                ->get();
+        } else {
+            $facultyPerformance = collect();
         }
-
-        $facultyPerformance = $facultyPerformanceQuery
-            ->groupBy('scientific_fields.id', 'scientific_fields.name')
-            ->get();
 
         // Fallback for clean database/visual polish
         if ($facultyPerformance->isEmpty()) {
@@ -81,8 +92,8 @@ class DashboardController extends Controller
 
         // 5. Top 5 active research proposals with citation metric (simulated)
         $topResearchQuery = DB::table('proposals')
-            ->join('users', 'proposals.user_id', '=', 'users.id')
-            ->select('proposals.id', 'proposals.title'); // Migration schema uses `title`
+            ->join('users', "proposals.{$userCol}", '=', 'users.id')
+            ->select('proposals.id', "proposals.{$titleCol} as title");
 
         if ($isAdminKampus) {
             $topResearchQuery->where('users.university_id', $universityId);
@@ -108,11 +119,12 @@ class DashboardController extends Controller
         }
 
         // 6. Top 5 productive lecturers with score metric (simulated)
+        $userRolesTable = Schema::hasTable('role_user') ? 'role_user' : 'user_roles';
         $topLecturersQuery = DB::table('users')
-            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
-            ->where('roles.name', 'Dosen')
-            ->leftJoin('proposals', 'users.id', '=', 'proposals.user_id')
+            ->join($userRolesTable, 'users.id', '=', "{$userRolesTable}.user_id")
+            ->join('roles', "{$userRolesTable}.role_id", '=', 'roles.id')
+            ->whereIn('roles.name', ['Peneliti', 'Dosen', 'User'])
+            ->leftJoin('proposals', 'users.id', '=', "proposals.{$userCol}")
             ->select('users.name', DB::raw('COUNT(proposals.id) as proposal_count'))
             ->groupBy('users.id', 'users.name')
             ->orderByDesc('proposal_count');
@@ -140,33 +152,43 @@ class DashboardController extends Controller
         }
 
         // 7. CCTV Activity log
-        $systemLogsQuery = DB::table('system_logs')
-            ->leftJoin('users', 'system_logs.user_id', '=', 'users.id')
-            ->select(
-                'system_logs.id',
-                'system_logs.action',
-                'system_logs.description',
-                'system_logs.created_at',
-                'users.name as actor_name'
-            )
-            ->orderBy('system_logs.created_at', 'desc');
+        $logTable = Schema::hasTable('activity_logs') ? 'activity_logs' : (Schema::hasTable('system_logs') ? 'system_logs' : null);
 
-        if ($isAdminKampus) {
-            $systemLogsQuery->where('users.university_id', $universityId);
+        if ($logTable) {
+            $hasActionCol = Schema::hasColumn($logTable, 'action');
+            $actionExpr = $hasActionCol ? "{$logTable}.action" : "'aktivitas' as action";
+            $descExpr = $hasActionCol ? "{$logTable}.description" : "{$logTable}.activity as description";
+
+            $systemLogsQuery = DB::table($logTable)
+                ->leftJoin('users', "{$logTable}.user_id", '=', 'users.id')
+                ->select(
+                    "{$logTable}.id",
+                    DB::raw($actionExpr),
+                    DB::raw($descExpr),
+                    "{$logTable}.created_at",
+                    'users.name as actor_name'
+                )
+                ->orderBy("{$logTable}.created_at", 'desc');
+
+            if ($isAdminKampus) {
+                $systemLogsQuery->where('users.university_id', $universityId);
+            }
+
+            $systemLogs = $systemLogsQuery
+                ->limit(10)
+                ->get()
+                ->map(function ($row) {
+                    return [
+                        'id' => $row->id,
+                        'action' => $row->action,
+                        'description' => $row->description,
+                        'created_at' => $row->created_at,
+                        'user' => $row->actor_name ? ['name' => $row->actor_name] : null,
+                    ];
+                });
+        } else {
+            $systemLogs = collect();
         }
-
-        $systemLogs = $systemLogsQuery
-            ->limit(10)
-            ->get()
-            ->map(function ($row) {
-                return [
-                    'id' => $row->id,
-                    'action' => $row->action,
-                    'description' => $row->description,
-                    'created_at' => $row->created_at,
-                    'user' => $row->actor_name ? ['name' => $row->actor_name] : null,
-                ];
-            });
 
         if ($systemLogs->isEmpty()) {
             $systemLogs = collect([
@@ -209,18 +231,25 @@ class DashboardController extends Controller
      */
     public function getFundingChart(bool $isAdminKampus, ?int $universityId)
     {
+        $dateCol = Schema::hasColumn('contracts', 'tanggal_kontrak') ? 'tanggal_kontrak' : 'start_date';
+        $danaCol = Schema::hasColumn('contracts', 'dana_disetujui') ? 'dana_disetujui' : 'contract_value';
+        $statusCol = Schema::hasColumn('contracts', 'status_kontrak') ? 'status_kontrak' : 'status';
+
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+        $yearExpression = $isSqlite ? "strftime('%Y', {$dateCol})" : "YEAR({$dateCol})";
+
         $query = DB::table('contracts')
             ->select(
-                DB::raw('YEAR(start_date) as year'),
-                DB::raw('SUM(contract_value) as amount')
+                DB::raw("{$yearExpression} as year"),
+                DB::raw("SUM({$danaCol}) as amount")
             )
-            ->whereIn('status', ['active', 'completed']);
+            ->whereIn($statusCol, ['Active', 'active', 'completed', 'Signed', 'Closed']);
 
         if ($isAdminKampus) {
             $query->where('university_id', $universityId);
         }
 
-        $data = $query->groupBy(DB::raw('YEAR(start_date)'))
+        $data = $query->groupBy(DB::raw($yearExpression))
             ->orderBy('year', 'asc')
             ->get()
             ->map(function ($row) {
@@ -270,9 +299,11 @@ class DashboardController extends Controller
                     continue; // Skip faculties with no users
                 }
 
+                $userCol = Schema::hasColumn('proposals', 'id_pengusul') ? 'id_pengusul' : 'user_id';
+
                 // Count total proposals (submitted)
                 $submitted = DB::table('proposals')
-                    ->whereIn('user_id', $userIds)
+                    ->whereIn($userCol, $userIds)
                     ->count();
 
                 // Count research outputs (accepted/luaran)
@@ -314,15 +345,16 @@ class DashboardController extends Controller
 
             $total = DB::table('proposals')->count();
             $categories = [];
+            $schemaCol = Schema::hasColumn('proposals', 'id_skema_pendanaan') ? 'id_skema_pendanaan' : 'research_schema_id';
 
             foreach ($schemas as $schema) {
                 $count = DB::table('proposals')
-                    ->where('research_schema_id', $schema->id)
+                    ->where($schemaCol, $schema->id)
                     ->count();
 
                 if ($count > 0) {
                     $categories[] = [
-                        'label' => $schema->name,
+                        'label' => $schema->nama_skema ?? $schema->name ?? 'Skema',
                         'value' => $count,
                         'percentage' => $total > 0 ? round(($count / $total) * 100, 1) : 0,
                     ];

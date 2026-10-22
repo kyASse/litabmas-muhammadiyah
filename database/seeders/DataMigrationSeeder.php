@@ -30,7 +30,7 @@ class DataMigrationSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🔄 Starting v1.0 → v1.1 Data Migration...');
+        $this->command->info(' Starting v1.0 → v1.1 Data Migration...');
         $this->command->newLine();
 
         // Step 1: Get BAN-PT template (must exist from AccreditationTemplateSeeder)
@@ -39,24 +39,24 @@ class DataMigrationSeeder extends Seeder
             ->first();
 
         if (! $template) {
-            $this->command->error('❌ ERROR: BAN-PT template not found! Run AccreditationTemplateSeeder first.');
+            $this->command->error('[GAGAL] ERROR: BAN-PT template not found! Run AccreditationTemplateSeeder first.');
 
             return;
         }
 
-        $this->command->info("📌 Using template: {$template->name} (ID: {$template->id})");
+        $this->command->info(" Using template: {$template->name} (ID: {$template->id})");
         $this->command->newLine();
 
         // Step 2: Get existing legacy indicators (sub_category_id IS NULL)
         $legacyIndicators = EvaluationIndicator::whereNull('sub_category_id')->get();
 
         if ($legacyIndicators->isEmpty()) {
-            $this->command->warn('⚠️  No legacy indicators found (all already migrated).');
+            $this->command->warn('[PERINGATAN] No legacy indicators found (all already migrated).');
 
             return;
         }
 
-        $this->command->info("🔍 Found {$legacyIndicators->count()} legacy indicators to migrate");
+        $this->command->info("[CARI] Found {$legacyIndicators->count()} legacy indicators to migrate");
         $this->command->newLine();
 
         // Step 3: Extract unique categories with their codes and weights
@@ -69,7 +69,7 @@ class DataMigrationSeeder extends Seeder
             ];
         });
 
-        $this->command->info('📊 Step 1: Creating Categories...');
+        $this->command->info('[DATA] Step 1: Creating Categories...');
 
         $categoryMapping = [];
         $displayOrder = 1;
@@ -89,11 +89,11 @@ class DataMigrationSeeder extends Seeder
             $categoryMapping[$categoryName] = $category;
 
             $catNum = $displayOrder - 1;
-            $this->command->info("  ✓ Category {$catNum}: {$categoryName} (code={$data['codes']}, weight={$data['total_weight']}, indicators={$data['count']})");
+            $this->command->info("  [OK] Category {$catNum}: {$categoryName} (code={$data['codes']}, weight={$data['total_weight']}, indicators={$data['count']})");
         }
 
         $this->command->newLine();
-        $this->command->info('📊 Step 2: Creating Sub-Categories...');
+        $this->command->info('[DATA] Step 2: Creating Sub-Categories...');
 
         $subCategoryMapping = [];
         $totalSubCategories = 0;
@@ -117,12 +117,12 @@ class DataMigrationSeeder extends Seeder
                 $subCategoryMapping["{$categoryName}::{$subCategoryName}"] = $subCategory;
                 $totalSubCategories++;
 
-                $this->command->info("  ✓ Sub-Category: {$categoryName} → {$subCategoryName} (ID: {$subCategory->id}, indicators: {$subCategoryIndicators->count()})");
+                $this->command->info("  [OK] Sub-Category: {$categoryName} → {$subCategoryName} (ID: {$subCategory->id}, indicators: {$subCategoryIndicators->count()})");
             }
         }
 
         $this->command->newLine();
-        $this->command->info('📊 Step 3: Migrating Indicators (populating sub_category_id)...');
+        $this->command->info('[DATA] Step 3: Migrating Indicators (populating sub_category_id)...');
 
         $migratedCount = 0;
         $failedCount = 0;
@@ -131,7 +131,7 @@ class DataMigrationSeeder extends Seeder
             $key = "{$indicator->category}::{$indicator->sub_category}";
 
             if (! isset($subCategoryMapping[$key])) {
-                $this->command->error("  ✗ FAILED: Indicator {$indicator->code} - No sub_category found for '{$key}'");
+                $this->command->error("  [FAIL] FAILED: Indicator {$indicator->code} - No sub_category found for '{$key}'");
                 $failedCount++;
 
                 continue;
@@ -142,28 +142,28 @@ class DataMigrationSeeder extends Seeder
             $indicator->save();
 
             $migratedCount++;
-            $this->command->info("  ✓ Migrated: {$indicator->code} → sub_category_id={$subCategory->id}");
+            $this->command->info("  [OK] Migrated: {$indicator->code} → sub_category_id={$subCategory->id}");
         }
 
         $this->command->newLine();
-        $this->command->info('📊 Step 4: Validation...');
+        $this->command->info('[DATA] Step 4: Validation...');
 
         // Validation 1: Check all indicators have sub_category_id
         $remainingLegacy = EvaluationIndicator::whereNull('sub_category_id')->count();
 
         if ($remainingLegacy > 0) {
-            $this->command->warn("  ⚠️  WARNING: {$remainingLegacy} indicators still have NULL sub_category_id");
+            $this->command->warn("  [PERINGATAN] WARNING: {$remainingLegacy} indicators still have NULL sub_category_id");
         } else {
-            $this->command->info('  ✓ All indicators successfully migrated (no NULL sub_category_id)');
+            $this->command->info('  [OK] All indicators successfully migrated (no NULL sub_category_id)');
         }
 
         // Validation 2: Check no orphaned sub_categories
         $orphanedSubCategories = EvaluationSubCategory::doesntHave('indicators')->count();
 
         if ($orphanedSubCategories > 0) {
-            $this->command->warn("  ⚠️  WARNING: {$orphanedSubCategories} sub-categories have no indicators");
+            $this->command->warn("  [PERINGATAN] WARNING: {$orphanedSubCategories} sub-categories have no indicators");
         } else {
-            $this->command->info('  ✓ No orphaned sub-categories (all have indicators)');
+            $this->command->info('  [OK] No orphaned sub-categories (all have indicators)');
         }
 
         // Validation 3: Check category weight consistency
@@ -177,14 +177,14 @@ class DataMigrationSeeder extends Seeder
             $expectedWeight = $category->weight;
 
             if (abs($actualWeight - $expectedWeight) > 0.01) {
-                $this->command->warn("  ⚠️  WARNING: Category '{$categoryName}' weight mismatch (expected={$expectedWeight}, actual={$actualWeight})");
+                $this->command->warn("  [PERINGATAN] WARNING: Category '{$categoryName}' weight mismatch (expected={$expectedWeight}, actual={$actualWeight})");
             } else {
-                $this->command->info("  ✓ Category '{$categoryName}' weight validated ({$expectedWeight})");
+                $this->command->info("  [OK] Category '{$categoryName}' weight validated ({$expectedWeight})");
             }
         }
 
         $this->command->newLine();
-        $this->command->info('✨ Migration Summary:');
+        $this->command->info('[BARU] Migration Summary:');
         $categoriesCount = count($categoryMapping);
         $this->command->info("  • Categories created: {$categoriesCount}");
         $this->command->info("  • Sub-categories created: {$totalSubCategories}");
@@ -194,9 +194,9 @@ class DataMigrationSeeder extends Seeder
         $this->command->newLine();
 
         if ($failedCount === 0 && $remainingLegacy === 0) {
-            $this->command->info('🎉 v1.0 → v1.1 Migration completed successfully!');
+            $this->command->info('[SUKSES] v1.0 → v1.1 Migration completed successfully!');
         } else {
-            $this->command->error('❌ Migration completed with errors. Please review warnings above.');
+            $this->command->error('[GAGAL] Migration completed with errors. Please review warnings above.');
         }
 
         $this->command->newLine();

@@ -76,7 +76,7 @@ class HarvestJournalArticles extends Command
         $failedJournals = [];
 
         foreach ($journals as $journal) {
-            $this->info("\n📚 Harvesting: {$journal->title}");
+            $this->info("\n[HARVEST] Harvesting: {$journal->title}");
             $this->info('    OAI-PMH URLs: '.implode(', ', $journal->oai_urls));
 
             try {
@@ -86,27 +86,28 @@ class HarvestJournalArticles extends Command
                 $totalRecordsImported += $stats['records_imported'];
                 $totalRecordsUpdated += $stats['records_updated'];
 
-                $this->info("   ✓ Found: {$stats['records_found']} records");
-                $this->info("   ✓ Imported: {$stats['records_imported']} new articles");
-                $this->info("   ✓ Updated: {$stats['records_updated']} existing articles");
+                $this->info("   [OK] Found: {$stats['records_found']} records");
+                $this->info("   [OK] Imported: {$stats['records_imported']} new articles");
+                $this->info("   [OK] Updated: {$stats['records_updated']} existing articles");
 
                 if (! empty($stats['errors'])) {
-                    $this->warn('   ⚠ Errors: '.count($stats['errors']).' records had issues');
+                    $this->warn('   [WARN] Errors: '.count($stats['errors']).' records had issues');
                     foreach ($stats['errors'] as $error) {
                         $this->line("      - {$error}");
                     }
                 }
             } catch (\Exception $e) {
-                $this->error("   ✗ Failed: {$e->getMessage()}");
+                $this->error("   [ERROR] Failed: {$e->getMessage()}");
                 $failedJournals[] = $journal->title;
             }
         }
 
         // Summary
         $this->newLine();
-        $this->info('═══════════════════════════════════════════');
-        $this->info('📊 Harvesting Summary');
-        $this->info('═══════════════════════════════════════════');
+        $this->info('===========================================');
+        $this->info('[SUMMARY] Harvesting Summary');
+        $this->info('===========================================');
+
         $this->info("Journals processed: {$journals->count()}");
         $this->info("Total records found: {$totalRecordsFound}");
         $this->info("New articles imported: {$totalRecordsImported}");
@@ -121,7 +122,7 @@ class HarvestJournalArticles extends Command
             return Command::FAILURE;
         }
 
-        $this->info("\n✅ Harvesting completed successfully!");
+        $this->info("\n[SUKSES] Harvesting completed successfully!");
 
         return Command::SUCCESS;
     }

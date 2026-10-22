@@ -5,15 +5,14 @@ use App\Http\Controllers\Admin\AssignController as AdminAssignController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DecisionController as AdminDecisionController;
 use App\Http\Controllers\Admin\LogController as AdminLogController;
-use App\Http\Controllers\Admin\LppmApprovalController as AdminLppmApprovalController;
 use App\Http\Controllers\Admin\MonevReportController as AdminMonevReportController;
 use App\Http\Controllers\Admin\MonevScheduleCtrl as AdminMonevScheduleCtrl;
 use App\Http\Controllers\Admin\OutputReportController as AdminOutputReportController;
-use App\Http\Controllers\Admin\OutputVerifyCtrl as AdminOutputVerifyCtrl;
+use App\Http\Controllers\Admin\OutputVerifyController as AdminOutputVerifyController;
 use App\Http\Controllers\Admin\ProposalController as AdminProposalController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
-use App\Http\Controllers\Admin\ScheduleController as AdminScheduleController;
 use App\Http\Controllers\Admin\SettingsCtrl as AdminSettingsCtrl;
+use App\Http\Controllers\Admin\SktsController;
 use App\Http\Controllers\Admin\UniversityController as AdminUniversityController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\UserRoleController as AdminUserRoleController;
@@ -36,6 +35,7 @@ use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\Review\ReviewSummaryController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ReviewDocumentController;
+use App\Http\Controllers\Reviewer\MonevEvaluationController;
 use App\Http\Controllers\ReviewerController;
 use App\Http\Controllers\ReviewHistoryController;
 use App\Http\Controllers\SchemaController;
@@ -71,6 +71,11 @@ Route::get('/storage/{path}', function (string $path) {
 // Home / Landing Page
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Design System Preview Gate (Hybrid Scholarly Enterprise Showcase)
+Route::get('/design-system-preview', function () {
+    return inertia('DesignSystemPreview');
+})->name('design-system-preview');
+
 // Google OAuth
 Route::middleware('guest')->group(function () {
     Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
@@ -101,6 +106,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/proposals/documents/{document}/download', [DocumentController::class, 'download'])->name('documents.download');
     Route::get('/proposals/{proposal}/download', [ProposalController::class, 'downloadDocument'])->name('proposals.download');
 
+    // SKTS Certificate & Evaluation
+    Route::get('/evaluations/show', [EvaluationController::class, 'show'])->name('evaluations.show.query');
+    Route::get('/evaluations/my-final-report', [EvaluationController::class, 'show'])->name('evaluations.my-final-report');
+    Route::get('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'show'])->name('evaluations.show');
+    Route::get('/proposals/{proposal}/skts-certificate', [EvaluationController::class, 'certificate'])->name('evaluations.certificate');
+    Route::get('/proposals/{proposal}/skts', [EvaluationController::class, 'certificate'])->name('evaluations.skts.show');
+
     /*
     |--------------------------------------------------------------------------
     | Grup Peneliti / Dosen (PRD Bab 7.1)
@@ -109,12 +121,20 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['role:Peneliti,Dosen,User'])->group(function () {
         // Proposals CRUD
         Route::get('/proposals', [ProposalController::class, 'index'])->name('proposals.index');
+        Route::get('/proposal', [ProposalController::class, 'index'])->name('proposal.index');
         Route::get('/proposals/create', [ProposalController::class, 'create'])->name('proposals.create');
+        Route::get('/proposal/create', [ProposalController::class, 'create'])->name('proposal.create');
         Route::post('/proposals', [ProposalController::class, 'store'])->name('proposals.store');
+        Route::post('/proposal', [ProposalController::class, 'store'])->name('proposal.store');
         Route::get('/proposals/{proposal}', [ProposalController::class, 'show'])->name('proposals.show');
+        Route::get('/proposal/{proposal}', [ProposalController::class, 'show'])->name('proposal.show');
         Route::get('/proposals/{proposal}/edit', [ProposalController::class, 'edit'])->name('proposals.edit');
+        Route::get('/proposal/{proposal}/edit', [ProposalController::class, 'edit'])->name('proposal.edit');
         Route::put('/proposals/{proposal}', [ProposalController::class, 'update'])->name('proposals.update');
+        Route::put('/proposal/{proposal}', [ProposalController::class, 'update'])->name('proposal.update');
         Route::delete('/proposals/{proposal}', [ProposalController::class, 'destroy'])->name('proposals.destroy');
+        Route::delete('/proposal/{proposal}', [ProposalController::class, 'destroy'])->name('proposal.destroy');
+        Route::get('/proposal/documents/{document}/download', [DocumentController::class, 'download'])->name('proposal.documents.download');
 
         // Document Upload
         Route::post('/proposals/{proposal}/documents', [DocumentController::class, 'upload'])->name('documents.store');
@@ -129,23 +149,20 @@ Route::middleware(['auth'])->group(function () {
         // Research Outputs (Luaran Penelitian)
         Route::get('/outputs', [OutputController::class, 'index'])->name('outputs.index');
         Route::get('/outputs/create', [OutputController::class, 'create'])->name('outputs.create');
-        Route::post('/outputs', [OutputController::class, 'storeJournal'])->name('outputs.store');
+        Route::post('/outputs', [OutputController::class, 'store'])->name('outputs.store');
         Route::get('/outputs/{output}/edit', [OutputController::class, 'edit'])->name('outputs.edit');
         Route::put('/outputs/{output}', [OutputController::class, 'update'])->name('outputs.update');
         Route::delete('/outputs/{output}', [OutputController::class, 'destroy'])->name('outputs.destroy');
 
-        Route::post('/outputs/journal', [OutputController::class, 'storeJournal'])->name('outputs.store-journal');
-        Route::post('/outputs/hki', [OutputController::class, 'storeHKI'])->name('outputs.storeHKI');
-        Route::post('/outputs/book', [OutputController::class, 'storeBook'])->name('outputs.storeBook');
-        Route::post('/outputs/products', [OutputController::class, 'storeProduct'])->name('outputs.products.store');
         Route::post('/outputs/products/{product}/upload', [OutputDocController::class, 'upload'])->name('outputs.products.upload-doc');
         Route::delete('/outputs/products/{product}/upload', [OutputDocController::class, 'destroy'])->name('outputs.products.delete-doc');
 
-        // Final Report / Evaluation
-        Route::get('/evaluations/my-final-report', [EvaluationController::class, 'show'])->name('evaluations.my-final-report');
+        // Final Report / Evaluation Submission
+        Route::post('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'store'])->name('evaluations.store');
 
         // Funding Info for Peneliti
         Route::get('/funding', [UserFundingController::class, 'index'])->name('funding.index');
+        Route::get('/user/funding', [UserFundingController::class, 'index'])->name('user.funding.index');
     });
 
     /*
@@ -165,9 +182,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/proposals/{id}', [ReviewController::class, 'show'])->name('proposals.show');
         Route::post('/proposals/{id}/assessment', [ReviewController::class, 'storeAssessment'])->name('proposals.assessment');
         Route::put('/proposals/{id}/assessment', [ReviewController::class, 'updateAssessment'])->name('proposals.assessment.update');
+        Route::post('/assessment', [ReviewController::class, 'storeAssessment'])->name('assessment.store');
+        Route::put('/assessment/{id}', [ReviewController::class, 'updateAssessment'])->name('assessment.update');
 
         // Monev & Evaluation
-        Route::post('/monev/{id}', [ProgressController::class, 'evaluateMonev'])->name('monev.evaluate');
+        Route::get('/monev/{report}/evaluate', [MonevEvaluationController::class, 'show'])->name('monev.show');
+        Route::post('/monev/{report}/evaluate', [MonevEvaluationController::class, 'evaluate'])->name('monev.evaluate');
+        Route::post('/monev/{id}', [MonevEvaluationController::class, 'evaluate'])->name('monev.evaluate.legacy');
         Route::get('/evaluations', [EvaluationController::class, 'index'])->name('evaluations.index');
         Route::get('/evaluations/{report}', [EvaluationController::class, 'showProgress'])->name('evaluations.show');
         Route::post('/evaluations/{id}', [EvaluationController::class, 'evaluateFinal'])->name('evaluations.evaluate-final');
@@ -178,10 +199,10 @@ Route::middleware(['auth'])->group(function () {
     | Grup Admin Keuangan (PRD Bab 7.3)
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:'.Role::ADMIN_KEUANGAN])->prefix('finance')->name('finance.')->group(function () {
+    Route::middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::ADMIN_KAMPUS.','.Role::SUPER_ADMIN])->prefix('finance')->name('finance.')->group(function () {
         // Contracts
         Route::get('/contracts', [ContractController::class, 'index'])->name('contracts.index');
-        Route::post('/contracts', [ContractController::class, 'generate'])->name('contracts.store');
+        Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
         Route::post('/contracts/generate', [ContractController::class, 'generate'])->name('contracts.generate');
         Route::get('/contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
         Route::post('/contracts/{contract}/update-status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
@@ -208,6 +229,17 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reports/filter', [FinanceReportController::class, 'filter'])->name('reports.filter');
     });
 
+    // Contract & Funding Route Aliases (Ziggy & Backward Compatibility)
+    Route::middleware(['role:'.Role::ADMIN_KEUANGAN.','.Role::ADMIN_KAMPUS.','.Role::SUPER_ADMIN])->group(function () {
+        Route::get('/contracts', [ContractController::class, 'index'])->name('contracts.index');
+        Route::post('/contracts', [ContractController::class, 'store'])->name('contracts.store');
+        Route::get('/contracts/{contract}', [ContractController::class, 'show'])->name('contracts.show');
+        Route::post('/contracts/{contract}/update-status', [ContractController::class, 'updateStatus'])->name('contracts.update-status');
+        Route::post('/funding/{id}/disburse', [FundingController::class, 'disburse'])->name('funding.disburse');
+        Route::post('/funding/{funding}/upload-bukti', [FundingController::class, 'uploadBukti'])->name('funding.upload-bukti');
+        Route::get('/funding/{id}/print', [FundingController::class, 'printKwitansi'])->name('funding.print-kwitansi');
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Grup Admin Kampus / LPPM (PRD Bab 7.4)
@@ -231,6 +263,7 @@ Route::middleware(['auth'])->group(function () {
         // Reviewer Assignment
         Route::get('reviewer/assign', [AdminAssignController::class, 'index'])->name('reviewer.assign');
         Route::post('assign', [AdminAssignController::class, 'assign'])->name('assign.store');
+        Route::post('assign/{id}/reassign', [AdminAssignController::class, 'reassign'])->name('assign.reassign');
         Route::delete('assign/{id}', [AdminAssignController::class, 'unassign'])->name('assign.unassign');
 
         // Decision
@@ -253,19 +286,30 @@ Route::middleware(['auth'])->group(function () {
         });
 
         // Output Verification & Reports
-        Route::prefix('output-verify')->name('output-verify.')->group(function () {
-            Route::get('/', [AdminOutputVerifyCtrl::class, 'index'])->name('index');
-            Route::post('{output}', [AdminOutputVerifyCtrl::class, 'verify'])->name('verify');
+        Route::prefix('outputs')->name('outputs.')->group(function () {
+            Route::get('/', [AdminOutputVerifyController::class, 'index'])->name('index');
+            Route::get('/verify', [AdminOutputVerifyController::class, 'index'])->name('verify-page');
+            Route::post('{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('verify');
         });
-        Route::post('/output/{output}/verify', [AdminOutputVerifyCtrl::class, 'verify'])->name('output.verify');
+        Route::post('/outputs/{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('outputs.verify');
+        Route::prefix('output-verify')->name('output-verify.')->group(function () {
+            Route::get('/', [AdminOutputVerifyController::class, 'index'])->name('index');
+            Route::post('{output}', [AdminOutputVerifyController::class, 'verify'])->name('verify');
+        });
+        Route::post('/output/{output}/verify', [AdminOutputVerifyController::class, 'verify'])->name('output.verify');
         Route::get('output/report', [AdminOutputReportController::class, 'index'])->name('output.report');
         Route::get('output/export', [AdminOutputReportController::class, 'export'])->name('output.export');
 
-        // Final Certification (SKTS)
-        Route::post('/evaluations/{id}/certify', [EvaluationController::class, 'generateSkts'])->name('evaluations.certify');
-
-        // Schedules
-        Route::resource('schedules', AdminScheduleController::class);
+        // SKTS & Final Evaluation Management
+        Route::get('/evaluations', [EvaluationController::class, 'show'])->name('evaluations.index');
+        Route::get('/evaluations/show', [EvaluationController::class, 'show'])->name('evaluations.show');
+        Route::get('/evaluations/{proposal}', [EvaluationController::class, 'show'])->name('evaluations.proposal.show');
+        Route::get('/proposals/{proposal}/evaluate', [EvaluationController::class, 'show'])->name('proposals.evaluate.show');
+        Route::get('/proposals/{proposal}/final-evaluation', [EvaluationController::class, 'show'])->name('proposals.final-evaluation.show');
+        Route::post('/proposals/{proposal}/evaluate', [SktsController::class, 'evaluate'])->name('proposals.evaluate');
+        Route::post('/proposals/{proposal}/skts', [SktsController::class, 'generateSkts'])->name('proposals.skts');
+        Route::post('/proposals/{proposal}/terminate', [SktsController::class, 'terminateForceMajeure'])->name('proposals.terminate');
+        Route::post('/evaluations/{proposal}/certify', [SktsController::class, 'generateSkts'])->name('evaluations.certify');
 
         // Dashboard Admin Kampus / LPPM
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -293,14 +337,6 @@ Route::middleware(['auth'])->group(function () {
             ->name('users.toggle-active');
         Route::delete('users/revoke/{id}', [AdminUserRoleController::class, 'revoke'])
             ->name('users.revoke');
-
-        // LPPM Approval Workflow
-        Route::post('users/{user}/approve-lppm', [AdminLppmApprovalController::class, 'approve'])
-            ->name('users.approve-lppm');
-        Route::post('users/{user}/reject-lppm', [AdminLppmApprovalController::class, 'reject'])
-            ->name('users.reject-lppm');
-        Route::post('users/{user}/revert-lppm', [AdminLppmApprovalController::class, 'revert'])
-            ->name('users.revert-lppm');
 
         // System Logs & Settings
         Route::get('/logs', [AdminLogController::class, 'index'])->name('logs.index');

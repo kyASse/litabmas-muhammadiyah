@@ -1,5 +1,7 @@
 import logoUrl from '@/assets/logo_dark.png';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from '@/hooks/use-translation';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { LayoutDashboard } from 'lucide-react';
@@ -8,6 +10,7 @@ import { PropsWithChildren } from 'react';
 export default function PublicLayout({ children }: PropsWithChildren) {
     const { auth } = usePage<SharedData>().props;
     const pageProps = usePage<any>().props;
+    const { t } = useTranslation();
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-50 font-sans text-[#1b1b18] selection:bg-[#079C4E] selection:text-white dark:bg-[#0a0a0a] dark:text-[#EDEDEC]">
@@ -20,34 +23,37 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                                 <img src={logoUrl} alt="Majelis Diktilitbang" className="h-8 w-8 object-contain" />
                             </div>
                             <span className="font-heading text-2xl font-bold" style={{ fontFamily: '"El Messiri", sans-serif' }}>
-                                Journal MU
+                                {t.common.appName}
                             </span>
                         </Link>
 
                         <div className="flex items-center gap-4 text-sm font-medium">
-                            <Link href={route('events.index')} className="transition-colors hover:text-[#FCEE1F]">
-                                Events
+                            <Link href={route('home')} className="transition-colors hover:text-[#FCEE1F]">
+                                {t.navigation.home}
                             </Link>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-2 sm:gap-4">
+                        <LanguageSwitcher variant="compact" />
                         {auth?.user ? (
                             <Link href={route('dashboard')}>
                                 <Button variant="secondary" className="border-0 bg-white font-bold text-[#079C4E] hover:bg-gray-100">
                                     <LayoutDashboard className="mr-2 h-4 w-4" />
-                                    <span className="hidden sm:inline">Dashboard</span>
+                                    <span className="hidden sm:inline">{t.navigation.dashboard}</span>
                                 </Button>
                             </Link>
                         ) : (
                             <>
                                 <Link href={route('login')}>
                                     <Button variant="ghost" className="px-2 text-white hover:bg-white/20 hover:text-white sm:px-4">
-                                        Log in
+                                        {t.navigation.login}
                                     </Button>
                                 </Link>
                                 <Link href={route('register')}>
-                                    <Button className="border-0 bg-[#FCEE1F] px-3 font-bold text-black hover:bg-[#e3d51b] sm:px-4">Register</Button>
+                                    <Button className="border-0 bg-[#FCEE1F] px-3 font-bold text-black hover:bg-[#e3d51b] sm:px-4">
+                                        {t.navigation.register}
+                                    </Button>
                                 </Link>
                             </>
                         )}
@@ -72,7 +78,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             Contact Support
                         </a>
                     </div>
-                    <p>&copy; {new Date().getFullYear()} JurnalMu - Muhammadiyah Higher Education Research Network.</p>
+                    <p>(c) {new Date().getFullYear()} SIM-Penelitian - Muhammadiyah Higher Education Research Network.</p>
                     {pageProps.laravelVersion && pageProps.phpVersion && (
                         <p className="mt-2">
                             Laravel v{pageProps.laravelVersion} (PHP v{pageProps.phpVersion})

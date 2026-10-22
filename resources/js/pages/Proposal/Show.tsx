@@ -12,9 +12,10 @@
  * @route GET /proposal/{proposal}
  */
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatusBadge } from '@/components/ui/StatusBadge';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
@@ -56,31 +57,20 @@ interface ShowProps {
 }
 
 export default function Show({ proposal }: ShowProps) {
+    const { t } = useTranslation();
     const { auth } = usePage<any>().props;
     const isOwner = auth?.user?.id === proposal.user?.id;
+    const canEdit = isOwner && (proposal.status_proposal === 'Draft' || proposal.status_proposal === 'Revisi');
 
     const breadcrumbs: BreadcrumbItem[] = [
-        { title: 'Dashboard', href: '/dashboard' },
-        { title: 'Proposal Penelitian', href: route('proposal.index') },
-        { title: 'Detail Proposal', href: '#' },
+        { title: t.navigation.dashboard, href: route('dashboard') },
+        { title: t.proposalList.pageTitle, href: route('proposal.index') },
+        { title: t.proposalDetail.pageTitle, href: '#' },
     ];
-
-    const getStatusBadge = (status: string) => {
-        switch (status) {
-            case 'Administrasi_Valid':
-                return <Badge className="bg-emerald-500 text-white hover:bg-emerald-600">Sudah Disetujui</Badge>;
-            case 'Submitted':
-                return <Badge className="bg-blue-500 text-white hover:bg-blue-600">Submitted</Badge>;
-            case 'Ditolak':
-                return <Badge variant="destructive">Ditolak</Badge>;
-            default:
-                return <Badge variant="outline">Draft</Badge>;
-        }
-    };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title={`Detail Proposal - ${proposal.title}`} />
+            <Head title={`${t.proposalDetail.pageTitle} - ${proposal.title}`} />
 
             <div className="container mx-auto max-w-4xl space-y-6 p-4 sm:p-6">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -89,16 +79,16 @@ export default function Show({ proposal }: ShowProps) {
                             <ArrowLeft className="h-4 w-4" />
                         </Button>
                         <div>
-                            <h1 className="text-2xl font-bold tracking-tight">Detail Proposal Penelitian</h1>
-                            <p className="text-sm text-muted-foreground">Informasi lengkap pengajuan proposal penelitian.</p>
+                            <h1 className="font-sans text-xl font-bold tracking-tight text-foreground sm:text-2xl">{t.proposalDetail.pageTitle}</h1>
+                            <p className="text-sm text-muted-foreground">{t.proposalDetail.pageSubtitle}</p>
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                        {isOwner && (
+                        {canEdit && (
                             <Link href={route('proposal.edit', proposal.id)}>
                                 <Button variant="outline">
                                     <Edit className="mr-2 h-4 w-4" />
-                                    Edit Proposal
+                                    {t.proposalDetail.editBtn}
                                 </Button>
                             </Link>
                         )}
@@ -110,10 +100,10 @@ export default function Show({ proposal }: ShowProps) {
                     <div className="space-y-1 rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-destructive">
                         <div className="flex items-center space-x-2 font-semibold">
                             <AlertCircle className="h-5 w-5" />
-                            <span>Proposal Ditolak pada Tahap Administrasi</span>
+                            <span>{t.proposalDetail.rejectedAlertTitle}</span>
                         </div>
                         <p className="pl-7 text-sm text-destructive/90">
-                            <strong>Alasan Penolakan:</strong> {proposal.rejection_reason}
+                            <strong>{t.proposalDetail.rejectionReasonLabel}</strong> {proposal.rejection_reason}
                         </p>
                     </div>
                 )}
@@ -123,29 +113,31 @@ export default function Show({ proposal }: ShowProps) {
                     <CardHeader>
                         <div className="flex items-start justify-between gap-4">
                             <div>
-                                <CardTitle className="text-xl leading-relaxed">{proposal.title}</CardTitle>
+                                <CardTitle className="font-serif text-xl leading-relaxed font-bold text-foreground">{proposal.title}</CardTitle>
                                 <CardDescription className="mt-2 space-y-1">
                                     {proposal.user && (
                                         <div className="flex items-center gap-1.5 text-sm text-foreground">
                                             <UserIcon className="h-4 w-4 text-muted-foreground" />
                                             <span>
-                                                Pengusul: <strong>{proposal.user.name}</strong> ({proposal.user.email})
+                                                {t.proposalDetail.proposerLabel} <strong>{proposal.user.name}</strong> ({proposal.user.email})
                                             </span>
                                         </div>
                                     )}
                                     <div className="text-sm">
-                                        Skema Penelitian:{' '}
-                                        <strong className="text-foreground">{proposal.research_schema?.name || 'Belum Ditentukan'}</strong>
+                                        {t.proposalDetail.schemeLabel}{' '}
+                                        <strong className="text-foreground">{proposal.research_schema?.name || t.proposalDetail.notSpecified}</strong>
                                     </div>
                                 </CardDescription>
                             </div>
-                            <div>{getStatusBadge(proposal.status_proposal)}</div>
+                            <div>
+                                <StatusBadge status={proposal.status_proposal} size="md" />
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div>
                             <h3 className="mb-2 text-sm font-semibold tracking-wider text-muted-foreground uppercase">
-                                Ringkasan / Deskripsi Proposal
+                                {t.proposalDetail.summaryTitle}
                             </h3>
                             <p className="rounded-md bg-muted/30 p-4 text-sm leading-relaxed whitespace-pre-line text-foreground">
                                 {proposal.description}
@@ -155,16 +147,18 @@ export default function Show({ proposal }: ShowProps) {
                         {/* File Dokumen Utama */}
                         {proposal.file_dokumen_proposal && (
                             <div>
-                                <h3 className="mb-2 text-sm font-semibold tracking-wider text-muted-foreground uppercase">Berkas Utama Proposal</h3>
+                                <h3 className="mb-2 text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+                                    {t.proposalDetail.mainDocumentTitle}
+                                </h3>
                                 <div className="flex items-center justify-between rounded-lg border bg-card p-3">
                                     <div className="flex items-center space-x-3">
                                         <FileText className="h-5 w-5 text-primary" />
-                                        <span className="text-sm font-medium">Dokumen Utama Proposal</span>
+                                        <span className="text-sm font-medium">{t.proposalDetail.mainDocumentLabel}</span>
                                     </div>
                                     <a href={`/storage/${proposal.file_dokumen_proposal}`} target="_blank" rel="noopener noreferrer" download>
                                         <Button size="sm" variant="secondary">
                                             <Download className="mr-2 h-4 w-4" />
-                                            Unduh Berkas
+                                            {t.proposalDetail.downloadFileBtn}
                                         </Button>
                                     </a>
                                 </div>
@@ -174,7 +168,9 @@ export default function Show({ proposal }: ShowProps) {
                         {/* Dokumen Pendukung */}
                         {proposal.documents && proposal.documents.length > 0 && (
                             <div>
-                                <h3 className="mb-2 text-sm font-semibold tracking-wider text-muted-foreground uppercase">Dokumen Pendukung</h3>
+                                <h3 className="mb-2 text-sm font-semibold tracking-wider text-muted-foreground uppercase">
+                                    {t.proposalDetail.supportingDocumentsTitle}
+                                </h3>
                                 <div className="space-y-2">
                                     {proposal.documents.map((doc) => (
                                         <div key={doc.id} className="flex items-center justify-between rounded-lg border bg-card p-3">
@@ -188,7 +184,7 @@ export default function Show({ proposal }: ShowProps) {
                                             <a href={route('proposal.documents.download', doc.id)}>
                                                 <Button size="sm" variant="ghost">
                                                     <Download className="mr-2 h-4 w-4" />
-                                                    Unduh
+                                                    {t.proposalDetail.downloadBtn}
                                                 </Button>
                                             </a>
                                         </div>

@@ -2,10 +2,10 @@
  * Admin Dashboard Page Component
  *
  * @description
- * Dashboard LPPM Helicopter View / Admin Kampus for visualising research, funding, performance, and activity logs.
+ * Institutional LPPM Research Dashboard providing helicopter-view analytics
+ * for university proposals, funding absorption, faculty performance, and system activity logs.
  *
- * @author JurnalMU Team
- * @filepath /resources/js/pages/Dashboard/Admin.tsx
+ * @filepath resources/js/pages/Dashboard/Admin.tsx
  */
 
 import ActivityLog from '@/components/ActivityLog';
@@ -14,10 +14,14 @@ import PieChart from '@/components/Charts/PieChart';
 import FacultyTable from '@/components/FacultyTable';
 import TopLecturerList from '@/components/TopLecturerList';
 import TopResearchList from '@/components/TopResearchList';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import { MetricCard } from '@/components/ui/MetricCard';
+import PageHeader from '@/components/ui/PageHeader';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head } from '@inertiajs/react';
-import { CheckCircle, DollarSign, FileText, Percent, XCircle } from 'lucide-react';
+import { Coins, FileText, TrendingUp } from 'lucide-react';
 
 interface DashboardStats {
     total_proposals: number;
@@ -61,118 +65,96 @@ interface Props {
     systemLogs: ActivityLogItem[];
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard LPPM',
-        href: '/admin/dashboard',
-    },
-];
-
 export default function AdminDashboard({ stats, yearlyFundingData, facultyPerformance, topResearch, topLecturers, systemLogs }: Props) {
-    // Format currency to IDR
-    const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            maximumFractionDigits: 0,
-        }).format(val);
-    };
+    const { t, format } = useTranslation();
+
+    const breadcrumbs: BreadcrumbItem[] = [
+        {
+            title: t.adminDashboard.pageTitle,
+            href: '/admin/dashboard',
+        },
+    ];
 
     // Map faculty performance to category distribution for PieChart
     const pieChartData = facultyPerformance.map((item) => ({
         label: item.faculty_name,
         value: item.submitted,
-        percentage: 0, // Handled by PieChart calculation
+        percentage: 0,
     }));
+
+    const proposalsCaption = `${format(t.adminDashboard.approvedCount, { count: stats.approved_proposals })} • ${format(t.adminDashboard.rejectedCount, { count: stats.rejected_proposals })}`;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Dashboard LPPM" />
+            <Head title={t.adminDashboard.pageTitle} />
 
-            <div className="flex h-full flex-1 flex-col gap-6 overflow-x-auto rounded-xl bg-slate-50/50 p-4 sm:p-6 dark:bg-neutral-900/30">
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Dashboard Admin LPPM</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        Helicopter-view data riset universitas, sebaran kategori proposal, performa fakultas, klasemen, dan CCTV log.
-                    </p>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
+                <PageHeader
+                    title={t.adminDashboard.pageTitle}
+                    subtitle={t.adminDashboard.pageSubtitle}
+                    isEditorialSerif={false}
+                    breadcrumbs={breadcrumbs}
+                    actions={<LanguageSwitcher variant="compact" />}
+                />
 
-                {/* ROW 1: Summary Cards */}
+                {/* ROW 1: Summary Metric Cards */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {/* Card 1: Anggaran Terserap */}
-                    <div className="relative flex items-center gap-4 overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 shadow-sm dark:border-sidebar-border dark:bg-neutral-950">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400">
-                            <DollarSign className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Total Dana Terserap</p>
-                            <h3 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(stats.total_absorbed_funding)}</h3>
-                            <p className="mt-0.5 text-xs text-gray-400">Dari kontrak aktif dan selesai</p>
-                        </div>
-                    </div>
+                    <MetricCard
+                        title={t.adminDashboard.totalAbsorbedFunding}
+                        value={stats.total_absorbed_funding}
+                        type="currency"
+                        icon={Coins}
+                        iconBgClass="bg-blue-50"
+                        iconColorClass="text-blue-900"
+                        caption={t.adminDashboard.absorbedFundingSubtitle}
+                    />
 
-                    {/* Card 2: Total Proposal */}
-                    <div className="relative flex items-center gap-4 overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 shadow-sm dark:border-sidebar-border dark:bg-neutral-950">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400">
-                            <FileText className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Total Proposal Masuk</p>
-                            <h3 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{stats.total_proposals}</h3>
-                            <p className="text-gray-450 mt-0.5 flex gap-2 text-xs">
-                                <span className="flex items-center gap-0.5 text-green-600">
-                                    <CheckCircle className="h-3 w-3" /> {stats.approved_proposals} Diterima
-                                </span>
-                                <span className="flex items-center gap-0.5 text-red-500">
-                                    <XCircle className="h-3 w-3" /> {stats.rejected_proposals} Ditolak
-                                </span>
-                            </p>
-                        </div>
-                    </div>
+                    <MetricCard
+                        title={t.adminDashboard.totalProposals}
+                        value={stats.total_proposals}
+                        type="integer"
+                        icon={FileText}
+                        iconBgClass="bg-slate-100"
+                        iconColorClass="text-slate-800"
+                        caption={proposalsCaption}
+                    />
 
-                    {/* Card 3: Success Rate */}
-                    <div className="relative flex items-center gap-4 overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 shadow-sm dark:border-sidebar-border dark:bg-neutral-950">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400">
-                            <Percent className="h-6 w-6" />
-                        </div>
-                        <div>
-                            <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Rasio Keberhasilan</p>
-                            <h3 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{stats.success_rate}%</h3>
-                            <p className="text-gray-450 mt-0.5 text-xs">Persentase kelulusan proposal</p>
-                        </div>
-                    </div>
+                    <MetricCard
+                        title={t.adminDashboard.successRate}
+                        value={stats.success_rate}
+                        type="percentage"
+                        icon={TrendingUp}
+                        iconBgClass="bg-emerald-50"
+                        iconColorClass="text-emerald-700"
+                        caption={t.adminDashboard.successRateSubtitle}
+                    />
                 </div>
 
                 {/* ROW 2: Graphs Split Screen */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
                     {/* Left: BarChart (60%) */}
-                    <div className="rounded-xl border border-sidebar-border/70 bg-white p-6 shadow-sm lg:col-span-3 dark:border-sidebar-border dark:bg-neutral-950">
-                        <h2 className="mb-4 text-lg font-bold text-gray-900 dark:text-white">Statistik Pendanaan Tahunan</h2>
+                    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs lg:col-span-3">
+                        <h2 className="mb-4 text-base font-bold text-slate-900">{t.adminDashboard.yearlyFundingTitle}</h2>
                         <BarChart data={yearlyFundingData} />
                     </div>
 
                     {/* Right: PieChart (40%) */}
                     <div className="lg:col-span-2">
-                        <PieChart title="Sebaran Bidang Ilmu / Kategori Proposal" categories={pieChartData} />
+                        <PieChart title={t.adminDashboard.facultyDistributionTitle} categories={pieChartData} />
                     </div>
                 </div>
 
-                {/* ROW 3: Leaderboard & Logs */}
+                {/* ROW 3: Leaderboard & Audit Logs */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {/* Col 1: Top Dosen */}
                     <TopLecturerList data={topLecturers} />
-
-                    {/* Col 2: Top Riset */}
                     <TopResearchList data={topResearch} />
-
-                    {/* Col 3: CCTV Logs */}
                     <div className="h-full">
-                        <ActivityLog logs={systemLogs} title="CCTV System Live Logs" />
+                        <ActivityLog logs={systemLogs} title={t.adminDashboard.systemLogsTitle} />
                     </div>
                 </div>
 
-                {/* ROW 4: Detailed Faculty Table */}
-                <div className="lg:col-span-5">
+                {/* ROW 4: Detailed Faculty Performance Table */}
+                <div className="w-full">
                     <FacultyTable data={facultyPerformance} />
                 </div>
             </div>

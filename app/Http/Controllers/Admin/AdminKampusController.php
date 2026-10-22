@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Proposal;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
@@ -47,7 +48,6 @@ class AdminKampusController extends Controller
 
         // Get Admin Kampus with counts
         $adminKampus = $query
-            ->withCount('journals')
             ->orderBy('name')
             ->paginate(10)
             ->withQueryString()
@@ -64,7 +64,6 @@ class AdminKampusController extends Controller
                     'short_name' => $admin->university->short_name,
                     'code' => $admin->university->code,
                 ] : null,
-                'journals_count' => $admin->journals_count ?? 0,
                 'last_login_at' => $admin->last_login_at?->format('Y-m-d H:i:s'),
                 'created_at' => $admin->created_at->format('Y-m-d H:i:s'),
             ]);
@@ -73,169 +72,34 @@ class AdminKampusController extends Controller
         $universities = Cache::remember('universities.active.list', 3600, function () {
             return University::where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+                ->get(['id', 'name', 'code']);
         });
 
-        // Query pending LPPM registrations (role_id is null and approval_status is pending)
-        $pendingLppmQuery = User::query()
-            ->whereNull('role_id')
-            ->where('approval_status', 'pending')
-            ->with(['university']);
+        $totalAdmins = User::whereHas('role', fn ($q) => $q->where('name', 'Admin Kampus'))
+            ->orWhereHas('roles', fn ($q) => $q->where('name', 'Admin Kampus'))
+            ->count();
 
-        // Search filter for pending LPPM
-        if ($request->filled('pending_lppm_search')) {
-            $search = $request->pending_lppm_search;
-            $pendingLppmQuery->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
+        $activeAdmins = User::where('is_active', true)
+            ->where(fn ($q) => $q->whereHas('role', fn ($r) => $r->where('name', 'Admin Kampus'))
+                ->orWhereHas('roles', fn ($r) => $r->where('name', 'Admin Kampus')))
+            ->count();
 
-        // Paginate pending LPPM separately with different query string
-        $pendingLppm = $pendingLppmQuery
-            ->orderBy('created_at', 'desc')
-            ->paginate(15, ['*'], 'lppm_page')
-            ->withQueryString()
-            ->through(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'university' => $user->university ? [
-                        'id' => $user->university->id,
-                        'name' => $user->university->name,
-                        'short_name' => $user->university->short_name,
-                    ] : null,
-                    'created_at' => $user->created_at->format('Y-m-d H:i:s'),
-                ];
-            });
+        $inactiveAdmins = max(0, $totalAdmins - $activeAdmins);
 
-        // Query rejected LPPM registrations (optional view)
-        $rejectedLppmQuery = User::query()
-            ->whereNull('role_id')
-            ->where('approval_status', 'rejected')
-            ->with(['university', 'approver']);
-
-        // Search filter for rejected LPPM
-        if ($request->filled('rejected_lppm_search')) {
-            $search = $request->rejected_lppm_search;
-            $rejectedLppmQuery->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        // Only show rejected if explicitly requested (toggle in UI)
-        $rejectedLppm = null;
-        if ($request->boolean('show_rejected')) {
-            $rejectedLppm = $rejectedLppmQuery
-                ->orderBy('approved_at', 'desc')
-                ->paginate(15, ['*'], 'rejected_page')
-                ->withQueryString()
-                ->through(function ($user) {
-                    return [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'university' => $user->university ? [
-                            'id' => $user->university->id,
-                            'name' => $user->university->name,
-                            'short_name' => $user->university->short_name,
-                        ] : null,
-                        'rejection_reason' => $user->rejection_reason,
-                        'rejected_by' => $user->approver?->name,
-                        'rejected_at' => $user->approved_at?->format('Y-m-d H:i:s'),
-                        'created_at' => $user->created_at->format('Y-m-d H:i:s'),
-                    ];
-                });
-        }
-
-        // Query pending LPPM registrations (role_id is null and approval_status is pending)
-        $pendingLppmQuery = User::query()
-            ->whereNull('role_id')
-            ->where('approval_status', 'pending')
-            ->with(['university']);
-
-        // Search filter for pending LPPM
-        if ($request->filled('pending_lppm_search')) {
-            $search = $request->pending_lppm_search;
-            $pendingLppmQuery->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        // Paginate pending LPPM separately with different query string
-        $pendingLppm = $pendingLppmQuery
-            ->orderBy('created_at', 'desc')
-            ->paginate(15, ['*'], 'lppm_page')
-            ->withQueryString()
-            ->through(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'university' => $user->university ? [
-                        'id' => $user->university->id,
-                        'name' => $user->university->name,
-                        'short_name' => $user->university->short_name,
-                    ] : null,
-                    'created_at' => $user->created_at->format('Y-m-d H:i:s'),
-                ];
-            });
-
-        // Query rejected LPPM registrations (optional view)
-        $rejectedLppmQuery = User::query()
-            ->whereNull('role_id')
-            ->where('approval_status', 'rejected')
-            ->with(['university', 'approver']);
-
-        // Search filter for rejected LPPM
-        if ($request->filled('rejected_lppm_search')) {
-            $search = $request->rejected_lppm_search;
-            $rejectedLppmQuery->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        // Only show rejected if explicitly requested (toggle in UI)
-        $rejectedLppm = null;
-        if ($request->boolean('show_rejected')) {
-            $rejectedLppm = $rejectedLppmQuery
-                ->orderBy('approved_at', 'desc')
-                ->paginate(15, ['*'], 'rejected_page')
-                ->withQueryString()
-                ->through(function ($user) {
-                    return [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'university' => $user->university ? [
-                            'id' => $user->university->id,
-                            'name' => $user->university->name,
-                            'short_name' => $user->university->short_name,
-                        ] : null,
-                        'rejection_reason' => $user->rejection_reason,
-                        'rejected_by' => $user->approver?->name,
-                        'rejected_at' => $user->approved_at?->format('Y-m-d H:i:s'),
-                        'created_at' => $user->created_at->format('Y-m-d H:i:s'),
-                    ];
-                });
-        }
+        $universitiesServed = University::whereHas('users', fn ($q) => $q->whereHas('role', fn ($r) => $r->where('name', 'Admin Kampus'))
+            ->orWhereHas('roles', fn ($r) => $r->where('name', 'Admin Kampus'))
+        )->count();
 
         return Inertia::render('Admin/AdminKampus/Index', [
             'adminKampus' => $adminKampus,
-            'pendingLppm' => $pendingLppm,
-            'rejectedLppm' => $rejectedLppm,
             'universities' => $universities,
-            'filters' => array_merge(
-                $request->only(['search', 'university_id', 'is_active', 'show_rejected']),
-                [
-                    'pending_lppm_search' => $request->pending_lppm_search,
-                    'rejected_lppm_search' => $request->rejected_lppm_search,
-                ]
-            ),
+            'stats' => [
+                'total_admins' => $totalAdmins,
+                'active_admins' => $activeAdmins,
+                'inactive_admins' => $inactiveAdmins,
+                'universities_served' => $universitiesServed,
+            ],
+            'filters' => $request->only(['search', 'university_id', 'is_active']),
         ]);
     }
 
@@ -250,7 +114,7 @@ class AdminKampusController extends Controller
         $universities = University::query()
             ->where('is_active', true)
             ->orderBy('name')
-            ->get(['id', 'name', 'short_name', 'code']);
+            ->get(['id', 'name', 'code']);
 
         return Inertia::render('Admin/AdminKampus/Create', [
             'universities' => $universities,
@@ -284,11 +148,12 @@ class AdminKampusController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'phone' => $validated['phone'] ?? null,
-            'position' => $validated['position'] ?? null,
             'university_id' => $validated['university_id'],
             'role_id' => $adminKampusRole->id,
             'is_active' => $validated['is_active'],
         ]);
+
+        $adminKampus->roles()->syncWithoutDetaching([$adminKampusRole->id]);
 
         return redirect()->route('admin.admin-kampus.index')
             ->with('success', 'Admin Kampus created successfully.');
@@ -307,12 +172,14 @@ class AdminKampusController extends Controller
         }
 
         // Load relationships
-        $adminKampu->load(['role', 'university', 'journals.scientificField']);
+        $adminKampu->load(['role', 'university']);
 
-        // Get managed users count
-        $managedUsersCount = User::where('university_id', $adminKampu->university_id)
-            ->whereHas('role', fn ($q) => $q->where('name', Role::USER))
+        // Operational metrics
+        $managedProposalsCount = Proposal::where('university_id', $adminKampu->university_id)->count();
+        $managedReviewersCount = User::where('university_id', $adminKampu->university_id)
+            ->where(fn ($q) => $q->where('is_reviewer', true)->orWhereHas('roles', fn ($r) => $r->where('name', Role::REVIEWER)))
             ->count();
+        $managedUsersCount = User::where('university_id', $adminKampu->university_id)->count();
 
         return Inertia::render('Admin/AdminKampus/Show', [
             'adminKampus' => [
@@ -334,15 +201,10 @@ class AdminKampusController extends Controller
                 'last_login_at' => $adminKampu->last_login_at?->format('Y-m-d H:i'),
                 'created_at' => $adminKampu->created_at->format('Y-m-d H:i'),
                 'updated_at' => $adminKampu->updated_at->format('Y-m-d H:i'),
-                'journals_count' => $adminKampu->journals->count(),
+                'managed_proposals_count' => $managedProposalsCount,
+                'managed_reviewers_count' => $managedReviewersCount,
                 'managed_users_count' => $managedUsersCount,
             ],
-            'journals' => $adminKampu->journals->map(fn ($journal) => [
-                'id' => $journal->id,
-                'title' => $journal->title,
-                'issn' => $journal->issn,
-                'scientific_field' => $journal->scientificField?->name,
-            ]),
         ]);
     }
 
@@ -363,7 +225,7 @@ class AdminKampusController extends Controller
         // Get all active universities
         $universities = University::active()
             ->orderBy('name')
-            ->get(['id', 'name', 'short_name', 'code']);
+            ->get(['id', 'name', 'code']);
 
         return Inertia::render('Admin/AdminKampus/Edit', [
             'adminKampus' => [
@@ -438,14 +300,9 @@ class AdminKampusController extends Controller
             abort(404, 'Admin Kampus not found.');
         }
 
-        // Check if Admin Kampus has managed journals
-        if ($adminKampu->journals()->count() > 0) {
-            return back()->with('error', 'Cannot delete Admin Kampus with existing managed journals. Please reassign journals first.');
-        }
-
         // Check if Admin Kampus has managed users
         $managedUsersCount = User::where('university_id', $adminKampu->university_id)
-            ->whereHas('role', fn ($q) => $q->where('name', Role::USER))
+            ->where('id', '!=', $adminKampu->id)
             ->count();
 
         if ($managedUsersCount > 0) {

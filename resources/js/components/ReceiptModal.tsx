@@ -56,7 +56,11 @@ export default function ReceiptModal({ fundingId, fundingNumber, referenceNumber
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        post(route('funding.upload-bukti', fundingId), {
+        const uploadRoute = route().has('finance.funding.upload-bukti')
+            ? route('finance.funding.upload-bukti', fundingId)
+            : route('funding.upload-bukti', fundingId);
+
+        post(uploadRoute, {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {

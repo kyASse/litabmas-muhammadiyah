@@ -41,36 +41,37 @@ class MonevReportController extends Controller
         $summaryQuery = clone $contractQuery;
 
         $total_program = (clone $summaryQuery)->count();
-        $program_selesai = (clone $summaryQuery)->where('status', Contract::STATUS_COMPLETED)->count();
-        $program_berjalan = (clone $summaryQuery)->where('status', Contract::STATUS_ACTIVE)->count();
-        $program_tertunda = (clone $summaryQuery)->where('status', Contract::STATUS_CANCELLED)->count();
+        $program_selesai = (clone $summaryQuery)->where('status_kontrak', Contract::STATUS_CLOSED)->count();
+        $program_berjalan = (clone $summaryQuery)->where('status_kontrak', Contract::STATUS_ACTIVE)->count();
+        $program_tertunda = (clone $summaryQuery)->whereIn('status_kontrak', [Contract::STATUS_DRAFT, Contract::STATUS_SIGNED])->count();
 
-        $total_anggaran = (clone $summaryQuery)->sum('contract_value');
+        $total_anggaran = (float) (clone $summaryQuery)->sum('dana_disetujui');
 
         // Funding query
-        $fundingQuery = Funding::where('status', Funding::STATUS_DISBURSED);
+        $fundingQuery = Funding::where('status_pencairan', Funding::STATUS_DISBURSED);
         if ($universityId) {
             $fundingQuery->whereHas('contract', function ($q) use ($universityId) {
                 $q->where('university_id', $universityId);
             });
         }
-        $anggaran_terserap = $fundingQuery->sum('amount');
+        $anggaran_terserap = (float) $fundingQuery->sum('nominal_dana');
 
         $persentase_serapan = $total_anggaran > 0 ? round(($anggaran_terserap / $total_anggaran) * 100, 2) : 0;
 
-        // Kinerja Bidang Ilmu (menggunakan relasi Contract -> Proposal -> User -> ScientificField)
-        // karena entitas Fakultas secara eksplisit tidak ada dalam schema saat ini.
-        $contractsForKinerja = (clone $contractQuery)->with(['proposal.user.scientificField', 'progressReports'])->get();
+        // Kinerja Skema Penelitian (menggunakan relasi Contract -> Proposal -> ResearchSchema)
+        $contractsForKinerja = (clone $contractQuery)->with(['proposal.researchSchema', 'progressReports'])->get();
         $kinerjaMap = [];
 
         foreach ($contractsForKinerja as $c) {
-            $field = $c->proposal->user->scientificField->name ?? 'Belum Diketahui';
+            $field = $c->proposal?->researchSchema?->nama_skema
+                ?? $c->proposal?->researchSchema?->name
+                ?? 'Umum';
             if (! isset($kinerjaMap[$field])) {
                 $kinerjaMap[$field] = ['total_progres' => 0, 'count' => 0];
             }
 
             $latestReport = $c->progressReports->sortByDesc('created_at')->first();
-            $progress = $latestReport ? $latestReport->progress_percentage : 0;
+            $progress = $latestReport ? (int) ($latestReport->persentase_kemajuan ?? $latestReport->progress_percentage ?? 0) : 0;
 
             $kinerjaMap[$field]['total_progres'] += $progress;
             $kinerjaMap[$field]['count']++;
@@ -103,41 +104,42 @@ class MonevReportController extends Controller
 
         if ($search) {
             $listQuery->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
+                $q->where('judul_kontrak', 'like', "%{$search}%")
+                    ->orWhere('nomor_kontrak', 'like', "%{$search}%")
                     ->orWhereHas('proposal.user', function ($q2) use ($search) {
                         $q2->where('name', 'like', "%{$search}%");
                     });
             });
         }
 
-        if ($statusFilter) {
-            $listQuery->where('status', $statusFilter);
+        if ($statusFilter && $statusFilter !== 'all') {
+            $listQuery->where('status_kontrak', $statusFilter);
         }
 
         $contracts = $listQuery->latest()->paginate(10)->withQueryString();
 
         $penelitian_terbaru = $contracts->getCollection()->map(function ($contract) {
             $latestReport = $contract->progressReports->first();
-            $progress = $latestReport ? $latestReport->progress_percentage : 0;
+            $progress = $latestReport ? (int) ($latestReport->persentase_kemajuan ?? $latestReport->progress_percentage ?? 0) : 0;
             $updatedAt = $latestReport ? $latestReport->updated_at : $contract->updated_at;
 
             $statusLabel = 'Draft';
-            if ($contract->status === Contract::STATUS_ACTIVE) {
+            if ($contract->status_kontrak === Contract::STATUS_ACTIVE) {
                 $statusLabel = 'Berjalan';
-            } elseif ($contract->status === Contract::STATUS_COMPLETED) {
+            } elseif ($contract->status_kontrak === Contract::STATUS_CLOSED) {
                 $statusLabel = 'Selesai';
-            } elseif ($contract->status === Contract::STATUS_CANCELLED) {
+            } elseif ($contract->status_kontrak === Contract::STATUS_SIGNED) {
                 $statusLabel = 'Tertunda';
             }
 
             return [
                 'id' => $contract->id,
-                'judul_penelitian' => $contract->title ?? 'Tidak Ada Judul',
-                'nama_dosen' => $contract->proposal->user->name ?? 'Unknown',
+                'judul_penelitian' => $contract->judul_kontrak ?? $contract->title ?? 'Tidak Ada Judul',
+                'nama_dosen' => $contract->proposal?->user?->name ?? 'Unknown',
                 'progres' => $progress,
                 'status' => $statusLabel,
                 'tanggal_update' => Carbon::parse($updatedAt)->format('Y-m-d'),
-                'is_late' => Carbon::parse($updatedAt)->addDays(14)->isPast() && $contract->status === Contract::STATUS_ACTIVE,
+                'is_late' => Carbon::parse($updatedAt)->addDays(14)->isPast() && $contract->status_kontrak === Contract::STATUS_ACTIVE,
             ];
         });
 
@@ -182,7 +184,7 @@ class MonevReportController extends Controller
         $id = $request->input('id');
         $action = $request->input('action');
 
-        $status = $action === 'Lanjut' ? Contract::STATUS_ACTIVE : Contract::STATUS_CANCELLED;
+        $status = $action === 'Lanjut' ? Contract::STATUS_ACTIVE : Contract::STATUS_CLOSED;
 
         $user = $request->user();
         $universityId = null;
@@ -208,7 +210,7 @@ class MonevReportController extends Controller
         }
 
         $contract->update([
-            'status' => $status,
+            'status_kontrak' => $status,
         ]);
 
         return redirect()->back()->with('success', 'Status penelitian berhasil diperbarui.');

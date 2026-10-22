@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\CheckJournalOwnership;
 use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\CheckTenantActive;
 use App\Http\Middleware\CheckUniversity;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\HandleAppearance;
@@ -38,6 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'active' => EnsureUserIsActive::class,
             'journal.owner' => CheckJournalOwnership::class,
             'university' => CheckUniversity::class,
+            'tenant.active' => CheckTenantActive::class,
         ]);
 
         // Web middleware stack
@@ -45,9 +47,9 @@ return Application::configure(basePath: dirname(__DIR__))
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
+            CheckTenantActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create()
-    ->usePublicPath(realpath(__DIR__.'/../'));
+    })->create();

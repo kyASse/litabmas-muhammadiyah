@@ -2,6 +2,7 @@ import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { ROLE_NAMES } from '@/constants/roles';
+import { useTranslation } from '@/hooks/use-translation';
 import { type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 
@@ -18,6 +19,7 @@ import {
     GraduationCap,
     LayoutGrid,
     Settings,
+    ShieldCheck,
     UserCheck,
     Users,
 } from 'lucide-react';
@@ -27,6 +29,7 @@ import AppLogo from './app-logo';
 export function AppSidebar() {
     const { auth } = usePage<SharedData>().props;
     const { user } = auth;
+    const { t } = useTranslation();
 
     const hasRole = (role: string) => {
         if (!user) return false;
@@ -41,22 +44,27 @@ export function AppSidebar() {
     if (hasRole(ROLE_NAMES.SUPER_ADMIN)) {
         roleNavItems = [
             {
-                title: 'Universities',
+                title: t.navigation.universities,
                 href: '/admin/universities',
                 icon: Building2,
             },
             {
-                title: 'Users',
+                title: t.navigation.campusAdmins,
+                href: '/admin/admin-kampus',
+                icon: ShieldCheck,
+            },
+            {
+                title: t.navigation.users,
                 href: '/admin/users',
                 icon: Users,
             },
             {
-                title: 'System Logs',
+                title: t.navigation.systemLogs,
                 href: '/admin/logs',
                 icon: ClipboardList,
             },
             {
-                title: 'Settings',
+                title: t.navigation.settings,
                 href: '/admin/settings',
                 icon: Settings,
             },
@@ -64,27 +72,52 @@ export function AppSidebar() {
     } else if (hasRole(ROLE_NAMES.ADMIN_KAMPUS)) {
         roleNavItems = [
             {
-                title: 'Skema Penelitian',
+                title: t.navigation.schemes,
                 href: '/admin/schemas',
                 icon: BookType,
             },
             {
-                title: 'Usulan Proposal',
+                title: t.navigation.proposals,
                 href: '/admin/proposals',
                 icon: FileText,
             },
             {
-                title: 'Jadwal Monev',
+                title: t.navigation.reviewerAssignment,
+                href: '/admin/reviewer/assign',
+                icon: UserCheck,
+            },
+            {
+                title: t.navigation.monev,
                 href: '/admin/monev',
                 icon: CalendarDays,
+                items: [
+                    {
+                        title: t.navigation.monev,
+                        href: '/admin/monev',
+                    },
+                    {
+                        title: t.navigation.monevSchedules,
+                        href: '/admin/monev-schedules',
+                    },
+                ],
             },
             {
-                title: 'Verifikasi Luaran',
-                href: '/admin/output',
+                title: t.navigation.outputs,
+                href: '/admin/outputs',
                 icon: Award,
+                items: [
+                    {
+                        title: t.navigation.outputs,
+                        href: '/admin/outputs',
+                    },
+                    {
+                        title: t.navigation.outputReports,
+                        href: '/admin/output/report',
+                    },
+                ],
             },
             {
-                title: 'Kelulusan & SKTS',
+                title: t.navigation.graduationSkts,
                 href: '/admin/evaluations',
                 icon: GraduationCap,
             },
@@ -92,17 +125,27 @@ export function AppSidebar() {
     } else if (hasRole(ROLE_NAMES.ADMIN_KEUANGAN)) {
         roleNavItems = [
             {
-                title: 'Kontrak Hibah',
+                title: t.navigation.contracts,
                 href: '/finance/contracts',
                 icon: FileText,
             },
             {
-                title: 'Termin & Pencairan',
+                title: t.navigation.tranchesDisbursement,
                 href: '/finance/fundings',
                 icon: CreditCard,
+                items: [
+                    {
+                        title: t.navigation.tranchesDisbursement,
+                        href: '/finance/fundings',
+                    },
+                    {
+                        title: t.navigation.disbursementLogs,
+                        href: '/finance/funding/logs',
+                    },
+                ],
             },
             {
-                title: 'Laporan Keuangan',
+                title: t.navigation.financialReports,
                 href: '/finance/reports',
                 icon: FileSpreadsheet,
             },
@@ -110,40 +153,45 @@ export function AppSidebar() {
     } else if (hasRole(ROLE_NAMES.REVIEWER)) {
         roleNavItems = [
             {
-                title: 'Dashboard Reviewer',
+                title: t.navigation.reviewerDashboard,
                 href: '/reviewer/dashboard',
                 icon: LayoutGrid,
             },
             {
-                title: 'Penilaian Proposal',
-                href: '/reviewer/proposals',
+                title: t.navigation.reviews,
+                href: '/reviewer/assignments',
                 icon: UserCheck,
             },
             {
-                title: 'Penilaian Monev',
-                href: '/reviewer/monev',
+                title: t.navigation.monevEvaluation,
+                href: '/reviewer/evaluations',
                 icon: CalendarDays,
             },
         ];
     } else if (hasRole(ROLE_NAMES.PENELITI) || hasRole('Dosen') || hasRole('User')) {
         roleNavItems = [
             {
-                title: 'Usulan Penelitian',
+                title: t.navigation.proposals,
                 href: '/proposals',
                 icon: FileText,
             },
             {
-                title: 'Laporan Kemajuan',
+                title: t.navigation.userFunding,
+                href: '/funding',
+                icon: CreditCard,
+            },
+            {
+                title: t.navigation.progressReports,
                 href: '/progress',
                 icon: Clock,
             },
             {
-                title: 'Luaran Riset',
+                title: t.navigation.outputs,
                 href: '/outputs',
                 icon: Award,
             },
             {
-                title: 'Evaluasi Akhir',
+                title: t.navigation.finalEvaluation,
                 href: '/evaluations/my-final-report',
                 icon: GraduationCap,
             },
@@ -154,12 +202,14 @@ export function AppSidebar() {
     const isReviewerOnly =
         !hasRole(ROLE_NAMES.SUPER_ADMIN) && !hasRole(ROLE_NAMES.ADMIN_KAMPUS) && !hasRole(ROLE_NAMES.ADMIN_KEUANGAN) && hasRole(ROLE_NAMES.REVIEWER);
 
+    const dashboardHref = hasRole(ROLE_NAMES.ADMIN_KAMPUS) ? '/admin/dashboard' : '/dashboard';
+
     const baseNavItems: NavItem[] = isReviewerOnly
         ? []
         : [
               {
-                  title: 'Dashboard',
-                  href: '/dashboard',
+                  title: t.navigation.dashboard,
+                  href: dashboardHref,
                   icon: LayoutGrid,
               },
           ];
@@ -168,11 +218,11 @@ export function AppSidebar() {
 
     return (
         <Sidebar collapsible="icon" variant="inset">
-            <SidebarHeader>
+            <SidebarHeader className="pr-12 md:pr-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <Link href={dashboardHref} prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -180,11 +230,11 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
+            <SidebarContent className="px-1 py-1">
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
-            <SidebarFooter>
+            <SidebarFooter className="border-t border-sidebar-border/40 p-2">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

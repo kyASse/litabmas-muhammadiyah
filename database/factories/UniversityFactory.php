@@ -20,14 +20,9 @@ class UniversityFactory extends Factory
         return [
             'code' => $this->faker->unique()->lexify('?????'),
             'name' => $this->faker->company(),
-            'short_name' => $this->faker->lexify('???'),
             'address' => $this->faker->address(),
-            'city' => $this->faker->city(),
-            'province' => $this->faker->state(),
-            'postal_code' => $this->faker->postcode(),
-            'phone' => $this->faker->phoneNumber(),
-            'email' => $this->faker->unique()->safeEmail(),
-            'website' => $this->faker->url(),
+            'logo' => null,
+            'contact_email' => $this->faker->unique()->safeEmail(),
             'is_active' => true,
         ];
     }

@@ -10,6 +10,14 @@ export default [
     js.configs.recommended,
     ...typescript.configs.recommended,
     {
+        files: ['scripts/**/*.js', 'scripts/**/*.mjs', '*.config.js', '*.config.ts'],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
+    {
         ...react.configs.flat.recommended,
         ...react.configs.flat['jsx-runtime'], // Required for React 17+
         languageOptions: {
@@ -40,7 +48,7 @@ export default [
         },
     },
     {
-        ignores: ['vendor/**', 'node_modules/**', 'public/**', 'build/**', 'bootstrap/ssr/**', 'tailwind.config.js', 'resources/js/ziggy.js'],
+        ignores: ['vendor/**', 'node_modules/**', 'public/**', 'build/**', 'bootstrap/ssr/**', 'tailwind.config.js', 'resources/js/ziggy.js', '.agents/**', '.claude/**'],
     },
     prettier, // Turn off all rules that might conflict with Prettier
 ];

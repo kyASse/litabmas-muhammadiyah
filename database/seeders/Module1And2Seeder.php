@@ -16,7 +16,7 @@ class Module1And2Seeder extends Seeder
 {
     public function run(): void
     {
-        $this->command->info('🧪 Seeding data untuk Testing Manual Modul 1 & 2...');
+        $this->command->info(' Seeding data untuk Testing Manual Modul 1 & 2...');
 
         // 1. Ensure Roles
         $reviewerRole = Role::firstOrCreate(['name' => Role::REVIEWER], ['label' => 'Reviewer']);
@@ -240,9 +240,9 @@ class Module1And2Seeder extends Seeder
             'file_dokumen_proposal' => 'proposals/proposal_vr_math.pdf',
         ]);
 
-        $this->command->info('✅ Seeding data Modul 1 & Modul 2 berhasil!');
+        $this->command->info('[SUKSES] Seeding data Modul 1 & Modul 2 berhasil!');
         $this->command->info('');
-        $this->command->info('📌 Akun Pengujian yang Siap Digunakan:');
+        $this->command->info(' Akun Pengujian yang Siap Digunakan:');
         $this->command->info('   - Admin LPPM (Penunjukan & Decision): admin.uad@ajm.ac.id / password123');
         $this->command->info('   - Dosen Peneliti 1 (Pengusul): andi.prasetyo@uad.ac.id / password123');
         $this->command->info('   - Dosen Peneliti 2 (Pengusul): budi.santoso@uad.ac.id / password123');

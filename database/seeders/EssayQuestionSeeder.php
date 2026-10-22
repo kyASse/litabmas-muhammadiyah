@@ -27,7 +27,7 @@ class EssayQuestionSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('📝 Seeding Essay Questions...');
+        $this->command->info('[DOKUMEN] Seeding Essay Questions...');
         $this->command->newLine();
 
         // Get templates
@@ -40,7 +40,7 @@ class EssayQuestionSeeder extends Seeder
             ->first();
 
         if (! $banptTemplate || ! $scopusTemplate) {
-            $this->command->error('❌ ERROR: Templates not found! Run AccreditationTemplateSeeder first.');
+            $this->command->error('[GAGAL] ERROR: Templates not found! Run AccreditationTemplateSeeder first.');
 
             return;
         }
@@ -51,7 +51,7 @@ class EssayQuestionSeeder extends Seeder
             ->get();
 
         if ($banptCategories->isEmpty()) {
-            $this->command->error('❌ ERROR: No categories found for BAN-PT template! Run DataMigrationSeeder first.');
+            $this->command->error('[GAGAL] ERROR: No categories found for BAN-PT template! Run DataMigrationSeeder first.');
 
             return;
         }
@@ -59,7 +59,7 @@ class EssayQuestionSeeder extends Seeder
         // ===========================
         // BAN-PT Akreditasi Essays
         // ===========================
-        $this->command->info("📋 Creating essays for: {$banptTemplate->name}");
+        $this->command->info("[INFO] Creating essays for: {$banptTemplate->name}");
 
         $banptEssays = [
             [
@@ -102,7 +102,7 @@ class EssayQuestionSeeder extends Seeder
 
             $category = EvaluationCategory::find($essay['category_id']);
             $essayNum = $index + 1;
-            $this->command->info("  ✓ Essay {$essayNum}/3: {$essay['code']} → Category: {$category->name}");
+            $this->command->info("  [OK] Essay {$essayNum}/3: {$essay['code']} → Category: {$category->name}");
         }
 
         $this->command->newLine();
@@ -110,13 +110,13 @@ class EssayQuestionSeeder extends Seeder
         // ===========================
         // Scopus Indeksasi Essays (DRAFT - not used yet)
         // ===========================
-        $this->command->info("📋 Creating essays for: {$scopusTemplate->name} (DRAFT)");
+        $this->command->info("[INFO] Creating essays for: {$scopusTemplate->name} (DRAFT)");
 
         // For Scopus template, create generic categories if not exist
         $scopusCategories = EvaluationCategory::where('template_id', $scopusTemplate->id)->get();
 
         if ($scopusCategories->isEmpty()) {
-            $this->command->warn('  ⚠️  No categories for Scopus template, creating placeholder categories...');
+            $this->command->warn('  [PERINGATAN] No categories for Scopus template, creating placeholder categories...');
 
             $placeholderCategories = [
                 ['code' => 'SCOPUS-QUA', 'name' => 'Journal Quality & Policy', 'weight' => 30],
@@ -182,11 +182,11 @@ class EssayQuestionSeeder extends Seeder
 
             $category = EvaluationCategory::find($essay['category_id']);
             $essayNum = $index + 1;
-            $this->command->info("  ✓ Essay {$essayNum}/3: {$essay['code']} → Category: {$category->name} (inactive)");
+            $this->command->info("  [OK] Essay {$essayNum}/3: {$essay['code']} → Category: {$category->name} (inactive)");
         }
 
         $this->command->newLine();
-        $this->command->info('✨ Successfully seeded 6 essay questions!');
+        $this->command->info('[BARU] Successfully seeded 6 essay questions!');
         $this->command->info('  • BAN-PT Akreditasi: 3 essays (active)');
         $this->command->info('  • Scopus Indeksasi: 3 essays (inactive draft)');
         $this->command->newLine();

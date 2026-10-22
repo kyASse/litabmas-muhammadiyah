@@ -38,7 +38,7 @@ class ProposalController extends Controller
         $query = Proposal::query()
             ->with([
                 'user:id,name,email,university_id',
-                'researchSchema:id,name',
+                'researchSchema',
                 'reviews.reviewer:id,name',
             ]);
 
@@ -49,7 +49,7 @@ class ProposalController extends Controller
         }
 
         if ($request->filled('search')) {
-            $query->where('title', 'like', '%'.$request->search.'%');
+            $query->where('judul_penelitian', 'like', '%'.$request->search.'%');
         }
 
         if ($request->filled('status')) {
@@ -115,7 +115,7 @@ class ProposalController extends Controller
         $proposal->load([
             'user:id,name,email,university_id',
             'user.university:id,name',
-            'researchSchema:id,name,description,max_funding',
+            'researchSchema',
             'reviews.reviewer:id,name,email',
             'documents',
         ]);

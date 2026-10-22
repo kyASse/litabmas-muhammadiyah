@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * StatsService — aggregate statistics for the Dashboard.
@@ -19,6 +20,23 @@ use Illuminate\Support\Facades\DB;
  */
 class StatsService
 {
+    private function getUserColumn(): string
+    {
+        return Schema::hasColumn('proposals', 'id_pengusul') ? 'id_pengusul' : 'user_id';
+    }
+
+    private function getFundingColumn(): ?string
+    {
+        if (Schema::hasColumn('proposals', 'total_pendanaan_disetujui')) {
+            return 'total_pendanaan_disetujui';
+        }
+        if (Schema::hasColumn('proposals', 'biaya_yang_diusulkan')) {
+            return 'biaya_yang_diusulkan';
+        }
+
+        return null;
+    }
+
     /**
      * Calculate the success rate (percentage of approved proposals)
      * out of total proposals that have a final decision
@@ -31,14 +49,19 @@ class StatsService
      */
     public function successRate(?int $userId = null, ?int $universityId = null): float
     {
+        $userCol = $this->getUserColumn();
         $query = DB::table('proposals');
 
+        if (Schema::hasColumn('proposals', 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
         if ($userId !== null) {
-            $query->where('user_id', $userId);
+            $query->where($userCol, $userId);
         }
 
         if ($universityId !== null) {
-            $query->whereIn('user_id', function ($sub) use ($universityId) {
+            $query->whereIn($userCol, function ($sub) use ($universityId) {
                 $sub->select('id')
                     ->from('users')
                     ->where('university_id', $universityId);
@@ -46,11 +69,11 @@ class StatsService
         }
 
         $approved = (clone $query)
-            ->whereIn('status_proposal', ['Administrasi_Valid', 'administrasi_valid', 'approved'])
+            ->whereIn('status_proposal', ['Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai'])
             ->count();
 
         $decided = (clone $query)
-            ->whereIn('status_proposal', ['Administrasi_Valid', 'administrasi_valid', 'approved', 'Ditolak', 'ditolak', 'rejected'])
+            ->whereIn('status_proposal', ['Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai', 'Ditolak', 'ditolak', 'rejected'])
             ->count();
 
         if ($decided === 0) {
@@ -65,22 +88,32 @@ class StatsService
      */
     public function getProposalSummaryForUser(int $userId): array
     {
-        $counts = DB::table('proposals')
-            ->where('user_id', $userId)
-            ->selectRaw("
-                COUNT(*) as total,
-                SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
-                SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved') THEN 1 ELSE 0 END) as lolos,
-                SUM(CASE WHEN status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
-                SUM(CASE WHEN status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft
-            ")
-            ->first();
+        $userCol = $this->getUserColumn();
+        $fundingCol = $this->getFundingColumn();
+        $fundingSql = $fundingCol ? "SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN {$fundingCol} ELSE 0 END) as total_pendanaan," : '0 as total_pendanaan,';
+
+        $query = DB::table('proposals')->where($userCol, $userId);
+
+        if (Schema::hasColumn('proposals', 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
+        $counts = $query->selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
+            SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN 1 ELSE 0 END) as lolos,
+            SUM(CASE WHEN status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
+            SUM(CASE WHEN status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft,
+            {$fundingSql}
+            0 as dummy
+        ")->first();
 
         $total = (int) ($counts->total ?? 0);
         $masuk = (int) ($counts->masuk ?? 0);
         $lolos = (int) ($counts->lolos ?? 0);
         $gagal = (int) ($counts->gagal ?? 0);
         $draft = (int) ($counts->draft ?? 0);
+        $totalPendanaan = (float) ($counts->total_pendanaan ?? 0.0);
 
         return [
             'total' => $total,
@@ -89,7 +122,7 @@ class StatsService
             'gagal' => $gagal,
             'draft' => $draft,
             'success_rate' => $this->successRate(userId: $userId),
-            'total_pendanaan' => 0.0,
+            'total_pendanaan' => $totalPendanaan,
         ];
     }
 
@@ -98,23 +131,34 @@ class StatsService
      */
     public function getProposalSummaryForUniversity(int $universityId): array
     {
-        $counts = DB::table('proposals as p')
-            ->join('users', 'p.user_id', '=', 'users.id')
-            ->where('users.university_id', $universityId)
-            ->selectRaw("
-                COUNT(*) as total,
-                SUM(CASE WHEN p.status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
-                SUM(CASE WHEN p.status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved') THEN 1 ELSE 0 END) as lolos,
-                SUM(CASE WHEN p.status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
-                SUM(CASE WHEN p.status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft
-            ")
-            ->first();
+        $userCol = $this->getUserColumn();
+        $fundingCol = $this->getFundingColumn();
+        $fundingSql = $fundingCol ? "SUM(CASE WHEN p.status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN p.{$fundingCol} ELSE 0 END) as total_pendanaan," : '0 as total_pendanaan,';
+
+        $query = DB::table('proposals as p')
+            ->join('users', "p.{$userCol}", '=', 'users.id')
+            ->where('users.university_id', $universityId);
+
+        if (Schema::hasColumn('proposals', 'deleted_at')) {
+            $query->whereNull('p.deleted_at');
+        }
+
+        $counts = $query->selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN p.status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
+            SUM(CASE WHEN p.status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN 1 ELSE 0 END) as lolos,
+            SUM(CASE WHEN p.status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
+            SUM(CASE WHEN p.status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft,
+            {$fundingSql}
+            0 as dummy
+        ")->first();
 
         $total = (int) ($counts->total ?? 0);
         $masuk = (int) ($counts->masuk ?? 0);
         $lolos = (int) ($counts->lolos ?? 0);
         $gagal = (int) ($counts->gagal ?? 0);
         $draft = (int) ($counts->draft ?? 0);
+        $totalPendanaan = (float) ($counts->total_pendanaan ?? 0.0);
 
         return [
             'total' => $total,
@@ -123,7 +167,7 @@ class StatsService
             'gagal' => $gagal,
             'draft' => $draft,
             'success_rate' => $this->successRate(universityId: $universityId),
-            'total_pendanaan' => 0.0,
+            'total_pendanaan' => $totalPendanaan,
         ];
     }
 
@@ -132,21 +176,31 @@ class StatsService
      */
     public function getProposalSummaryAll(): array
     {
-        $counts = DB::table('proposals')
-            ->selectRaw("
-                COUNT(*) as total,
-                SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
-                SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved') THEN 1 ELSE 0 END) as lolos,
-                SUM(CASE WHEN status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
-                SUM(CASE WHEN status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft
-            ")
-            ->first();
+        $fundingCol = $this->getFundingColumn();
+        $fundingSql = $fundingCol ? "SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN {$fundingCol} ELSE 0 END) as total_pendanaan," : '0 as total_pendanaan,';
+
+        $query = DB::table('proposals');
+
+        if (Schema::hasColumn('proposals', 'deleted_at')) {
+            $query->whereNull('deleted_at');
+        }
+
+        $counts = $query->selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
+            SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved', 'Lolos_Didanai', 'lolos_didanai') THEN 1 ELSE 0 END) as lolos,
+            SUM(CASE WHEN status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
+            SUM(CASE WHEN status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft,
+            {$fundingSql}
+            0 as dummy
+        ")->first();
 
         $total = (int) ($counts->total ?? 0);
         $masuk = (int) ($counts->masuk ?? 0);
         $lolos = (int) ($counts->lolos ?? 0);
         $gagal = (int) ($counts->gagal ?? 0);
         $draft = (int) ($counts->draft ?? 0);
+        $totalPendanaan = (float) ($counts->total_pendanaan ?? 0.0);
 
         return [
             'total' => $total,
@@ -155,7 +209,7 @@ class StatsService
             'gagal' => $gagal,
             'draft' => $draft,
             'success_rate' => $this->successRate(),
-            'total_pendanaan' => 0.0,
+            'total_pendanaan' => $totalPendanaan,
         ];
     }
 }

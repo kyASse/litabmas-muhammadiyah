@@ -24,7 +24,6 @@ test('new users can register', function () {
     $this->assertGuest();
     $this->assertDatabaseHas('users', [
         'email' => 'test@example.com',
-        'approval_status' => 'pending',
         'is_active' => false,
     ]);
     $response->assertRedirect(route('login'));

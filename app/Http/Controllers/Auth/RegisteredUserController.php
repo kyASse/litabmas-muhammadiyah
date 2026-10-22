@@ -27,7 +27,7 @@ class RegisteredUserController extends Controller
         $universities = Cache::remember('universities.active.registration', 3600, function () {
             return University::where('is_active', true)
                 ->orderBy('name')
-                ->get(['id', 'name', 'short_name', 'code']);
+                ->get(['id', 'name', 'code']);
         });
 
         return Inertia::render('auth/register', [
@@ -75,7 +75,6 @@ class RegisteredUserController extends Controller
             'university_id' => $request->university_id,
             'position' => $request->position,
             'phone' => $request->phone,
-            'approval_status' => 'pending', // All new registrations start as pending
             'is_active' => false, // Will be activated after approval
         ]);
 

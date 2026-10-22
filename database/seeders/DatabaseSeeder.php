@@ -27,10 +27,12 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Database seeding completed successfully!');
         $this->command->info('');
         $this->command->info('Default test login accounts (password: password):');
-        $this->command->info('   - Super Admin   : superadmin@litabmas.ac.id');
-        $this->command->info('   - Admin Kampus  : adminkampus@litabmas.ac.id');
-        $this->command->info('   - Admin Keuangan: finance@litabmas.ac.id');
-        $this->command->info('   - Reviewer      : reviewer@litabmas.ac.id');
-        $this->command->info('   - Peneliti      : dosen@litabmas.ac.id');
+        $this->command->info('   - Super Admin      : superadmin@litabmas.ac.id');
+        $this->command->info('   - Admin Kampus UMY : adminkampus@litabmas.ac.id');
+        $this->command->info('   - Admin Keuangan   : finance@litabmas.ac.id');
+        $this->command->info('   - Reviewer UMY     : reviewer@litabmas.ac.id');
+        $this->command->info('   - Peneliti UMY     : dosen@litabmas.ac.id');
+        $this->command->info('   - Admin Kampus UAD : adminkampus.uad@litabmas.ac.id');
+        $this->command->info('   - Peneliti UAD     : dosen.uad@litabmas.ac.id');
     }
 }

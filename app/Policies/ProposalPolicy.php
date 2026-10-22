@@ -27,20 +27,32 @@ class ProposalPolicy
 
     /**
      * Tentukan apakah user boleh mengubah proposal.
-     * Hanya pemilik proposal ketika status masih Draft.
+     * Hanya pemilik proposal pada institusi yang sama ketika status masih Draft atau Revisi.
      */
     public function update(User $user, Proposal $proposal): bool
     {
-        return $user->id === $proposal->user_id && $proposal->status_proposal === Proposal::STATUS_DRAFT;
+        if ($proposal->evaluation && $proposal->evaluation->status_penelitian === 'Selesai') {
+            return false;
+        }
+
+        return $proposal->university_id === $user->university_id
+            && (int) ($proposal->id_pengusul ?? $proposal->user_id) === (int) $user->id
+            && in_array($proposal->status_proposal, [Proposal::STATUS_DRAFT, 'Revisi'], true);
     }
 
     /**
      * Tentukan apakah user boleh menghapus proposal.
-     * Hanya pemilik proposal ketika status masih Draft.
+     * Hanya pemilik proposal pada institusi yang sama ketika status masih Draft atau Revisi.
      */
     public function delete(User $user, Proposal $proposal): bool
     {
-        return $user->id === $proposal->user_id && $proposal->status_proposal === Proposal::STATUS_DRAFT;
+        if ($proposal->evaluation && $proposal->evaluation->status_penelitian === 'Selesai') {
+            return false;
+        }
+
+        return $proposal->university_id === $user->university_id
+            && (int) ($proposal->id_pengusul ?? $proposal->user_id) === (int) $user->id
+            && in_array($proposal->status_proposal, [Proposal::STATUS_DRAFT, 'Revisi'], true);
     }
 
     /**

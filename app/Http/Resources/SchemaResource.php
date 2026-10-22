@@ -16,6 +16,13 @@ class SchemaResource extends JsonResource
     {
         return [
             'id' => (int) $this->id,
+            'university_id' => $this->university_id,
+            'nama_skema' => (string) ($this->nama_skema ?? $this->name),
+            'deskripsi' => $this->deskripsi ? (string) $this->deskripsi : ($this->description ? (string) $this->description : null),
+            'biaya_maksimal' => (float) ($this->biaya_maksimal ?? $this->max_funding),
+            'tanggal_mulai' => $this->tanggal_mulai,
+            'tanggal_selesai' => $this->tanggal_selesai,
+            'file_panduan' => $this->file_panduan,
             'name' => (string) $this->name,
             'description' => $this->description ? (string) $this->description : null,
             'max_funding' => (float) $this->max_funding,

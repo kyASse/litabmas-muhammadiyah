@@ -17,13 +17,15 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        host: '0.0.0.0',
+        port: 5173,
+        cors: true,
         hmr: {
             host: 'localhost',
             port: 5173,
         },
     },
-    build:{
-        outDir: 'build',
+    build: {
         emptyOutDir: true,
         chunkSizeWarningLimit: 1000,
         rollupOptions: {
@@ -43,7 +45,6 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            'ziggy-js': resolve(__dirname, 'vendor/tightenco/ziggy/dist/index.esm.js'),
             '@': resolve(__dirname, 'resources/js'),
         },
     },

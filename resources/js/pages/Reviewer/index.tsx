@@ -27,7 +27,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, usePage } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Award, CheckCircle2, ChevronLeft, ChevronRight, ClipboardCheck, Clock, FileText, Layers, Search, X, XCircle } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 
@@ -518,15 +518,25 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                     })}
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="outline"
-                                                        onClick={() => openReviewDetails(task)}
-                                                        className="gap-1.5 border-primary/30 text-primary hover:bg-primary/10"
-                                                    >
-                                                        <ClipboardCheck className="h-3.5 w-3.5" />
-                                                        {scoreVal !== null ? 'Lihat / Edit' : 'Buka Penilaian'}
-                                                    </Button>
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <Link href={`/reviewer/assignments/${task.id}/review`}>
+                                                            <Button
+                                                                size="sm"
+                                                                className="gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90"
+                                                            >
+                                                                <ClipboardCheck className="h-3.5 w-3.5" />
+                                                                Buka Workspace
+                                                            </Button>
+                                                        </Link>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => openReviewDetails(task)}
+                                                            className="border-primary/30 text-primary hover:bg-primary/10"
+                                                        >
+                                                            {scoreVal !== null ? 'Modal Ringkas' : 'Modal Cepat'}
+                                                        </Button>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         );
