@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { generateHostingerIndexPhp, resolveRelativeCorePath } from '../../../scripts/hostinger-prepare-public.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import { generateHostingerIndexPhp, resolveRelativeCorePath, ensureHtaccess } from '../../../scripts/hostinger-prepare-public.js';
 
 describe('Hostinger Prepare Public Script', () => {
     it('mengubah path bootstrap dan maintenance pada index.php mengarah ke direktori core terisolasi', () => {
@@ -92,6 +95,35 @@ require __DIR__."/../vendor/autoload.php";
 
             const content = "require __DIR__.'/../vendor/autoload.php';";
             expect(generateHostingerIndexPhp(content, rel)).toBe("require __DIR__.'/../../../litabmas_core/vendor/autoload.php';");
+        });
+    });
+
+    describe('ensureHtaccess', () => {
+        it('mempertahankan .htaccess yang sudah ada di target direktori', () => {
+            const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'htaccess-test-'));
+            const htaccessPath = path.join(tmpDir, '.htaccess');
+            fs.writeFileSync(htaccessPath, 'CUSTOM_CONTENT', 'utf8');
+
+            const result = ensureHtaccess(tmpDir);
+            expect(result.created).toBe(false);
+            expect(fs.readFileSync(htaccessPath, 'utf8')).toBe('CUSTOM_CONTENT');
+
+            fs.rmSync(tmpDir, { recursive: true, force: true });
+        });
+
+        it('menyalin .htaccess jika belum ada di target direktori', () => {
+            const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'htaccess-test-'));
+            const result = ensureHtaccess(tmpDir);
+
+            expect(result.created).toBe(true);
+            const htaccessPath = path.join(tmpDir, '.htaccess');
+            expect(fs.existsSync(htaccessPath)).toBe(true);
+
+            const content = fs.readFileSync(htaccessPath, 'utf8');
+            expect(content).toContain('RewriteEngine On');
+            expect(content).toContain('RewriteRule ^ index.php [L]');
+
+            fs.rmSync(tmpDir, { recursive: true, force: true });
         });
     });
 });

@@ -35,6 +35,61 @@ export function generateHostingerIndexPhp(content, relativeOrCoreDir = 'litabmas
     );
 }
 
+export function ensureHtaccess(targetDir, rootDir = process.cwd()) {
+    const htaccessPath = path.resolve(targetDir, '.htaccess');
+    if (fs.existsSync(htaccessPath)) {
+        return { created: false, path: htaccessPath };
+    }
+
+    const publicHtaccess = path.resolve(rootDir, 'public', '.htaccess');
+    const rootHtaccess = path.resolve(rootDir, '.htaccess');
+
+    if (fs.existsSync(publicHtaccess)) {
+        fs.copyFileSync(publicHtaccess, htaccessPath);
+        return { created: true, source: 'public', path: htaccessPath };
+    }
+
+    if (fs.existsSync(rootHtaccess)) {
+        fs.copyFileSync(rootHtaccess, htaccessPath);
+        return { created: true, source: 'root', path: htaccessPath };
+    }
+
+    const defaultHtaccess = `<IfModule mod_negotiation.c>
+    Options -MultiViews -Indexes
+</IfModule>
+
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+    AddType image/svg+xml .svg
+</IfModule>
+
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes If Not A Folder
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Send Requests To Front Controller
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
+`;
+    fs.writeFileSync(htaccessPath, defaultHtaccess, 'utf8');
+    return { created: true, source: 'generated', path: htaccessPath };
+}
+
 function runCli() {
     const args = process.argv.slice(2);
     const targetDir = args[0] || 'public_dist';
@@ -53,6 +108,13 @@ function runCli() {
     const updated = generateHostingerIndexPhp(content, relativeCore);
     fs.writeFileSync(indexPhpPath, updated, 'utf8');
     console.log(`[INFO] Successfully prepared ${indexPhpPath} targeting core path '${relativeCore}'.`);
+
+    const htaccessResult = ensureHtaccess(targetDir);
+    if (htaccessResult.created) {
+        console.log(`[INFO] Successfully ensured .htaccess in ${targetDir} (from ${htaccessResult.source}).`);
+    } else {
+        console.log(`[INFO] Verified .htaccess is present in ${targetDir}.`);
+    }
 }
 
 if (process.argv[1] && process.argv[1].endsWith('hostinger-prepare-public.js')) {
