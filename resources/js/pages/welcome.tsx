@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { TabularFigure } from '@/components/ui/TabularFigure';
@@ -108,9 +109,10 @@ export default function Welcome() {
                             </a>
                         </div>
 
-                        {/* Auth Navigation & LanguageSwitcher */}
-                        <div className="flex items-center gap-3">
+                        {/* Auth Navigation, LanguageSwitcher & ThemeToggle */}
+                        <div className="flex items-center gap-2 sm:gap-3">
                             <LanguageSwitcher variant="compact" />
+                            <ThemeToggle variant="compact" />
                             {auth?.user ? (
                                 <Link href={route('dashboard')}>
                                     <Button className="h-9 gap-2 rounded-lg bg-blue-900 px-4 text-xs font-semibold text-white shadow hover:bg-blue-800">

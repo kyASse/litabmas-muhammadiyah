@@ -5,3 +5,4 @@ export * from './MetricCard';
 export * from './PageHeader';
 export * from './SplitScreenViewer';
 export * from './LanguageSwitcher';
+export * from './ThemeToggle';

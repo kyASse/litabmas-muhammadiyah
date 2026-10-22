@@ -58,6 +58,14 @@ export const en = {
         settings: 'Settings',
         logout: 'Log out',
     },
+    theme: {
+        light: 'Light',
+        dark: 'Dark',
+        system: 'System',
+        toggleTheme: 'Toggle theme',
+        switchToLight: 'Switch to light theme',
+        switchToDark: 'Switch to dark theme',
+    },
     statuses: {
         Draft: '[DRAFT]',
         Submitted: '[SUBMITTED]',
