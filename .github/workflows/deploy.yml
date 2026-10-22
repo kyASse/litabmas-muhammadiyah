@@ -278,19 +278,18 @@ jobs:
 
             if [ ! -f .env ]; then
               echo "[WARNING] .env file not found in $CORE_PATH. Initializing default .env..."
-              cat << EOF > .env
-APP_NAME="SIM Litabmas Standalone"
-APP_ENV=production
-APP_KEY=
-APP_DEBUG=false
-APP_URL="${APP_URL}"
-LOG_CHANNEL=stack
-LOG_LEVEL=info
-DB_CONNECTION=sqlite
-SESSION_DRIVER=database
-QUEUE_CONNECTION=database
-CACHE_STORE=database
-EOF
+              touch .env
+              echo "APP_NAME=\"SIM Litabmas Standalone\"" >> .env
+              echo "APP_ENV=production" >> .env
+              echo "APP_KEY=" >> .env
+              echo "APP_DEBUG=false" >> .env
+              echo "APP_URL=\"${APP_URL}\"" >> .env
+              echo "LOG_CHANNEL=stack" >> .env
+              echo "LOG_LEVEL=info" >> .env
+              echo "DB_CONNECTION=sqlite" >> .env
+              echo "SESSION_DRIVER=database" >> .env
+              echo "QUEUE_CONNECTION=database" >> .env
+              echo "CACHE_STORE=database" >> .env
             fi
 
             if ! grep -qE '^APP_KEY=base64:.+' .env; then
