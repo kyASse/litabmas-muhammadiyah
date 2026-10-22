@@ -308,13 +308,24 @@ jobs:
             "$PHP_BIN" artisan down --retry=60 || true
             chmod -R 775 storage bootstrap/cache
             chmod 644 .env || true
+            if [ -f "${PUBLIC_PATH}/.htaccess" ]; then
+              chmod 644 "${PUBLIC_PATH}/.htaccess"
+              echo "[INFO] Verified ${PUBLIC_PATH}/.htaccess exists with 644 permissions."
+            else
+              echo "[WARNING] ${PUBLIC_PATH}/.htaccess is missing! Attempting emergency restoration..."
+              if [ -f .htaccess ]; then
+                cp .htaccess "${PUBLIC_PATH}/.htaccess" && chmod 644 "${PUBLIC_PATH}/.htaccess"
+                echo "[INFO] Restored .htaccess into ${PUBLIC_PATH}"
+              fi
+            fi
             "$PHP_BIN" artisan migrate --force
             ln -sfn "${CORE_PATH}/storage/app/public" "${PUBLIC_PATH}/storage" || "$PHP_BIN" artisan storage:link
             "$PHP_BIN" artisan optimize:clear
             "$PHP_BIN" artisan optimize
             "$PHP_BIN" artisan up
+            echo "[INFO] Executing root URL smoke test (${APP_URL})..."
             if ! curl -sSfL -k -m 15 "${APP_URL}" > /dev/null; then
-              echo "[ERROR] Smoke check failed. Showing response headers:"
+              echo "[ERROR] Root URL smoke check failed. Showing response headers:"
               curl -sIL -k -m 15 "${APP_URL}" | head -n 25 || true
               echo "[DIAGNOSTIC] Response body:"
               curl -sSL -k -m 15 "${APP_URL}" | head -n 35 || true
@@ -322,4 +333,13 @@ jobs:
               tail -n 40 storage/logs/*.log 2>/dev/null || true
               exit 1
             fi
-            echo "[PASSED] Smoke test succeeded"
+            echo "[PASSED] Root URL smoke test succeeded."
+
+            echo "[INFO] Executing sub-path rewrite smoke test (${APP_URL}/login)..."
+            if ! curl -sSfL -k -m 15 "${APP_URL}/login" > /dev/null; then
+              echo "[ERROR] Sub-path route check (/login) failed! Showing response headers:"
+              curl -sIL -k -m 15 "${APP_URL}/login" | head -n 25 || true
+              echo "[ERROR] Web server route rewriting via .htaccess is not working properly."
+              exit 1
+            fi
+            echo "[PASSED] Sub-path route rewrite smoke test (/login) succeeded."
