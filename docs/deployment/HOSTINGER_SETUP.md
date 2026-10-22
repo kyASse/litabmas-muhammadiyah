@@ -287,22 +287,33 @@ MAIL_FROM_NAME="${APP_NAME}"
 SUPER_ADMIN_GLOBAL_BYPASS=true
 ```
 
-### Langkah 5.3: Generate Application Key & Migrasi Awal
-Setelah file `.env` tersimpan:
+### Langkah 5.3: Penyiapan Application Encryption Key (APP_KEY)
+Karena berkas aplikasi Laravel (`artisan` dan `vendor/`) baru akan ditransfer ke server saat deployment perdana GitHub Actions berlangsung, `APP_KEY` disiapkan terlebih dahulu dari komputer lokal pengembang:
+
+1. Pada terminal komputer lokal Anda (tempat repositori aktif), jalankan perintah:
+   ```bash
+   php artisan key:generate --show
+   ```
+   *Atau jika tidak ada artisan lokal, gunakan perintah PHP berikut:*
+   ```bash
+   php -r "echo 'base64:'.base64_encode(random_bytes(32)).PHP_EOL;"
+   ```
+2. Salin teks key yang dihasilkan (misal: `base64:vX7jK9...`) lalu masukkan ke dalam berkas `~/litabmas_core/.env` di server Hostinger pada baris `APP_KEY`:
+   ```ini
+   APP_KEY=base64:vX7jK9...
+   ```
+3. Simpan berkas `.env` (`Ctrl + O`, lalu `Enter`, lalu `Ctrl + X` pada nano).
+
+> [!NOTE]
+> **Migrasi Basis Data Otomatis**: Anda **tidak perlu menjalankan `php artisan migrate` secara manual**. Saat deployment perdana GitHub Actions dipicu (Bagian 5), pipeline CI/CD akan mentransfer seluruh berkas aplikasi (`artisan`, `app/`, `vendor/`), kemudian secara otomatis menjalankan `php artisan migrate --force` langsung di server Hostinger.
+
+### Langkah 5.4: Eksekusi Seeder Awal (Opsional - Setelah Deploy Perdana)
+Jika Anda membutuhkan data awal (seperti akun awal Super Admin atau master universitas) melalui seeder, jalankan perintah ini via SSH di Hostinger **setelah deployment perdana GitHub Actions selesai**:
 
 ```bash
 cd ~/litabmas_core
 
-# 1. Pastikan PHP CLI menggunakan versi 8.3 atau 8.4
-php -v
-
-# 2. Generate Application Encryption Key
-php artisan key:generate --force
-
-# 3. Jalankan migrasi 21 tabel domain terintegrasi
-php artisan migrate --force
-
-# 4. Jalankan seeder institusi dan data awal bila diperlukan
+# Jalankan seeder produksi
 php artisan db:seed --force
 ```
 
