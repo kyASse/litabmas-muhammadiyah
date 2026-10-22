@@ -1,6 +1,6 @@
 export const en = {
     common: {
-        appName: 'SIM-Penelitian Multi-Campus',
+        appName: 'E-Jarlit Bappeda Kota Yogyakarta',
         specTag: 'PTMA MUHAMMADIYAH',
         save: 'Save',
         cancel: 'Cancel',

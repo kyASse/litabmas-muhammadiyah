@@ -153,6 +153,7 @@ describe('Layout and Auth Localization', () => {
         expect(pageText.toLowerCase()).not.toContain('standalone integrated research');
 
         // Verify branding and domain
+        expect(pageText).toContain('E-Jarlit Bappeda Kota Yogyakarta');
         expect(pageText).toContain('riset.portalmu.org');
         expect(pageText).toContain('PTMA MUHAMMADIYAH');
 
@@ -168,6 +169,7 @@ describe('Layout and Auth Localization', () => {
         expect(idPageText).not.toContain('RPL-2026');
         expect(idPageText.toLowerCase()).not.toContain('standalone integrated research');
         expect(idPageText.toLowerCase()).not.toContain('penelitian terintegrasi standalone');
+        expect(idPageText).toContain('E-Jarlit Bappeda Kota Yogyakarta');
         expect(idPageText).toContain('riset.portalmu.org');
         expect(container.querySelectorAll('a[href*="design-system-preview"]').length).toBe(0);
     });

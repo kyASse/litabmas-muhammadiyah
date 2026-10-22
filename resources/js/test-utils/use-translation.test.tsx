@@ -10,6 +10,7 @@ function TestConsumer() {
         <div>
             <span data-testid="current-locale">{locale}</span>
             <span data-testid="app-name">{t.common.appName}</span>
+            <span data-testid="save-btn">{t.common.save}</span>
             <span data-testid="formatted-str">{format('Batas: {max} MB, Aktual: {actual} MB', { max: 10, actual: 5 })}</span>
             <button data-testid="toggle-btn" onClick={toggleLocale}>
                 Toggle
@@ -35,7 +36,8 @@ describe('useTranslation Hook & Provider', () => {
         );
 
         expect(screen.getByTestId('current-locale').textContent).toBe('en');
-        expect(screen.getByTestId('app-name').textContent).toContain('Multi-Campus');
+        expect(screen.getByTestId('app-name').textContent).toBe('E-Jarlit Bappeda Kota Yogyakarta');
+        expect(screen.getByTestId('save-btn').textContent).toBe('Save');
     });
 
     it('switches between en and id reactively when toggled', async () => {
@@ -50,7 +52,8 @@ describe('useTranslation Hook & Provider', () => {
         await user.click(toggleBtn);
 
         expect(screen.getByTestId('current-locale').textContent).toBe('id');
-        expect(screen.getByTestId('app-name').textContent).toContain('Multi-Kampus');
+        expect(screen.getByTestId('app-name').textContent).toBe('E-Jarlit Bappeda Kota Yogyakarta');
+        expect(screen.getByTestId('save-btn').textContent).toBe('Simpan');
 
         await user.click(toggleBtn);
         expect(screen.getByTestId('current-locale').textContent).toBe('en');
