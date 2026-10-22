@@ -56,10 +56,10 @@ jobs:
             echo "dry_run=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Setup PHP 8.4
+      - name: Setup PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.2'
           extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_sqlite, sqlite3
           tools: composer:v2
           coverage: none
@@ -126,10 +126,10 @@ jobs:
           echo "[INFO] Deployment Target Environment: ${{ env.TARGET_ENV }}"
           echo "[INFO] Dry Run Mode: ${{ needs.quality-gate.outputs.dry_run }}"
 
-      - name: Setup PHP 8.4
+      - name: Setup PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.2'
           tools: composer:v2
           coverage: none
 
@@ -261,14 +261,16 @@ jobs:
             PUBLIC_PATH="${PUBLIC_PATH%/}"
             cd "$CORE_PATH" || { echo "[ERROR] Failed to navigate to $CORE_PATH"; exit 1; }
             PHP_BIN="php"
-            if [ -x /opt/alt/php84/usr/bin/php ]; then
+            if command -v php >/dev/null 2>&1; then
+              PHP_BIN="php"
+            elif [ -x /usr/bin/php ]; then
+              PHP_BIN="/usr/bin/php"
+            elif [ -x /opt/alt/php82/usr/bin/php ]; then
+              PHP_BIN="/opt/alt/php82/usr/bin/php"
+            elif [ -x /opt/alt/php83/usr/bin/php ]; then
+              PHP_BIN="/opt/alt/php83/usr/bin/php"
+            elif [ -x /opt/alt/php84/usr/bin/php ]; then
               PHP_BIN="/opt/alt/php84/usr/bin/php"
-            elif command -v php84 >/dev/null 2>&1; then
-              PHP_BIN="php84"
-            elif command -v php8.4 >/dev/null 2>&1; then
-              PHP_BIN="php8.4"
-            elif [ -x /usr/local/bin/php8.4 ]; then
-              PHP_BIN="/usr/local/bin/php8.4"
             fi
             echo "[INFO] Using PHP CLI: $($PHP_BIN -v | head -n 1)"
             "$PHP_BIN" artisan down --retry=60 || true

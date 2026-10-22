@@ -103,28 +103,18 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
-### Langkah 1.5: Konfigurasi Versi PHP 8.4 di hPanel & Terminal SSH
-Aplikasi sistem penelitian Litabmas berjalan di atas **PHP 8.4** (memenuhi kebutuhan dependensi backend Laravel 12 dan Symfony 8.1). Hostinger CloudLinux menyediakan PHP 8.4, namun Anda wajib memastikannya aktif untuk web domain dan terminal CLI:
+### Langkah 1.5: Kompatibilitas Versi PHP 8.2+ di Hostinger & Terminal SSH
+Aplikasi sistem penelitian Litabmas telah dikonfigurasikan dengan target platform **PHP 8.2** (`"platform": { "php": "8.2.0" }`), sehingga kompatibel penuh dan dapat berjalan mulus pada **PHP 8.2, PHP 8.3, maupun PHP 8.4**:
 
 1. **Pengaturan PHP Web di hPanel**:
    - Buka **hPanel** -> **Tingkat Lanjut (Advanced)** -> **Konfigurasi PHP (PHP Configuration)**.
    - Pilih domain atau subdomain target (`riset.portalmu.org`).
-   - Ubah versi PHP menjadi **PHP 8.4**.
+   - Anda dapat memilih **PHP 8.2**, **PHP 8.3**, atau **PHP 8.4** (disarankan minimal PHP 8.2 atau 8.3).
    - Klik tombol **Perbarui (Update)** untuk menyimpan.
-2. **Pengaturan PHP CLI di Terminal Hostinger (Opsional untuk Akses Manual SSH)**:
-   - Secara bawaan, perintah `php` di terminal SSH Hostinger merujuk ke PHP 8.2 (`/usr/bin/php`).
-   - Binary PHP 8.4 Hostinger CloudLinux terletak di `/opt/alt/php84/usr/bin/php`.
-   - Agar perintah `php` di terminal interaktif langsung menggunakan PHP 8.4, tambahkan alias ke `~/.bashrc`:
-     ```bash
-     echo "alias php='/opt/alt/php84/usr/bin/php'" >> ~/.bashrc
-     echo "alias composer='/opt/alt/php84/usr/bin/php /usr/lib/composer/composer.phar'" >> ~/.bashrc
-     source ~/.bashrc
-     ```
-   - Verifikasi versi PHP CLI:
-     ```bash
-     /opt/alt/php84/usr/bin/php -v
-     ```
-   *(Catatan: Pipeline GitHub Actions otomatis mendeteksi dan menggunakan binary `/opt/alt/php84/usr/bin/php` saat menjalankan perintah post-deployment).*
+2. **Pengaturan PHP CLI di Terminal Hostinger**:
+   - Lingkungan CLI SSH Hostinger secara bawaan menjalankan **PHP 8.2** (`/usr/bin/php`).
+   - Karena seluruh dependensi vendor telah distandarisasi untuk mendukung PHP 8.2+, Anda dapat langsung menjalankan perintah `php artisan` secara normal di terminal tanpa perlu konfigurasi alias tambahan.
+   - Pipeline GitHub Actions juga secara otomatis mendeteksi binary PHP yang tersedia (`php`, `/usr/bin/php`, atau alt-php) saat menjalankan perintah post-deployment.
 
 > [!NOTE]
 > Uji koneksi tanpa sandi dari terminal lokal untuk memastikan otentikasi kunci berhasil sebelum melanjutkan ke konfigurasi GitHub Actions:
@@ -336,10 +326,8 @@ Jika Anda membutuhkan data awal (seperti akun awal Super Admin atau master unive
 ```bash
 cd ~/litabmas_core
 
-# Jalankan seeder produksi (gunakan binary PHP 8.4 atau alias)
-/opt/alt/php84/usr/bin/php artisan db:seed --force
-# Atau jika alias ~/.bashrc telah aktif:
-# php artisan db:seed --force
+# Jalankan seeder produksi
+php artisan db:seed --force
 ```
 
 ---
@@ -535,26 +523,32 @@ Setelah tindakan rollback selesai dilaksanakan, pastikan melakukan verifikasi te
 - **Solusi**:
   Jalankan perintah dengan parameter bypass memori sementara:
   ```bash
-  /opt/alt/php84/usr/bin/php -d memory_limit=512M artisan optimize
+  php -d memory_limit=512M artisan optimize
   ```
   *(Catatan: Proses kompilasi aset frontend dan dependensi backend berat telah dipindahkan seutuhnya ke runner GitHub Actions untuk mencegah kendala ini).*
 
-### 6. Galat Composer: "Composer detected issues in your platform: Your Composer dependencies require a PHP version '>= 8.4.1'. You are running 8.2.x"
+### 6. Galat Composer platform_check: "Your Composer dependencies require a PHP version '>= 8.4.1'. You are running 8.2.x"
 - **Penyebab**:
-  - Dependensi Symfony 8.1 dan Laravel 12 yang diinstal di runner GitHub Actions (PHP 8.4) memerlukan runtime PHP `>= 8.4.1`.
-  - Terminal SSH remote Hostinger secara bawaan mengeksekusi `/usr/bin/php` yang mengarah ke PHP 8.2 (`8.2.34`).
+  - Pustaka Symfony 8.1 terpasang saat composer update dijalankan tanpa pembatasan platform, sehingga membutuhkan PHP `>= 8.4.1`.
+  - Lingkungan CLI Hostinger secara bawaan tetap menjalankan PHP 8.2 (`8.2.34`).
 - **Solusi**:
-  - Gunakan binary PHP 8.4 CloudLinux di Hostinger: `/opt/alt/php84/usr/bin/php`.
-  - Skrip pipeline `.github/workflows/deploy.yml` telah diprogram untuk otomatis mendeteksi binary ini (`PHP_BIN=/opt/alt/php84/usr/bin/php`).
-  - Untuk eksekusi manual via SSH, jalankan artisan dengan: `/opt/alt/php84/usr/bin/php artisan <perintah>`.
+  - Konfigurasi `composer.json` telah dikunci dengan target platform:
+    ```json
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        }
+    }
+    ```
+  - Seluruh dependensi telah diturunkan ke versi yang mendukung PHP 8.2+ (Symfony 7.4), sehingga berkas `vendor/composer/platform_check.php` kini hanya mensyaratkan `PHP >= 8.2.0` dan berjalan mulus di Hostinger.
 
 ### 7. Galat cURL: "(22) The requested URL returned error: 500" saat Smoke Test
 - **Penyebab**:
-  - Web server (LiteSpeed / PHP-FPM) pada domain masih dikonfigurasikan pada versi PHP yang lebih rendah dari 8.4 (contoh: PHP 8.2 atau PHP 8.3).
-  - Ketika `index.php` memuat `vendor/autoload.php`, berkas `vendor/composer/platform_check.php` melemparkan exception fatal karena versi PHP web server tidak memenuhi syarat `>= 8.4.1`.
+  - Web server (LiteSpeed / PHP-FPM) pada domain atau berkas runtime mengalami galat internal (sebelumnya akibat ketidaksesuaian versi PHP pada `platform_check.php` atau `.env` belum terkonfigurasi).
 - **Solusi**:
-  - Buka **hPanel** -> **Tingkat Lanjut** -> **Konfigurasi PHP**.
-  - Pilih domain target (`riset.portalmu.org`).
-  - Ubah versi PHP menjadi **PHP 8.4**.
-  - Klik **Perbarui (Update)**.
-  - Setelah itu, reload domain atau ulangi smoke test cURL.
+  - Pastikan dependensi telah kompatibel dengan PHP 8.2+ (telah diselesaikan pada poin 6).
+  - Pastikan berkas `.env` telah memiliki `APP_KEY` yang valid.
+  - Periksa berkas log server di `storage/logs/laravel.log` via SSH jika respon 500 masih berlanjut:
+    ```bash
+    tail -n 50 ~/litabmas_core/storage/logs/laravel.log
+    ```
