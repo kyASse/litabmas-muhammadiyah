@@ -103,6 +103,19 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 ```
 
+### Langkah 1.5: Kompatibilitas Versi PHP 8.2+ di Hostinger & Terminal SSH
+Aplikasi sistem penelitian Litabmas telah dikonfigurasikan dengan target platform **PHP 8.2** (`"platform": { "php": "8.2.0" }`), sehingga kompatibel penuh dan dapat berjalan mulus pada **PHP 8.2, PHP 8.3, maupun PHP 8.4**:
+
+1. **Pengaturan PHP Web di hPanel**:
+   - Buka **hPanel** -> **Tingkat Lanjut (Advanced)** -> **Konfigurasi PHP (PHP Configuration)**.
+   - Pilih domain atau subdomain target (`riset.portalmu.org`).
+   - Anda dapat memilih **PHP 8.2**, **PHP 8.3**, atau **PHP 8.4** (disarankan minimal PHP 8.2 atau 8.3).
+   - Klik tombol **Perbarui (Update)** untuk menyimpan.
+2. **Pengaturan PHP CLI di Terminal Hostinger**:
+   - Lingkungan CLI SSH Hostinger secara bawaan menjalankan **PHP 8.2** (`/usr/bin/php`).
+   - Karena seluruh dependensi vendor telah distandarisasi untuk mendukung PHP 8.2+, Anda dapat langsung menjalankan perintah `php artisan` secara normal di terminal tanpa perlu konfigurasi alias tambahan.
+   - Pipeline GitHub Actions juga secara otomatis mendeteksi binary PHP yang tersedia (`php`, `/usr/bin/php`, atau alt-php) saat menjalankan perintah post-deployment.
+
 > [!NOTE]
 > Uji koneksi tanpa sandi dari terminal lokal untuk memastikan otentikasi kunci berhasil sebelum melanjutkan ke konfigurasi GitHub Actions:
 > ```bash
@@ -382,6 +395,8 @@ Prosedur pemulihan bencana (*disaster recovery*) wajib dijalankan saat terjadi k
 ### Skenario A: Rollback Berkas Aplikasi (File Rollback)
 Gunakan prosedur ini apabila terjadi galat logika kode, kesalahan berkas build aset, atau error runtime PHP setelah sinkronisasi RSync.
 
+*(Catatan: Jika alias `~/.bashrc` belum disetel, gunakan `/opt/alt/php84/usr/bin/php` sebagai pengganti `php`).*
+
 ```bash
 # 1. Masuk ke server Hostinger via SSH
 ssh -p 65002 u123456789@153.92.xxx.xxx -i ~/.ssh/hostinger_deploy
@@ -511,3 +526,29 @@ Setelah tindakan rollback selesai dilaksanakan, pastikan melakukan verifikasi te
   php -d memory_limit=512M artisan optimize
   ```
   *(Catatan: Proses kompilasi aset frontend dan dependensi backend berat telah dipindahkan seutuhnya ke runner GitHub Actions untuk mencegah kendala ini).*
+
+### 6. Galat Composer platform_check: "Your Composer dependencies require a PHP version '>= 8.4.1'. You are running 8.2.x"
+- **Penyebab**:
+  - Pustaka Symfony 8.1 terpasang saat composer update dijalankan tanpa pembatasan platform, sehingga membutuhkan PHP `>= 8.4.1`.
+  - Lingkungan CLI Hostinger secara bawaan tetap menjalankan PHP 8.2 (`8.2.34`).
+- **Solusi**:
+  - Konfigurasi `composer.json` telah dikunci dengan target platform:
+    ```json
+    "config": {
+        "platform": {
+            "php": "8.2.0"
+        }
+    }
+    ```
+  - Seluruh dependensi telah diturunkan ke versi yang mendukung PHP 8.2+ (Symfony 7.4), sehingga berkas `vendor/composer/platform_check.php` kini hanya mensyaratkan `PHP >= 8.2.0` dan berjalan mulus di Hostinger.
+
+### 7. Galat cURL: "(22) The requested URL returned error: 500" saat Smoke Test
+- **Penyebab**:
+  - Web server (LiteSpeed / PHP-FPM) pada domain atau berkas runtime mengalami galat internal (sebelumnya akibat ketidaksesuaian versi PHP pada `platform_check.php` atau `.env` belum terkonfigurasi).
+- **Solusi**:
+  - Pastikan dependensi telah kompatibel dengan PHP 8.2+ (telah diselesaikan pada poin 6).
+  - Pastikan berkas `.env` telah memiliki `APP_KEY` yang valid.
+  - Periksa berkas log server di `storage/logs/laravel.log` via SSH jika respon 500 masih berlanjut:
+    ```bash
+    tail -n 50 ~/litabmas_core/storage/logs/laravel.log
+    ```

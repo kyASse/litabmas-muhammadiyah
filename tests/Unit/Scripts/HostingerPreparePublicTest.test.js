@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { generateHostingerIndexPhp } from '../../../scripts/hostinger-prepare-public.js';
+import { generateHostingerIndexPhp, resolveRelativeCorePath } from '../../../scripts/hostinger-prepare-public.js';
 
 describe('Hostinger Prepare Public Script', () => {
     it('mengubah path bootstrap dan maintenance pada index.php mengarah ke direktori core terisolasi', () => {
@@ -62,4 +62,37 @@ require __DIR__."/../vendor/autoload.php";
         const singleLine = 'require __DIR__."/../vendor/autoload.php";';
         expect(generateHostingerIndexPhp(singleLine, 'my_core')).toBe('require __DIR__."/../my_core/vendor/autoload.php";');
     });
+
+    describe('resolveRelativeCorePath', () => {
+        it('menghasilkan .. jika core path adalah parent langsung dari public_html (domain root deployment)', () => {
+            const core = '/home/u347029080/domains/riset.portalmu.org';
+            const pub = '/home/u347029080/domains/riset.portalmu.org/public_html';
+            const rel = resolveRelativeCorePath(core, pub);
+            expect(rel).toBe('..');
+
+            const content = "require __DIR__.'/../vendor/autoload.php';";
+            expect(generateHostingerIndexPhp(content, rel)).toBe("require __DIR__.'/../vendor/autoload.php';");
+        });
+
+        it('menghasilkan ../litabmas_core jika core path adalah sibling dari public_html', () => {
+            const core = '/home/u347029080/domains/riset.portalmu.org/litabmas_core';
+            const pub = '/home/u347029080/domains/riset.portalmu.org/public_html';
+            const rel = resolveRelativeCorePath(core, pub);
+            expect(rel).toBe('../litabmas_core');
+
+            const content = "require __DIR__.'/../vendor/autoload.php';";
+            expect(generateHostingerIndexPhp(content, rel)).toBe("require __DIR__.'/../litabmas_core/vendor/autoload.php';");
+        });
+
+        it('menghasilkan ../../../litabmas_core jika core path di root user dan public di domain folder', () => {
+            const core = '/home/u347029080/litabmas_core';
+            const pub = '/home/u347029080/domains/riset.portalmu.org/public_html';
+            const rel = resolveRelativeCorePath(core, pub);
+            expect(rel).toBe('../../../litabmas_core');
+
+            const content = "require __DIR__.'/../vendor/autoload.php';";
+            expect(generateHostingerIndexPhp(content, rel)).toBe("require __DIR__.'/../../../litabmas_core/vendor/autoload.php';");
+        });
+    });
 });
+

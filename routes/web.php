@@ -92,7 +92,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profile Routes
-    Route::prefix('profile')->name('profile.')->group(function () {
+    Route::prefix('profile')->name('author-profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'show'])->name('show');
         Route::post('/', [ProfileController::class, 'update'])->name('update');
     });

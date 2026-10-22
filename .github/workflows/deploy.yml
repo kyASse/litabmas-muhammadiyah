@@ -56,10 +56,10 @@ jobs:
             echo "dry_run=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Setup PHP 8.4
+      - name: Setup PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.2'
           extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_sqlite, sqlite3
           tools: composer:v2
           coverage: none
@@ -126,10 +126,10 @@ jobs:
           echo "[INFO] Deployment Target Environment: ${{ env.TARGET_ENV }}"
           echo "[INFO] Dry Run Mode: ${{ needs.quality-gate.outputs.dry_run }}"
 
-      - name: Setup PHP 8.4
+      - name: Setup PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: '8.2'
           tools: composer:v2
           coverage: none
 
@@ -151,10 +151,10 @@ jobs:
       - name: Prepare Public Payload for Hostinger
         env:
           REMOTE_CORE_PATH: ${{ secrets.HOSTINGER_REMOTE_CORE_PATH }}
+          REMOTE_PUBLIC_PATH: ${{ secrets.HOSTINGER_REMOTE_PUBLIC_PATH }}
         run: |
           cp -r public public_dist
-          CORE_DIR=$(basename "${REMOTE_CORE_PATH%/}")
-          node scripts/hostinger-prepare-public.js public_dist "${CORE_DIR:-litabmas_core}"
+          node scripts/hostinger-prepare-public.js public_dist "$REMOTE_CORE_PATH" "$REMOTE_PUBLIC_PATH"
 
       - name: Report Dry Run Status
         if: ${{ needs.quality-gate.outputs.dry_run == 'true' }}
@@ -257,14 +257,65 @@ jobs:
           script: |
             CORE_PATH="${{ secrets.HOSTINGER_REMOTE_CORE_PATH }}"
             CORE_PATH="${CORE_PATH%/}"
+            PUBLIC_PATH="${{ secrets.HOSTINGER_REMOTE_PUBLIC_PATH }}"
+            PUBLIC_PATH="${PUBLIC_PATH%/}"
             cd "$CORE_PATH" || { echo "[ERROR] Failed to navigate to $CORE_PATH"; exit 1; }
-            php artisan down --retry=60 || true
-            chmod -R 775 storage bootstrap/cache
-            php artisan migrate --force
-            CORE_BASENAME=$(basename "$CORE_PATH")
-            ln -sfn "../${CORE_BASENAME}/storage/app/public" "${{ secrets.HOSTINGER_REMOTE_PUBLIC_PATH }}/storage" || php artisan storage:link
-            php artisan optimize:clear
-            php artisan optimize
-            php artisan up
+            PHP_BIN="php"
+            if command -v php >/dev/null 2>&1; then
+              PHP_BIN="php"
+            elif [ -x /usr/bin/php ]; then
+              PHP_BIN="/usr/bin/php"
+            elif [ -x /opt/alt/php82/usr/bin/php ]; then
+              PHP_BIN="/opt/alt/php82/usr/bin/php"
+            elif [ -x /opt/alt/php83/usr/bin/php ]; then
+              PHP_BIN="/opt/alt/php83/usr/bin/php"
+            elif [ -x /opt/alt/php84/usr/bin/php ]; then
+              PHP_BIN="/opt/alt/php84/usr/bin/php"
+            fi
+            echo "[INFO] Using PHP CLI: $($PHP_BIN -v | head -n 1)"
             APP_URL="${{ secrets.APP_URL }}"
-            curl -sSfL -k -m 15 "${APP_URL}" > /dev/null && echo "[PASSED] Smoke test succeeded"
+            APP_URL="${APP_URL%/}"
+
+            if [ ! -f .env ]; then
+              echo "[WARNING] .env file not found in $CORE_PATH. Initializing default .env..."
+              touch .env
+              echo "APP_NAME=\"SIM Litabmas Standalone\"" >> .env
+              echo "APP_ENV=production" >> .env
+              echo "APP_KEY=" >> .env
+              echo "APP_DEBUG=false" >> .env
+              echo "APP_URL=\"${APP_URL}\"" >> .env
+              echo "LOG_CHANNEL=stack" >> .env
+              echo "LOG_LEVEL=info" >> .env
+              echo "DB_CONNECTION=sqlite" >> .env
+              echo "SESSION_DRIVER=database" >> .env
+              echo "QUEUE_CONNECTION=database" >> .env
+              echo "CACHE_STORE=database" >> .env
+            fi
+
+            if ! grep -qE '^APP_KEY=base64:.+' .env; then
+              echo "[INFO] APP_KEY is missing or empty in .env. Generating application key..."
+              if ! grep -q '^APP_KEY=' .env; then
+                echo "APP_KEY=" >> .env
+              fi
+              "$PHP_BIN" artisan key:generate --force
+              echo "[PASSED] Application encryption key generated successfully."
+            else
+              echo "[INFO] Application encryption key is already configured in .env."
+            fi
+
+            "$PHP_BIN" artisan down --retry=60 || true
+            chmod -R 775 storage bootstrap/cache
+            chmod 644 .env || true
+            "$PHP_BIN" artisan migrate --force
+            ln -sfn "${CORE_PATH}/storage/app/public" "${PUBLIC_PATH}/storage" || "$PHP_BIN" artisan storage:link
+            "$PHP_BIN" artisan optimize:clear
+            "$PHP_BIN" artisan optimize
+            "$PHP_BIN" artisan up
+            if ! curl -sSfL -k -m 15 "${APP_URL}" > /dev/null; then
+              echo "[ERROR] Smoke check failed. Showing response headers:"
+              curl -sIL -k -m 15 "${APP_URL}" | head -n 25 || true
+              echo "[DIAGNOSTIC] Recent entries from storage/logs/laravel.log:"
+              tail -n 40 storage/logs/laravel.log || true
+              exit 1
+            fi
+            echo "[PASSED] Smoke test succeeded"
