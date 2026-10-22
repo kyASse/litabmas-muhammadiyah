@@ -2,7 +2,7 @@ import { TranslationType } from './en';
 
 export const id: TranslationType = {
     common: {
-        appName: 'SIM-Penelitian Multi-Kampus',
+        appName: 'E-Jarlit Bappeda Kota Yogyakarta',
         specTag: 'PTMA MUHAMMADIYAH',
         save: 'Simpan',
         cancel: 'Batal',
@@ -346,7 +346,7 @@ export const id: TranslationType = {
         activeSchemesCount: 'Skema Riset Aktif',
         participatingUniversities: 'Perguruan Tinggi Terintegrasi',
         grantsAwarded: 'Hibah Kompetitif Tersalurkan',
-        loginCta: 'Masuk ke SIM-Penelitian',
+        loginCta: 'Masuk ke E-Jarlit',
         dashboardCta: 'Buka Dashboard Riset',
         statsNav: 'Statistik',
         schemesNav: 'Skema Riset',

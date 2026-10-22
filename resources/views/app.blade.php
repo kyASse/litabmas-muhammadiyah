@@ -31,7 +31,7 @@
             }
         </style>
 
-        <title inertia>{{ config('app.name', 'SIM-Penelitian Multi-Kampus') }}</title>
+        <title inertia>{{ config('app.name', 'E-Jarlit Bappeda Kota Yogyakarta') }}</title>
 
         <link rel="icon" href="{{ asset('logo_dark.png') }}" type="image/png">
         <link rel="apple-touch-icon" href="{{ asset('logo_dark.png') }}">

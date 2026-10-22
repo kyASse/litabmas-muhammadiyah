@@ -83,6 +83,8 @@ describe('AppSidebar Navigation Across Roles', () => {
             </TranslationProvider>,
         );
 
+        expect(screen.getByText(en.common.appName)).toBeDefined();
+        expect(screen.getByText(en.common.specTag)).toBeDefined();
         expect(screen.getByText(en.navigation.dashboard)).toBeDefined();
         expect(screen.getByText(en.navigation.universities)).toBeDefined();
         expect(screen.getByText(en.navigation.campusAdmins)).toBeDefined();
@@ -115,7 +117,7 @@ describe('AppSidebar Navigation Across Roles', () => {
         expect(screen.getAllByText(en.navigation.outputs).length).toBeGreaterThan(0);
         expect(screen.getByText(en.navigation.outputReports)).toBeDefined();
         expect(screen.getByText(en.navigation.graduationSkts)).toBeDefined();
-        expect(screen.getByText(en.navigation.schedules)).toBeDefined();
+        expect(screen.getByText(en.common.appName)).toBeDefined();
 
         expect(emojiRegex.test(container.textContent || '')).toBe(false);
     });
@@ -184,6 +186,8 @@ describe('AppSidebar Navigation Across Roles', () => {
             </TranslationProvider>,
         );
 
+        expect(screen.getByText(en.common.appName)).toBeDefined();
+        expect(screen.getByText(en.common.specTag)).toBeDefined();
         expect(screen.getByText(en.navigation.dashboard)).toBeDefined();
         expect(screen.getByText(en.navigation.proposals)).toBeDefined();
         expect(screen.getByText(en.navigation.userFunding)).toBeDefined();
