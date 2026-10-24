@@ -330,6 +330,62 @@ class Review extends Model
     }
 
     /**
+     * Check if a user / reviewer has a conflict of interest with the proposal.
+     */
+    public function hasConflictOfInterest(?int $userId = null): bool
+    {
+        $reviewerId = $userId ?? $this->id_reviewer ?? $this->reviewer_id;
+        $proposalAuthorId = $this->proposal?->id_pengusul ?? $this->proposal?->user_id;
+
+        if ($reviewerId && $proposalAuthorId && (int) $reviewerId === (int) $proposalAuthorId) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Calculate total score from rubric components.
+     * Supports discrete 1-5 scale: (pilihan / 5) * bobot, scaled to 0 - 100.
+     * Also gracefully supports legacy 0-100 scores.
+     *
+     * @param array<int, array<string, mixed>>|null $components
+     */
+    public static function calculateScoreFromComponents(?array $components): float
+    {
+        if (empty($components) || ! is_array($components)) {
+            return 0.00;
+        }
+
+        $totalWeight = 0.0;
+        $sumPoints = 0.0;
+
+        foreach ($components as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $bobot = (float) ($item['bobot'] ?? $item['weight'] ?? 0);
+            $skor = (float) ($item['skor'] ?? $item['score'] ?? $item['nilai'] ?? 0);
+
+            if ($bobot <= 0) {
+                continue;
+            }
+
+            // Discrete 1-5 scale vs legacy 0-100 scale
+            $ratio = $skor <= 5.0 ? ($skor / 5.0) : ($skor / 100.0);
+            $sumPoints += ($ratio * $bobot);
+            $totalWeight += $bobot;
+        }
+
+        if ($totalWeight <= 0) {
+            return 0.00;
+        }
+
+        return round(($sumPoints / $totalWeight) * 100.0, 2);
+    }
+
+    /**
      * Boot method to handle model events.
      */
     protected static function boot()

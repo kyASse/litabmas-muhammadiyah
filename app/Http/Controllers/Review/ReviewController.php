@@ -3,78 +3,64 @@
 namespace App\Http\Controllers\Review;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\SubmitReviewRequest;
-use App\Models\Article;
-use App\Models\ReviewDecision;
-use App\Models\ReviewerAssignment;
-use App\Services\AnonymizeService;
+use App\Http\Requests\StoreReviewRequest;
+use App\Models\Proposal;
+use App\Models\Review;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class ReviewController extends Controller
 {
-    public function showManuscript(Article $article, AnonymizeService $anonymizeService)
+    /**
+     * Tampilkan formulir review penilaian substansi proposal.
+     */
+    public function show(Proposal $proposal): Response
     {
-        // Pemeriksaan otorisasi penugasan
-        $isAssigned = ReviewerAssignment::where('id_submission', $article->id)
-            ->where('id_reviewer', auth()->id())
-            ->exists();
-
-        if (! $isAssigned) {
-            abort(403, 'Anda tidak memiliki otorisasi untuk melihat naskah ini.');
+        // Conflict of Interest (CoI) Guard: id_reviewer != id_pengusul
+        if ((int) $proposal->id_pengusul === (int) auth()->id()) {
+            abort(403, 'Reviewer memiliki konflik kepentingan langsung dengan usulan penelitian ini.');
         }
 
-        // Anonimisasi Double-Blind menggunakan AnonymizeService sesuai panduan
-        $manuscript = $anonymizeService->anonymize($article);
-
-        $reviewDecision = ReviewDecision::where('id_submission', $article->id)
+        $review = Review::where('id_proposal', $proposal->id)
             ->where('id_reviewer', auth()->id())
             ->first();
 
-        return Inertia::render('Review/FormReview', [
-            'manuscript' => $manuscript,
-            'reviewDecision' => $reviewDecision,
+        return Inertia::render('Review/Show', [
+            'proposal' => $proposal->load(['pengusul', 'skemaPendanaan']),
+            'review' => $review,
         ]);
     }
 
-    public function submitReview(SubmitReviewRequest $request, Article $article)
+    /**
+     * Kirim atau perbarui penilaian substansi reviewer.
+     */
+    public function submitReview(StoreReviewRequest $request, Proposal $proposal): RedirectResponse
     {
-        // Pemeriksaan otorisasi penugasan
-        $isAssigned = ReviewerAssignment::where('id_submission', $article->id)
-            ->where('id_reviewer', auth()->id())
-            ->exists();
-
-        if (! $isAssigned) {
-            abort(403, 'Anda tidak memiliki otorisasi untuk mengirim review pada naskah ini.');
+        // Conflict of Interest (CoI) Guard: id_reviewer != id_pengusul
+        if ((int) $proposal->id_pengusul === (int) auth()->id()) {
+            abort(403, 'Reviewer memiliki konflik kepentingan langsung dengan usulan penelitian ini.');
         }
 
-        $aggregate = (
-            $request->score_originality +
-            $request->score_methodology +
-            $request->score_writing +
-            $request->score_relevance +
-            $request->score_conclusion
-        ) / 5;
+        $validated = $request->validated();
+        $komponen = $validated['komponen_penilaian'] ?? [];
+        $calculatedScore = Review::calculateScoreFromComponents($komponen);
 
-        ReviewDecision::updateOrCreate(
+        Review::updateOrCreate(
             [
-                'id_submission' => $article->id,
+                'id_proposal' => $proposal->id,
                 'id_reviewer' => auth()->id(),
             ],
             [
-                'recommendation' => $request->recommendation,
-                'comments' => $request->comments,
-                'comments_private' => $request->comments_private,
-                'score_originality' => $request->score_originality,
-                'score_methodology' => $request->score_methodology,
-                'score_writing' => $request->score_writing,
-                'score_relevance' => $request->score_relevance,
-                'score_conclusion' => $request->score_conclusion,
-                'score_aggregate' => $aggregate,
-                'status' => 'Submitted',
-                'date_decided' => now(),
+                'komponen_penilaian' => $komponen,
+                'skor_total' => $calculatedScore,
+                'catatan_evaluasi' => $validated['comments'] ?? null,
+                'keputusan_rekomendasi' => $validated['recommendation'],
+                'status_review' => Review::STATUS_COMPLETED,
+                'tanggal_selesai_review' => now()->toDateString(),
             ]
         );
 
-        return redirect()->back()->with('success', 'Review berhasil dikirim.');
+        return redirect()->back()->with('success', 'Penilaian substansi berhasil dikirim.');
     }
 }

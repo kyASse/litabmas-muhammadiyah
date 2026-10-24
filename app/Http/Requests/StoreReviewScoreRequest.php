@@ -27,6 +27,31 @@ class StoreReviewScoreRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        if ($this->has('komponen_penilaian') && is_array($this->komponen_penilaian)) {
+            $normalized = [];
+            foreach ($this->komponen_penilaian as $item) {
+                if (is_array($item)) {
+                    $rawComment = $item['komentar']
+                        ?? $item['komentar_indikator']
+                        ?? $item['catatan_kriteria']
+                        ?? $item['catatan']
+                        ?? $item['notes']
+                        ?? null;
+
+                    if ($rawComment !== null) {
+                        $trimmed = trim((string) $rawComment);
+                        $item['komentar'] = $trimmed;
+                        $item['komentar_indikator'] = $trimmed;
+                        $item['catatan_kriteria'] = $trimmed;
+                    }
+                    $normalized[] = $item;
+                } else {
+                    $normalized[] = $item;
+                }
+            }
+            $this->merge(['komponen_penilaian' => $normalized]);
+        }
+
         if (! $this->has('catatan_evaluasi')) {
             $notes = $this->input('notes') ?? $this->input('feedback') ?? $this->input('comments');
             if ($notes !== null) {
