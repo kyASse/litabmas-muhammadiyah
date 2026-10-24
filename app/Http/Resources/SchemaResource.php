@@ -23,6 +23,8 @@ class SchemaResource extends JsonResource
             'tanggal_mulai' => $this->tanggal_mulai,
             'tanggal_selesai' => $this->tanggal_selesai,
             'file_panduan' => $this->file_panduan,
+            'tahun_anggaran' => (int) ($this->tahun_anggaran ?? now()->year),
+            'year' => (int) ($this->tahun_anggaran ?? now()->year),
             'name' => (string) $this->name,
             'description' => $this->description ? (string) $this->description : null,
             'max_funding' => (float) $this->max_funding,

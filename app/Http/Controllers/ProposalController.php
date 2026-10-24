@@ -37,6 +37,14 @@ class ProposalController extends Controller
             $query->where('status_proposal', $request->status);
         }
 
+        if ($request->filled('tahun_anggaran')) {
+            $year = $request->input('tahun_anggaran');
+            $query->whereHas('researchSchema', fn ($sq) => $sq->where('tahun_anggaran', $year));
+        } elseif ($request->filled('year')) {
+            $year = $request->input('year');
+            $query->whereHas('researchSchema', fn ($sq) => $sq->where('tahun_anggaran', $year));
+        }
+
         $proposals = $query
             ->latest()
             ->paginate(10)
@@ -44,7 +52,12 @@ class ProposalController extends Controller
 
         return Inertia::render('Proposal/Index', [
             'proposals' => $proposals,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => [
+                'search' => $request->search,
+                'status' => $request->status,
+                'tahun_anggaran' => $request->tahun_anggaran ?? $request->year ?? '',
+                'year' => $request->year ?? $request->tahun_anggaran ?? '',
+            ],
         ]);
     }
 

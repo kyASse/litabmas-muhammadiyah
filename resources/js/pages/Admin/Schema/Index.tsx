@@ -73,6 +73,8 @@ interface Schema {
     description: string | null;
     max_funding: number;
     is_active: boolean;
+    tahun_anggaran?: number;
+    year?: number;
     proposals_count: number;
     created_at: string;
     updated_at: string;
@@ -96,6 +98,8 @@ interface PaginatedSchemas {
 interface Filters {
     search: string;
     is_active: string;
+    tahun_anggaran?: string;
+    year?: string;
     sort_by: string;
     sort_dir: string;
 }
@@ -176,6 +180,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     // Local filter states
     const [search, setSearch] = useState(filters.search || '');
     const [statusFilter, setStatusFilter] = useState(filters.is_active || 'all');
+    const [yearFilter, setYearFilter] = useState(filters.tahun_anggaran || filters.year || '');
     const [sortBy, setSortBy] = useState(filters.sort_by || 'created_at');
     const [sortDir, setSortDir] = useState(filters.sort_dir || 'desc');
 
@@ -189,6 +194,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const createForm = useForm({
         name: '',
         description: '',
+        tahun_anggaran: new Date().getFullYear(),
         max_funding: '',
         is_active: true,
     });
@@ -196,6 +202,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const editForm = useForm({
         name: '',
         description: '',
+        tahun_anggaran: new Date().getFullYear(),
         max_funding: '',
         is_active: true,
     });
@@ -212,6 +219,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
             const params: Record<string, string> = {
                 search,
                 is_active: statusFilter === 'all' ? '' : statusFilter,
+                tahun_anggaran: yearFilter,
                 sort_by: sortBy,
                 sort_dir: sortDir,
                 ...overrides,
@@ -227,7 +235,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                 preserveScroll: true,
             });
         },
-        [search, statusFilter, sortBy, sortDir],
+        [search, statusFilter, yearFilter, sortBy, sortDir],
     );
 
     // --- Search --------------------------------------------------------------
@@ -239,6 +247,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const handleClearSearch = () => {
         setSearch('');
         setStatusFilter('all');
+        setYearFilter('');
         setSortBy('created_at');
         setSortDir('desc');
         router.get(route('admin.schema.index'));
@@ -282,6 +291,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
         editForm.setData({
             name: schema.name,
             description: schema.description || '',
+            tahun_anggaran: schema.tahun_anggaran || schema.year || new Date().getFullYear(),
             max_funding: String(schema.max_funding || ''),
             is_active: schema.is_active,
         });
@@ -318,7 +328,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     };
 
     // --- Derived state -------------------------------------------------------
-    const hasActiveFilters = search || statusFilter !== 'all';
+    const hasActiveFilters = Boolean(search || (statusFilter && statusFilter !== 'all') || yearFilter);
     const schemaList = schemas.data ?? [];
     const isEmpty = schemaList.length === 0;
 
@@ -375,6 +385,15 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 </SelectContent>
                             </Select>
 
+                            {/* Year filter */}
+                            <Input
+                                type="number"
+                                placeholder={t.adminSchema.filterYear}
+                                value={yearFilter}
+                                onChange={(e) => setYearFilter(e.target.value)}
+                                className="h-10 w-full border-sidebar-border bg-white sm:w-36 dark:bg-neutral-900"
+                            />
+
                             {/* Buttons */}
                             <Button type="submit" variant="secondary" className="h-10 px-5 font-semibold">
                                 Cari
@@ -403,6 +422,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 <TableRow className="border-sidebar-border/60">
                                     <TableHead className="w-[60px] text-center font-semibold">No</TableHead>
                                     <SortableHead label="Nama Skema" column="name" currentSort={sortBy} currentDir={sortDir} onSort={handleSort} />
+                                    <SortableHead label={t.adminSchema.tableColYear} column="tahun_anggaran" currentSort={sortBy} currentDir={sortDir} onSort={handleSort} className="w-[110px]" />
                                     <TableHead className="font-semibold">Deskripsi</TableHead>
                                     <SortableHead
                                         label="Pagu Dana"
@@ -442,7 +462,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                             <TableBody>
                                 {isEmpty ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} className="h-40 text-center">
+                                        <TableCell colSpan={9} className="h-40 text-center">
                                             <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                                 <ClipboardList className="h-10 w-10 text-neutral-300 dark:text-neutral-700" />
                                                 <p className="font-medium">Tidak ada skema penelitian ditemukan.</p>
@@ -468,6 +488,11 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                 {/* Nama Skema */}
                                                 <TableCell>
                                                     <span className="font-bold text-foreground">{schema.name}</span>
+                                                </TableCell>
+
+                                                {/* Tahun Anggaran */}
+                                                <TableCell>
+                                                    <span className="font-mono text-sm text-foreground">{schema.tahun_anggaran || schema.year || '—'}</span>
                                                 </TableCell>
 
                                                 {/* Deskripsi */}
@@ -727,6 +752,25 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                             {createForm.errors.name && <p className="text-xs font-semibold text-destructive">{createForm.errors.name}</p>}
                         </div>
 
+                        {/* Tahun Anggaran */}
+                        <div className="space-y-2">
+                            <Label htmlFor="create-tahun-anggaran" className="text-sm font-semibold">
+                                {t.adminSchema.yearLabel} <span className="text-destructive">*</span>
+                            </Label>
+                            <Input
+                                id="create-tahun-anggaran"
+                                type="number"
+                                min="2000"
+                                max="2100"
+                                value={createForm.data.tahun_anggaran}
+                                onChange={(e) => createForm.setData('tahun_anggaran', parseInt(e.target.value) || new Date().getFullYear())}
+                                placeholder={t.adminSchema.yearPlaceholder}
+                                className="h-10"
+                                disabled={createForm.processing}
+                            />
+                            {createForm.errors.tahun_anggaran && <p className="text-xs font-semibold text-destructive">{createForm.errors.tahun_anggaran}</p>}
+                        </div>
+
                         {/* Description */}
                         <div className="space-y-2">
                             <Label htmlFor="create-description" className="text-sm font-semibold">
@@ -837,6 +881,25 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 disabled={editForm.processing}
                             />
                             {editForm.errors.name && <p className="text-xs font-semibold text-destructive">{editForm.errors.name}</p>}
+                        </div>
+
+                        {/* Tahun Anggaran */}
+                        <div className="space-y-2">
+                            <Label htmlFor="edit-tahun-anggaran" className="text-sm font-semibold">
+                                {t.adminSchema.yearLabel} <span className="text-destructive">*</span>
+                            </Label>
+                            <Input
+                                id="edit-tahun-anggaran"
+                                type="number"
+                                min="2000"
+                                max="2100"
+                                value={editForm.data.tahun_anggaran}
+                                onChange={(e) => editForm.setData('tahun_anggaran', parseInt(e.target.value) || new Date().getFullYear())}
+                                placeholder={t.adminSchema.yearPlaceholder}
+                                className="h-10"
+                                disabled={editForm.processing}
+                            />
+                            {editForm.errors.tahun_anggaran && <p className="text-xs font-semibold text-destructive">{editForm.errors.tahun_anggaran}</p>}
                         </div>
 
                         {/* Description */}

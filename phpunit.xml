@@ -40,6 +40,7 @@
             <file>tests/Feature/SecurityValidationTest.php</file>
             <file>tests/Feature/ProductionDemoSeederTest.php</file>
             <file>tests/Feature/RoleAndProposalWorkflowTest.php</file>
+            <file>tests/Feature/SchemaYearAndCriteriaTest.php</file>
         </testsuite>
     </testsuites>
     <source>

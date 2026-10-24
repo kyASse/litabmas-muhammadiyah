@@ -11,16 +11,51 @@ class AssessmentCriteria extends Model
 
     protected $table = 'assessment_criteria';
 
+    public const TAHAP_ADMINISTRASI = 'Administrasi';
+
+    public const TAHAP_SUBSTANSI = 'Substansi';
+
+    public const TIPE_YA_TIDAK = 'Ya_Tidak';
+
+    public const TIPE_PILIHAN_GANDA = 'Pilihan_Ganda';
+
     protected $fillable = [
         'nama_kriteria',
         'bobot',
         'deskripsi',
         'urutan',
+        'tahap_seleksi',
+        'tipe_jawaban',
+        'pilihan_skor',
+        'is_active',
+        // legacy aliases
         'criterion',
         'score',
         'notes',
         'review_id',
     ];
+
+    protected $casts = [
+        'bobot' => 'integer',
+        'urutan' => 'integer',
+        'pilihan_skor' => 'array',
+        'is_active' => 'boolean',
+    ];
+
+    public function scopeAdministrasi($query)
+    {
+        return $query->where('tahap_seleksi', self::TAHAP_ADMINISTRASI);
+    }
+
+    public function scopeSubstansi($query)
+    {
+        return $query->where('tahap_seleksi', self::TAHAP_SUBSTANSI);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
 
     public function getCriterionAttribute(): ?string
     {

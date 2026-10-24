@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AssessmentCriteria;
 use App\Models\Proposal;
 use App\Models\Role;
 use App\Models\User;
@@ -56,6 +57,14 @@ class ProposalController extends Controller
             $query->where('status_proposal', $request->status);
         }
 
+        if ($request->filled('tahun_anggaran')) {
+            $year = $request->input('tahun_anggaran');
+            $query->whereHas('researchSchema', fn ($sq) => $sq->where('tahun_anggaran', $year));
+        } elseif ($request->filled('year')) {
+            $year = $request->input('year');
+            $query->whereHas('researchSchema', fn ($sq) => $sq->where('tahun_anggaran', $year));
+        }
+
         $proposals = $query
             ->latest()
             ->paginate(15)
@@ -85,6 +94,7 @@ class ProposalController extends Controller
                 'research_schema' => $proposal->researchSchema ? [
                     'id' => $proposal->researchSchema->id,
                     'name' => $proposal->researchSchema->name,
+                    'tahun_anggaran' => $proposal->researchSchema->tahun_anggaran,
                 ] : null,
                 'created_at' => $proposal->created_at->format('Y-m-d'),
             ]);
@@ -93,12 +103,19 @@ class ProposalController extends Controller
             ['value' => Proposal::STATUS_DRAFT,              'label' => 'Draft'],
             ['value' => Proposal::STATUS_SUBMITTED,          'label' => 'Submitted'],
             ['value' => Proposal::STATUS_ADMINISTRASI_VALID, 'label' => 'Valid Administrasi'],
+            ['value' => Proposal::STATUS_LOLOS_ADMINISTRASI, 'label' => 'Lolos Administrasi'],
+            ['value' => Proposal::STATUS_DITOLAK_ADMINISTRASI, 'label' => 'Ditolak Administrasi'],
             ['value' => Proposal::STATUS_DITOLAK,            'label' => 'Ditolak'],
         ]);
 
         return Inertia::render('Admin/Proposal/Index', [
             'proposals' => $proposals,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => [
+                'search' => $request->search ?? '',
+                'status' => $request->status ?? '',
+                'tahun_anggaran' => $request->tahun_anggaran ?? $request->year ?? '',
+                'year' => $request->year ?? $request->tahun_anggaran ?? '',
+            ],
             'statusOptions' => $statusOptions,
         ]);
     }
@@ -169,6 +186,10 @@ class ProposalController extends Controller
                 ])->values(),
             ],
             'availableReviewers' => $availableReviewers,
+            'adminCriteria' => AssessmentCriteria::administrasi()
+                ->active()
+                ->orderBy('urutan')
+                ->get(['id', 'nama_kriteria', 'deskripsi', 'tipe_jawaban', 'urutan']),
         ]);
     }
 
@@ -236,5 +257,58 @@ class ProposalController extends Controller
     public function campusReject(Request $request, Proposal $proposal): RedirectResponse
     {
         return app(\App\Http\Controllers\Admin\AdminKampusController::class)->campusReject($request, $proposal);
+    }
+
+    /**
+     * Verifikasi administrasi dinamis Bappeda menggunakan checklist Ya/Tidak.
+     *
+     * @route POST /admin/proposals/{proposal}/verify-administration
+     */
+    public function verifyAdministration(Request $request, Proposal $proposal): RedirectResponse
+    {
+        $this->authorize('verifyAdministration', $proposal);
+
+        $request->validate([
+            'checklist' => ['required', 'array'],
+            'checklist.*' => ['nullable'],
+            'catatan_administrasi' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $activeCriteria = AssessmentCriteria::administrasi()
+            ->active()
+            ->get();
+
+        if ($activeCriteria->isNotEmpty()) {
+            $allPassed = true;
+            foreach ($activeCriteria as $criterion) {
+                $val = $request->checklist[$criterion->id] ?? null;
+                if (! filter_var($val, FILTER_VALIDATE_BOOLEAN)) {
+                    $allPassed = false;
+                    break;
+                }
+            }
+        } else {
+            // Fallback: evaluate submitted checklist directly
+            $allPassed = ! empty($request->checklist) && collect($request->checklist)->every(
+                fn ($val) => filter_var($val, FILTER_VALIDATE_BOOLEAN)
+            );
+        }
+
+        $newStatus = $allPassed
+            ? Proposal::STATUS_LOLOS_ADMINISTRASI
+            : Proposal::STATUS_DITOLAK_ADMINISTRASI;
+
+        $proposal->update([
+            'status_proposal' => $newStatus,
+            'catatan_administrasi' => $request->catatan_administrasi,
+        ]);
+
+        $statusMessage = $allPassed
+            ? "Proposal \"{$proposal->title}\" dinyatakan LOLOS seleksi administrasi."
+            : "Proposal \"{$proposal->title}\" dinyatakan DITOLAK seleksi administrasi.";
+
+        return redirect()
+            ->back()
+            ->with('success', $statusMessage);
     }
 }

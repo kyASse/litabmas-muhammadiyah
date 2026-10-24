@@ -144,6 +144,15 @@ class ProposalPolicy
     }
 
     /**
+     * Tentukan apakah user dapat memverifikasi administrasi dinamis Bappeda.
+     * Hanya Super Admin (Admin Bappeda).
+     */
+    public function verifyAdministration(User $user, Proposal $proposal): bool
+    {
+        return $user->isSuperAdmin();
+    }
+
+    /**
      * Tentukan apakah user dapat mengunggah dokumen proposal.
      * Hanya pemilik proposal yang dapat mengunggah.
      */

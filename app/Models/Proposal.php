@@ -57,6 +57,10 @@ class Proposal extends Model
 
     public const STATUS_ADMINISTRASI_VALID = 'Administrasi_Valid';
 
+    public const STATUS_LOLOS_ADMINISTRASI = 'Lolos_Administrasi';
+
+    public const STATUS_DITOLAK_ADMINISTRASI = 'Ditolak_Administrasi';
+
     public const STATUS_DITOLAK = 'Ditolak';
 
     public const STATUS_LOLOS_DIDANAI = 'Lolos_Didanai';
@@ -103,6 +107,7 @@ class Proposal extends Model
         'proposal_doc_path',
         'proposal_doc_url',
         'rejection_reason',
+        'tahun_anggaran',
     ];
 
     /*
@@ -110,6 +115,11 @@ class Proposal extends Model
     | Accessors & Mutators
     |--------------------------------------------------------------------------
     */
+
+    public function getTahunAnggaranAttribute(): ?int
+    {
+        return $this->researchSchema?->tahun_anggaran ?? (int) ($this->created_at?->year ?? now()->year);
+    }
 
     public function getTitleAttribute(): ?string
     {
@@ -216,6 +226,8 @@ class Proposal extends Model
             'rejected_kampus' => self::STATUS_REJECTED_KAMPUS,
             'submitted_bappeda' => self::STATUS_APPROVED_KAMPUS,
             'administrasi_valid' => self::STATUS_ADMINISTRASI_VALID,
+            'lolos_administrasi' => self::STATUS_LOLOS_ADMINISTRASI,
+            'ditolak_administrasi' => self::STATUS_DITOLAK_ADMINISTRASI,
             'ditolak' => self::STATUS_DITOLAK,
             'lolos_didanai' => self::STATUS_LOLOS_DIDANAI,
         ];
@@ -241,6 +253,16 @@ class Proposal extends Model
     public function isRejectedKampus(): bool
     {
         return $this->status_proposal === self::STATUS_REJECTED_KAMPUS;
+    }
+
+    public function isLolosAdministrasi(): bool
+    {
+        return in_array($this->status_proposal, [self::STATUS_LOLOS_ADMINISTRASI, self::STATUS_ADMINISTRASI_VALID], true);
+    }
+
+    public function isDitolakAdministrasi(): bool
+    {
+        return in_array($this->status_proposal, [self::STATUS_DITOLAK_ADMINISTRASI, self::STATUS_DITOLAK], true);
     }
 
     /**
