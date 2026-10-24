@@ -37,7 +37,7 @@ class ProposalPolicy
 
         return $proposal->university_id === $user->university_id
             && (int) ($proposal->id_pengusul ?? $proposal->user_id) === (int) $user->id
-            && in_array($proposal->status_proposal, [Proposal::STATUS_DRAFT, 'Revisi'], true);
+            && in_array($proposal->status_proposal, [Proposal::STATUS_DRAFT, Proposal::STATUS_REJECTED_KAMPUS, 'Revisi'], true);
     }
 
     /**
@@ -52,7 +52,7 @@ class ProposalPolicy
 
         return $proposal->university_id === $user->university_id
             && (int) ($proposal->id_pengusul ?? $proposal->user_id) === (int) $user->id
-            && in_array($proposal->status_proposal, [Proposal::STATUS_DRAFT, 'Revisi'], true);
+            && in_array($proposal->status_proposal, [Proposal::STATUS_DRAFT, Proposal::STATUS_REJECTED_KAMPUS, 'Revisi'], true);
     }
 
     /**
@@ -110,6 +110,49 @@ class ProposalPolicy
     }
 
     /**
+     * Tentukan apakah user dapat menyetujui proposal pada tingkat internal kampus.
+     * Super Admin bypass, Admin Kampus dari university_id yang sama.
+     */
+    public function campusApprove(User $user, Proposal $proposal): bool
+    {
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        if (! $user->isAdminKampus()) {
+            return false;
+        }
+
+        return (int) $user->university_id === (int) $proposal->university_id;
+    }
+
+    /**
+     * Tentukan apakah user dapat menolak proposal pada tingkat internal kampus.
+     * Super Admin bypass, Admin Kampus dari university_id yang sama.
+     */
+    public function campusReject(User $user, Proposal $proposal): bool
+    {
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        if (! $user->isAdminKampus()) {
+            return false;
+        }
+
+        return (int) $user->university_id === (int) $proposal->university_id;
+    }
+
+    /**
+     * Tentukan apakah user dapat memverifikasi administrasi dinamis Bappeda.
+     * Hanya Super Admin (Admin Bappeda).
+     */
+    public function verifyAdministration(User $user, Proposal $proposal): bool
+    {
+        return $user->isSuperAdmin();
+    }
+
+    /**
      * Tentukan apakah user dapat mengunggah dokumen proposal.
      * Hanya pemilik proposal yang dapat mengunggah.
      */
@@ -122,25 +165,23 @@ class ProposalPolicy
      * Tentukan apakah user dapat melihat rekap review multi-reviewer.
      *
      * Digunakan oleh ReviewSummaryController::index().
-     * Hanya SuperAdmin, AdminKampus, dan PengelolaJurnal.
+     * Hanya SuperAdmin dan AdminKampus.
      */
     public function viewSummary(User $user, Proposal $proposal): bool
     {
         return $user->isSuperAdmin()
-            || $user->isAdminKampus()
-            || $user->isPengelolaJurnal();
+            || $user->isAdminKampus();
     }
 
     /**
      * Tentukan apakah user dapat memperpanjang due date reviewer assignment.
      *
      * Digunakan oleh ReviewAssignmentController::extendDue().
-     * Hanya SuperAdmin, AdminKampus, dan PengelolaJurnal.
+     * Hanya SuperAdmin dan AdminKampus.
      */
     public function extendDueDate(User $user, Proposal $proposal): bool
     {
         return $user->isSuperAdmin()
-            || $user->isAdminKampus()
-            || $user->isPengelolaJurnal();
+            || $user->isAdminKampus();
     }
 }

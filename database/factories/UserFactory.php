@@ -78,17 +78,25 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the user should have the User (Journal Manager) role.
+     * Indicate that the user should have the Peneliti role.
      */
-    public function user(?int $universityId = null): static
+    public function peneliti(?int $universityId = null): static
     {
         return $this->state(function (array $attributes) use ($universityId) {
-            $roleId = \DB::table('roles')->where('name', Role::USER)->value('id');
+            $roleId = \DB::table('roles')->where('name', Role::PENELITI)->value('id');
 
             return [
                 'role_id' => $roleId,
                 'university_id' => $universityId,
             ];
         });
+    }
+
+    /**
+     * Indicate that the user should have the Peneliti / Dosen role (compatibility alias).
+     */
+    public function user(?int $universityId = null): static
+    {
+        return $this->peneliti($universityId);
     }
 }

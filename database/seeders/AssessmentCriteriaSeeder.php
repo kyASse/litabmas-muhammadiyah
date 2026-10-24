@@ -14,27 +14,27 @@ class AssessmentCriteriaSeeder extends Seeder
     {
         $criteria = [
             [
-                'nama_kriteria' => 'Rekam Jejak dan Kompetensi Tim Peneliti',
-                'bobot' => 20,
-                'deskripsi' => 'Kesesuaian keahlian pengusul, riwayat publikasi terdahulu, dan kompetensi tim riset.',
+                'nama_kriteria' => 'Kebaharuan, Orisinalitas & Nilai Ilmiah',
+                'bobot' => 25,
+                'deskripsi' => 'Keaslian ide riset, novelty terhadap kajian terdahulu, ketajaman rumusan masalah, dan kedalaman tinjauan pustaka jurnal internasional/nasional terkini.',
                 'urutan' => 1,
             ],
             [
-                'nama_kriteria' => 'Urgensi, Kebaruan, dan Tinjauan Pustaka',
+                'nama_kriteria' => 'Metodologi Penelitian & Ketepatan Instrumen Analisis',
                 'bobot' => 30,
-                'deskripsi' => 'Kebaruan ide (novelty), ketajaman rumusan masalah, dan kemutakhiran tinjauan pustaka.',
+                'deskripsi' => 'Kesesuaian desain metodologi, kejelasan teknik sampling, keabsahan instrumen pengumpulan data, dan ketepatan metode analisis statistik/kualitatif.',
                 'urutan' => 2,
             ],
             [
-                'nama_kriteria' => 'Kejelasan Metodologi dan Kelayakan Pelaksanaan',
+                'nama_kriteria' => 'Kemanfaatan Hasil bagi Pemerintah Kota Yogyakarta & Masyarakat',
                 'bobot' => 25,
-                'deskripsi' => 'Kesesuaian rancangan metode, ketepatan jadwal tahapan, dan kewajaran alokasi anggaran.',
+                'deskripsi' => 'Dampak aplikatif riset untuk rekomendasi kebijakan Pemkot Yogyakarta, pemecahan masalah perkotaan, dan kemanfaatan nyata bagi masyarakat luas.',
                 'urutan' => 3,
             ],
             [
-                'nama_kriteria' => 'Potensi Dampak dan Kelayakan Target Luaran',
-                'bobot' => 25,
-                'deskripsi' => 'Kelayakan pencapaian luaran wajib/tambahan (jurnal terindeks/HKI/buku) dan manfaat hasil riset.',
+                'nama_kriteria' => 'Kelayakan Jadwal, Rincian Anggaran (RAB), dan Target Luaran',
+                'bobot' => 20,
+                'deskripsi' => 'Kewajaran alokasi anggaran belanja sesuai Standar Biaya Masukan (SBM), kepatuhan jadwal tahapan 1 tahun, serta ketercapaian target luaran wajib dan tambahan.',
                 'urutan' => 4,
             ],
         ];

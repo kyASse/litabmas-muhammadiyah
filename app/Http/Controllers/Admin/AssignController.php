@@ -27,9 +27,11 @@ class AssignController extends Controller
 
         $proposals = Proposal::whereIn('status_proposal', [
             Proposal::STATUS_ADMINISTRASI_VALID,
+            Proposal::STATUS_LOLOS_ADMINISTRASI,
             Proposal::STATUS_SUBMITTED,
             'Submitted',
             'Administrasi_Valid',
+            'Lolos_Administrasi',
             'In_Review',
         ])
             ->with([

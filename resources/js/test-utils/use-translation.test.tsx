@@ -36,7 +36,7 @@ describe('useTranslation Hook & Provider', () => {
         );
 
         expect(screen.getByTestId('current-locale').textContent).toBe('en');
-        expect(screen.getByTestId('app-name').textContent).toBe('E-Jarlit Bappeda Kota Yogyakarta');
+        expect(screen.getByTestId('app-name').textContent).toBe('E-Jarlit Kota Yogyakarta');
         expect(screen.getByTestId('save-btn').textContent).toBe('Save');
     });
 
@@ -52,7 +52,7 @@ describe('useTranslation Hook & Provider', () => {
         await user.click(toggleBtn);
 
         expect(screen.getByTestId('current-locale').textContent).toBe('id');
-        expect(screen.getByTestId('app-name').textContent).toBe('E-Jarlit Bappeda Kota Yogyakarta');
+        expect(screen.getByTestId('app-name').textContent).toBe('E-Jarlit Kota Yogyakarta');
         expect(screen.getByTestId('save-btn').textContent).toBe('Simpan');
 
         await user.click(toggleBtn);

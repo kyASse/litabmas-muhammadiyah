@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminKampusController;
 use App\Http\Controllers\Admin\AssignController as AdminAssignController;
+use App\Http\Controllers\Admin\CriteriaController as AdminCriteriaController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DecisionController as AdminDecisionController;
 use App\Http\Controllers\Admin\LogController as AdminLogController;
@@ -134,6 +135,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/proposal/{proposal}', [ProposalController::class, 'update'])->name('proposal.update');
         Route::delete('/proposals/{proposal}', [ProposalController::class, 'destroy'])->name('proposals.destroy');
         Route::delete('/proposal/{proposal}', [ProposalController::class, 'destroy'])->name('proposal.destroy');
+        Route::post('/proposals/{proposal}/submit-kampus', [ProposalController::class, 'submitKampus'])->name('proposals.submit-kampus');
+        Route::post('/proposal/{proposal}/submit-kampus', [ProposalController::class, 'submitKampus'])->name('proposal.submit-kampus');
         Route::get('/proposal/documents/{document}/download', [DocumentController::class, 'download'])->name('proposal.documents.download');
 
         // Document Upload
@@ -258,6 +261,9 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{proposal}/verify', [AdminProposalController::class, 'approve'])->name('verify');
             Route::post('{proposal}/approve', [AdminProposalController::class, 'approve'])->name('approve');
             Route::post('{proposal}/reject', [AdminProposalController::class, 'reject'])->name('reject');
+            Route::post('{proposal}/campus-approve', [AdminProposalController::class, 'campusApprove'])->name('campus-approve');
+            Route::post('{proposal}/campus-reject', [AdminProposalController::class, 'campusReject'])->name('campus-reject');
+            Route::post('{proposal}/verify-administration', [AdminProposalController::class, 'verifyAdministration'])->name('verify-administration');
         });
 
         // Reviewer Assignment
@@ -339,6 +345,7 @@ Route::middleware(['auth'])->group(function () {
             ->name('users.revoke');
 
         // System Logs & Settings
+        Route::resource('criteria', AdminCriteriaController::class);
         Route::get('/logs', [AdminLogController::class, 'index'])->name('logs.index');
         Route::get('/settings', [AdminSettingsCtrl::class, 'index'])->name('settings.index');
         Route::post('/settings', [AdminSettingsCtrl::class, 'update'])->name('settings.update');

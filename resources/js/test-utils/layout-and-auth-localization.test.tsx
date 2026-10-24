@@ -36,7 +36,7 @@ vi.mock('@inertiajs/react', async (importOriginal) => {
                 activeSchemas: [
                     {
                         id: 1,
-                        nama_skema: 'Penelitian Fundamental PTMA',
+                        nama_skema: 'Penelitian Fundamental Kota Yogyakarta',
                         deskripsi: 'Hibah kompetitif multi-kampus',
                         biaya_maksimal: 50000000,
                         university: { id: 1, name: 'UMJ', code: 'UMJ' },
@@ -140,7 +140,7 @@ describe('Layout and Auth Localization', () => {
         expect(emojiRegex.test(container.textContent || '')).toBe(false);
     });
 
-    it('renders Welcome page with PTMA Muhammadiyah branding without RPL-2026, standalone integrated research, or design system preview button', () => {
+    it('renders Welcome page with E-Jarlit Bappeda Kota Yogyakarta branding without RPL-2026, standalone integrated research, or design system preview button', () => {
         const { container } = render(
             <TranslationProvider>
                 <Welcome />
@@ -152,10 +152,9 @@ describe('Layout and Auth Localization', () => {
         expect(pageText).not.toContain('RPL-2026');
         expect(pageText.toLowerCase()).not.toContain('standalone integrated research');
 
-        // Verify branding and domain
-        expect(pageText).toContain('E-Jarlit Bappeda Kota Yogyakarta');
-        expect(pageText).toContain('riset.portalmu.org');
-        expect(pageText).toContain('PTMA MUHAMMADIYAH');
+        // Verify branding
+        expect(pageText).toContain('E-Jarlit Kota Yogyakarta');
+        expect(pageText).toContain('BAPPEDA KOTA YOGYAKARTA');
 
         // Verify no links or buttons to design-system-preview exist in the DOM
         const previewLinks = container.querySelectorAll('a[href*="design-system-preview"]');
@@ -169,8 +168,8 @@ describe('Layout and Auth Localization', () => {
         expect(idPageText).not.toContain('RPL-2026');
         expect(idPageText.toLowerCase()).not.toContain('standalone integrated research');
         expect(idPageText.toLowerCase()).not.toContain('penelitian terintegrasi standalone');
-        expect(idPageText).toContain('E-Jarlit Bappeda Kota Yogyakarta');
-        expect(idPageText).toContain('riset.portalmu.org');
+        expect(idPageText).toContain('E-Jarlit Kota Yogyakarta');
+        expect(idPageText).toContain('BAPPEDA KOTA YOGYAKARTA');
         expect(container.querySelectorAll('a[href*="design-system-preview"]').length).toBe(0);
     });
 

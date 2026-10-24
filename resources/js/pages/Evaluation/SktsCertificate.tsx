@@ -16,7 +16,7 @@ export default function SktsCertificate({ proposal, evaluation, university: prop
     const { t, locale } = useTranslation();
 
     const university = propUniversity || proposal?.university;
-    const universityName = university?.name || 'UNIVERSITAS MUHAMMADIYAH';
+    const universityName = university?.name || 'INSTITUSI MITRA';
     const universityCode = university?.code || 'UM';
     const currentYear = proposal.tahun_anggaran || new Date().getFullYear();
     const sktsNumber = evaluation?.nomor_skts || `SKTS/${universityCode}/${currentYear}/${proposal.id}`;

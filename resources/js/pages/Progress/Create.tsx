@@ -10,8 +10,8 @@ import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { ArrowLeft, Send } from 'lucide-react';
-import { type FormEvent } from 'react';
+import { AlertCircle, ArrowLeft, CheckCircle2, FileText, Send, UploadCloud, X } from 'lucide-react';
+import { type ChangeEvent, type DragEvent, type FormEvent, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 interface Proposal {
@@ -36,6 +36,139 @@ interface Props {
     schedules: MonevSchedule[];
 }
 
+interface GenericUploaderProps {
+    label: string;
+    helperText?: string;
+    accept: string;
+    acceptedExtensionsText: string;
+    value: File | null;
+    onChange: (file: File | null) => void;
+    error?: string;
+    maxSizeMB?: number;
+}
+
+function GenericUploader({
+    label,
+    helperText,
+    accept,
+    acceptedExtensionsText,
+    value,
+    onChange,
+    error,
+    maxSizeMB = 10,
+}: GenericUploaderProps) {
+    const { t, format } = useTranslation();
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [isDragging, setIsDragging] = useState(false);
+    const [localError, setLocalError] = useState<string | null>(null);
+
+    const validateAndSet = (file: File) => {
+        setLocalError(null);
+        const maxBytes = maxSizeMB * 1024 * 1024;
+        if (file.size > maxBytes) {
+            const actualMB = (file.size / (1024 * 1024)).toFixed(2);
+            setLocalError(
+                format(t.components.genericUploader.sizeExceeded, {
+                    actual: actualMB,
+                    max: maxSizeMB,
+                })
+            );
+            return;
+        }
+        onChange(file);
+    };
+
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            validateAndSet(e.target.files[0]);
+        }
+    };
+
+    const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(false);
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            validateAndSet(e.dataTransfer.files[0]);
+        }
+    };
+
+    return (
+        <div className="space-y-1.5">
+            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-200">
+                {label}
+            </Label>
+            {helperText && <p className="text-xs text-muted-foreground">{helperText}</p>}
+
+            <input
+                ref={inputRef}
+                type="file"
+                accept={accept}
+                onChange={handleFileChange}
+                className="hidden"
+            />
+
+            {!value ? (
+                <div
+                    onClick={() => inputRef.current?.click()}
+                    onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDragging(true);
+                    }}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDrop={handleDrop}
+                    className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-4 text-center transition-colors ${
+                        isDragging
+                            ? 'border-blue-600 bg-blue-50/50 dark:border-blue-400 dark:bg-blue-950/20'
+                            : 'border-slate-300 bg-slate-50/50 hover:bg-slate-100/70 dark:border-slate-700 dark:bg-slate-900/30'
+                    }`}
+                >
+                    <UploadCloud className="h-6 w-6 text-slate-400" />
+                    <p className="mt-1 text-xs font-medium text-slate-700 dark:text-slate-200">
+                        {t.components.genericUploader.dragDropText}
+                    </p>
+                    <p className="font-mono text-[11px] text-muted-foreground">
+                        {acceptedExtensionsText} ({t.components.genericUploader.maxLimit} {maxSizeMB} MB)
+                    </p>
+                </div>
+            ) : (
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/40">
+                    <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                        <div>
+                            <p className="line-clamp-1 text-xs font-medium text-slate-900 dark:text-slate-100">
+                                {value.name}
+                            </p>
+                            <p className="font-mono text-[11px] text-muted-foreground">
+                                {(value.size / (1024 * 1024)).toFixed(2)} MB
+                            </p>
+                        </div>
+                    </div>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onChange(null);
+                            if (inputRef.current) inputRef.current.value = '';
+                        }}
+                        className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600"
+                    >
+                        <X className="h-4 w-4" />
+                    </Button>
+                </div>
+            )}
+
+            {(error || localError) && (
+                <p className="flex items-center gap-1 text-xs font-medium text-rose-600">
+                    <AlertCircle className="h-3.5 w-3.5" />
+                    {error || localError}
+                </p>
+            )}
+        </div>
+    );
+}
+
 export default function ProgressCreate({ proposals = [], schedules = [] }: Props) {
     const { t, locale } = useTranslation();
 
@@ -48,19 +181,27 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
     const { data, setData, post, processing, errors } = useForm<{
         id_proposal: string;
         id_monev_schedule: string;
+        tipe_laporan: 'Pendahuluan' | 'Bulanan' | 'Antara' | 'Akhir';
         persentase_kemajuan: number;
         ringkasan_progres: string;
         catatan_kendala: string;
         file_laporan_kemajuan: File | null;
         file_logbook: File | null;
+        file_presentasi: File | null;
+        file_tagihan: File | null;
+        nominal_tagihan: string;
     }>({
         id_proposal: '',
         id_monev_schedule: '',
+        tipe_laporan: 'Antara',
         persentase_kemajuan: 50,
         ringkasan_progres: '',
         catatan_kendala: '',
         file_laporan_kemajuan: null,
         file_logbook: null,
+        file_presentasi: null,
+        file_tagihan: null,
+        nominal_tagihan: '',
     });
 
     const handleSubmit = (e: FormEvent) => {
@@ -100,6 +241,7 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
     const isFormValid =
         Boolean(data.id_proposal) &&
         Boolean(data.id_monev_schedule) &&
+        Boolean(data.tipe_laporan) &&
         data.persentase_kemajuan >= 1 &&
         data.persentase_kemajuan <= 100 &&
         data.ringkasan_progres.trim().length >= 20 &&
@@ -192,6 +334,39 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                     </SelectContent>
                                 </Select>
                                 {errors.id_monev_schedule && <p className="text-xs font-medium text-rose-600">{errors.id_monev_schedule}</p>}
+                            </div>
+
+                            {/* Pilihan Tahapan Laporan 4 Tahap */}
+                            <div className="space-y-1.5">
+                                <Label
+                                    htmlFor="tipe_laporan"
+                                    className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-200"
+                                >
+                                    {t.monev.reportStageLabel} <span className="text-rose-600">*</span>
+                                </Label>
+                                <Select
+                                    value={data.tipe_laporan}
+                                    onValueChange={(val: 'Pendahuluan' | 'Bulanan' | 'Antara' | 'Akhir') => setData('tipe_laporan', val)}
+                                >
+                                    <SelectTrigger id="tipe_laporan" className="w-full">
+                                        <SelectValue placeholder={t.monev.selectReportStage} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Pendahuluan">
+                                            <span className="font-medium">{t.monev.stagePendahuluan}</span>
+                                        </SelectItem>
+                                        <SelectItem value="Bulanan">
+                                            <span className="font-medium">{t.monev.stageBulanan}</span>
+                                        </SelectItem>
+                                        <SelectItem value="Antara">
+                                            <span className="font-medium">{t.monev.stageAntara}</span>
+                                        </SelectItem>
+                                        <SelectItem value="Akhir">
+                                            <span className="font-medium">{t.monev.stageAkhir}</span>
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                {errors.tipe_laporan && <p className="text-xs font-medium text-rose-600">{errors.tipe_laporan}</p>}
                             </div>
 
                             {/* Slider & Input Persentase Kemajuan Riil */}
@@ -312,6 +487,57 @@ export default function ProgressCreate({ proposals = [], schedules = [] }: Props
                                     required={false}
                                 />
                                 {errors.file_logbook && <p className="text-xs font-medium text-rose-600">{errors.file_logbook}</p>}
+                            </div>
+
+                            {/* Bagian Berkas Presentasi & Tagihan Termin */}
+                            <div className="space-y-4 rounded-lg border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-900/30">
+                                <h4 className="font-serif text-sm font-bold text-slate-900 dark:text-slate-100">
+                                    {t.monev.supportingDocumentsTitle}
+                                </h4>
+
+                                {/* Berkas Presentasi */}
+                                <GenericUploader
+                                    label={t.monev.presentationFileLabel}
+                                    helperText={t.monev.presentationFileHelp}
+                                    accept=".pdf,.ppt,.pptx,application/pdf,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                                    acceptedExtensionsText="PDF, PPT, PPTX"
+                                    value={data.file_presentasi}
+                                    onChange={(file) => setData('file_presentasi', file)}
+                                    error={errors.file_presentasi}
+                                    maxSizeMB={10}
+                                />
+
+                                {/* Berkas Tagihan Termin / Kuitansi */}
+                                <GenericUploader
+                                    label={t.monev.billingFileLabel}
+                                    helperText={t.monev.billingFileHelp}
+                                    accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                                    acceptedExtensionsText="PDF, JPG, PNG"
+                                    value={data.file_tagihan}
+                                    onChange={(file) => setData('file_tagihan', file)}
+                                    error={errors.file_tagihan}
+                                    maxSizeMB={10}
+                                />
+
+                                {/* Nominal Tagihan */}
+                                <div className="space-y-1.5">
+                                    <Label
+                                        htmlFor="nominal_tagihan"
+                                        className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-200"
+                                    >
+                                        {t.monev.billingAmountLabel}
+                                    </Label>
+                                    <Input
+                                        type="number"
+                                        id="nominal_tagihan"
+                                        min={0}
+                                        placeholder={t.monev.billingAmountPlaceholder}
+                                        value={data.nominal_tagihan}
+                                        onChange={(e) => setData('nominal_tagihan', e.target.value)}
+                                        className="font-mono"
+                                    />
+                                    {errors.nominal_tagihan && <p className="text-xs font-medium text-rose-600">{errors.nominal_tagihan}</p>}
+                                </div>
                             </div>
 
                             {/* Submit Button */}

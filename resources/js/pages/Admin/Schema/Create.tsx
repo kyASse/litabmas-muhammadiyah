@@ -46,6 +46,7 @@ export default function SchemaCreate() {
     const { data, setData, post, processing, errors } = useForm({
         name: '',
         description: '',
+        tahun_anggaran: new Date().getFullYear(),
     });
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -104,6 +105,25 @@ export default function SchemaCreate() {
                                 />
                                 {errors.name && <p className="text-xs text-rose-600">{errors.name}</p>}
                                 <p className="text-xs text-slate-400">{t.adminSchema.nameUniqueHint}</p>
+                            </div>
+
+                            {/* Tahun Anggaran */}
+                            <div className="space-y-2">
+                                <Label htmlFor="tahun_anggaran" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    {t.adminSchema.yearLabel} <span className="text-rose-500">*</span>
+                                </Label>
+                                <Input
+                                    id="tahun_anggaran"
+                                    type="number"
+                                    min="2000"
+                                    max="2100"
+                                    value={data.tahun_anggaran}
+                                    onChange={(e) => setData('tahun_anggaran', parseInt(e.target.value) || new Date().getFullYear())}
+                                    placeholder={t.adminSchema.yearPlaceholder}
+                                    className={`border-slate-300 bg-white text-sm text-slate-900 ${errors.tahun_anggaran ? 'border-rose-500' : ''}`}
+                                />
+                                {errors.tahun_anggaran && <p className="text-xs text-rose-600">{errors.tahun_anggaran}</p>}
+                                <p className="text-xs text-slate-400">{t.adminSchema.yearHelp}</p>
                             </div>
 
                             {/* Deskripsi */}

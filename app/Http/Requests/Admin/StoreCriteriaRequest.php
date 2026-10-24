@@ -8,74 +8,59 @@ class StoreCriteriaRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()->isSuperAdmin();
+        return $this->user() && $this->user()->isSuperAdmin();
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $merge = [];
+        if ($this->has('name') && ! $this->has('nama_kriteria')) {
+            $merge['nama_kriteria'] = $this->input('name');
+        }
+        if ($this->has('question') && ! $this->has('nama_kriteria')) {
+            $merge['nama_kriteria'] = $this->input('question');
+        }
+        if ($this->has('stage') && ! $this->has('tahap_seleksi')) {
+            $merge['tahap_seleksi'] = $this->input('stage');
+        }
+        if (! $this->has('tahap_seleksi') && ! isset($merge['tahap_seleksi'])) {
+            $merge['tahap_seleksi'] = 'Substansi';
+        }
+        if ($this->has('type') && ! $this->has('tipe_jawaban')) {
+            $merge['tipe_jawaban'] = $this->input('type');
+        }
+        if (! $this->has('tipe_jawaban') && ! isset($merge['tipe_jawaban'])) {
+            $tahap = $merge['tahap_seleksi'] ?? $this->input('tahap_seleksi');
+            $merge['tipe_jawaban'] = $tahap === 'Administrasi' ? 'Ya_Tidak' : 'Pilihan_Ganda';
+        }
+        if ($this->has('weight') && ! $this->has('bobot')) {
+            $merge['bobot'] = $this->input('weight');
+        }
+        if (! $this->has('bobot') && ! isset($merge['bobot'])) {
+            $merge['bobot'] = 0;
+        }
+        if ($this->has('order') && ! $this->has('urutan')) {
+            $merge['urutan'] = $this->input('order');
+        }
+        if ($this->has('description') && ! $this->has('deskripsi')) {
+            $merge['deskripsi'] = $this->input('description');
+        }
+        if ($merge) {
+            $this->merge($merge);
+        }
     }
 
     public function rules(): array
     {
         return [
-            'sub_category_id' => 'required|exists:evaluation_sub_categories,id',
-
-            // Batch creation: criteria is required if the single fields are missing
-            'criteria' => 'required_without:code|array|min:1',
-            'criteria.*.code' => 'required_with:criteria|string|max:50|distinct|unique:evaluation_indicators,code',
-            'criteria.*.question' => 'required_with:criteria|string',
-            'criteria.*.description' => 'nullable|string',
-            'criteria.*.weight' => 'required_with:criteria|numeric|min:0|max:100',
-            'criteria.*.answer_type' => 'required_with:criteria|in:boolean,scale,text',
-            'criteria.*.requires_attachment' => 'required_with:criteria|boolean',
-            'criteria.*.sort_order' => 'nullable|integer|min:1',
-            'criteria.*.is_active' => 'required_with:criteria|boolean',
-
-            // Single creation fallback: root level fields are required if criteria is missing
-            'code' => 'required_without:criteria|string|max:50|unique:evaluation_indicators,code',
-            'question' => 'required_without:criteria|string',
-            'description' => 'nullable|string',
-            'weight' => 'required_without:criteria|numeric|min:0|max:100',
-            'answer_type' => 'required_without:criteria|in:boolean,scale,text',
-            'requires_attachment' => 'boolean',
-            'sort_order' => 'nullable|integer|min:1',
-            'is_active' => 'boolean',
-        ];
-    }
-
-    public function attributes(): array
-    {
-        return [
-            'sub_category_id' => 'sub-kategori',
-
-            'criteria.*.code' => 'kode kriteria',
-            'criteria.*.question' => 'pertanyaan',
-            'criteria.*.description' => 'deskripsi',
-            'criteria.*.weight' => 'bobot',
-            'criteria.*.answer_type' => 'tipe jawaban',
-            'criteria.*.requires_attachment' => 'memerlukan lampiran',
-            'criteria.*.sort_order' => 'urutan',
-            'criteria.*.is_active' => 'status aktif',
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'sub_category_id.required' => 'Sub-kategori wajib dipilih.',
-            'sub_category_id.exists' => 'Sub-kategori yang dipilih tidak valid.',
-
-            'criteria.required' => 'Minimal harus ada satu kriteria.',
-            'criteria.array' => 'Format data kriteria tidak valid.',
-            'criteria.min' => 'Minimal harus ada satu kriteria.',
-
-            'criteria.*.code.required' => 'Kode kriteria wajib diisi.',
-            'criteria.*.code.unique' => 'Kode kriteria sudah digunakan.',
-            'criteria.*.code.distinct' => 'Kode kriteria tidak boleh duplikat dalam satu form.',
-
-            'criteria.*.question.required' => 'Pertanyaan wajib diisi.',
-
-            'criteria.*.answer_type.required' => 'Tipe jawaban wajib dipilih.',
-            'criteria.*.answer_type.in' => 'Tipe jawaban harus "boolean", "scale", atau "text".',
-
-            'criteria.*.weight.required' => 'Bobot wajib diisi.',
-            'criteria.*.weight.max' => 'Bobot tidak boleh melebihi 100.',
+            'nama_kriteria' => ['required', 'string', 'max:255'],
+            'tahap_seleksi' => ['required', 'in:Administrasi,Substansi'],
+            'tipe_jawaban' => ['required', 'in:Ya_Tidak,Pilihan_Ganda'],
+            'bobot' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'deskripsi' => ['nullable', 'string', 'max:2000'],
+            'urutan' => ['nullable', 'integer', 'min:1'],
+            'is_active' => ['nullable', 'boolean'],
+            'pilihan_skor' => ['nullable', 'array'],
         ];
     }
 }

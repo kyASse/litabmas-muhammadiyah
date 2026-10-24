@@ -70,6 +70,11 @@ export function normalizeStatus(status: string): string {
   if (s === 'disbursed' || s === 'dicairkan') return 'Disbursed';
   if (s === 'approved' || s === 'disetujui') return 'Approved';
   if (s === 'administrasi_valid' || s === 'valid administrasi' || s === 'valid_administrasi') return 'Administrasi_Valid';
+  if (s === 'lolos_administrasi' || s === 'lolos administrasi') return 'Lolos_Administrasi';
+  if (s === 'ditolak_administrasi' || s === 'ditolak administrasi') return 'Ditolak_Administrasi';
+  if (s === 'submitted_kampus' || s === 'diajukan ke kampus') return 'Submitted_Kampus';
+  if (s === 'approved_kampus' || s === 'disetujui kampus') return 'Approved_Kampus';
+  if (s === 'rejected_kampus' || s === 'ditolak kampus') return 'Rejected_Kampus';
   if (s === 'waiting_disbursement' || s === 'menunggu pencairan' || s === 'menunggu_pencairan') return 'Waiting_Disbursement';
   return status;
 }
@@ -189,6 +194,31 @@ const statusMap: Record<string, StatusConfig> = {
     label: '[ADMINISTRASI VALID]',
     classes: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     icon: CheckCircle2,
+  },
+  Lolos_Administrasi: {
+    label: '[LOLOS ADMINISTRASI]',
+    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    icon: CheckCircle2,
+  },
+  Ditolak_Administrasi: {
+    label: '[DITOLAK ADMINISTRASI]',
+    classes: 'bg-rose-50 text-rose-700 border-rose-200',
+    icon: XCircle,
+  },
+  Submitted_Kampus: {
+    label: '[SUBMIT KAMPUS]',
+    classes: 'bg-sky-50 text-sky-700 border-sky-200',
+    icon: Send,
+  },
+  Approved_Kampus: {
+    label: '[DISETUJUI KAMPUS]',
+    classes: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    icon: ShieldCheck,
+  },
+  Rejected_Kampus: {
+    label: '[DITOLAK KAMPUS]',
+    classes: 'bg-rose-50 text-rose-700 border-rose-200',
+    icon: XCircle,
   },
   Reviewed: {
     label: '[DIREVIEW]',

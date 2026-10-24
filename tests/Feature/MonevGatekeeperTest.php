@@ -42,7 +42,6 @@ class MonevGatekeeperTest extends TestCase
         Role::firstOrCreate(['name' => Role::ADMIN_KEUANGAN], ['display_name' => 'Admin Keuangan']);
         Role::firstOrCreate(['name' => Role::REVIEWER], ['display_name' => 'Reviewer']);
         Role::firstOrCreate(['name' => Role::PENELITI], ['display_name' => 'Peneliti']);
-        Role::firstOrCreate(['name' => Role::USER], ['display_name' => 'User']);
 
         $this->university = University::create([
             'code' => 'UMT',

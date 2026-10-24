@@ -66,6 +66,14 @@ class StoreSchemaRequest extends FormRequest
             $merge['tanggal_selesai'] = now()->addMonths(12)->toDateString();
         }
 
+        if ($this->has('year') && ! $this->has('tahun_anggaran')) {
+            $merge['tahun_anggaran'] = $this->input('year');
+        }
+
+        if (! $this->has('tahun_anggaran') && ! isset($merge['tahun_anggaran'])) {
+            $merge['tahun_anggaran'] = (int) now()->year;
+        }
+
         if ($merge) {
             $this->merge($merge);
         }
@@ -91,6 +99,8 @@ class StoreSchemaRequest extends FormRequest
             'tanggal_selesai' => ['required', 'date', 'after_or_equal:tanggal_mulai'],
             'file_panduan' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
             'is_active' => ['nullable', 'boolean'],
+            'tahun_anggaran' => ['nullable', 'integer', 'min:2000', 'max:2100'],
+            'year' => ['nullable', 'integer', 'min:2000', 'max:2100'],
         ];
     }
 

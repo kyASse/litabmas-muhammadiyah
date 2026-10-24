@@ -20,7 +20,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                     <div className="flex flex-1 items-center gap-8">
                         <Link href={route('home')} className="flex items-center gap-3">
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white">
-                                <img src={logoUrl} alt="Majelis Diktilitbang" className="h-8 w-8 object-contain" />
+                                <img src={logoUrl} alt={t.common.appName} className="h-8 w-8 object-contain" />
                             </div>
                             <span className="font-heading text-2xl font-bold" style={{ fontFamily: '"El Messiri", sans-serif' }}>
                                 {t.common.appName}
@@ -78,7 +78,7 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             Contact Support
                         </a>
                     </div>
-                    <p>(c) {new Date().getFullYear()} SIM-Penelitian - Muhammadiyah Higher Education Research Network.</p>
+                    <p>(c) {new Date().getFullYear()} {t.common.appName} - {t.common.tagline}.</p>
                     {pageProps.laravelVersion && pageProps.phpVersion && (
                         <p className="mt-2">
                             Laravel v{pageProps.laravelVersion} (PHP v{pageProps.phpVersion})
