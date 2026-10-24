@@ -71,7 +71,7 @@ class StoreProposalRequest extends FormRequest
             'abstrak' => ['required', 'string', 'min:100'],
             'latar_belakang' => ['nullable', 'string'],
             'biaya_yang_diusulkan' => ['required', 'numeric', 'min:0'],
-            'action' => ['nullable', 'string', 'in:draft,submit'],
+            'action' => ['nullable', 'string', 'in:draft,submit,submit_kampus,submit-kampus,campus'],
             'file_dokumen_proposal' => [
                 $isDraft ? 'nullable' : 'required',
                 'file',

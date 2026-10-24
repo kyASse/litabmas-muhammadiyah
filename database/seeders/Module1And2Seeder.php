@@ -21,7 +21,7 @@ class Module1And2Seeder extends Seeder
         // 1. Ensure Roles
         $reviewerRole = Role::firstOrCreate(['name' => Role::REVIEWER], ['label' => 'Reviewer']);
         $adminKampusRole = Role::firstOrCreate(['name' => Role::ADMIN_KAMPUS], ['label' => 'Admin Kampus']);
-        $userRole = Role::firstOrCreate(['name' => Role::USER], ['label' => 'Dosen / Peneliti']);
+        $userRole = Role::firstOrCreate(['name' => Role::PENELITI], ['label' => 'Dosen / Peneliti']);
 
         // 2. Ensure Users & Reviewers
         $adminUad = User::firstOrCreate(

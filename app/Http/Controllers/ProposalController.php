@@ -94,7 +94,15 @@ class ProposalController extends Controller
                 $validated = $request->validated();
                 $action = $request->input('action', 'submit');
                 $isDraft = ($action === 'draft');
-                $status = $isDraft ? Proposal::STATUS_DRAFT : Proposal::STATUS_SUBMITTED;
+                $isKampus = in_array($action, ['submit_kampus', 'submit-kampus', 'campus'], true) || $request->input('target') === 'kampus';
+
+                if ($isDraft) {
+                    $status = Proposal::STATUS_DRAFT;
+                } elseif ($isKampus) {
+                    $status = Proposal::STATUS_SUBMITTED_KAMPUS;
+                } else {
+                    $status = Proposal::STATUS_SUBMITTED;
+                }
 
                 $proposal = Proposal::create([
                     'university_id' => $request->user()->university_id,
@@ -194,7 +202,15 @@ class ProposalController extends Controller
         $validated = $request->validated();
         $action = $request->input('action', 'submit');
         $isDraft = ($action === 'draft');
-        $status = $isDraft ? Proposal::STATUS_DRAFT : Proposal::STATUS_SUBMITTED;
+        $isKampus = in_array($action, ['submit_kampus', 'submit-kampus', 'campus'], true) || $request->input('target') === 'kampus';
+
+        if ($isDraft) {
+            $status = Proposal::STATUS_DRAFT;
+        } elseif ($isKampus) {
+            $status = Proposal::STATUS_SUBMITTED_KAMPUS;
+        } else {
+            $status = Proposal::STATUS_SUBMITTED;
+        }
 
         DB::transaction(function () use ($request, $proposal, $validated, $status, $isDraft) {
             $updateData = [];
@@ -262,6 +278,22 @@ class ProposalController extends Controller
 
         return redirect()->route('proposals.index')
             ->with('success', $message);
+    }
+
+    /**
+     * Submit an existing draft proposal to campus LPPM.
+     */
+    public function submitKampus(Request $request, Proposal $proposal): RedirectResponse
+    {
+        $this->authorize('update', $proposal);
+
+        $proposal->update([
+            'status_proposal' => Proposal::STATUS_SUBMITTED_KAMPUS,
+            'tanggal_pengajuan' => now()->toDateString(),
+        ]);
+
+        return redirect()->route('proposals.index')
+            ->with('success', '[SUKSES] Usulan penelitian berhasil diajukan ke Admin Kampus.');
     }
 
     /**

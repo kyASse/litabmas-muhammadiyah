@@ -47,6 +47,14 @@ class Proposal extends Model
 
     public const STATUS_SUBMITTED = 'Submitted';
 
+    public const STATUS_SUBMITTED_KAMPUS = 'Submitted_Kampus';
+
+    public const STATUS_APPROVED_KAMPUS = 'Approved_Kampus';
+
+    public const STATUS_REJECTED_KAMPUS = 'Rejected_Kampus';
+
+    public const STATUS_SUBMITTED_BAPPEDA = 'Approved_Kampus';
+
     public const STATUS_ADMINISTRASI_VALID = 'Administrasi_Valid';
 
     public const STATUS_DITOLAK = 'Ditolak';
@@ -203,12 +211,45 @@ class Proposal extends Model
         $map = [
             'draft' => self::STATUS_DRAFT,
             'submitted' => self::STATUS_SUBMITTED,
+            'submitted_kampus' => self::STATUS_SUBMITTED_KAMPUS,
+            'approved_kampus' => self::STATUS_APPROVED_KAMPUS,
+            'rejected_kampus' => self::STATUS_REJECTED_KAMPUS,
+            'submitted_bappeda' => self::STATUS_APPROVED_KAMPUS,
             'administrasi_valid' => self::STATUS_ADMINISTRASI_VALID,
             'ditolak' => self::STATUS_DITOLAK,
             'lolos_didanai' => self::STATUS_LOLOS_DIDANAI,
         ];
         $normalized = is_string($value) ? ($map[strtolower($value)] ?? $value) : $value;
         $this->attributes['status_proposal'] = $normalized;
+    }
+
+    public function isDraft(): bool
+    {
+        return $this->status_proposal === self::STATUS_DRAFT;
+    }
+
+    public function isSubmittedKampus(): bool
+    {
+        return $this->status_proposal === self::STATUS_SUBMITTED_KAMPUS;
+    }
+
+    public function isApprovedKampus(): bool
+    {
+        return in_array($this->status_proposal, [self::STATUS_APPROVED_KAMPUS, 'Submitted_Bappeda'], true);
+    }
+
+    public function isRejectedKampus(): bool
+    {
+        return $this->status_proposal === self::STATUS_REJECTED_KAMPUS;
+    }
+
+    /**
+     * Retrieve the model for a bound value without TenantScope so Policy can enforce 403 Forbidden.
+     */
+    public function resolveRouteBindingQuery($query, $value, $field = null)
+    {
+        return $query->withoutGlobalScope(\App\Models\Scopes\TenantScope::class)
+            ->where($field ?? $this->getRouteKeyName(), $value);
     }
 
     public function setStatusAttribute($value): void

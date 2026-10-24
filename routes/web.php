@@ -134,6 +134,8 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/proposal/{proposal}', [ProposalController::class, 'update'])->name('proposal.update');
         Route::delete('/proposals/{proposal}', [ProposalController::class, 'destroy'])->name('proposals.destroy');
         Route::delete('/proposal/{proposal}', [ProposalController::class, 'destroy'])->name('proposal.destroy');
+        Route::post('/proposals/{proposal}/submit-kampus', [ProposalController::class, 'submitKampus'])->name('proposals.submit-kampus');
+        Route::post('/proposal/{proposal}/submit-kampus', [ProposalController::class, 'submitKampus'])->name('proposal.submit-kampus');
         Route::get('/proposal/documents/{document}/download', [DocumentController::class, 'download'])->name('proposal.documents.download');
 
         // Document Upload
@@ -258,6 +260,8 @@ Route::middleware(['auth'])->group(function () {
             Route::post('{proposal}/verify', [AdminProposalController::class, 'approve'])->name('verify');
             Route::post('{proposal}/approve', [AdminProposalController::class, 'approve'])->name('approve');
             Route::post('{proposal}/reject', [AdminProposalController::class, 'reject'])->name('reject');
+            Route::post('{proposal}/campus-approve', [AdminProposalController::class, 'campusApprove'])->name('campus-approve');
+            Route::post('{proposal}/campus-reject', [AdminProposalController::class, 'campusReject'])->name('campus-reject');
         });
 
         // Reviewer Assignment

@@ -31,7 +31,7 @@ class FundingTest extends TestCase
         parent::setUp();
 
         // Create roles
-        $this->userRole = Role::firstOrCreate(['name' => Role::USER], ['display_name' => Role::USER]);
+        $this->userRole = Role::firstOrCreate(['name' => Role::PENELITI], ['display_name' => Role::PENELITI]);
 
         $this->university = University::factory()->create();
         $this->researchSchema = ResearchSchema::create([

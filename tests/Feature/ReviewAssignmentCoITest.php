@@ -28,7 +28,7 @@ class ReviewAssignmentCoITest extends TestCase
         Role::firstOrCreate(['name' => Role::SUPER_ADMIN], ['display_name' => 'Super Admin']);
         Role::firstOrCreate(['name' => Role::ADMIN_KAMPUS], ['display_name' => 'Admin Kampus']);
         Role::firstOrCreate(['name' => Role::REVIEWER], ['display_name' => 'Reviewer']);
-        Role::firstOrCreate(['name' => Role::USER], ['display_name' => 'Dosen / Peneliti']);
+        Role::firstOrCreate(['name' => Role::PENELITI], ['display_name' => 'Dosen / Peneliti']);
 
         $this->university = University::create([
             'code' => 'UMT-TEST',

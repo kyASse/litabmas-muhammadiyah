@@ -217,4 +217,24 @@ class ProposalController extends Controller
             ->route('admin.proposals.index')
             ->with('success', "Proposal \"{$proposal->title}\" telah ditolak.");
     }
+
+    /**
+     * Setujui proposal pada tingkat internal kampus.
+     *
+     * @route POST /admin/proposals/{proposal}/campus-approve
+     */
+    public function campusApprove(Request $request, Proposal $proposal): RedirectResponse
+    {
+        return app(\App\Http\Controllers\Admin\AdminKampusController::class)->campusApprove($request, $proposal);
+    }
+
+    /**
+     * Tolak proposal pada tingkat internal kampus dengan catatan perbaikan.
+     *
+     * @route POST /admin/proposals/{proposal}/campus-reject
+     */
+    public function campusReject(Request $request, Proposal $proposal): RedirectResponse
+    {
+        return app(\App\Http\Controllers\Admin\AdminKampusController::class)->campusReject($request, $proposal);
+    }
 }

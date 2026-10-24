@@ -53,9 +53,9 @@ class TenantScopeTest extends TestCase
         ]);
 
         $this->userRole = Role::create([
-            'name' => Role::USER,
-            'display_name' => 'Regular User',
-            'description' => 'Regular User / Dosen',
+            'name' => Role::PENELITI,
+            'display_name' => 'Dosen Peneliti',
+            'description' => 'Dosen Peneliti Kampus',
         ]);
 
         $this->userUniversityA = User::create([

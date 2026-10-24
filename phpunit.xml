@@ -39,6 +39,7 @@
             <file>tests/Feature/CriticalEdgeCasesTest.php</file>
             <file>tests/Feature/SecurityValidationTest.php</file>
             <file>tests/Feature/ProductionDemoSeederTest.php</file>
+            <file>tests/Feature/RoleAndProposalWorkflowTest.php</file>
         </testsuite>
     </testsuites>
     <source>
