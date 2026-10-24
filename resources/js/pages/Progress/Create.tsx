@@ -57,6 +57,7 @@ function GenericUploader({
     error,
     maxSizeMB = 10,
 }: GenericUploaderProps) {
+    const { t, format } = useTranslation();
     const inputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [localError, setLocalError] = useState<string | null>(null);
@@ -65,7 +66,13 @@ function GenericUploader({
         setLocalError(null);
         const maxBytes = maxSizeMB * 1024 * 1024;
         if (file.size > maxBytes) {
-            setLocalError(`Ukuran berkas (${(file.size / (1024 * 1024)).toFixed(2)} MB) melebihi batas maksimal ${maxSizeMB} MB.`);
+            const actualMB = (file.size / (1024 * 1024)).toFixed(2);
+            setLocalError(
+                format(t.components.genericUploader.sizeExceeded, {
+                    actual: actualMB,
+                    max: maxSizeMB,
+                })
+            );
             return;
         }
         onChange(file);
@@ -117,10 +124,10 @@ function GenericUploader({
                 >
                     <UploadCloud className="h-6 w-6 text-slate-400" />
                     <p className="mt-1 text-xs font-medium text-slate-700 dark:text-slate-200">
-                        Pilih berkas atau seret berkas ke sini
+                        {t.components.genericUploader.dragDropText}
                     </p>
                     <p className="font-mono text-[11px] text-muted-foreground">
-                        {acceptedExtensionsText} (Max {maxSizeMB} MB)
+                        {acceptedExtensionsText} ({t.components.genericUploader.maxLimit} {maxSizeMB} MB)
                     </p>
                 </div>
             ) : (

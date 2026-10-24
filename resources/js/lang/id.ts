@@ -134,6 +134,11 @@ export const id: TranslationType = {
             sizeExceeded: 'Ukuran berkas ({actual} MB) melebihi batas maksimal {max} MB.',
             removeFile: 'Hapus berkas',
         },
+        genericUploader: {
+            dragDropText: 'Pilih berkas atau seret berkas ke sini',
+            sizeExceeded: 'Ukuran berkas ({actual} MB) melebihi batas maksimal {max} MB.',
+            maxLimit: 'Maks',
+        },
         splitScreen: {
             reviewTitle: 'Telaah Berkas:',
             openNewTab: 'Buka Dokumen di Tab Baru',

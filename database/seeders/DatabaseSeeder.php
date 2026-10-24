@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,               // 3. Default testing accounts for all 5 roles
             AssessmentCriteriaSeeder::class, // 4. Standard LPPM proposal evaluation rubric
             ResearchSchemaSeeder::class,     // 5. Default research schemes
+            EJarlitBappedaSeeder::class,     // 6. Master data bersih E-Jarlit Bappeda Kota Yogyakarta 2026
         ]);
 
         $this->command->info('');

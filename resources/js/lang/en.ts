@@ -132,6 +132,11 @@ export const en = {
             sizeExceeded: 'File size ({actual} MB) exceeds maximum limit of {max} MB.',
             removeFile: 'Remove file',
         },
+        genericUploader: {
+            dragDropText: 'Choose a file or drag and drop here',
+            sizeExceeded: 'File size ({actual} MB) exceeds maximum limit of {max} MB.',
+            maxLimit: 'Max',
+        },
         splitScreen: {
             reviewTitle: 'Document Review:',
             openNewTab: 'Open Document in New Tab',

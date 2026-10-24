@@ -152,6 +152,20 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
         }
     };
 
+    const getStageLabel = (tipe?: string | null) => {
+        switch (tipe) {
+            case 'Pendahuluan':
+                return t.monev.stagePendahuluan;
+            case 'Bulanan':
+                return t.monev.stageBulanan;
+            case 'Akhir':
+                return t.monev.stageAkhir;
+            case 'Antara':
+            default:
+                return t.monev.stageAntara;
+        }
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={t.monev.progressListTitle} />
@@ -255,7 +269,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                             </TableCell>
                                             <TableCell>
                                                 <span className={`inline-flex items-center rounded border px-2 py-0.5 font-mono text-xs font-semibold ${getStageBadgeStyle(report.tipe_laporan)}`}>
-                                                    {report.tipe_laporan || 'Antara'}
+                                                    {getStageLabel(report.tipe_laporan)}
                                                 </span>
                                             </TableCell>
                                             <TableCell>
