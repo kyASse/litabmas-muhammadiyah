@@ -39,6 +39,7 @@ export const id: TranslationType = {
         logout: 'Keluar',
         home: 'Beranda',
         schemes: 'Skema Penelitian',
+        criteria: 'Kriteria Seleksi',
         documentation: 'Dokumentasi',
         login: 'Masuk',
         register: 'Daftar',

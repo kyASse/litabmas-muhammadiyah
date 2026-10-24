@@ -37,6 +37,7 @@ export const en = {
         logout: 'Sign Out',
         home: 'Home',
         schemes: 'Research Schemes',
+        criteria: 'Selection Criteria',
         documentation: 'Documentation',
         login: 'Sign In',
         register: 'Register',
