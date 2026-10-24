@@ -28,11 +28,15 @@ class StoreProgressReportRequest extends FormRequest
         return [
             'id_proposal' => ['required', 'integer', 'exists:proposals,id'],
             'id_monev_schedule' => ['required', 'integer', 'exists:monev_schedules,id'],
+            'tipe_laporan' => ['required', 'string', 'in:Pendahuluan,Bulanan,Antara,Akhir'],
             'persentase_kemajuan' => ['required', 'integer', 'min:1', 'max:100'],
             'ringkasan_progres' => ['required', 'string', 'min:20'],
             'catatan_kendala' => ['nullable', 'string'],
             'file_laporan_kemajuan' => ['required', 'file', 'mimes:pdf', 'max:10240'],
             'file_logbook' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'file_presentasi' => ['nullable', 'file', 'mimes:pdf,ppt,pptx', 'max:10240'],
+            'file_tagihan' => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'nominal_tagihan' => ['nullable', 'numeric', 'min:0'],
         ];
     }
 
@@ -46,11 +50,15 @@ class StoreProgressReportRequest extends FormRequest
         return [
             'id_proposal' => 'proposal penelitian',
             'id_monev_schedule' => 'jadwal monev',
+            'tipe_laporan' => 'tipe laporan',
             'persentase_kemajuan' => 'persentase kemajuan',
             'ringkasan_progres' => 'ringkasan progres',
             'catatan_kendala' => 'catatan kendala',
             'file_laporan_kemajuan' => 'berkas laporan kemajuan',
             'file_logbook' => 'berkas logbook aktivitas',
+            'file_presentasi' => 'berkas presentasi',
+            'file_tagihan' => 'berkas tagihan',
+            'nominal_tagihan' => 'nominal tagihan',
         ];
     }
 
@@ -66,6 +74,8 @@ class StoreProgressReportRequest extends FormRequest
             'id_proposal.exists' => 'Proposal riset yang dipilih tidak ditemukan.',
             'id_monev_schedule.required' => 'Jadwal tahapan monev wajib dipilih.',
             'id_monev_schedule.exists' => 'Jadwal tahapan monev tidak ditemukan.',
+            'tipe_laporan.required' => 'Tahapan/tipe laporan wajib dipilih.',
+            'tipe_laporan.in' => 'Tahapan laporan harus salah satu dari: Pendahuluan, Bulanan, Antara, Akhir.',
             'persentase_kemajuan.required' => 'Persentase kemajuan wajib diisi.',
             'persentase_kemajuan.integer' => 'Persentase kemajuan harus berupa bilangan bulat.',
             'persentase_kemajuan.min' => 'Persentase kemajuan minimal 1 persen.',
@@ -79,6 +89,14 @@ class StoreProgressReportRequest extends FormRequest
             'file_logbook.file' => 'Berkas logbook harus berupa berkas valid.',
             'file_logbook.mimes' => 'Berkas logbook harus berupa berkas PDF.',
             'file_logbook.max' => 'Ukuran berkas logbook maksimal 10MB (10240 KB).',
+            'file_presentasi.file' => 'Berkas presentasi harus berupa berkas valid.',
+            'file_presentasi.mimes' => 'Berkas presentasi harus berformat PDF, PPT, atau PPTX.',
+            'file_presentasi.max' => 'Ukuran berkas presentasi maksimal 10MB (10240 KB).',
+            'file_tagihan.file' => 'Berkas tagihan harus berupa berkas valid.',
+            'file_tagihan.mimes' => 'Berkas tagihan harus berformat PDF, JPG, JPEG, atau PNG.',
+            'file_tagihan.max' => 'Ukuran berkas tagihan maksimal 10MB (10240 KB).',
+            'nominal_tagihan.numeric' => 'Nominal tagihan harus berupa angka mata uang.',
+            'nominal_tagihan.min' => 'Nominal tagihan tidak boleh bernilai negatif.',
         ];
     }
 

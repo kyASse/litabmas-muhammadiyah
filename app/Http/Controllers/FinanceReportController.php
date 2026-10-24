@@ -53,22 +53,18 @@ class FinanceReportController extends Controller
                 $query->where('university_id', auth()->user()->university_id);
             })
             ->when($year, function (Builder $query) use ($year) {
-                $query->where(function (Builder $subQuery) use ($year) {
-                    $subQuery->whereYear('signed_at', $year)
-                        ->orWhere(function (Builder $inner) use ($year) {
-                            $inner->whereNull('signed_at')
-                                ->whereYear('start_date', $year);
-                        });
-                });
+                $query->whereYear('tanggal_kontrak', $year);
             })
             ->when($scheme !== 'all', function (Builder $query) use ($scheme) {
-                $query->where('status', $scheme);
+                $query->byStatus($scheme);
             })
             ->withSum([
                 'fundings as disbursed_total' => function (Builder $query) {
-                    $query->where('status', Funding::STATUS_DISBURSED);
+                    $query->where(function ($sub) {
+                        $sub->where('status_pencairan', Funding::STATUS_DISBURSED);
+                    });
                 },
-            ], 'amount')
+            ], 'nominal_dana')
             ->get();
 
         $totalContractValue = (float) $contracts->sum(fn (Contract $contract) => (float) $contract->contract_value);
