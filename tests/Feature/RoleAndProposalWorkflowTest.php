@@ -337,4 +337,50 @@ class RoleAndProposalWorkflowTest extends TestCase
         $detailResponse = $this->actingAs($this->superAdmin)->get("/admin/proposals/{$proposal->id}");
         $detailResponse->assertOk();
     }
+
+    /**
+     * Super Admin Pusat dicegah dengan 403 Forbidden jika mencoba memvalidasi proposal sebelum disetujui kampus.
+     */
+    public function test_super_admin_cannot_approve_proposal_before_campus_approval(): void
+    {
+        $proposal = Proposal::create([
+            'university_id' => $this->universityA->id,
+            'id_pengusul' => $this->dosenA->id,
+            'id_skema_pendanaan' => $this->schema->id,
+            'judul_penelitian' => 'Kajian Konservasi Air Tanah',
+            'abstrak' => 'Analisis daya dukung lingkungan.',
+            'biaya_yang_diusulkan' => 35000000,
+            'status_proposal' => Proposal::STATUS_SUBMITTED_KAMPUS,
+            'tanggal_pengajuan' => now()->toDateString(),
+        ]);
+
+        $response = $this->actingAs($this->superAdmin)
+            ->post("/admin/proposals/{$proposal->id}/approve");
+
+        $response->assertStatus(403);
+        $this->assertEquals(Proposal::STATUS_SUBMITTED_KAMPUS, $proposal->fresh()->status_proposal);
+    }
+
+    /**
+     * Super Admin Pusat dapat memvalidasi administrasi proposal setelah disahkan kampus.
+     */
+    public function test_super_admin_can_approve_proposal_after_campus_approval(): void
+    {
+        $proposal = Proposal::create([
+            'university_id' => $this->universityA->id,
+            'id_pengusul' => $this->dosenA->id,
+            'id_skema_pendanaan' => $this->schema->id,
+            'judul_penelitian' => 'Kajian Transportasi Terintegrasi',
+            'abstrak' => 'Pemodelan rute bus listrik.',
+            'biaya_yang_diusulkan' => 40000000,
+            'status_proposal' => Proposal::STATUS_APPROVED_KAMPUS,
+            'tanggal_pengajuan' => now()->toDateString(),
+        ]);
+
+        $response = $this->actingAs($this->superAdmin)
+            ->post("/admin/proposals/{$proposal->id}/approve");
+
+        $response->assertRedirect(route('admin.proposals.index'));
+        $this->assertEquals(Proposal::STATUS_ADMINISTRASI_VALID, $proposal->fresh()->status_proposal);
+    }
 }

@@ -73,7 +73,8 @@ class ProposalPolicy
 
     /**
      * Tentukan apakah user dapat meng-approve (validasi administrasi) proposal.
-     * Super Admin dan Admin Kampus (pada universitas yang sama), untuk proposal berstatus Submitted.
+     * Super Admin memvalidasi usulan yang telah disetujui kampus (Approved_Kampus / Submitted_Bappeda).
+     * Admin Kampus hanya untuk usulan internal kampus (Submitted / Submitted_Kampus).
      */
     public function approve(User $user, Proposal $proposal): bool
     {
@@ -81,18 +82,25 @@ class ProposalPolicy
             return false;
         }
 
-        if ($user->isAdminKampus() && $proposal->user && $proposal->user->university_id !== $user->university_id) {
-            return false;
-        }
-
         $status = strtolower($proposal->status_proposal ?? '');
 
-        return in_array($status, ['submitted', 'submitted_kampus', 'approved_kampus', 'submitted_bappeda']);
+        // Admin Kampus hanya berwenang pada usulan internal kampus (status Submitted / Submitted_Kampus)
+        if ($user->isAdminKampus() && ! $user->isSuperAdmin()) {
+            if ($proposal->university_id !== $user->university_id && $proposal->user?->university_id !== $user->university_id) {
+                return false;
+            }
+
+            return in_array($status, ['submitted', 'submitted_kampus']);
+        }
+
+        // Super Admin (Bappeda) hanya memvalidasi usulan yang telah disahkan oleh kampus
+        return in_array($status, ['approved_kampus', 'submitted_bappeda']);
     }
 
     /**
      * Tentukan apakah user dapat menolak proposal.
-     * Super Admin dan Admin Kampus (pada universitas yang sama), untuk proposal berstatus Submitted.
+     * Super Admin menolak pada tahap seleksi administrasi Bappeda (Approved_Kampus / Submitted_Bappeda).
+     * Admin Kampus menolak pada tingkat internal kampus (Submitted / Submitted_Kampus).
      */
     public function reject(User $user, Proposal $proposal): bool
     {
@@ -100,13 +108,19 @@ class ProposalPolicy
             return false;
         }
 
-        if ($user->isAdminKampus() && $proposal->user && $proposal->user->university_id !== $user->university_id) {
-            return false;
-        }
-
         $status = strtolower($proposal->status_proposal ?? '');
 
-        return in_array($status, ['submitted', 'submitted_kampus', 'approved_kampus', 'submitted_bappeda']);
+        // Admin Kampus hanya berwenang pada usulan internal kampus (status Submitted / Submitted_Kampus)
+        if ($user->isAdminKampus() && ! $user->isSuperAdmin()) {
+            if ($proposal->university_id !== $user->university_id && $proposal->user?->university_id !== $user->university_id) {
+                return false;
+            }
+
+            return in_array($status, ['submitted', 'submitted_kampus']);
+        }
+
+        // Super Admin (Bappeda) menolak administrasi usulan yang telah disahkan oleh kampus
+        return in_array($status, ['approved_kampus', 'submitted_bappeda']);
     }
 
     /**

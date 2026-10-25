@@ -230,8 +230,8 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-    const isSubmittedKampus = proposal.status_proposal === 'Submitted_Kampus' || (isAdminKampus && proposal.status_proposal === 'Submitted');
-    const isSubmittedBappeda = isSuperAdmin && (proposal.status_proposal === 'Submitted' || proposal.status_proposal === 'Approved_Kampus');
+    const isSubmittedKampus = isAdminKampus && (proposal.status_proposal === 'Submitted_Kampus' || proposal.status_proposal === 'Submitted');
+    const isSubmittedBappeda = isSuperAdmin && (proposal.status_proposal === 'Approved_Kampus' || proposal.status_proposal === 'Submitted_Bappeda');
     const isReviewable = isSuperAdmin && (proposal.status_proposal === 'Administrasi_Valid' || proposal.status_proposal === 'Lolos_Administrasi');
 
     const breadcrumbs: BreadcrumbItem[] = [

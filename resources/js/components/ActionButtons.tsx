@@ -83,8 +83,11 @@ export default function ActionButtons({
     };
 
     // Evaluasi status dan peran pengguna
-    const isSubmittedKampus = status === 'Submitted_Kampus' || (isAdminKampus && status === 'Submitted');
-    const isSubmittedBappeda = isSuperAdmin && (status === 'Submitted' || status === 'Approved_Kampus');
+    // Hanya Admin Kampus yang berhak memproses usulan berstatus Submitted_Kampus / Submitted
+    const isSubmittedKampus = isAdminKampus && (status === 'Submitted_Kampus' || status === 'Submitted');
+    // Super Admin hanya memvalidasi administrasi usulan yang telah disetujui kampus (Approved_Kampus / Submitted_Bappeda)
+    const isSubmittedBappeda = isSuperAdmin && (status === 'Approved_Kampus' || status === 'Submitted_Bappeda');
+    // Super Admin menugaskan reviewer hanya setelah usulan Lolos Administrasi
     const isReviewable = isSuperAdmin && (status === 'Administrasi_Valid' || status === 'Lolos_Administrasi');
 
     const hasExtraActions = isSubmittedKampus || isSubmittedBappeda || isReviewable;

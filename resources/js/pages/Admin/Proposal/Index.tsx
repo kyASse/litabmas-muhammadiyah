@@ -93,7 +93,7 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
     const { t, format } = useTranslation();
     const { auth } = usePage<SharedData>().props;
     const isSuperAdmin = auth?.user?.role?.name === 'Super Admin' || auth?.user?.roles?.some((r) => r.name === 'Super Admin');
-    const isCampusReject = !isSuperAdmin || proposal.status_proposal === 'Submitted_Kampus';
+    const isCampusReject = !isSuperAdmin || proposal.status_proposal === 'Submitted_Kampus' || proposal.status_proposal === 'Submitted';
 
     const { data, setData, post, processing, errors, reset } = useForm({
         rejection_reason: '',
