@@ -51,7 +51,7 @@ import {
     Trash2,
     X,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 /* -------------------------------------------------------------------------- */
@@ -126,6 +126,7 @@ interface Filters {
 
 interface Props {
     schemas: PaginatedSchemas;
+    available_years?: number[];
     filters: Filters;
 }
 
@@ -193,7 +194,7 @@ function SortableHead({ label, column, currentSort, currentDir, onSort, classNam
 /*  Main Component                                                             */
 /* -------------------------------------------------------------------------- */
 
-export default function SchemaIndex({ schemas, filters }: Props) {
+export default function SchemaIndex({ schemas, available_years, filters }: Props) {
     const { flash } = usePage<SharedData>().props;
     const { t, format, locale } = useTranslation();
 
@@ -279,6 +280,13 @@ export default function SchemaIndex({ schemas, filters }: Props) {
         applyFilters({ is_active: value === 'all' ? '' : value });
     };
 
+    // --- Year filter ---------------------------------------------------------
+    const handleYearChange = (value: string) => {
+        const nextVal = value === 'all' ? '' : value;
+        setYearFilter(nextVal);
+        applyFilters({ tahun_anggaran: nextVal });
+    };
+
     // --- Sorting -------------------------------------------------------------
     const handleSort = (column: string) => {
         let newDir = 'asc';
@@ -352,6 +360,20 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const schemaList = schemas.data ?? [];
     const isEmpty = schemaList.length === 0;
 
+    const yearOptions = useMemo(() => {
+        const set = new Set<number>(available_years ?? []);
+        schemaList.forEach((s) => {
+            const y = s.tahun_anggaran || s.year;
+            if (y) set.add(Number(y));
+        });
+        const currentYear = new Date().getFullYear();
+        set.add(currentYear);
+        set.add(currentYear - 1);
+        set.add(currentYear + 1);
+
+        return Array.from(set).sort((a, b) => b - a);
+    }, [available_years, schemaList]);
+
     const currentPage = schemas.current_page ?? schemas.meta?.current_page ?? 1;
     const perPage = schemas.per_page ?? schemas.meta?.per_page ?? 10;
     const totalItems = schemas.total ?? schemas.meta?.total ?? schemaList.length;
@@ -394,7 +416,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     type="text"
-                                    placeholder="Cari berdasarkan nama atau deskripsi..."
+                                    placeholder={t.adminSchema.searchPlaceholder}
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="h-10 border-sidebar-border bg-white pl-9 dark:bg-neutral-900"
@@ -404,27 +426,36 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                             {/* Status filter */}
                             <Select value={statusFilter} onValueChange={handleStatusChange}>
                                 <SelectTrigger className="h-10 w-full border-sidebar-border bg-white sm:w-44 dark:bg-neutral-900">
-                                    <SelectValue placeholder="Semua Status" />
+                                    <SelectValue placeholder={t.adminSchema.allStatuses} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">Semua Status</SelectItem>
-                                    <SelectItem value="1">Aktif</SelectItem>
-                                    <SelectItem value="0">Nonaktif</SelectItem>
+                                    <SelectItem value="all">{t.adminSchema.allStatuses}</SelectItem>
+                                    <SelectItem value="1">{t.adminSchema.statusActive.replace(/\[|\]/g, '')}</SelectItem>
+                                    <SelectItem value="0">{t.adminSchema.statusInactive.replace(/\[|\]/g, '')}</SelectItem>
                                 </SelectContent>
                             </Select>
 
-                            {/* Year filter */}
-                            <Input
-                                type="number"
-                                placeholder={t.adminSchema.filterYear}
-                                value={yearFilter}
-                                onChange={(e) => setYearFilter(e.target.value)}
-                                className="h-10 w-full border-sidebar-border bg-white sm:w-36 dark:bg-neutral-900"
-                            />
+                            {/* Year filter (shadcn-ui Select) */}
+                            <Select value={yearFilter || 'all'} onValueChange={handleYearChange}>
+                                <SelectTrigger className="h-10 w-full border-sidebar-border bg-white sm:w-44 dark:bg-neutral-900">
+                                    <div className="flex items-center gap-2 truncate">
+                                        <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                        <SelectValue placeholder={t.adminSchema.allYears} />
+                                    </div>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">{t.adminSchema.allYears}</SelectItem>
+                                    {yearOptions.map((year) => (
+                                        <SelectItem key={year} value={String(year)}>
+                                            {year}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
 
                             {/* Buttons */}
                             <Button type="submit" variant="secondary" className="h-10 px-5 font-semibold">
-                                Cari
+                                {t.common.filter || 'Cari'}
                             </Button>
                             {hasActiveFilters && (
                                 <Button
@@ -434,7 +465,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                     className="h-10 text-muted-foreground hover:text-foreground"
                                 >
                                     <X className="mr-1 h-4 w-4" />
-                                    Reset
+                                    {t.common.reset || 'Reset'}
                                 </Button>
                             )}
                         </form>

@@ -70,8 +70,24 @@ class SchemaController extends Controller
             return (new SchemaResource($schema))->resolve();
         });
 
+        $availableYears = ResearchSchema::query()
+            ->whereNotNull('tahun_anggaran')
+            ->distinct()
+            ->orderByDesc('tahun_anggaran')
+            ->pluck('tahun_anggaran')
+            ->map(fn ($y) => (int) $y)
+            ->values()
+            ->toArray();
+
+        $currentYear = (int) date('Y');
+        if (!in_array($currentYear, $availableYears)) {
+            $availableYears[] = $currentYear;
+            rsort($availableYears);
+        }
+
         return Inertia::render('Admin/Schema/Index', [
             'schemas' => $schemas,
+            'available_years' => $availableYears,
             'filters' => [
                 'search' => $request->search ?? '',
                 'is_active' => $request->is_active ?? '',
