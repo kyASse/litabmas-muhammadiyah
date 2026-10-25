@@ -268,7 +268,9 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                                 <div className="mt-1 line-clamp-1 text-xs text-muted-foreground">{report.ringkasan_progres}</div>
                                             </TableCell>
                                             <TableCell>
-                                                <span className={`inline-flex items-center rounded border px-2 py-0.5 font-mono text-xs font-semibold ${getStageBadgeStyle(report.tipe_laporan)}`}>
+                                                <span
+                                                    className={`inline-flex items-center rounded border px-2 py-0.5 font-mono text-xs font-semibold ${getStageBadgeStyle(report.tipe_laporan)}`}
+                                                >
                                                     {getStageLabel(report.tipe_laporan)}
                                                 </span>
                                             </TableCell>
@@ -326,7 +328,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                                         </a>
                                                     )}
                                                     {report.file_tagihan && (
-                                                        <div className="flex flex-col gap-0.5 pt-0.5 border-t border-slate-200/60 dark:border-slate-800">
+                                                        <div className="flex flex-col gap-0.5 border-t border-slate-200/60 pt-0.5 dark:border-slate-800">
                                                             <a
                                                                 href={`/storage/${report.file_tagihan}`}
                                                                 target="_blank"

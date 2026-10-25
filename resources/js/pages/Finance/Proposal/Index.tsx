@@ -7,47 +7,34 @@
  * Dibangun menggunakan shadcn/ui dan UI/UX Pro Max, 100% bebas dari simbol emoji.
  */
 
-import React, { useState } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
+import RabVerificationModal from '@/components/RabVerificationModal';
+import PageHeader from '@/components/ui/PageHeader';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useTranslation } from '@/hooks/use-translation';
+import AppLayout from '@/layouts/app-layout';
 import { formatCurrency } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
-import PageHeader from '@/components/ui/PageHeader';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Head, Link, router } from '@inertiajs/react';
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Card, CardContent } from '@/components/ui/card';
-import RabVerificationModal from '@/components/RabVerificationModal';
-import {
+    ArrowUpRight,
+    Building2,
     Calculator,
     CheckCircle2,
-    Clock,
-    XCircle,
-    Search,
-    FilterX,
-    Building2,
-    User,
-    ArrowUpRight,
     ChevronLeft,
     ChevronRight,
+    Clock,
     FileText,
+    FilterX,
+    Search,
+    User,
+    XCircle,
 } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface PaginationLink {
     url: string | null;
@@ -102,11 +89,7 @@ interface Props {
     availableYears: number[];
 }
 
-export default function FinanceProposalIndex({
-    proposals,
-    filters,
-    availableYears,
-}: Props) {
+export default function FinanceProposalIndex({ proposals, filters, availableYears }: Props) {
     const { t } = useTranslation();
 
     const [searchTerm, setSearchTerm] = useState(filters.search || '');
@@ -145,10 +128,14 @@ export default function FinanceProposalIndex({
         setSearchTerm('');
         setSelectedYear('all');
         setSelectedRabStatus('all');
-        router.get('/finance/proposals', {}, {
-            preserveState: true,
-            preserveScroll: true,
-        });
+        router.get(
+            '/finance/proposals',
+            {},
+            {
+                preserveState: true,
+                preserveScroll: true,
+            },
+        );
     };
 
     // Calculate Summary Stats from current page or totals
@@ -161,72 +148,59 @@ export default function FinanceProposalIndex({
             <Head title={t.financeProposals.pageTitle} />
 
             <div className="flex flex-col gap-6 p-6">
-                <PageHeader
-                    title={t.financeProposals.pageTitle}
-                    subtitle={t.financeProposals.pageSubtitle}
-                />
+                <PageHeader title={t.financeProposals.pageTitle} subtitle={t.financeProposals.pageSubtitle} />
 
                 {/* Metrics Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <Card className="border border-border shadow-xs">
-                        <CardContent className="p-4 flex items-center justify-between">
+                        <CardContent className="flex items-center justify-between p-4">
                             <div>
-                                <span className="text-xs text-muted-foreground block font-medium">
-                                    {t.financeProposals.statTotal}
-                                </span>
-                                <span className="text-2xl font-bold font-mono text-foreground mt-0.5 block">
-                                    {proposals.total}
-                                </span>
+                                <span className="block text-xs font-medium text-muted-foreground">{t.financeProposals.statTotal}</span>
+                                <span className="mt-0.5 block font-mono text-2xl font-bold text-foreground">{proposals.total}</span>
                             </div>
-                            <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
+                            <div className="rounded-lg bg-primary/10 p-2.5 text-primary">
                                 <Calculator className="h-5 w-5" />
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card className="border border-emerald-500/20 bg-emerald-500/5 shadow-xs">
-                        <CardContent className="p-4 flex items-center justify-between">
+                        <CardContent className="flex items-center justify-between p-4">
                             <div>
-                                <span className="text-xs text-emerald-800 dark:text-emerald-300 block font-medium">
+                                <span className="block text-xs font-medium text-emerald-800 dark:text-emerald-300">
                                     {t.financeProposals.statApproved}
                                 </span>
-                                <span className="text-2xl font-bold font-mono text-emerald-700 dark:text-emerald-400 mt-0.5 block">
+                                <span className="mt-0.5 block font-mono text-2xl font-bold text-emerald-700 dark:text-emerald-400">
                                     {statApprovedCount}
                                 </span>
                             </div>
-                            <div className="p-2.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                            <div className="rounded-lg bg-emerald-500/10 p-2.5 text-emerald-600 dark:text-emerald-400">
                                 <CheckCircle2 className="h-5 w-5" />
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card className="border border-amber-500/20 bg-amber-500/5 shadow-xs">
-                        <CardContent className="p-4 flex items-center justify-between">
+                        <CardContent className="flex items-center justify-between p-4">
                             <div>
-                                <span className="text-xs text-amber-800 dark:text-amber-300 block font-medium">
-                                    {t.financeProposals.statPending}
-                                </span>
-                                <span className="text-2xl font-bold font-mono text-amber-700 dark:text-amber-400 mt-0.5 block">
+                                <span className="block text-xs font-medium text-amber-800 dark:text-amber-300">{t.financeProposals.statPending}</span>
+                                <span className="mt-0.5 block font-mono text-2xl font-bold text-amber-700 dark:text-amber-400">
                                     {statPendingCount}
                                 </span>
                             </div>
-                            <div className="p-2.5 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                            <div className="rounded-lg bg-amber-500/10 p-2.5 text-amber-600 dark:text-amber-400">
                                 <Clock className="h-5 w-5" />
                             </div>
                         </CardContent>
                     </Card>
 
                     <Card className="border border-destructive/20 bg-destructive/5 shadow-xs">
-                        <CardContent className="p-4 flex items-center justify-between">
+                        <CardContent className="flex items-center justify-between p-4">
                             <div>
-                                <span className="text-xs text-destructive block font-medium">
-                                    {t.financeProposals.statRejected}
-                                </span>
-                                <span className="text-2xl font-bold font-mono text-destructive mt-0.5 block">
-                                    {statRejectedCount}
-                                </span>
+                                <span className="block text-xs font-medium text-destructive">{t.financeProposals.statRejected}</span>
+                                <span className="mt-0.5 block font-mono text-2xl font-bold text-destructive">{statRejectedCount}</span>
                             </div>
-                            <div className="p-2.5 rounded-lg bg-destructive/10 text-destructive">
+                            <div className="rounded-lg bg-destructive/10 p-2.5 text-destructive">
                                 <XCircle className="h-5 w-5" />
                             </div>
                         </CardContent>
@@ -234,10 +208,10 @@ export default function FinanceProposalIndex({
                 </div>
 
                 {/* Filters Row */}
-                <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between bg-card p-4 rounded-xl border border-border shadow-xs">
-                    <form onSubmit={handleSearchSubmit} className="flex-1 flex gap-2">
+                <div className="flex flex-col items-stretch justify-between gap-3 rounded-xl border border-border bg-card p-4 shadow-xs md:flex-row md:items-center">
+                    <form onSubmit={handleSearchSubmit} className="flex flex-1 gap-2">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                             <Input
                                 type="text"
                                 value={searchTerm}
@@ -246,7 +220,7 @@ export default function FinanceProposalIndex({
                                 className="pl-9 text-xs"
                             />
                         </div>
-                        <Button type="submit" variant="secondary" className="text-xs shrink-0">
+                        <Button type="submit" variant="secondary" className="shrink-0 text-xs">
                             {t.common.search || 'Cari'}
                         </Button>
                     </form>
@@ -261,7 +235,7 @@ export default function FinanceProposalIndex({
                                     applyFilter('year', val);
                                 }}
                             >
-                                <SelectTrigger className="text-xs h-9">
+                                <SelectTrigger className="h-9 text-xs">
                                     <SelectValue placeholder={t.financeProposals.filterYear} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -284,7 +258,7 @@ export default function FinanceProposalIndex({
                                     applyFilter('rab_status', val);
                                 }}
                             >
-                                <SelectTrigger className="text-xs h-9">
+                                <SelectTrigger className="h-9 text-xs">
                                     <SelectValue placeholder={t.financeProposals.filterStatus} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -302,9 +276,9 @@ export default function FinanceProposalIndex({
                                 variant="ghost"
                                 size="sm"
                                 onClick={handleResetFilters}
-                                className="text-xs text-muted-foreground hover:text-foreground h-9"
+                                className="h-9 text-xs text-muted-foreground hover:text-foreground"
                             >
-                                <FilterX className="h-3.5 w-3.5 mr-1" />
+                                <FilterX className="mr-1 h-3.5 w-3.5" />
                                 Reset
                             </Button>
                         )}
@@ -312,30 +286,26 @@ export default function FinanceProposalIndex({
                 </div>
 
                 {/* Proposals Table */}
-                <div className="rounded-xl border border-border bg-card overflow-hidden shadow-xs">
+                <div className="overflow-hidden rounded-xl border border-border bg-card shadow-xs">
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-muted/50 hover:bg-muted/50">
                                 <TableHead className="text-xs font-semibold">{t.financeProposals.colTitle}</TableHead>
                                 <TableHead className="text-xs font-semibold">{t.financeProposals.colResearcher}</TableHead>
-                                <TableHead className="text-xs font-semibold text-right">{t.financeProposals.colBudget}</TableHead>
-                                <TableHead className="text-xs font-semibold text-center">{t.financeProposals.colAdminStatus}</TableHead>
-                                <TableHead className="text-xs font-semibold text-center">{t.financeProposals.colRabStatus}</TableHead>
-                                <TableHead className="text-xs font-semibold text-right">{t.financeProposals.colActions}</TableHead>
+                                <TableHead className="text-right text-xs font-semibold">{t.financeProposals.colBudget}</TableHead>
+                                <TableHead className="text-center text-xs font-semibold">{t.financeProposals.colAdminStatus}</TableHead>
+                                <TableHead className="text-center text-xs font-semibold">{t.financeProposals.colRabStatus}</TableHead>
+                                <TableHead className="text-right text-xs font-semibold">{t.financeProposals.colActions}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {proposals.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="text-center py-12">
+                                    <TableCell colSpan={6} className="py-12 text-center">
                                         <div className="flex flex-col items-center justify-center gap-2">
                                             <FileText className="h-10 w-10 text-muted-foreground/40" />
-                                            <div className="text-sm font-semibold text-foreground">
-                                                {t.financeProposals.emptyTitle}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground max-w-sm">
-                                                {t.financeProposals.emptySubtitle}
-                                            </div>
+                                            <div className="text-sm font-semibold text-foreground">{t.financeProposals.emptyTitle}</div>
+                                            <div className="max-w-sm text-xs text-muted-foreground">{t.financeProposals.emptySubtitle}</div>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -344,15 +314,11 @@ export default function FinanceProposalIndex({
                                     <TableRow key={proposal.id} className="hover:bg-muted/30">
                                         {/* Title & Scheme */}
                                         <TableCell className="max-w-xs">
-                                            <div className="font-medium text-xs text-foreground line-clamp-2">
-                                                {proposal.judul_penelitian}
-                                            </div>
-                                            <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground">
-                                                <span className="truncate">
-                                                    {proposal.research_schema?.name || 'Skema Penelitian'}
-                                                </span>
+                                            <div className="line-clamp-2 text-xs font-medium text-foreground">{proposal.judul_penelitian}</div>
+                                            <div className="mt-1 flex items-center gap-2 text-[11px] text-muted-foreground">
+                                                <span className="truncate">{proposal.research_schema?.name || 'Skema Penelitian'}</span>
                                                 {proposal.research_schema?.tahun_anggaran && (
-                                                    <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
+                                                    <Badge variant="outline" className="h-4 px-1 py-0 text-[10px]">
                                                         TA {proposal.research_schema.tahun_anggaran}
                                                     </Badge>
                                                 )}
@@ -362,11 +328,11 @@ export default function FinanceProposalIndex({
                                         {/* Researcher & Campus */}
                                         <TableCell>
                                             <div className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                                                <User className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                                <User className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                                                 <span>{proposal.pengusul?.name || '-'}</span>
                                             </div>
-                                            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5">
-                                                <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                            <div className="mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                                                <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                                                 <span>{proposal.university?.name || '-'}</span>
                                             </div>
                                         </TableCell>
@@ -377,7 +343,7 @@ export default function FinanceProposalIndex({
                                                 {formatCurrency(proposal.biaya_yang_diusulkan || 0)}
                                             </div>
                                             {proposal.rekomendasi_anggaran && (
-                                                <div className="text-[11px] font-mono text-emerald-700 dark:text-emerald-400 mt-0.5">
+                                                <div className="mt-0.5 font-mono text-[11px] text-emerald-700 dark:text-emerald-400">
                                                     Rek: {formatCurrency(proposal.rekomendasi_anggaran)}
                                                 </div>
                                             )}
@@ -386,12 +352,15 @@ export default function FinanceProposalIndex({
                                         {/* Admin Verification Gate */}
                                         <TableCell className="text-center whitespace-nowrap">
                                             {proposal.is_administrasi_approved === true ? (
-                                                <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] font-medium gap-1">
+                                                <Badge className="gap-1 border-emerald-500/30 bg-emerald-500/10 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
                                                     <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                                                     {t.financeProposals.adminApproved}
                                                 </Badge>
                                             ) : (
-                                                <Badge variant="outline" className="text-muted-foreground border-border text-[11px] font-medium gap-1">
+                                                <Badge
+                                                    variant="outline"
+                                                    className="gap-1 border-border text-[11px] font-medium text-muted-foreground"
+                                                >
                                                     <Clock className="h-3 w-3" />
                                                     {t.financeProposals.adminPending}
                                                 </Badge>
@@ -401,17 +370,20 @@ export default function FinanceProposalIndex({
                                         {/* RAB Verification Gate */}
                                         <TableCell className="text-center whitespace-nowrap">
                                             {proposal.is_rab_approved === true ? (
-                                                <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] font-medium gap-1">
+                                                <Badge className="gap-1 border-emerald-500/30 bg-emerald-500/10 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
                                                     <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                                                     {t.financeProposals.statusApproved}
                                                 </Badge>
                                             ) : proposal.is_rab_approved === false ? (
-                                                <Badge className="bg-destructive/10 text-destructive border-destructive/30 text-[11px] font-medium gap-1">
+                                                <Badge className="gap-1 border-destructive/30 bg-destructive/10 text-[11px] font-medium text-destructive">
                                                     <XCircle className="h-3 w-3 text-destructive" />
                                                     {t.financeProposals.statusRejected}
                                                 </Badge>
                                             ) : (
-                                                <Badge variant="secondary" className="text-amber-800 dark:text-amber-300 bg-amber-500/10 border-amber-500/30 text-[11px] font-medium gap-1">
+                                                <Badge
+                                                    variant="secondary"
+                                                    className="gap-1 border-amber-500/30 bg-amber-500/10 text-[11px] font-medium text-amber-800 dark:text-amber-300"
+                                                >
                                                     <Clock className="h-3 w-3 text-amber-600" />
                                                     {t.financeProposals.statusPending}
                                                 </Badge>
@@ -425,18 +397,13 @@ export default function FinanceProposalIndex({
                                                     size="sm"
                                                     variant="default"
                                                     onClick={() => setAuditModalProposal(proposal)}
-                                                    className="h-8 text-xs gap-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                                                    className="h-8 gap-1 bg-primary text-xs text-primary-foreground hover:bg-primary/90"
                                                 >
                                                     <Calculator className="h-3.5 w-3.5" />
                                                     {t.financeProposals.verifyRabBtn}
                                                 </Button>
 
-                                                <Button
-                                                    size="sm"
-                                                    variant="outline"
-                                                    asChild
-                                                    className="h-8 text-xs gap-1"
-                                                >
+                                                <Button size="sm" variant="outline" asChild className="h-8 gap-1 text-xs">
                                                     <Link href={`/finance/proposals/${proposal.id}`}>
                                                         {t.financeProposals.viewDetailBtn}
                                                         <ArrowUpRight className="h-3.5 w-3.5" />
@@ -452,7 +419,7 @@ export default function FinanceProposalIndex({
 
                     {/* Pagination */}
                     {proposals.last_page > 1 && (
-                        <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
+                        <div className="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-3">
                             <div className="text-xs text-muted-foreground">
                                 Halaman {proposals.current_page} dari {proposals.last_page} ({proposals.total} usulan)
                             </div>
@@ -505,7 +472,7 @@ export default function FinanceProposalIndex({
                                             size="sm"
                                             asChild={!!link.url}
                                             disabled={!link.url}
-                                            className="h-8 w-8 p-0 text-xs font-mono"
+                                            className="h-8 w-8 p-0 font-mono text-xs"
                                         >
                                             {link.url ? (
                                                 <Link href={link.url} preserveScroll>

@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Models\AssessmentCriteria;
 use App\Models\Proposal;
 use App\Models\ResearchSchema;
 use App\Models\Review;

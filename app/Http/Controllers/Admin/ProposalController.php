@@ -271,7 +271,7 @@ class ProposalController extends Controller
      */
     public function campusApprove(Request $request, Proposal $proposal): RedirectResponse
     {
-        return app(\App\Http\Controllers\Admin\AdminKampusController::class)->campusApprove($request, $proposal);
+        return app(AdminKampusController::class)->campusApprove($request, $proposal);
     }
 
     /**
@@ -281,7 +281,7 @@ class ProposalController extends Controller
      */
     public function campusReject(Request $request, Proposal $proposal): RedirectResponse
     {
-        return app(\App\Http\Controllers\Admin\AdminKampusController::class)->campusReject($request, $proposal);
+        return app(AdminKampusController::class)->campusReject($request, $proposal);
     }
 
     /**
@@ -338,7 +338,7 @@ class ProposalController extends Controller
                 ]);
                 $statusMessage = "Proposal \"{$proposal->title}\" dinyatakan LOLOS seleksi administrasi & audit RAB (siap penugasan reviewer).";
             } else {
-                $statusMessage = "Verifikasi berkas administrasi berhasil. Menunggu audit RAB oleh Admin Keuangan untuk membuka penugasan reviewer.";
+                $statusMessage = 'Verifikasi berkas administrasi berhasil. Menunggu audit RAB oleh Admin Keuangan untuk membuka penugasan reviewer.';
             }
         }
 

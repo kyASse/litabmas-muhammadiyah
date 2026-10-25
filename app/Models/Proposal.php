@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\TenantScope;
 use App\Models\Traits\BelongsToTenant;
 use App\Models\Traits\EnforcesReadOnlyArchive;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -300,7 +301,7 @@ class Proposal extends Model
      */
     public function resolveRouteBindingQuery($query, $value, $field = null)
     {
-        return $query->withoutGlobalScope(\App\Models\Scopes\TenantScope::class)
+        return $query->withoutGlobalScope(TenantScope::class)
             ->where($field ?? $this->getRouteKeyName(), $value);
     }
 

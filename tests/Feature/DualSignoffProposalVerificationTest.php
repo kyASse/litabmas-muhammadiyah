@@ -15,7 +15,9 @@ class DualSignoffProposalVerificationTest extends TestCase
     use RefreshDatabase;
 
     private University $university;
+
     private User $peneliti;
+
     private ResearchSchema $schema;
 
     protected function setUp(): void

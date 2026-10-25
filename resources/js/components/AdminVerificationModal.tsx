@@ -8,31 +8,17 @@
  * secara reaktif dan terstruktur, bebas dari simbol emoji.
  */
 
-import React, { useState, useEffect } from 'react';
-import { useForm } from '@inertiajs/react';
-import { route } from 'ziggy-js';
-import { useTranslation } from '@/hooks/use-translation';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
-} from '@/components/ui/dialog';
-import {
-    Table,
-    TableHeader,
-    TableBody,
-    TableRow,
-    TableHead,
-    TableCell,
-} from '@/components/ui/table';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle2, AlertTriangle, XCircle, Loader2, ShieldCheck, FileCheck } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/hooks/use-translation';
+import { useForm } from '@inertiajs/react';
+import { AlertTriangle, CheckCircle2, FileCheck, Loader2, ShieldCheck, XCircle } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { route } from 'ziggy-js';
 
 export interface AdminCriterionItem {
     id: number;
@@ -50,13 +36,7 @@ interface AdminVerificationModalProps {
     onClose: () => void;
 }
 
-export default function AdminVerificationModal({
-    proposalId,
-    proposalTitle,
-    adminCriteria = [],
-    isOpen,
-    onClose,
-}: AdminVerificationModalProps) {
+export default function AdminVerificationModal({ proposalId, proposalTitle, adminCriteria = [], isOpen, onClose }: AdminVerificationModalProps) {
     const { t } = useTranslation();
 
     // Inisialisasi checklist: default nilai true (Memenuhi) untuk setiap butir kriteria aktif
@@ -107,7 +87,7 @@ export default function AdminVerificationModal({
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto border-sidebar-border bg-white p-6 shadow-2xl dark:bg-neutral-950 dark:border-neutral-800">
+            <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto border-sidebar-border bg-white p-6 shadow-2xl dark:border-neutral-800 dark:bg-neutral-950">
                 <DialogHeader className="border-b border-sidebar-border/60 pb-4 dark:border-neutral-800">
                     <div className="flex items-center gap-2.5 text-blue-900 dark:text-blue-400">
                         <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-950">
@@ -151,7 +131,7 @@ export default function AdminVerificationModal({
                                         return (
                                             <TableRow
                                                 key={item.id}
-                                                className={`transition-colors border-b border-sidebar-border/40 dark:border-neutral-800/60 ${
+                                                className={`border-b border-sidebar-border/40 transition-colors dark:border-neutral-800/60 ${
                                                     isChecked
                                                         ? 'hover:bg-emerald-50/30 dark:hover:bg-emerald-950/20'
                                                         : 'bg-rose-50/40 hover:bg-rose-50/60 dark:bg-rose-950/30 dark:hover:bg-rose-950/40'
@@ -161,17 +141,13 @@ export default function AdminVerificationModal({
                                                     {idx + 1}
                                                 </TableCell>
                                                 <TableCell className="py-3">
-                                                    <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">
-                                                        {item.nama_kriteria}
-                                                    </div>
+                                                    <div className="text-sm font-medium text-slate-900 dark:text-slate-100">{item.nama_kriteria}</div>
                                                     {item.deskripsi && (
-                                                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                                            {item.deskripsi}
-                                                        </div>
+                                                        <div className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{item.deskripsi}</div>
                                                     )}
                                                 </TableCell>
-                                                <TableCell className="text-center py-3">
-                                                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-sidebar-border/60 bg-slate-100/80 p-1 dark:bg-neutral-900 dark:border-neutral-800">
+                                                <TableCell className="py-3 text-center">
+                                                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-sidebar-border/60 bg-slate-100/80 p-1 dark:border-neutral-800 dark:bg-neutral-900">
                                                         <button
                                                             type="button"
                                                             onClick={() => handleToggleCriterion(item.id, true)}
@@ -206,12 +182,8 @@ export default function AdminVerificationModal({
                         </div>
                     ) : (
                         <div className="rounded-lg border border-dashed border-sidebar-border p-4 text-center dark:border-neutral-800">
-                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                                {t.adminVerification.noCriteriaTitle}
-                            </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                {t.adminVerification.noCriteriaDesc}
-                            </p>
+                            <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{t.adminVerification.noCriteriaTitle}</p>
+                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t.adminVerification.noCriteriaDesc}</p>
                         </div>
                     )}
 
@@ -219,20 +191,16 @@ export default function AdminVerificationModal({
                     {allPassed ? (
                         <Alert className="border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200">
                             <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                            <AlertTitle className="font-semibold text-sm">
-                                {t.adminVerification.summaryTitlePassed}
-                            </AlertTitle>
-                            <AlertDescription className="text-xs mt-1 text-emerald-800 dark:text-emerald-300">
+                            <AlertTitle className="text-sm font-semibold">{t.adminVerification.summaryTitlePassed}</AlertTitle>
+                            <AlertDescription className="mt-1 text-xs text-emerald-800 dark:text-emerald-300">
                                 {t.adminVerification.summaryDescPassed}
                             </AlertDescription>
                         </Alert>
                     ) : (
                         <Alert className="border-rose-300 bg-rose-50 text-rose-900 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200">
                             <AlertTriangle className="h-5 w-5 text-rose-600 dark:text-rose-400" />
-                            <AlertTitle className="font-semibold text-sm">
-                                {t.adminVerification.summaryTitleFailed}
-                            </AlertTitle>
-                            <AlertDescription className="text-xs mt-1 text-rose-800 dark:text-rose-300">
+                            <AlertTitle className="text-sm font-semibold">{t.adminVerification.summaryTitleFailed}</AlertTitle>
+                            <AlertDescription className="mt-1 text-xs text-rose-800 dark:text-rose-300">
                                 {t.adminVerification.summaryDescFailed}
                             </AlertDescription>
                         </Alert>
@@ -252,33 +220,21 @@ export default function AdminVerificationModal({
                             className="border-sidebar-border text-sm dark:border-neutral-800"
                         />
                         {!allPassed && !data.catatan_administrasi.trim() && (
-                            <p className="text-[11px] text-rose-600 dark:text-rose-400">
-                                {t.adminVerification.notesRequiredForRejection}
-                            </p>
+                            <p className="text-[11px] text-rose-600 dark:text-rose-400">{t.adminVerification.notesRequiredForRejection}</p>
                         )}
-                        {errors.catatan_administrasi && (
-                            <p className="text-xs text-rose-600">{errors.catatan_administrasi}</p>
-                        )}
+                        {errors.catatan_administrasi && <p className="text-xs text-rose-600">{errors.catatan_administrasi}</p>}
                     </div>
 
                     {/* Footer Dialog */}
-                    <DialogFooter className="border-t border-sidebar-border/60 pt-4 dark:border-neutral-800 flex items-center justify-end gap-2">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            onClick={onClose}
-                            disabled={processing}
-                            className="text-xs font-semibold"
-                        >
+                    <DialogFooter className="flex items-center justify-end gap-2 border-t border-sidebar-border/60 pt-4 dark:border-neutral-800">
+                        <Button type="button" variant="outline" onClick={onClose} disabled={processing} className="text-xs font-semibold">
                             {t.adminVerification.btnCancel}
                         </Button>
                         <Button
                             type="submit"
                             disabled={processing || (!allPassed && !data.catatan_administrasi.trim())}
                             className={`gap-1.5 text-xs font-semibold text-white ${
-                                allPassed
-                                    ? 'bg-emerald-600 hover:bg-emerald-700'
-                                    : 'bg-rose-600 hover:bg-rose-700'
+                                allPassed ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
                             }`}
                         >
                             {processing ? (

@@ -80,7 +80,7 @@ class SchemaController extends Controller
             ->toArray();
 
         $currentYear = (int) date('Y');
-        if (!in_array($currentYear, $availableYears)) {
+        if (! in_array($currentYear, $availableYears)) {
             $availableYears[] = $currentYear;
             rsort($availableYears);
         }

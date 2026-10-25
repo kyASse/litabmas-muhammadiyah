@@ -166,7 +166,7 @@ class FinanceProposalController extends Controller
                 ]);
                 $statusMessage = "Proposal \"{$proposal->title}\" dinyatakan LOLOS seleksi administrasi & audit RAB (siap penugasan reviewer).";
             } else {
-                $statusMessage = "Audit kelayakan RAB berhasil disetujui. Menunggu verifikasi berkas administrasi oleh Super Admin Bappeda.";
+                $statusMessage = 'Audit kelayakan RAB berhasil disetujui. Menunggu verifikasi berkas administrasi oleh Super Admin Bappeda.';
             }
         } else {
             $proposal->update([

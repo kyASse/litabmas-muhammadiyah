@@ -21,7 +21,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import type { BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { AlertCircle, CheckCircle2, ClipboardCheck, FileCheck, FileText, Info, Save, Scale, Star } from 'lucide-react';
+import { AlertCircle, CheckCircle2, ClipboardCheck, FileCheck, FileText, Info, Save, Scale } from 'lucide-react';
 import { type FormEventHandler, useCallback, useMemo, useState } from 'react';
 
 /* ------------------------------------------------------------------ */
@@ -217,9 +217,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                         type="button"
                         onClick={() => setActiveTab('admin')}
                         className={`inline-flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-semibold transition-all ${
-                            activeTab === 'admin'
-                                ? 'border-primary text-primary'
-                                : 'border-transparent text-muted-foreground hover:text-foreground'
+                            activeTab === 'admin' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
                         }`}
                     >
                         <FileCheck className="h-4 w-4" />
@@ -342,8 +340,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                 <CardContent>
                                     <div className="space-y-5">
                                         {data.komponen_penilaian.map((komponen, index) => {
-                                            const weighted =
-                                                komponen.skor > 0 ? ((komponen.skor / 5) * komponen.bobot).toFixed(2) : '0.00';
+                                            const weighted = komponen.skor > 0 ? ((komponen.skor / 5) * komponen.bobot).toFixed(2) : '0.00';
                                             const hasComment = (komponen.komentar || '').trim().length > 0;
 
                                             return (
@@ -354,9 +351,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                                             <Badge variant="outline" className="text-xs text-muted-foreground">
                                                                 Bobot: {komponen.bobot}%
                                                             </Badge>
-                                                            <span className="font-mono text-xs font-bold text-primary">
-                                                                Nilai: {weighted}
-                                                            </span>
+                                                            <span className="font-mono text-xs font-bold text-primary">Nilai: {weighted}</span>
                                                         </div>
                                                     </div>
 
@@ -378,9 +373,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                                                     }`}
                                                                 >
                                                                     <span className="font-mono text-sm font-bold">{skor}</span>
-                                                                    <span className="text-[10px] leading-tight font-medium">
-                                                                        {SKOR_LABELS[skor]}
-                                                                    </span>
+                                                                    <span className="text-[10px] leading-tight font-medium">{SKOR_LABELS[skor]}</span>
                                                                 </button>
                                                             ))}
                                                         </div>
@@ -392,9 +385,7 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                                             <Label className="text-xs font-semibold">
                                                                 Catatan / Justifikasi Kualitatif <span className="text-destructive">*</span>
                                                             </Label>
-                                                            {hasComment && (
-                                                                <span className="text-[10px] font-bold text-emerald-600">[VALID]</span>
-                                                            )}
+                                                            {hasComment && <span className="text-[10px] font-bold text-emerald-600">[VALID]</span>}
                                                         </div>
                                                         <Textarea
                                                             rows={2}

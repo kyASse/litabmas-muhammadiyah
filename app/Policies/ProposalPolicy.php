@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Proposal;
+use App\Models\Role;
 use App\Models\User;
 
 /**
@@ -24,7 +25,7 @@ class ProposalPolicy
     {
         return $user->isSuperAdmin()
             || $user->isAdminKampus()
-            || $user->hasRole(\App\Models\Role::ADMIN_KEUANGAN);
+            || $user->hasRole(Role::ADMIN_KEUANGAN);
     }
 
     /**
@@ -66,7 +67,7 @@ class ProposalPolicy
             return true;
         }
 
-        if ($user->hasRole(\App\Models\Role::ADMIN_KEUANGAN)) {
+        if ($user->hasRole(Role::ADMIN_KEUANGAN)) {
             // Admin Keuangan berwenang melihat proposal untuk audit kelayakan RAB dan pencairan
             if ($user->university_id && $proposal->university_id) {
                 return $user->university_id === $proposal->university_id;
@@ -183,7 +184,7 @@ class ProposalPolicy
      */
     public function verifyRab(User $user, Proposal $proposal): bool
     {
-        if (! ($user->isSuperAdmin() || $user->hasRole(\App\Models\Role::ADMIN_KEUANGAN))) {
+        if (! ($user->isSuperAdmin() || $user->hasRole(Role::ADMIN_KEUANGAN))) {
             return false;
         }
 

@@ -6,8 +6,7 @@ export const id: TranslationType = {
         tagline: 'For Yogyakarta Research',
         specTag: 'BAPPEDA KOTA YOGYAKARTA',
         bappedaName: 'Bappeda Kota Yogyakarta',
-        bappedaAddress:
-            'Kompleks Balai Kota Yogyakarta, Jl. Kenari No. 56, Muja Muju, Kec. Umbulharjo, Kota Yogyakarta, D.I. Yogyakarta 55165',
+        bappedaAddress: 'Kompleks Balai Kota Yogyakarta, Jl. Kenari No. 56, Muja Muju, Kec. Umbulharjo, Kota Yogyakarta, D.I. Yogyakarta 55165',
         bappedaEmail: 'bappeda@jogjakota.go.id',
         bappedaPhone: '(0274) 515865',
         save: 'Simpan',
@@ -646,16 +645,19 @@ export const id: TranslationType = {
     },
     adminVerification: {
         modalTitle: 'Verifikasi Seleksi Administrasi',
-        modalSubtitle: 'Pemeriksaan kepatuhan berkas usulan terhadap instrumen kriteria administratif Bappeda sebelum melangkah ke penilaian substansi.',
+        modalSubtitle:
+            'Pemeriksaan kepatuhan berkas usulan terhadap instrumen kriteria administratif Bappeda sebelum melangkah ke penilaian substansi.',
         criteriaColNo: 'No',
         criteriaColName: 'Butir Kriteria & Ketentuan Verifikasi',
         criteriaColStatus: 'Status Pemenuhan',
         statusYes: 'Memenuhi',
         statusNo: 'Tidak Memenuhi',
         summaryTitlePassed: '[MEMENUHI SYARAT] Kelayakan Administrasi Lengkap',
-        summaryDescPassed: 'Seluruh butir kriteria terpenuhi (100% Ya). Usulan akan berstatus "Lolos Administrasi" dan siap untuk penugasan Reviewer Ahli.',
+        summaryDescPassed:
+            'Seluruh butir kriteria terpenuhi (100% Ya). Usulan akan berstatus "Lolos Administrasi" dan siap untuk penugasan Reviewer Ahli.',
         summaryTitleFailed: '[TIDAK MEMENUHI SYARAT] Berkas Belum Memenuhi Ketentuan',
-        summaryDescFailed: 'Terdapat butir kriteria yang belum terpenuhi (Tidak). Usulan akan berstatus "Ditolak Administrasi". Mohon isi catatan telaah sebagai panduan perbaikan.',
+        summaryDescFailed:
+            'Terdapat butir kriteria yang belum terpenuhi (Tidak). Usulan akan berstatus "Ditolak Administrasi". Mohon isi catatan telaah sebagai panduan perbaikan.',
         notesLabel: 'Catatan Telaah Administrasi',
         notesPlaceholder: 'Tuliskan catatan hasil pemeriksaan atau rincian berkas yang perlu diperbaiki...',
         notesRequiredForRejection: 'Catatan telaah wajib diisi apabila terdapat butir kriteria yang tidak memenuhi syarat.',
@@ -2058,7 +2060,8 @@ export const id: TranslationType = {
         proposalInfoCard: 'Ringkasan Proposal Penelitian',
         applicantCard: 'Informasi Peneliti Utama',
         budgetAuditCard: 'Audit Kepatuhan Anggaran (SBM)',
-        budgetComplianceNotice: 'Seluruh pos pengeluaran wajib mengacu secara ketat pada Standar Biaya Masukan (SBM) yang ditetapkan Pemerintah Kota Yogyakarta.',
+        budgetComplianceNotice:
+            'Seluruh pos pengeluaran wajib mengacu secara ketat pada Standar Biaya Masukan (SBM) yang ditetapkan Pemerintah Kota Yogyakarta.',
         schemeMaxBudget: 'Pagu Maksimal Skema',
         proposedBudget: 'Anggaran Diusulkan',
         recommendedBudget: 'Rekomendasi Anggaran',

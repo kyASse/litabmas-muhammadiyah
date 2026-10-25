@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Review;
 use App\Models\Role;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -49,7 +50,7 @@ class StoreReviewRequest extends FormRequest
             $this->merge(['komponen_penilaian' => $normalized]);
 
             if (! $this->has('score') || $this->input('score') === null) {
-                $calc = \App\Models\Review::calculateScoreFromComponents($normalized);
+                $calc = Review::calculateScoreFromComponents($normalized);
                 $this->merge(['score' => $calc]);
             }
         }

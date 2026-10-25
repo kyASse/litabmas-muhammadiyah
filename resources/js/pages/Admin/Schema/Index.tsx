@@ -481,7 +481,14 @@ export default function SchemaIndex({ schemas, available_years, filters }: Props
                                 <TableRow className="border-sidebar-border/60">
                                     <TableHead className="w-[60px] text-center font-semibold">No</TableHead>
                                     <SortableHead label="Nama Skema" column="name" currentSort={sortBy} currentDir={sortDir} onSort={handleSort} />
-                                    <SortableHead label={t.adminSchema.tableColYear} column="tahun_anggaran" currentSort={sortBy} currentDir={sortDir} onSort={handleSort} className="w-[110px]" />
+                                    <SortableHead
+                                        label={t.adminSchema.tableColYear}
+                                        column="tahun_anggaran"
+                                        currentSort={sortBy}
+                                        currentDir={sortDir}
+                                        onSort={handleSort}
+                                        className="w-[110px]"
+                                    />
                                     <TableHead className="font-semibold">Deskripsi</TableHead>
                                     <SortableHead
                                         label="Pagu Dana"
@@ -551,7 +558,9 @@ export default function SchemaIndex({ schemas, available_years, filters }: Props
 
                                                 {/* Tahun Anggaran */}
                                                 <TableCell>
-                                                    <span className="font-mono text-sm text-foreground">{schema.tahun_anggaran || schema.year || '—'}</span>
+                                                    <span className="font-mono text-sm text-foreground">
+                                                        {schema.tahun_anggaran || schema.year || '—'}
+                                                    </span>
                                                 </TableCell>
 
                                                 {/* Deskripsi */}
@@ -827,7 +836,9 @@ export default function SchemaIndex({ schemas, available_years, filters }: Props
                                 className="h-10"
                                 disabled={createForm.processing}
                             />
-                            {createForm.errors.tahun_anggaran && <p className="text-xs font-semibold text-destructive">{createForm.errors.tahun_anggaran}</p>}
+                            {createForm.errors.tahun_anggaran && (
+                                <p className="text-xs font-semibold text-destructive">{createForm.errors.tahun_anggaran}</p>
+                            )}
                         </div>
 
                         {/* Description */}
@@ -958,7 +969,9 @@ export default function SchemaIndex({ schemas, available_years, filters }: Props
                                 className="h-10"
                                 disabled={editForm.processing}
                             />
-                            {editForm.errors.tahun_anggaran && <p className="text-xs font-semibold text-destructive">{editForm.errors.tahun_anggaran}</p>}
+                            {editForm.errors.tahun_anggaran && (
+                                <p className="text-xs font-semibold text-destructive">{editForm.errors.tahun_anggaran}</p>
+                            )}
                         </div>
 
                         {/* Description */}

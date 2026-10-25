@@ -10,7 +10,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { AlertCircle, ArrowLeft, CheckCircle2, FileText, Send, UploadCloud, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, Send, UploadCloud, X } from 'lucide-react';
 import { type ChangeEvent, type DragEvent, type FormEvent, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -47,16 +47,7 @@ interface GenericUploaderProps {
     maxSizeMB?: number;
 }
 
-function GenericUploader({
-    label,
-    helperText,
-    accept,
-    acceptedExtensionsText,
-    value,
-    onChange,
-    error,
-    maxSizeMB = 10,
-}: GenericUploaderProps) {
+function GenericUploader({ label, helperText, accept, acceptedExtensionsText, value, onChange, error, maxSizeMB = 10 }: GenericUploaderProps) {
     const { t, format } = useTranslation();
     const inputRef = useRef<HTMLInputElement>(null);
     const [isDragging, setIsDragging] = useState(false);
@@ -71,7 +62,7 @@ function GenericUploader({
                 format(t.components.genericUploader.sizeExceeded, {
                     actual: actualMB,
                     max: maxSizeMB,
-                })
+                }),
             );
             return;
         }
@@ -94,18 +85,10 @@ function GenericUploader({
 
     return (
         <div className="space-y-1.5">
-            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-200">
-                {label}
-            </Label>
+            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-200">{label}</Label>
             {helperText && <p className="text-xs text-muted-foreground">{helperText}</p>}
 
-            <input
-                ref={inputRef}
-                type="file"
-                accept={accept}
-                onChange={handleFileChange}
-                className="hidden"
-            />
+            <input ref={inputRef} type="file" accept={accept} onChange={handleFileChange} className="hidden" />
 
             {!value ? (
                 <div
@@ -123,9 +106,7 @@ function GenericUploader({
                     }`}
                 >
                     <UploadCloud className="h-6 w-6 text-slate-400" />
-                    <p className="mt-1 text-xs font-medium text-slate-700 dark:text-slate-200">
-                        {t.components.genericUploader.dragDropText}
-                    </p>
+                    <p className="mt-1 text-xs font-medium text-slate-700 dark:text-slate-200">{t.components.genericUploader.dragDropText}</p>
                     <p className="font-mono text-[11px] text-muted-foreground">
                         {acceptedExtensionsText} ({t.components.genericUploader.maxLimit} {maxSizeMB} MB)
                     </p>
@@ -133,14 +114,10 @@ function GenericUploader({
             ) : (
                 <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50/80 p-3 dark:border-slate-800 dark:bg-slate-900/40">
                     <div className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
                         <div>
-                            <p className="line-clamp-1 text-xs font-medium text-slate-900 dark:text-slate-100">
-                                {value.name}
-                            </p>
-                            <p className="font-mono text-[11px] text-muted-foreground">
-                                {(value.size / (1024 * 1024)).toFixed(2)} MB
-                            </p>
+                            <p className="line-clamp-1 text-xs font-medium text-slate-900 dark:text-slate-100">{value.name}</p>
+                            <p className="font-mono text-[11px] text-muted-foreground">{(value.size / (1024 * 1024)).toFixed(2)} MB</p>
                         </div>
                     </div>
                     <Button

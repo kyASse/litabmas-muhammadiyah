@@ -248,8 +248,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
     }, [criteriaItems]);
 
     const isNotesValid = notes.trim().length >= 50;
-    const isFormComplete =
-        coiAcknowledged && isNotesValid && recommendation !== '' && allCriteriaScored && allCriteriaCommented;
+    const isFormComplete = coiAcknowledged && isNotesValid && recommendation !== '' && allCriteriaScored && allCriteriaCommented;
 
     // Inertia form submission
     const { post, processing, errors, transform } = useForm();
@@ -402,9 +401,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                     {/* Status & Catatan Administrasi Bappeda */}
                     <div className="space-y-3 rounded-md border border-slate-200 bg-white p-4 shadow-xs">
                         <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                            <span className="font-sans text-xs font-bold text-slate-800 uppercase">
-                                {t.reviewerWorkspace.adminStatusLabel}
-                            </span>
+                            <span className="font-sans text-xs font-bold text-slate-800 uppercase">{t.reviewerWorkspace.adminStatusLabel}</span>
                             <StatusBadge status={proposal?.status_proposal || 'Lolos_Administrasi'} size="sm" />
                         </div>
 
@@ -412,8 +409,9 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                             <label className="font-sans text-[11px] font-semibold text-slate-600 uppercase">
                                 {t.reviewerWorkspace.adminNotesLabel}
                             </label>
-                            <div className="rounded border border-slate-200 bg-slate-50 p-3 font-sans text-xs text-slate-800 leading-relaxed">
-                                {proposal?.catatan_administrasi || 'Seluruh berkas persyaratan telah diverifikasi lengkap dan memenuhi standar Bappeda.'}
+                            <div className="rounded border border-slate-200 bg-slate-50 p-3 font-sans text-xs leading-relaxed text-slate-800">
+                                {proposal?.catatan_administrasi ||
+                                    'Seluruh berkas persyaratan telah diverifikasi lengkap dan memenuhi standar Bappeda.'}
                             </div>
                         </div>
                     </div>
@@ -422,9 +420,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                     <div className="space-y-2 rounded-md border border-slate-200 bg-white p-4 shadow-xs">
                         <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
                             <ClipboardCheck className="h-4 w-4 text-emerald-700" />
-                            <h4 className="font-sans text-xs font-bold text-slate-900 uppercase">
-                                {t.reviewerWorkspace.adminChecklistTitle}
-                            </h4>
+                            <h4 className="font-sans text-xs font-bold text-slate-900 uppercase">{t.reviewerWorkspace.adminChecklistTitle}</h4>
                         </div>
 
                         <div className="divide-y divide-slate-100">
@@ -435,11 +431,9 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                             <p className="font-sans font-medium text-slate-900">
                                                 {idx + 1}. {item.nama_kriteria}
                                             </p>
-                                            {item.deskripsi && (
-                                                <p className="font-sans text-[11px] text-slate-500">{item.deskripsi}</p>
-                                            )}
+                                            {item.deskripsi && <p className="font-sans text-[11px] text-slate-500">{item.deskripsi}</p>}
                                         </div>
-                                        <span className="inline-flex shrink-0 items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800 border border-emerald-200">
+                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800">
                                             <CheckCircle2 className="h-3 w-3" />
                                             <span>{t.reviewerWorkspace.adminChecklistVerified}</span>
                                         </span>
@@ -448,22 +442,28 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                             ) : (
                                 <div className="space-y-2 py-2">
                                     <div className="flex items-center justify-between py-1 text-xs">
-                                        <span className="font-sans font-medium text-slate-900">1. Surat Pengantar LPPM & Validasi Format Proposal</span>
-                                        <span className="inline-flex shrink-0 items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800 border border-emerald-200">
+                                        <span className="font-sans font-medium text-slate-900">
+                                            1. Surat Pengantar LPPM & Validasi Format Proposal
+                                        </span>
+                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800">
                                             <CheckCircle2 className="h-3 w-3" />
                                             <span>{t.reviewerWorkspace.adminChecklistVerified}</span>
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-1 text-xs">
-                                        <span className="font-sans font-medium text-slate-900">2. Rincian Anggaran Biaya (RAB) sesuai Pagu Skema</span>
-                                        <span className="inline-flex shrink-0 items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800 border border-emerald-200">
+                                        <span className="font-sans font-medium text-slate-900">
+                                            2. Rincian Anggaran Biaya (RAB) sesuai Pagu Skema
+                                        </span>
+                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800">
                                             <CheckCircle2 className="h-3 w-3" />
                                             <span>{t.reviewerWorkspace.adminChecklistVerified}</span>
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-1 text-xs">
-                                        <span className="font-sans font-medium text-slate-900">3. Surat Pernyataan Bebas Plagiarisme dan Kesanggupan Riset</span>
-                                        <span className="inline-flex shrink-0 items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800 border border-emerald-200">
+                                        <span className="font-sans font-medium text-slate-900">
+                                            3. Surat Pernyataan Bebas Plagiarisme dan Kesanggupan Riset
+                                        </span>
+                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800">
                                             <CheckCircle2 className="h-3 w-3" />
                                             <span>{t.reviewerWorkspace.adminChecklistVerified}</span>
                                         </span>
@@ -503,9 +503,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                 {t.reviewerWorkspace.discreteScaleTitle}
                             </h3>
                         </div>
-                        <p className="mt-1 font-sans text-xs leading-relaxed text-slate-500">
-                            {t.reviewerWorkspace.discreteScaleDesc}
-                        </p>
+                        <p className="mt-1 font-sans text-xs leading-relaxed text-slate-500">{t.reviewerWorkspace.discreteScaleDesc}</p>
                     </div>
 
                     {/* Proposal Quick Meta Card */}
@@ -554,12 +552,10 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                                 </span>
                                             </div>
                                             {item.deskripsi && (
-                                                <p className="mt-1 font-sans text-[11px] leading-relaxed text-slate-500">
-                                                    {item.deskripsi}
-                                                </p>
+                                                <p className="mt-1 font-sans text-[11px] leading-relaxed text-slate-500">{item.deskripsi}</p>
                                             )}
                                         </div>
-                                        <div className="text-right shrink-0">
+                                        <div className="shrink-0 text-right">
                                             <span className="font-mono text-xs font-bold text-blue-900">
                                                 {weightedPoints} / {item.bobot}
                                             </span>
@@ -590,9 +586,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                                     }`}
                                                 >
                                                     <span className="font-mono text-sm font-bold">{opt.val}</span>
-                                                    <span className="mt-0.5 text-[10px] leading-tight font-medium">
-                                                        {opt.label}
-                                                    </span>
+                                                    <span className="mt-0.5 text-[10px] leading-tight font-medium">{opt.label}</span>
                                                 </button>
                                             ))}
                                         </div>
@@ -622,9 +616,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                             }`}
                                         />
                                         {!isItemCommentValid && (
-                                            <p className="font-sans text-[10px] text-amber-700">
-                                                {t.reviewerWorkspace.criterionCommentRequired}
-                                            </p>
+                                            <p className="font-sans text-[10px] text-amber-700">{t.reviewerWorkspace.criterionCommentRequired}</p>
                                         )}
                                     </div>
                                 </div>
@@ -712,11 +704,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                 <span className={isNotesValid ? 'font-semibold text-emerald-700' : 'font-medium text-amber-700'}>
                                     {format(t.reviewerWorkspace.notesMinCount, { count: String(notes.trim().length) })}
                                 </span>
-                                {isNotesValid && (
-                                    <span className="text-[10px] font-bold text-emerald-700">
-                                        {t.reviewerWorkspace.notesValid}
-                                    </span>
-                                )}
+                                {isNotesValid && <span className="text-[10px] font-bold text-emerald-700">{t.reviewerWorkspace.notesValid}</span>}
                             </div>
                         </div>
                         <textarea

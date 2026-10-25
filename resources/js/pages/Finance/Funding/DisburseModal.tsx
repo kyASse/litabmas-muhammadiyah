@@ -156,7 +156,7 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({ funding, open, onO
                                 href={`/storage/${funding.file_tagihan}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1 font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+                                className="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1 font-medium text-slate-700 transition-colors hover:bg-slate-50"
                             >
                                 <FileCheck className="h-3.5 w-3.5 text-teal-600" />
                                 <span>{t.funding.viewBillingDoc}</span>

@@ -7,35 +7,19 @@
  * Mengikuti sistem desain Scholarly Enterprise, 100% bebas simbol emoji.
  */
 
-import React, { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
+import RabVerificationModal from '@/components/RabVerificationModal';
+import PageHeader from '@/components/ui/PageHeader';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTranslation } from '@/hooks/use-translation';
+import AppLayout from '@/layouts/app-layout';
 import { formatCurrency } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
-import PageHeader from '@/components/ui/PageHeader';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import RabVerificationModal from '@/components/RabVerificationModal';
-import {
-    ArrowLeft,
-    Calculator,
-    CheckCircle2,
-    Clock,
-    XCircle,
-    Building2,
-    User,
-    Mail,
-    FileText,
-    Download,
-    Info,
-    Calendar,
-    ShieldCheck,
-    Coins,
-    Users,
-} from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowLeft, Calculator, CheckCircle2, Clock, Coins, Download, FileText, Info, ShieldCheck, User, XCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface ProposalDetail {
     id: number;
@@ -103,7 +87,7 @@ export default function FinanceProposalShow({ proposal }: Props) {
 
             <div className="flex flex-col gap-6 p-6">
                 {/* Back Link & Header */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                     <Link
                         href="/finance/proposals"
                         className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -114,7 +98,7 @@ export default function FinanceProposalShow({ proposal }: Props) {
 
                     <Button
                         onClick={() => setShowAuditModal(true)}
-                        className="gap-1.5 text-xs bg-primary text-primary-foreground hover:bg-primary/90"
+                        className="gap-1.5 bg-primary text-xs text-primary-foreground hover:bg-primary/90"
                     >
                         <Calculator className="h-4 w-4" />
                         {t.financeProposals.verifyRabBtn}
@@ -131,51 +115,43 @@ export default function FinanceProposalShow({ proposal }: Props) {
                 {/* SBM Notice */}
                 <Alert className="border-blue-500/30 bg-blue-500/10 text-blue-900 dark:text-blue-200">
                     <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <AlertTitle className="text-xs font-semibold">
-                        {t.financeProposals.budgetAuditCard}
-                    </AlertTitle>
-                    <AlertDescription className="text-xs text-blue-800/90 dark:text-blue-300/90 mt-0.5">
+                    <AlertTitle className="text-xs font-semibold">{t.financeProposals.budgetAuditCard}</AlertTitle>
+                    <AlertDescription className="mt-0.5 text-xs text-blue-800/90 dark:text-blue-300/90">
                         {t.financeProposals.budgetComplianceNotice}
                     </AlertDescription>
                 </Alert>
 
                 {/* Grid 1: Budget and Sign-off Status Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                     {/* Budget Breakdown Card */}
                     <Card className="border border-border shadow-xs">
                         <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                                 <Coins className="h-4 w-4 text-primary" />
                                 {t.financeProposals.budgetAuditCard}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <div>
-                                <span className="text-xs text-muted-foreground block">
-                                    {t.financeProposals.proposedBudget}
-                                </span>
-                                <span className="text-lg font-bold font-mono text-foreground">
+                                <span className="block text-xs text-muted-foreground">{t.financeProposals.proposedBudget}</span>
+                                <span className="font-mono text-lg font-bold text-foreground">
                                     {formatCurrency(proposal.biaya_yang_diusulkan || 0)}
                                 </span>
                             </div>
 
                             {proposal.research_schema?.max_funding ? (
-                                <div className="pt-2 border-t border-border">
-                                    <span className="text-xs text-muted-foreground block">
-                                        {t.financeProposals.schemeMaxBudget}
-                                    </span>
-                                    <span className="text-sm font-semibold font-mono text-muted-foreground">
+                                <div className="border-t border-border pt-2">
+                                    <span className="block text-xs text-muted-foreground">{t.financeProposals.schemeMaxBudget}</span>
+                                    <span className="font-mono text-sm font-semibold text-muted-foreground">
                                         {formatCurrency(proposal.research_schema.max_funding)}
                                     </span>
                                 </div>
                             ) : null}
 
                             {proposal.rekomendasi_anggaran ? (
-                                <div className="pt-2 border-t border-border">
-                                    <span className="text-xs text-muted-foreground block">
-                                        {t.financeProposals.recommendedBudget}
-                                    </span>
-                                    <span className="text-base font-bold font-mono text-emerald-700 dark:text-emerald-400">
+                                <div className="border-t border-border pt-2">
+                                    <span className="block text-xs text-muted-foreground">{t.financeProposals.recommendedBudget}</span>
+                                    <span className="font-mono text-base font-bold text-emerald-700 dark:text-emerald-400">
                                         {formatCurrency(proposal.rekomendasi_anggaran)}
                                     </span>
                                 </div>
@@ -186,28 +162,24 @@ export default function FinanceProposalShow({ proposal }: Props) {
                     {/* Dual Sign-Off Gate Status Card */}
                     <Card className="border border-border shadow-xs md:col-span-2">
                         <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                                 <ShieldCheck className="h-4 w-4 text-primary" />
                                 {t.dualVerificationCard.title}
                             </CardTitle>
-                            <CardDescription className="text-xs">
-                                {t.dualVerificationCard.subtitle}
-                            </CardDescription>
+                            <CardDescription className="text-xs">{t.dualVerificationCard.subtitle}</CardDescription>
                         </CardHeader>
-                        <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <CardContent className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             {/* Gate 1: Administrasi */}
-                            <div className="rounded-lg border border-border p-3.5 bg-muted/30 space-y-2">
+                            <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3.5">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-semibold text-foreground">
-                                        {t.dualVerificationCard.adminGateTitle}
-                                    </span>
+                                    <span className="text-xs font-semibold text-foreground">{t.dualVerificationCard.adminGateTitle}</span>
                                     {proposal.is_administrasi_approved === true ? (
-                                        <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] font-medium gap-1">
+                                        <Badge className="gap-1 border-emerald-500/30 bg-emerald-500/10 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
                                             <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                                             {t.dualVerificationCard.statusApproved}
                                         </Badge>
                                     ) : (
-                                        <Badge variant="outline" className="text-muted-foreground border-border text-[11px] font-medium gap-1">
+                                        <Badge variant="outline" className="gap-1 border-border text-[11px] font-medium text-muted-foreground">
                                             <Clock className="h-3 w-3" />
                                             {t.dualVerificationCard.statusPending}
                                         </Badge>
@@ -219,30 +191,31 @@ export default function FinanceProposalShow({ proposal }: Props) {
                                         : t.financeProposals.unverified}
                                 </div>
                                 {proposal.catatan_administrasi && (
-                                    <div className="text-xs text-foreground/90 bg-background/60 p-2 rounded border border-border/50 text-[11px]">
+                                    <div className="rounded border border-border/50 bg-background/60 p-2 text-xs text-[11px] text-foreground/90">
                                         {proposal.catatan_administrasi}
                                     </div>
                                 )}
                             </div>
 
                             {/* Gate 2: RAB Audit */}
-                            <div className="rounded-lg border border-border p-3.5 bg-muted/30 space-y-2">
+                            <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3.5">
                                 <div className="flex items-center justify-between">
-                                    <span className="text-xs font-semibold text-foreground">
-                                        {t.dualVerificationCard.rabGateTitle}
-                                    </span>
+                                    <span className="text-xs font-semibold text-foreground">{t.dualVerificationCard.rabGateTitle}</span>
                                     {proposal.is_rab_approved === true ? (
-                                        <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] font-medium gap-1">
+                                        <Badge className="gap-1 border-emerald-500/30 bg-emerald-500/10 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
                                             <CheckCircle2 className="h-3 w-3 text-emerald-600" />
                                             {t.dualVerificationCard.statusApproved}
                                         </Badge>
                                     ) : proposal.is_rab_approved === false ? (
-                                        <Badge className="bg-destructive/10 text-destructive border-destructive/30 text-[11px] font-medium gap-1">
+                                        <Badge className="gap-1 border-destructive/30 bg-destructive/10 text-[11px] font-medium text-destructive">
                                             <XCircle className="h-3 w-3 text-destructive" />
                                             {t.dualVerificationCard.statusRejected}
                                         </Badge>
                                     ) : (
-                                        <Badge variant="secondary" className="text-amber-800 dark:text-amber-300 bg-amber-500/10 border-amber-500/30 text-[11px] font-medium gap-1">
+                                        <Badge
+                                            variant="secondary"
+                                            className="gap-1 border-amber-500/30 bg-amber-500/10 text-[11px] font-medium text-amber-800 dark:text-amber-300"
+                                        >
                                             <Clock className="h-3 w-3 text-amber-600" />
                                             {t.dualVerificationCard.statusPending}
                                         </Badge>
@@ -254,7 +227,7 @@ export default function FinanceProposalShow({ proposal }: Props) {
                                         : t.financeProposals.unverified}
                                 </div>
                                 {proposal.catatan_keuangan && (
-                                    <div className="text-xs text-foreground/90 bg-background/60 p-2 rounded border border-border/50 text-[11px]">
+                                    <div className="rounded border border-border/50 bg-background/60 p-2 text-xs text-[11px] text-foreground/90">
                                         {proposal.catatan_keuangan}
                                     </div>
                                 )}
@@ -264,32 +237,32 @@ export default function FinanceProposalShow({ proposal }: Props) {
                 </div>
 
                 {/* Grid 2: Researcher Info & Documents */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                     {/* Researcher Card */}
                     <Card className="border border-border shadow-xs">
                         <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                                 <User className="h-4 w-4 text-primary" />
                                 {t.financeProposals.applicantCard}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2.5 text-xs">
                             <div>
-                                <span className="text-muted-foreground block">Nama Lengkap</span>
+                                <span className="block text-muted-foreground">Nama Lengkap</span>
                                 <span className="font-medium text-foreground">{proposal.pengusul?.name || '-'}</span>
                             </div>
                             {proposal.pengusul?.nidn && (
                                 <div>
-                                    <span className="text-muted-foreground block">NIDN / NIP</span>
+                                    <span className="block text-muted-foreground">NIDN / NIP</span>
                                     <span className="font-mono text-foreground">{proposal.pengusul.nidn}</span>
                                 </div>
                             )}
                             <div>
-                                <span className="text-muted-foreground block">Institusi / Kampus</span>
+                                <span className="block text-muted-foreground">Institusi / Kampus</span>
                                 <span className="font-medium text-foreground">{proposal.university?.name || '-'}</span>
                             </div>
                             <div>
-                                <span className="text-muted-foreground block">Kontak Email</span>
+                                <span className="block text-muted-foreground">Kontak Email</span>
                                 <span className="text-foreground">{proposal.pengusul?.email || '-'}</span>
                             </div>
                         </CardContent>
@@ -298,7 +271,7 @@ export default function FinanceProposalShow({ proposal }: Props) {
                     {/* Proposal Description & Documents */}
                     <Card className="border border-border shadow-xs md:col-span-2">
                         <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                                 <FileText className="h-4 w-4 text-primary" />
                                 Dokumen & Berkas Usulan
                             </CardTitle>
@@ -306,31 +279,27 @@ export default function FinanceProposalShow({ proposal }: Props) {
                         <CardContent className="space-y-4">
                             {proposal.abstract && (
                                 <div>
-                                    <span className="text-xs font-semibold text-muted-foreground block mb-1">
-                                        Abstrak Penelitian
-                                    </span>
-                                    <p className="text-xs text-foreground/90 leading-relaxed font-serif bg-muted/20 p-3 rounded-lg border border-border/50">
+                                    <span className="mb-1 block text-xs font-semibold text-muted-foreground">Abstrak Penelitian</span>
+                                    <p className="rounded-lg border border-border/50 bg-muted/20 p-3 font-serif text-xs leading-relaxed text-foreground/90">
                                         {proposal.abstract}
                                     </p>
                                 </div>
                             )}
 
                             <div>
-                                <span className="text-xs font-semibold text-muted-foreground block mb-2">
-                                    Lampiran Berkas (PDF)
-                                </span>
+                                <span className="mb-2 block text-xs font-semibold text-muted-foreground">Lampiran Berkas (PDF)</span>
                                 {proposal.documents && proposal.documents.length > 0 ? (
                                     <div className="space-y-2">
                                         {proposal.documents.map((doc) => (
                                             <div
                                                 key={doc.id}
-                                                className="flex items-center justify-between p-2.5 rounded-lg border border-border bg-muted/20 text-xs"
+                                                className="flex items-center justify-between rounded-lg border border-border bg-muted/20 p-2.5 text-xs"
                                             >
                                                 <div className="flex items-center gap-2 truncate">
-                                                    <FileText className="h-4 w-4 text-primary shrink-0" />
-                                                    <span className="font-medium truncate">{doc.file_name}</span>
+                                                    <FileText className="h-4 w-4 shrink-0 text-primary" />
+                                                    <span className="truncate font-medium">{doc.file_name}</span>
                                                 </div>
-                                                <Button size="sm" variant="outline" className="h-7 text-[11px] gap-1" asChild>
+                                                <Button size="sm" variant="outline" className="h-7 gap-1 text-[11px]" asChild>
                                                     <a href={`/storage/${doc.file_path}`} target="_blank" rel="noopener noreferrer">
                                                         <Download className="h-3 w-3" />
                                                         Unduh
@@ -340,9 +309,7 @@ export default function FinanceProposalShow({ proposal }: Props) {
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-xs text-muted-foreground italic">
-                                        Tidak ada dokumen lampiran terpisah yang terunggah.
-                                    </p>
+                                    <p className="text-xs text-muted-foreground italic">Tidak ada dokumen lampiran terpisah yang terunggah.</p>
                                 )}
                             </div>
                         </CardContent>

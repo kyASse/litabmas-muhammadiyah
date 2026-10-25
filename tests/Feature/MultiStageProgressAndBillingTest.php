@@ -113,7 +113,7 @@ class MultiStageProgressAndBillingTest extends TestCase
         $contract = Contract::create([
             'university_id' => $this->university->id,
             'id_proposal' => $proposal->id,
-            'nomor_kontrak' => 'KTR/2026/T5/' . uniqid(),
+            'nomor_kontrak' => 'KTR/2026/T5/'.uniqid(),
             'judul_kontrak' => 'Kontrak Riset Sistem Pertanian Presisi AI',
             'dana_disetujui' => $danaDisetujui,
             'status_kontrak' => Contract::STATUS_ACTIVE,

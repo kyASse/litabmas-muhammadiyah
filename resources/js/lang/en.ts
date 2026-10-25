@@ -4,8 +4,7 @@ export const en = {
         tagline: 'For Yogyakarta Research',
         specTag: 'BAPPEDA KOTA YOGYAKARTA',
         bappedaName: 'Bappeda Kota Yogyakarta',
-        bappedaAddress:
-            'Kompleks Balai Kota Yogyakarta, Jl. Kenari No. 56, Muja Muju, Kec. Umbulharjo, Kota Yogyakarta, D.I. Yogyakarta 55165',
+        bappedaAddress: 'Kompleks Balai Kota Yogyakarta, Jl. Kenari No. 56, Muja Muju, Kec. Umbulharjo, Kota Yogyakarta, D.I. Yogyakarta 55165',
         bappedaEmail: 'bappeda@jogjakota.go.id',
         bappedaPhone: '(0274) 515865',
         save: 'Save',
@@ -651,9 +650,11 @@ export const en = {
         statusYes: 'Meets Requirement',
         statusNo: 'Does Not Meet',
         summaryTitlePassed: '[ELIGIBLE] Full Administrative Compliance',
-        summaryDescPassed: 'All active criteria are met (100% Yes). This proposal will transition to "Lolos Administrasi" and become eligible for Reviewer assignment.',
+        summaryDescPassed:
+            'All active criteria are met (100% Yes). This proposal will transition to "Lolos Administrasi" and become eligible for Reviewer assignment.',
         summaryTitleFailed: '[INELIGIBLE] Deficient Administrative Requirements',
-        summaryDescFailed: 'One or more criteria are marked as "Does Not Meet". This proposal will be rejected ("Ditolak Administrasi"). Please provide specific notes below.',
+        summaryDescFailed:
+            'One or more criteria are marked as "Does Not Meet". This proposal will be rejected ("Ditolak Administrasi"). Please provide specific notes below.',
         notesLabel: 'Administrative Examination Notes',
         notesPlaceholder: 'Specify verification observations or reasons for deficiency...',
         notesRequiredForRejection: 'Notes are mandatory when one or more criteria do not meet requirements.',
@@ -1599,8 +1600,7 @@ export const en = {
         issuedAt: 'Issued in',
         issuedDate: 'Date of Issuance',
         authorizedSignatory: 'Chairman of LPPM',
-        digitalSignatureNotice:
-            'This document is digitally signed and officially authenticated through E-Jarlit Bappeda Kota Yogyakarta.',
+        digitalSignatureNotice: 'This document is digitally signed and officially authenticated through E-Jarlit Bappeda Kota Yogyakarta.',
         qrVerificationTitle: 'Document Authenticity Integrity Code',
         qrVerificationScan: 'Scan to verify digital signature authenticity and integrity.',
         canonicalUrlLabel: 'Verification URL',

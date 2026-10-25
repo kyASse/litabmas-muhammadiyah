@@ -134,13 +134,19 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
                             {isCampusReject ? t.adminProposals.campusRejectModalSubtitle : proposal.title}
                         </p>
                     </div>
-                    <button onClick={onClose} className="ml-auto rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-neutral-800">
+                    <button
+                        onClick={onClose}
+                        className="ml-auto rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-neutral-800"
+                    >
                         <X className="h-4 w-4" />
                     </button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="rejection_reason" className="mb-1.5 block text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                        <label
+                            htmlFor="rejection_reason"
+                            className="mb-1.5 block text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                        >
                             {t.adminProposals.rejectReasonLabel} <span className="text-rose-500">*</span>
                         </label>
                         <textarea
@@ -170,7 +176,7 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
                             {t.common.cancel}
                         </Button>
                         <Button type="submit" variant="destructive" disabled={processing || data.rejection_reason.length < 5}>
-                            {processing ? t.common.loading : (isCampusReject ? t.adminProposals.campusRejectBtn : t.adminProposals.confirmRejectBtn)}
+                            {processing ? t.common.loading : isCampusReject ? t.adminProposals.campusRejectBtn : t.adminProposals.confirmRejectBtn}
                         </Button>
                     </div>
                 </form>
@@ -268,17 +274,14 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
 
             <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
                 {/* Header: Bersih tanpa duplikasi breadcrumb dan language switcher */}
-                <PageHeader
-                    title={t.adminProposals.pageTitle}
-                    subtitle={t.adminProposals.pageSubtitle}
-                />
+                <PageHeader title={t.adminProposals.pageTitle} subtitle={t.adminProposals.pageSubtitle} />
 
                 {/* Filters */}
                 <Card className="border-sidebar-border/60 bg-white/70 shadow-sm backdrop-blur-md dark:border-sidebar-border dark:bg-neutral-950/70">
                     <CardContent className="p-4">
                         <form onSubmit={handleSearch} className="flex flex-col gap-3 sm:flex-row sm:items-center">
                             {/* Search input */}
-                            <div className="relative flex-1 min-w-[240px]">
+                            <div className="relative min-w-[240px] flex-1">
                                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     id="search-proposals"
@@ -298,7 +301,10 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                     router.get(route('admin.proposals.index'), { search, status: val }, { preserveState: true });
                                 }}
                             >
-                                <SelectTrigger id="filter-status" className="h-10 w-full sm:w-[200px] border-sidebar-border bg-white text-sm dark:bg-neutral-900">
+                                <SelectTrigger
+                                    id="filter-status"
+                                    className="h-10 w-full border-sidebar-border bg-white text-sm sm:w-[200px] dark:bg-neutral-900"
+                                >
                                     <SelectValue placeholder={t.adminProposals.allStatuses} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -312,7 +318,11 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                             </Select>
 
                             {/* Buttons */}
-                            <Button type="submit" id="btn-search-proposals" className="h-10 bg-blue-900 text-white hover:bg-blue-800 px-5 font-semibold">
+                            <Button
+                                type="submit"
+                                id="btn-search-proposals"
+                                className="h-10 bg-blue-900 px-5 font-semibold text-white hover:bg-blue-800"
+                            >
                                 {t.common.filter}
                             </Button>
                             {hasActiveFilters && (
@@ -370,9 +380,12 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                     </TableRow>
                                 ) : (
                                     proposals.data.map((proposal) => (
-                                        <TableRow key={proposal.id} className="border-b border-sidebar-border/40 hover:bg-neutral-50/50 dark:hover:bg-neutral-900/40">
+                                        <TableRow
+                                            key={proposal.id}
+                                            className="border-b border-sidebar-border/40 hover:bg-neutral-50/50 dark:hover:bg-neutral-900/40"
+                                        >
                                             {/* Judul Proposal */}
-                                            <TableCell className="align-middle py-3.5">
+                                            <TableCell className="py-3.5 align-middle">
                                                 <Link
                                                     href={route('admin.proposals.show', { proposal: proposal.id })}
                                                     className="line-clamp-2 text-sm font-semibold text-slate-900 hover:text-blue-900 dark:text-slate-100 dark:hover:text-blue-400"
@@ -383,11 +396,14 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                             </TableCell>
 
                                             {/* Pengusul Utama */}
-                                            <TableCell className="align-middle py-3.5">
+                                            <TableCell className="py-3.5 align-middle">
                                                 {proposal.user ? (
                                                     <div className="space-y-0.5">
                                                         <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{proposal.user.name}</p>
-                                                        <p className="text-xs text-muted-foreground truncate max-w-[190px]" title={proposal.user.email}>
+                                                        <p
+                                                            className="max-w-[190px] truncate text-xs text-muted-foreground"
+                                                            title={proposal.user.email}
+                                                        >
                                                             {proposal.user.email}
                                                         </p>
                                                     </div>
@@ -397,19 +413,19 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                             </TableCell>
 
                                             {/* Skema Penelitian */}
-                                            <TableCell className="align-middle py-3.5">
-                                                <span className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
+                                            <TableCell className="py-3.5 align-middle">
+                                                <span className="line-clamp-2 text-sm text-slate-700 dark:text-slate-300">
                                                     {proposal.research_schema?.name ?? <span className="text-muted-foreground">-</span>}
                                                 </span>
                                             </TableCell>
 
                                             {/* Status Proposal */}
-                                            <TableCell className="align-middle py-3.5">
+                                            <TableCell className="py-3.5 align-middle">
                                                 <StatusBadge status={proposal.status_proposal} />
                                             </TableCell>
 
                                             {/* Reviewer Ditugaskan */}
-                                            <TableCell className="align-middle py-3.5">
+                                            <TableCell className="py-3.5 align-middle">
                                                 {proposal.has_reviewer && proposal.reviewers && proposal.reviewers.length > 0 ? (
                                                     <Badge
                                                         variant="outline"
@@ -435,7 +451,7 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                             </TableCell>
 
                                             {/* Tanggal Pengajuan */}
-                                            <TableCell className="align-middle py-3.5 text-xs text-muted-foreground tabular-nums">
+                                            <TableCell className="py-3.5 align-middle text-xs text-muted-foreground tabular-nums">
                                                 {new Date(proposal.created_at).toLocaleDateString('id-ID', {
                                                     day: '2-digit',
                                                     month: '2-digit',
@@ -444,7 +460,7 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                             </TableCell>
 
                                             {/* Aksi */}
-                                            <TableCell className="align-middle py-3.5 text-right">
+                                            <TableCell className="py-3.5 text-right align-middle">
                                                 <ActionButtons
                                                     proposalId={proposal.id}
                                                     proposalTitle={proposal.title}
@@ -467,7 +483,8 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                         <div className="border-t border-sidebar-border/60 px-6 py-4 dark:border-sidebar-border">
                             <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
                                 <p className="text-center text-sm text-muted-foreground md:text-left">
-                                    Menampilkan {(proposals.current_page - 1) * proposals.per_page + 1} – {Math.min(proposals.current_page * proposals.per_page, proposals.total)} dari {proposals.total} proposal
+                                    Menampilkan {(proposals.current_page - 1) * proposals.per_page + 1} –{' '}
+                                    {Math.min(proposals.current_page * proposals.per_page, proposals.total)} dari {proposals.total} proposal
                                 </p>
                                 <div className="flex items-center gap-1.5">
                                     {proposals.links.map((link, idx) => {
@@ -480,11 +497,7 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                                 <Button
                                                     variant={link.active ? 'default' : 'outline'}
                                                     size="sm"
-                                                    className={
-                                                        link.active
-                                                            ? 'bg-blue-900 hover:bg-blue-800 text-white'
-                                                            : 'text-muted-foreground'
-                                                    }
+                                                    className={link.active ? 'bg-blue-900 text-white hover:bg-blue-800' : 'text-muted-foreground'}
                                                 >
                                                     {isFirst ? (
                                                         <ChevronLeft className="h-4 w-4" />

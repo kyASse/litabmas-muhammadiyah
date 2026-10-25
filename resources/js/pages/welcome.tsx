@@ -8,19 +8,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useTranslation } from '@/hooks/use-translation';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import {
-    ArrowRight,
-    Award,
-    BookOpen,
-    Building2,
-    CheckCircle2,
-    FileText,
-    GraduationCap,
-    LayoutDashboard,
-    Lock,
-    Search,
-    ShieldCheck,
-} from 'lucide-react';
+import { ArrowRight, Award, BookOpen, Building2, CheckCircle2, FileText, LayoutDashboard, Lock, Search, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 
 interface ResearchSchemeItem {

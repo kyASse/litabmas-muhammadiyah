@@ -19,19 +19,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import {
-    AlertTriangle,
-    ArrowLeft,
-    Award,
-    CheckCircle2,
-    ClipboardCheck,
-    FileCheck,
-    FileText,
-    Info,
-    Save,
-    Scale,
-    Send,
-} from 'lucide-react';
+import { ArrowLeft, CheckCircle2, FileCheck, Info, Scale, Send } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 
 interface EvaluationItem {
@@ -133,9 +121,7 @@ export default function ShowReview({ proposal, review }: Props) {
 
     const [criteriaItems, setCriteriaItems] = useState<EvaluationItem[]>(initialCriteria);
     const [notes, setNotes] = useState<string>(review?.catatan_evaluasi || '');
-    const [recommendation, setRecommendation] = useState<'Diterima' | 'Revisi' | 'Ditolak' | ''>(
-        review?.keputusan_rekomendasi || '',
-    );
+    const [recommendation, setRecommendation] = useState<'Diterima' | 'Revisi' | 'Ditolak' | ''>(review?.keputusan_rekomendasi || '');
     const [coiAcknowledged, setCoiAcknowledged] = useState<boolean>(false);
 
     // Live weighted aggregate calculation: sum((pilihan / 5) * bobot)
@@ -240,8 +226,8 @@ export default function ShowReview({ proposal, review }: Props) {
                         </div>
                         <h1 className="font-serif text-xl font-bold text-slate-900">{proposalTitle}</h1>
                         <p className="font-sans text-xs text-slate-500">
-                            {t.reviewerWorkspace.researcher}: <strong>{proposal.pengusul?.name || '-'}</strong> •{' '}
-                            {t.reviewerWorkspace.scheme}: <strong>{proposal.skemaPendanaan?.nama_skema || '-'}</strong>
+                            {t.reviewerWorkspace.researcher}: <strong>{proposal.pengusul?.name || '-'}</strong> • {t.reviewerWorkspace.scheme}:{' '}
+                            <strong>{proposal.skemaPendanaan?.nama_skema || '-'}</strong>
                         </p>
                     </div>
                     <LanguageSwitcher size="sm" variant="compact" />
@@ -297,7 +283,7 @@ export default function ShowReview({ proposal, review }: Props) {
                                     <label className="text-[11px] font-semibold text-slate-600 uppercase">
                                         {t.reviewerWorkspace.adminNotesLabel}
                                     </label>
-                                    <div className="rounded border border-slate-200 bg-slate-50 p-3 text-xs text-slate-800 leading-relaxed">
+                                    <div className="rounded border border-slate-200 bg-slate-50 p-3 text-xs leading-relaxed text-slate-800">
                                         {proposal.catatan_administrasi ||
                                             'Seluruh berkas persyaratan telah diverifikasi lengkap dan memenuhi standar Bappeda.'}
                                     </div>
@@ -306,21 +292,23 @@ export default function ShowReview({ proposal, review }: Props) {
                                 <div className="divide-y divide-slate-100 rounded border border-slate-200 text-xs">
                                     <div className="flex items-center justify-between p-3">
                                         <span className="font-medium text-slate-900">1. Surat Pengantar LPPM & Validasi Format Proposal</span>
-                                        <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800 border border-emerald-200">
+                                        <span className="inline-flex items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800">
                                             <CheckCircle2 className="h-3 w-3" />
                                             {t.reviewerWorkspace.adminChecklistVerified}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between p-3">
                                         <span className="font-medium text-slate-900">2. Rincian Anggaran Biaya (RAB) sesuai Pagu Skema</span>
-                                        <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800 border border-emerald-200">
+                                        <span className="inline-flex items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800">
                                             <CheckCircle2 className="h-3 w-3" />
                                             {t.reviewerWorkspace.adminChecklistVerified}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between p-3">
-                                        <span className="font-medium text-slate-900">3. Surat Pernyataan Bebas Plagiarisme dan Kesanggupan Riset</span>
-                                        <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800 border border-emerald-200">
+                                        <span className="font-medium text-slate-900">
+                                            3. Surat Pernyataan Bebas Plagiarisme dan Kesanggupan Riset
+                                        </span>
+                                        <span className="inline-flex items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-semibold text-emerald-800">
                                             <CheckCircle2 className="h-3 w-3" />
                                             {t.reviewerWorkspace.adminChecklistVerified}
                                         </span>
@@ -363,7 +351,7 @@ export default function ShowReview({ proposal, review }: Props) {
                                                         <p className="mt-0.5 font-sans text-[11px] text-slate-500">{item.deskripsi}</p>
                                                     )}
                                                 </div>
-                                                <div className="text-right shrink-0">
+                                                <div className="shrink-0 text-right">
                                                     <span className="font-mono text-xs font-bold text-blue-900">
                                                         {weighted} / {item.bobot}
                                                     </span>
@@ -394,9 +382,7 @@ export default function ShowReview({ proposal, review }: Props) {
                                                             }`}
                                                         >
                                                             <span className="font-mono text-sm font-bold">{opt.val}</span>
-                                                            <span className="mt-0.5 text-[10px] leading-tight font-medium">
-                                                                {opt.label}
-                                                            </span>
+                                                            <span className="mt-0.5 text-[10px] leading-tight font-medium">{opt.label}</span>
                                                         </button>
                                                     ))}
                                                 </div>
@@ -435,12 +421,8 @@ export default function ShowReview({ proposal, review }: Props) {
                         {/* Aggregate Score Card */}
                         <div className="flex items-center justify-between rounded-lg border border-slate-300 bg-slate-50 p-4">
                             <div>
-                                <span className="text-xs font-bold uppercase text-slate-900">
-                                    {t.reviewerWorkspace.totalScoreLabel}
-                                </span>
-                                <span className="ml-2 font-mono text-[11px] text-slate-500">
-                                    {t.reviewerWorkspace.totalScoreScale}
-                                </span>
+                                <span className="text-xs font-bold text-slate-900 uppercase">{t.reviewerWorkspace.totalScoreLabel}</span>
+                                <span className="ml-2 font-mono text-[11px] text-slate-500">{t.reviewerWorkspace.totalScoreScale}</span>
                             </div>
                             <TabularFigure
                                 value={aggregateScore}
@@ -453,7 +435,7 @@ export default function ShowReview({ proposal, review }: Props) {
 
                         {/* Recommendation */}
                         <div className="space-y-2">
-                            <label className="block text-xs font-bold uppercase text-slate-800">
+                            <label className="block text-xs font-bold text-slate-800 uppercase">
                                 {t.reviewerWorkspace.recommendationLabel} <span className="text-rose-600">*</span>
                             </label>
                             <div className="grid grid-cols-3 gap-2">
@@ -477,7 +459,7 @@ export default function ShowReview({ proposal, review }: Props) {
                         {/* Overall Notes */}
                         <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                                <label className="text-xs font-bold uppercase text-slate-800">
+                                <label className="text-xs font-bold text-slate-800 uppercase">
                                     {t.reviewerWorkspace.notesLabel} <span className="text-rose-600">*</span>
                                 </label>
                                 <span className="font-mono text-xs text-slate-500">{notes.length} / 50 min</span>

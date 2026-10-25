@@ -26,13 +26,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import StatusBadge from '@/components/ui/StatusBadge';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import TabularFigure from '@/components/ui/TabularFigure';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type PaginatedData, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
-import { CheckCircle2, ChevronLeft, ChevronRight, ClipboardCheck, Edit, FileText, Layers, ListChecks, Loader2, Plus, Search, Trash2, X } from 'lucide-react';
+import { ClipboardCheck, Edit, FileText, Layers, ListChecks, Plus, Search, Trash2, X } from 'lucide-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
@@ -241,10 +240,7 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                     actions={
                         <div className="flex items-center gap-3">
                             <LanguageSwitcher variant="compact" />
-                            <Button
-                                onClick={handleOpenCreate}
-                                className="gap-2 bg-blue-900 font-medium text-white hover:bg-blue-800"
-                            >
+                            <Button onClick={handleOpenCreate} className="gap-2 bg-blue-900 font-medium text-white hover:bg-blue-800">
                                 <Plus className="h-4 w-4" />
                                 {t.adminCriteria.btnCreate}
                             </Button>
@@ -298,8 +294,14 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                                 />
                             </div>
 
-                            <Select value={statusFilter} onValueChange={(val) => { setStatusFilter(val); applyFilters({ is_active: val === 'all' ? '' : val }); }}>
-                                <SelectTrigger className="h-10 w-full border-slate-300 bg-white sm:w-44 text-sm">
+                            <Select
+                                value={statusFilter}
+                                onValueChange={(val) => {
+                                    setStatusFilter(val);
+                                    applyFilters({ is_active: val === 'all' ? '' : val });
+                                }}
+                            >
+                                <SelectTrigger className="h-10 w-full border-slate-300 bg-white text-sm sm:w-44">
                                     <SelectValue placeholder={t.adminCriteria.filterStatus} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -363,9 +365,7 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                                             <TableCell>
                                                 <div className="space-y-0.5">
                                                     <p className="font-bold text-slate-900">{item.nama_kriteria}</p>
-                                                    {item.deskripsi && (
-                                                        <p className="text-xs text-slate-500 line-clamp-1">{item.deskripsi}</p>
-                                                    )}
+                                                    {item.deskripsi && <p className="line-clamp-1 text-xs text-slate-500">{item.deskripsi}</p>}
                                                 </div>
                                             </TableCell>
                                             <TableCell>
@@ -390,13 +390,9 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                                                 </span>
                                             </TableCell>
                                             <TableCell className="text-center">
-                                                <span className="font-mono text-sm font-semibold text-slate-700">
-                                                    {item.bobot}%
-                                                </span>
+                                                <span className="font-mono text-sm font-semibold text-slate-700">{item.bobot}%</span>
                                             </TableCell>
-                                            <TableCell className="text-center font-mono text-xs text-slate-600">
-                                                {item.urutan}
-                                            </TableCell>
+                                            <TableCell className="text-center font-mono text-xs text-slate-600">{item.urutan}</TableCell>
                                             <TableCell>
                                                 <StatusBadge
                                                     status={item.is_active ? 'Draft' : 'Terminated'}
@@ -504,13 +500,11 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                                 className="h-10 border-slate-300"
                                 required
                             />
-                            {createForm.errors.nama_kriteria && (
-                                <p className="text-xs text-rose-600">{createForm.errors.nama_kriteria}</p>
-                            )}
+                            {createForm.errors.nama_kriteria && <p className="text-xs text-rose-600">{createForm.errors.nama_kriteria}</p>}
                         </div>
 
                         {/* Tipe Jawaban & Bobot */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div className="space-y-1.5">
                                 <Label className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldType}</Label>
                                 <Select
@@ -528,7 +522,9 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label htmlFor="create-bobot" className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldWeight}</Label>
+                                <Label htmlFor="create-bobot" className="text-xs font-semibold text-slate-700">
+                                    {t.adminCriteria.fieldWeight}
+                                </Label>
                                 <Input
                                     id="create-bobot"
                                     type="number"
@@ -543,7 +539,9 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
 
                         {/* Urutan */}
                         <div className="space-y-1.5">
-                            <Label htmlFor="create-urutan" className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldOrder}</Label>
+                            <Label htmlFor="create-urutan" className="text-xs font-semibold text-slate-700">
+                                {t.adminCriteria.fieldOrder}
+                            </Label>
                             <Input
                                 id="create-urutan"
                                 type="number"
@@ -556,20 +554,24 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
 
                         {/* Deskripsi */}
                         <div className="space-y-1.5">
-                            <Label htmlFor="create-desc" className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldDesc}</Label>
+                            <Label htmlFor="create-desc" className="text-xs font-semibold text-slate-700">
+                                {t.adminCriteria.fieldDesc}
+                            </Label>
                             <Textarea
                                 id="create-desc"
                                 value={createForm.data.deskripsi}
                                 onChange={(e) => createForm.setData('deskripsi', e.target.value)}
                                 rows={3}
-                                className="border-slate-300 resize-none text-sm"
+                                className="resize-none border-slate-300 text-sm"
                             />
                         </div>
 
                         {/* Status Aktif */}
                         <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
                             <div className="space-y-0.5">
-                                <Label htmlFor="create-status" className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldStatus}</Label>
+                                <Label htmlFor="create-status" className="text-xs font-semibold text-slate-700">
+                                    {t.adminCriteria.fieldStatus}
+                                </Label>
                                 <p className="text-xs text-slate-400">Aktifkan agar butir kriteria digunakan pada penilaian.</p>
                             </div>
                             <Switch
@@ -628,13 +630,11 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                                 className="h-10 border-slate-300"
                                 required
                             />
-                            {editForm.errors.nama_kriteria && (
-                                <p className="text-xs text-rose-600">{editForm.errors.nama_kriteria}</p>
-                            )}
+                            {editForm.errors.nama_kriteria && <p className="text-xs text-rose-600">{editForm.errors.nama_kriteria}</p>}
                         </div>
 
                         {/* Tipe Jawaban & Bobot */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                             <div className="space-y-1.5">
                                 <Label className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldType}</Label>
                                 <Select
@@ -652,7 +652,9 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                             </div>
 
                             <div className="space-y-1.5">
-                                <Label htmlFor="edit-bobot" className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldWeight}</Label>
+                                <Label htmlFor="edit-bobot" className="text-xs font-semibold text-slate-700">
+                                    {t.adminCriteria.fieldWeight}
+                                </Label>
                                 <Input
                                     id="edit-bobot"
                                     type="number"
@@ -667,7 +669,9 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
 
                         {/* Urutan */}
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-urutan" className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldOrder}</Label>
+                            <Label htmlFor="edit-urutan" className="text-xs font-semibold text-slate-700">
+                                {t.adminCriteria.fieldOrder}
+                            </Label>
                             <Input
                                 id="edit-urutan"
                                 type="number"
@@ -680,20 +684,24 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
 
                         {/* Deskripsi */}
                         <div className="space-y-1.5">
-                            <Label htmlFor="edit-desc" className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldDesc}</Label>
+                            <Label htmlFor="edit-desc" className="text-xs font-semibold text-slate-700">
+                                {t.adminCriteria.fieldDesc}
+                            </Label>
                             <Textarea
                                 id="edit-desc"
                                 value={editForm.data.deskripsi}
                                 onChange={(e) => editForm.setData('deskripsi', e.target.value)}
                                 rows={3}
-                                className="border-slate-300 resize-none text-sm"
+                                className="resize-none border-slate-300 text-sm"
                             />
                         </div>
 
                         {/* Status Aktif */}
                         <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
                             <div className="space-y-0.5">
-                                <Label htmlFor="edit-status" className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldStatus}</Label>
+                                <Label htmlFor="edit-status" className="text-xs font-semibold text-slate-700">
+                                    {t.adminCriteria.fieldStatus}
+                                </Label>
                                 <p className="text-xs text-slate-400">Aktifkan agar butir kriteria digunakan pada penilaian.</p>
                             </div>
                             <Switch
@@ -726,10 +734,7 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>{t.adminCriteria.btnCancel}</AlertDialogCancel>
-                        <AlertDialogAction
-                            onClick={handleDeleteConfirm}
-                            className="bg-rose-600 text-white hover:bg-rose-700"
-                        >
+                        <AlertDialogAction onClick={handleDeleteConfirm} className="bg-rose-600 text-white hover:bg-rose-700">
                             {t.common.delete}
                         </AlertDialogAction>
                     </AlertDialogFooter>

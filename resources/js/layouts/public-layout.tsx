@@ -78,7 +78,9 @@ export default function PublicLayout({ children }: PropsWithChildren) {
                             Contact Support
                         </a>
                     </div>
-                    <p>(c) {new Date().getFullYear()} {t.common.appName} - {t.common.tagline}.</p>
+                    <p>
+                        (c) {new Date().getFullYear()} {t.common.appName} - {t.common.tagline}.
+                    </p>
                     {pageProps.laravelVersion && pageProps.phpVersion && (
                         <p className="mt-2">
                             Laravel v{pageProps.laravelVersion} (PHP v{pageProps.phpVersion})

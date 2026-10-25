@@ -23,6 +23,7 @@ use App\Http\Controllers\ContractDocController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\Finance\FinanceProposalController;
 use App\Http\Controllers\FinanceReportController;
 use App\Http\Controllers\FundingController;
 use App\Http\Controllers\FundingLogController;
@@ -233,9 +234,9 @@ Route::middleware(['auth'])->group(function () {
 
         // Proposal RAB Verification (Dual Sign-Off Gatekeeper Fase 1)
         Route::prefix('proposals')->name('proposals.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Finance\FinanceProposalController::class, 'index'])->name('index');
-            Route::get('{proposal}', [\App\Http\Controllers\Finance\FinanceProposalController::class, 'show'])->name('show');
-            Route::post('{proposal}/verify-rab', [\App\Http\Controllers\Finance\FinanceProposalController::class, 'verifyRab'])->name('verify-rab');
+            Route::get('/', [FinanceProposalController::class, 'index'])->name('index');
+            Route::get('{proposal}', [FinanceProposalController::class, 'show'])->name('show');
+            Route::post('{proposal}/verify-rab', [FinanceProposalController::class, 'verifyRab'])->name('verify-rab');
         });
     });
 

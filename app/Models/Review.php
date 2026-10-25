@@ -381,7 +381,7 @@ class Review extends Model
      * Supports discrete 1-5 scale: (pilihan / 5) * bobot, scaled to 0 - 100.
      * Also gracefully supports legacy 0-100 scores.
      *
-     * @param array<int, array<string, mixed>>|null $components
+     * @param  array<int, array<string, mixed>>|null  $components
      */
     public static function calculateScoreFromComponents(?array $components): float
     {

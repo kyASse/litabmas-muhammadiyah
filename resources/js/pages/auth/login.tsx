@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { useTranslation } from '@/hooks/use-translation';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { GraduationCap } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 type LoginForm = {

@@ -255,7 +255,7 @@ export default function FundingIndex({ fundings }: Props) {
                                                             href={`/storage/${funding.file_tagihan}`}
                                                             target="_blank"
                                                             rel="noreferrer"
-                                                            className="inline-flex items-center gap-1 rounded border border-teal-200 bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-800 hover:bg-teal-100 transition-colors"
+                                                            className="inline-flex items-center gap-1 rounded border border-teal-200 bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-800 transition-colors hover:bg-teal-100"
                                                             title={t.funding.viewBillingDoc}
                                                         >
                                                             <FileText className="h-3.5 w-3.5 text-teal-600" />

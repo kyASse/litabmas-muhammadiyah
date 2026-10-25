@@ -151,8 +151,8 @@ class RoleAndProposalWorkflowTest extends TestCase
         $this->assertEquals('Peneliti', Role::PENELITI);
 
         // Pastikan role legacy User dan Pengelola Jurnal telah dibersihkan
-        $this->assertFalse(defined(Role::class . '::USER'));
-        $this->assertFalse(defined(Role::class . '::PENGELOLA_JURNAL'));
+        $this->assertFalse(defined(Role::class.'::USER'));
+        $this->assertFalse(defined(Role::class.'::PENGELOLA_JURNAL'));
         $this->assertFalse(method_exists(User::class, 'isUser'));
         $this->assertFalse(method_exists(User::class, 'isPengelolaJurnal'));
 

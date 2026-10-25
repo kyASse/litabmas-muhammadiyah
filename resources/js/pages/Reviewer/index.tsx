@@ -198,7 +198,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
         let weightedPoints = 0;
 
         items.forEach((item) => {
-            const w = item.weight ?? (100 / items.length);
+            const w = item.weight ?? 100 / items.length;
             const rawScore = Number(item.score) || 0;
             // Discrete 1-5 scale: (rawScore / 5) * weight
             const ratio = rawScore <= 5 ? rawScore / 5 : rawScore / 100;
@@ -226,7 +226,10 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
             return task.komponen_penilaian.map((item: any, idx: number) => ({
                 id: idx + 1,
                 criterion: item.kriteria || item.criterion || item.nama_kriteria || 'Kriteria Penilaian',
-                score: Number(item.skor ?? item.score ?? 0) > 5 ? Math.round((Number(item.skor ?? item.score) / 100) * 5) : Number(item.skor ?? item.score ?? 0),
+                score:
+                    Number(item.skor ?? item.score ?? 0) > 5
+                        ? Math.round((Number(item.skor ?? item.score) / 100) * 5)
+                        : Number(item.skor ?? item.score ?? 0),
                 notes: item.komentar ?? item.komentar_indikator ?? item.notes ?? '',
                 answer_type: 'scale_1_5',
                 weight: Number(item.bobot ?? item.weight ?? 25),
@@ -237,7 +240,9 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                 const label = item.question || item.criterion || item.nama_kriteria || '';
                 const codePrefix = item.code ? `${item.code} - ` : '';
                 const criterion = label
-                    ? (item.code && !label.startsWith(item.code) ? `${codePrefix}${label}` : label)
+                    ? item.code && !label.startsWith(item.code)
+                        ? `${codePrefix}${label}`
+                        : label
                     : (item.code ?? 'Kriteria Penilaian');
 
                 return {
@@ -696,7 +701,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                         <p className="mt-0.5">Daftar kelengkapan berkas yang telah diverifikasi oleh verifikator Bappeda.</p>
                                     </div>
 
-                                    <div className="rounded-lg border border-border bg-card p-4 space-y-3">
+                                    <div className="space-y-3 rounded-lg border border-border bg-card p-4">
                                         <div className="flex items-center justify-between border-b border-border pb-2 text-xs">
                                             <span className="font-semibold text-foreground">Status Seleksi Administrasi:</span>
                                             <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-800">
@@ -716,19 +721,19 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                             <div className="divide-y divide-border rounded border border-border text-xs">
                                                 <div className="flex items-center justify-between p-2.5">
                                                     <span>1. Surat Pengantar LPPM & Validasi Format Proposal</span>
-                                                    <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                                                    <span className="flex items-center gap-1 font-semibold text-emerald-700">
                                                         <CheckCircle2 className="h-3.5 w-3.5" /> Lolos (Ya)
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between p-2.5">
                                                     <span>2. Rincian Anggaran Biaya (RAB) sesuai Pagu Skema</span>
-                                                    <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                                                    <span className="flex items-center gap-1 font-semibold text-emerald-700">
                                                         <CheckCircle2 className="h-3.5 w-3.5" /> Lolos (Ya)
                                                     </span>
                                                 </div>
                                                 <div className="flex items-center justify-between p-2.5">
                                                     <span>3. Surat Pernyataan Bebas Plagiarisme dan Kesanggupan</span>
-                                                    <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                                                    <span className="flex items-center gap-1 font-semibold text-emerald-700">
                                                         <CheckCircle2 className="h-3.5 w-3.5" /> Lolos (Ya)
                                                     </span>
                                                 </div>
@@ -744,8 +749,12 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                     {/* Proposal Overview & Document Box */}
                                     <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-4">
                                         <div>
-                                            <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Deskripsi Proposal</h4>
-                                            <p className="mt-1 text-sm leading-relaxed text-foreground">{getProposalDescription(activeReview.proposal)}</p>
+                                            <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                                                Deskripsi Proposal
+                                            </h4>
+                                            <p className="mt-1 text-sm leading-relaxed text-foreground">
+                                                {getProposalDescription(activeReview.proposal)}
+                                            </p>
                                         </div>
 
                                         {getProposalDoc(activeReview.proposal) && (
@@ -756,7 +765,11 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                         {getProposalDoc(activeReview.proposal)}
                                                     </span>
                                                 </div>
-                                                <a href={`/storage/${getProposalDoc(activeReview.proposal)}`} target="_blank" rel="noopener noreferrer">
+                                                <a
+                                                    href={`/storage/${getProposalDoc(activeReview.proposal)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
                                                     <Button size="sm" variant="outline" className="h-8 gap-1 text-xs">
                                                         Lihat Dokumen
                                                     </Button>
@@ -772,7 +785,9 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                             <div className="flex items-center justify-between border-b border-border pb-2">
                                                 <div className="flex items-center gap-2">
                                                     <Award className="h-4 w-4 text-primary" />
-                                                    <h3 className="text-sm font-semibold text-foreground">Rincian Penilaian Rubrik Kriteria Pilihan Ganda</h3>
+                                                    <h3 className="text-sm font-semibold text-foreground">
+                                                        Rincian Penilaian Rubrik Kriteria Pilihan Ganda
+                                                    </h3>
                                                 </div>
                                                 <span className="text-xs text-muted-foreground">
                                                     {criteriaInputs.length} Indikator • Skor Terbobot Total:{' '}
@@ -846,8 +861,12 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                                 {/* Mandatory Commentary per Criteria Item */}
                                                                 <div className="space-y-1 pt-1">
                                                                     <div className="flex items-center justify-between">
-                                                                        <Label htmlFor={`notes-${idx}`} className="text-xs text-foreground font-semibold">
-                                                                            Komentar Kualitatif Butir Kriteria <span className="text-destructive">*</span>
+                                                                        <Label
+                                                                            htmlFor={`notes-${idx}`}
+                                                                            className="text-xs font-semibold text-foreground"
+                                                                        >
+                                                                            Komentar Kualitatif Butir Kriteria{' '}
+                                                                            <span className="text-destructive">*</span>
                                                                         </Label>
                                                                         {hasComment && (
                                                                             <span className="text-[10px] font-bold text-emerald-600">[VALID]</span>
@@ -889,7 +908,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                     max="100"
                                                     value={scoreInput}
                                                     readOnly
-                                                    className="border-border bg-muted font-mono font-bold text-base"
+                                                    className="border-border bg-muted font-mono text-base font-bold"
                                                 />
                                             </div>
 
