@@ -82,17 +82,37 @@ interface Schema {
 
 interface PaginatedSchemas {
     data: Schema[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number;
-    to: number;
-    links: Array<{
-        url: string | null;
-        label: string;
-        active: boolean;
-    }>;
+    current_page?: number;
+    last_page?: number;
+    per_page?: number;
+    total?: number;
+    from?: number;
+    to?: number;
+    links?:
+        | Array<{
+              url: string | null;
+              label: string;
+              active: boolean;
+          }>
+        | {
+              first?: string;
+              last?: string;
+              prev?: string | null;
+              next?: string | null;
+          };
+    meta?: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number;
+        to: number;
+        links: Array<{
+            url: string | null;
+            label: string;
+            active: boolean;
+        }>;
+    };
 }
 
 interface Filters {
@@ -332,6 +352,14 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const schemaList = schemas.data ?? [];
     const isEmpty = schemaList.length === 0;
 
+    const currentPage = schemas.current_page ?? schemas.meta?.current_page ?? 1;
+    const perPage = schemas.per_page ?? schemas.meta?.per_page ?? 10;
+    const totalItems = schemas.total ?? schemas.meta?.total ?? schemaList.length;
+    const fromItem = schemas.from ?? schemas.meta?.from ?? (schemaList.length > 0 ? (currentPage - 1) * perPage + 1 : 0);
+    const toItem = schemas.to ?? schemas.meta?.to ?? Math.min(currentPage * perPage, totalItems);
+    const lastPage = schemas.last_page ?? schemas.meta?.last_page ?? 1;
+    const paginationLinks = schemas.meta?.links ?? (Array.isArray(schemas.links) ? schemas.links : []);
+
     /* ======================================================================== */
     /*  RENDER                                                                  */
     /* ======================================================================== */
@@ -476,7 +504,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                     </TableRow>
                                 ) : (
                                     schemaList.map((schema, index) => {
-                                        const rowNumber = (schemas.current_page - 1) * schemas.per_page + index + 1;
+                                        const rowNumber = (currentPage - 1) * perPage + index + 1;
                                         return (
                                             <TableRow
                                                 key={schema.id}
@@ -680,17 +708,17 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                     </div>
 
                     {/* ── Pagination ──────────────────────────────────── */}
-                    {schemas.last_page > 1 && (
+                    {lastPage > 1 && (
                         <div className="border-t border-sidebar-border/60 px-6 py-4 dark:border-sidebar-border">
                             <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
                                 <p className="text-center text-sm text-muted-foreground md:text-left">
-                                    Menampilkan {schemas.from} – {schemas.to} dari {schemas.total} skema
+                                    Menampilkan {fromItem} – {toItem} dari {totalItems} skema
                                 </p>
                                 <div className="flex items-center gap-1.5">
-                                    {schemas.links.map((link, idx) => {
+                                    {paginationLinks.map((link, idx) => {
                                         if (link.url === null) return null;
                                         const isFirst = idx === 0;
-                                        const isLast = idx === schemas.links.length - 1;
+                                        const isLast = idx === paginationLinks.length - 1;
 
                                         return (
                                             <Link key={idx} href={link.url} preserveState preserveScroll>

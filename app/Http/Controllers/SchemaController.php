@@ -66,8 +66,12 @@ class SchemaController extends Controller
 
         $schemas = $query->paginate($request->input('per_page', 10))->withQueryString();
 
+        $schemas->through(function ($schema) {
+            return (new SchemaResource($schema))->resolve();
+        });
+
         return Inertia::render('Admin/Schema/Index', [
-            'schemas' => SchemaResource::collection($schemas),
+            'schemas' => $schemas,
             'filters' => [
                 'search' => $request->search ?? '',
                 'is_active' => $request->is_active ?? '',

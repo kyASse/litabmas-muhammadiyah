@@ -152,6 +152,9 @@ class SchemaYearAndCriteriaTest extends TestCase
         $response->assertInertia(fn ($page) => $page
             ->component('Admin/Schema/Index')
             ->has('schemas.data', 1)
+            ->where('schemas.current_page', 1)
+            ->where('schemas.per_page', 10)
+            ->where('schemas.total', 1)
             ->where('schemas.data.0.nama_skema', 'Skema TA 2026')
         );
     }
