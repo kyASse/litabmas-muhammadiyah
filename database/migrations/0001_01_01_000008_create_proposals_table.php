@@ -23,7 +23,13 @@ return new class extends Migration
             $table->enum('status_proposal', [
                 'Draft',
                 'Submitted',
+                'Submitted_Kampus',
+                'Approved_Kampus',
+                'Rejected_Kampus',
+                'Submitted_Bappeda',
                 'Administrasi_Valid',
+                'Lolos_Administrasi',
+                'Ditolak_Administrasi',
                 'Ditolak',
                 'Lolos_Didanai',
             ])->default('Draft');

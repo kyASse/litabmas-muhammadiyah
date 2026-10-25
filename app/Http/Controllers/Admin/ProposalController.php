@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\AssessmentCriteria;
 use App\Models\Proposal;
 use App\Models\Role;
 use App\Models\User;
@@ -56,6 +57,14 @@ class ProposalController extends Controller
             $query->where('status_proposal', $request->status);
         }
 
+        if ($request->filled('tahun_anggaran')) {
+            $year = $request->input('tahun_anggaran');
+            $query->whereHas('researchSchema', fn ($sq) => $sq->where('tahun_anggaran', $year));
+        } elseif ($request->filled('year')) {
+            $year = $request->input('year');
+            $query->whereHas('researchSchema', fn ($sq) => $sq->where('tahun_anggaran', $year));
+        }
+
         $proposals = $query
             ->latest()
             ->paginate(15)
@@ -85,20 +94,31 @@ class ProposalController extends Controller
                 'research_schema' => $proposal->researchSchema ? [
                     'id' => $proposal->researchSchema->id,
                     'name' => $proposal->researchSchema->name,
+                    'tahun_anggaran' => $proposal->researchSchema->tahun_anggaran,
                 ] : null,
                 'created_at' => $proposal->created_at->format('Y-m-d'),
             ]);
 
         $statusOptions = collect([
             ['value' => Proposal::STATUS_DRAFT,              'label' => 'Draft'],
+            ['value' => Proposal::STATUS_SUBMITTED_KAMPUS,   'label' => 'Menunggu Verifikasi Kampus'],
+            ['value' => Proposal::STATUS_APPROVED_KAMPUS,    'label' => 'Disetujui Kampus (Antrean Bappeda)'],
+            ['value' => Proposal::STATUS_REJECTED_KAMPUS,    'label' => 'Ditolak Kampus'],
             ['value' => Proposal::STATUS_SUBMITTED,          'label' => 'Submitted'],
             ['value' => Proposal::STATUS_ADMINISTRASI_VALID, 'label' => 'Valid Administrasi'],
+            ['value' => Proposal::STATUS_LOLOS_ADMINISTRASI, 'label' => 'Lolos Administrasi'],
+            ['value' => Proposal::STATUS_DITOLAK_ADMINISTRASI, 'label' => 'Ditolak Administrasi'],
             ['value' => Proposal::STATUS_DITOLAK,            'label' => 'Ditolak'],
         ]);
 
         return Inertia::render('Admin/Proposal/Index', [
             'proposals' => $proposals,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => [
+                'search' => $request->search ?? '',
+                'status' => $request->status ?? '',
+                'tahun_anggaran' => $request->tahun_anggaran ?? $request->year ?? '',
+                'year' => $request->year ?? $request->tahun_anggaran ?? '',
+            ],
             'statusOptions' => $statusOptions,
         ]);
     }
@@ -139,6 +159,14 @@ class ProposalController extends Controller
                 'status_proposal' => $proposal->status_proposal,
                 'rejection_reason' => $proposal->rejection_reason,
                 'file_dokumen_proposal' => $proposal->file_dokumen_proposal,
+                'biaya_yang_diusulkan' => (float) $proposal->biaya_yang_diusulkan,
+                'rekomendasi_anggaran' => $proposal->rekomendasi_anggaran ? (float) $proposal->rekomendasi_anggaran : null,
+                'is_administrasi_approved' => $proposal->is_administrasi_approved,
+                'is_rab_approved' => $proposal->is_rab_approved,
+                'catatan_administrasi' => $proposal->catatan_administrasi,
+                'catatan_keuangan' => $proposal->catatan_keuangan,
+                'tanggal_verifikasi_administrasi' => $proposal->tanggal_verifikasi_administrasi?->format('Y-m-d H:i'),
+                'tanggal_verifikasi_rab' => $proposal->tanggal_verifikasi_rab?->format('Y-m-d H:i'),
                 'created_at' => $proposal->created_at->format('Y-m-d H:i'),
                 'updated_at' => $proposal->updated_at->format('Y-m-d H:i'),
                 'user' => $proposal->user ? [
@@ -169,6 +197,10 @@ class ProposalController extends Controller
                 ])->values(),
             ],
             'availableReviewers' => $availableReviewers,
+            'adminCriteria' => AssessmentCriteria::administrasi()
+                ->active()
+                ->orderBy('urutan')
+                ->get(['id', 'nama_kriteria', 'deskripsi', 'tipe_jawaban', 'urutan']),
         ]);
     }
 
@@ -179,6 +211,13 @@ class ProposalController extends Controller
      */
     public function approve(Request $request, Proposal $proposal): RedirectResponse
     {
+        $user = $request->user();
+
+        // Jika user adalah Admin Kampus, delegasikan ke persetujuan internal kampus (Approved_Kampus)
+        if ($user && $user->isAdminKampus() && ! $user->isSuperAdmin()) {
+            return $this->campusApprove($request, $proposal);
+        }
+
         $this->authorize('approve', $proposal);
 
         $proposal->update([
@@ -198,6 +237,13 @@ class ProposalController extends Controller
      */
     public function reject(Request $request, Proposal $proposal): RedirectResponse
     {
+        $user = $request->user();
+
+        // Jika user adalah Admin Kampus, delegasikan ke penolakan internal kampus (Rejected_Kampus)
+        if ($user && $user->isAdminKampus() && ! $user->isSuperAdmin()) {
+            return $this->campusReject($request, $proposal);
+        }
+
         $this->authorize('reject', $proposal);
 
         $request->validate([
@@ -216,5 +262,88 @@ class ProposalController extends Controller
         return redirect()
             ->route('admin.proposals.index')
             ->with('success', "Proposal \"{$proposal->title}\" telah ditolak.");
+    }
+
+    /**
+     * Setujui proposal pada tingkat internal kampus.
+     *
+     * @route POST /admin/proposals/{proposal}/campus-approve
+     */
+    public function campusApprove(Request $request, Proposal $proposal): RedirectResponse
+    {
+        return app(AdminKampusController::class)->campusApprove($request, $proposal);
+    }
+
+    /**
+     * Tolak proposal pada tingkat internal kampus dengan catatan perbaikan.
+     *
+     * @route POST /admin/proposals/{proposal}/campus-reject
+     */
+    public function campusReject(Request $request, Proposal $proposal): RedirectResponse
+    {
+        return app(AdminKampusController::class)->campusReject($request, $proposal);
+    }
+
+    /**
+     * Verifikasi administrasi dinamis Bappeda menggunakan checklist Ya/Tidak.
+     *
+     * @route POST /admin/proposals/{proposal}/verify-administration
+     */
+    public function verifyAdministration(Request $request, Proposal $proposal): RedirectResponse
+    {
+        $this->authorize('verifyAdministration', $proposal);
+
+        $request->validate([
+            'checklist' => ['required', 'array'],
+            'checklist.*' => ['nullable'],
+            'catatan_administrasi' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $activeCriteria = AssessmentCriteria::administrasi()
+            ->active()
+            ->get();
+
+        if ($activeCriteria->isNotEmpty()) {
+            $allPassed = true;
+            foreach ($activeCriteria as $criterion) {
+                $val = $request->checklist[$criterion->id] ?? null;
+                if (! filter_var($val, FILTER_VALIDATE_BOOLEAN)) {
+                    $allPassed = false;
+                    break;
+                }
+            }
+        } else {
+            // Fallback: evaluate submitted checklist directly
+            $allPassed = ! empty($request->checklist) && collect($request->checklist)->every(
+                fn ($val) => filter_var($val, FILTER_VALIDATE_BOOLEAN)
+            );
+        }
+
+        $proposal->update([
+            'is_administrasi_approved' => $allPassed,
+            'tanggal_verifikasi_administrasi' => now(),
+            'catatan_administrasi' => $request->catatan_administrasi,
+        ]);
+
+        if (! $allPassed) {
+            $proposal->update([
+                'status_proposal' => Proposal::STATUS_DITOLAK_ADMINISTRASI,
+            ]);
+            $statusMessage = "Proposal \"{$proposal->title}\" dinyatakan DITOLAK seleksi administrasi.";
+        } else {
+            // Cek apakah Admin Keuangan juga telah menyetujui audit RAB (Dual Sign-Off Gatekeeper)
+            if ($proposal->isRabApproved()) {
+                $proposal->update([
+                    'status_proposal' => Proposal::STATUS_LOLOS_ADMINISTRASI,
+                ]);
+                $statusMessage = "Proposal \"{$proposal->title}\" dinyatakan LOLOS seleksi administrasi & audit RAB (siap penugasan reviewer).";
+            } else {
+                $statusMessage = 'Verifikasi berkas administrasi berhasil. Menunggu audit RAB oleh Admin Keuangan untuk membuka penugasan reviewer.';
+            }
+        }
+
+        return redirect()
+            ->back()
+            ->with('success', $statusMessage);
     }
 }

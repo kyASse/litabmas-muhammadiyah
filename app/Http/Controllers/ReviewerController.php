@@ -32,7 +32,7 @@ class ReviewerController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $masterCriteria = AssessmentCriteria::orderBy('urutan')->get();
+        $masterCriteria = AssessmentCriteria::substansi()->active()->orderBy('urutan')->get();
 
         return Inertia::render('Reviewer/index', [
             'tasks' => $reviews,
@@ -51,7 +51,7 @@ class ReviewerController extends Controller
         $review = $this->findOwnReview($request, $reviewId);
         $review->load(['proposal']);
 
-        $masterCriteria = AssessmentCriteria::orderBy('urutan')->get();
+        $masterCriteria = AssessmentCriteria::substansi()->active()->orderBy('urutan')->get();
 
         return Inertia::render('Reviewer/index', [
             'tasks' => $this->reviewerReviewsQuery($request)
@@ -76,9 +76,19 @@ class ReviewerController extends Controller
             'proposal.skemaPendanaan',
         ]);
 
+        // Conflict of Interest (CoI) Guard: id_reviewer != id_pengusul
+        if ((int) $review->proposal?->id_pengusul === (int) $request->user()->id) {
+            abort(403, 'Reviewer memiliki konflik kepentingan langsung dengan usulan penelitian ini.');
+        }
+
+        $substantiveCriteria = AssessmentCriteria::substansi()->active()->orderBy('urutan')->get();
+        $administrativeCriteria = AssessmentCriteria::administrasi()->active()->orderBy('urutan')->get();
+
         return Inertia::render('Reviewer/Workspace', [
             'review' => $review,
             'proposal' => $review->proposal,
+            'substantiveCriteria' => $substantiveCriteria,
+            'administrativeCriteria' => $administrativeCriteria,
         ]);
     }
 
@@ -89,42 +99,25 @@ class ReviewerController extends Controller
     {
         $reviewId = (int) $assignment;
         $review = $this->findOwnReview($request, $reviewId);
+        $review->load('proposal');
+
+        // Conflict of Interest (CoI) Guard: id_reviewer != id_pengusul
+        if ((int) $review->proposal?->id_pengusul === (int) $request->user()->id) {
+            abort(403, 'Reviewer memiliki konflik kepentingan langsung dengan usulan penelitian ini.');
+        }
 
         $validated = $request->validated();
         $komponenPenilaian = $validated['komponen_penilaian'] ?? [];
 
-        $totalWeight = 0;
-        $weightedScore = 0;
-        $simpleSum = 0;
-
-        foreach ($komponenPenilaian as $item) {
-            if (! is_array($item)) {
-                continue;
-            }
-            $bobot = (float) ($item['bobot'] ?? $item['weight'] ?? 0);
-            $skor = (float) ($item['skor'] ?? $item['score'] ?? $item['nilai'] ?? 0);
-
-            if ($bobot > 0) {
-                $weightedScore += ($skor * $bobot);
-                $totalWeight += $bobot;
-            }
-            $simpleSum += $skor;
-        }
-
-        if ($totalWeight > 0) {
-            $calculatedScore = round($weightedScore / $totalWeight, 2);
-        } elseif (count($komponenPenilaian) > 0) {
-            $calculatedScore = round($simpleSum / count($komponenPenilaian), 2);
-        } else {
-            $calculatedScore = (float) ($request->input('skor_total') ?? $request->input('score') ?? 0);
-        }
+        // Calculate discrete 1-5 weighted score: (pilihan / 5) * bobot, scaled to 0-100
+        $calculatedScore = Review::calculateScoreFromComponents($komponenPenilaian);
 
         $review->update([
             'komponen_penilaian' => $komponenPenilaian,
             'skor_total' => $calculatedScore,
             'catatan_evaluasi' => $validated['catatan_evaluasi'],
             'keputusan_rekomendasi' => $validated['keputusan_rekomendasi'],
-            'status_review' => 'Completed',
+            'status_review' => Review::STATUS_COMPLETED,
             'tanggal_selesai_review' => now()->toDateString(),
         ]);
 

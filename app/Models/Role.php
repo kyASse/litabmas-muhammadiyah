@@ -15,10 +15,6 @@ class Role extends Model
 
     public const ADMIN_KEUANGAN = 'Admin Keuangan';
 
-    public const USER = 'User';
-
-    public const PENGELOLA_JURNAL = 'Pengelola Jurnal';
-
     public const REVIEWER = 'Reviewer';
 
     public const PENELITI = 'Peneliti';
@@ -105,26 +101,18 @@ class Role extends Model
     }
 
     /**
-     * check if role is user
-     */
-    public function isUser(): bool
-    {
-        return $this->name === self::USER;
-    }
-
-    /**
-     * check if role is pengelola jurnal
-     */
-    public function isPengelolaJurnal(): bool
-    {
-        return $this->name === self::PENGELOLA_JURNAL;
-    }
-
-    /**
      * check if role is reviewer
      */
     public function isReviewer(): bool
     {
         return $this->name === self::REVIEWER;
+    }
+
+    /**
+     * check if role is peneliti
+     */
+    public function isPeneliti(): bool
+    {
+        return $this->name === self::PENELITI;
     }
 }

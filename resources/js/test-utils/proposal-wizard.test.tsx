@@ -112,7 +112,7 @@ describe('Proposal Submission Linear 4-Step Wizard', () => {
         );
 
         // Page title and subtitle in English
-        expect(screen.getByText(en.proposalWizard.pageTitle)).toBeDefined();
+        expect(screen.getAllByText(en.proposalWizard.pageTitle).length).toBeGreaterThan(0);
         expect(screen.getByText(en.proposalWizard.pageSubtitle)).toBeDefined();
 
         // 4 step titles in stepper
@@ -140,13 +140,18 @@ describe('Proposal Submission Linear 4-Step Wizard', () => {
             </TranslationProvider>,
         );
 
-        // Click ID button on language switcher
-        const idButtons = screen.getAllByRole('button', { name: /^ID$/i });
-        expect(idButtons.length).toBeGreaterThan(0);
-        fireEvent.click(idButtons[0]);
+        // Click ID button on language switcher (compact or segmented)
+        const compactSwitcher = screen.queryByTitle('Switch Language (EN / ID)');
+        if (compactSwitcher) {
+            fireEvent.click(compactSwitcher);
+        } else {
+            const idButtons = screen.getAllByRole('button', { name: /^ID$/i });
+            expect(idButtons.length).toBeGreaterThan(0);
+            fireEvent.click(idButtons[0]);
+        }
 
         // Should now display Indonesian
-        expect(screen.getByText(id.proposalWizard.pageTitle)).toBeDefined();
+        expect(screen.getAllByText(id.proposalWizard.pageTitle).length).toBeGreaterThan(0);
         expect(screen.getByText(id.proposalWizard.pageSubtitle)).toBeDefined();
         expect(screen.getByText(id.proposalWizard.steps.step1.title)).toBeDefined();
         expect(screen.getByText(id.proposalWizard.step1.title)).toBeDefined();

@@ -55,6 +55,10 @@ class UpdateSchemaRequest extends FormRequest
             $merge['tanggal_selesai'] = $this->input('end_date');
         }
 
+        if ($this->has('year') && ! $this->has('tahun_anggaran')) {
+            $merge['tahun_anggaran'] = $this->input('year');
+        }
+
         if ($merge) {
             $this->merge($merge);
         }
@@ -84,6 +88,8 @@ class UpdateSchemaRequest extends FormRequest
             'tanggal_selesai' => ['sometimes', 'required', 'date'],
             'file_panduan' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
             'is_active' => ['nullable', 'boolean'],
+            'tahun_anggaran' => ['nullable', 'integer', 'min:2000', 'max:2100'],
+            'year' => ['nullable', 'integer', 'min:2000', 'max:2100'],
         ];
     }
 

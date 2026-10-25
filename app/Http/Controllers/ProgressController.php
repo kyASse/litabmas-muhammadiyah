@@ -39,11 +39,16 @@ class ProgressController extends Controller
             $query->byStatus($status);
         }
 
+        // Filter by tipe laporan
+        if ($tipe = $request->input('tipe_laporan')) {
+            $query->byTipe($tipe);
+        }
+
         $progressReports = $query->latest()->paginate(10)->withQueryString();
 
         return Inertia::render('Progress/Index', [
             'progressReports' => $progressReports,
-            'filters' => $request->only(['search', 'status']),
+            'filters' => $request->only(['search', 'status', 'tipe_laporan']),
         ]);
     }
 
@@ -82,14 +87,28 @@ class ProgressController extends Controller
             $fileLogbookPath = $request->file('file_logbook')->store('progress-logbooks', 'public');
         }
 
+        $filePresentasiPath = null;
+        if ($request->hasFile('file_presentasi')) {
+            $filePresentasiPath = $request->file('file_presentasi')->store('progress-presentations', 'public');
+        }
+
+        $fileTagihanPath = null;
+        if ($request->hasFile('file_tagihan')) {
+            $fileTagihanPath = $request->file('file_tagihan')->store('progress-billings', 'public');
+        }
+
         ProgressReport::create([
             'id_proposal' => $validated['id_proposal'],
             'id_monev_schedule' => $validated['id_monev_schedule'],
+            'tipe_laporan' => $validated['tipe_laporan'] ?? ProgressReport::TIPE_ANTARA,
             'persentase_kemajuan' => $validated['persentase_kemajuan'],
             'ringkasan_progres' => $validated['ringkasan_progres'],
             'catatan_kendala' => $validated['catatan_kendala'] ?? null,
             'file_laporan_kemajuan' => $fileLaporanPath,
             'file_logbook' => $fileLogbookPath,
+            'file_presentasi' => $filePresentasiPath,
+            'file_tagihan' => $fileTagihanPath,
+            'nominal_tagihan' => $validated['nominal_tagihan'] ?? null,
             'status_laporan' => ProgressReport::STATUS_SUBMITTED,
         ]);
 
@@ -112,11 +131,15 @@ class ProgressController extends Controller
             'id' => $progressReport->id,
             'title' => $progressReport->proposal?->judul_penelitian ?? 'Laporan Kemajuan',
             'content' => $progressReport->ringkasan_progres,
-            'report_type' => 'laporan_kemajuan',
+            'report_type' => $progressReport->tipe_laporan ?? 'Antara',
+            'tipe_laporan' => $progressReport->tipe_laporan ?? 'Antara',
             'report_date' => $progressReport->created_at?->format('Y-m-d') ?? now()->format('Y-m-d'),
             'progress_percentage' => (int) $progressReport->persentase_kemajuan,
             'report_period' => $progressReport->monevSchedule?->nama_tahap ?? 'Monev Kemajuan',
             'attachment_path' => $progressReport->file_laporan_kemajuan,
+            'file_presentasi' => $progressReport->file_presentasi,
+            'file_tagihan' => $progressReport->file_tagihan,
+            'nominal_tagihan' => $progressReport->nominal_tagihan,
             'status' => strtolower($progressReport->status_laporan ?? 'submitted'),
             'submitted_at' => $progressReport->created_at?->toIso8601String() ?? now()->toIso8601String(),
             'created_at' => $progressReport->created_at?->toIso8601String() ?? now()->toIso8601String(),

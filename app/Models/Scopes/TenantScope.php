@@ -2,6 +2,7 @@
 
 namespace App\Models\Scopes;
 
+use App\Models\Role;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
@@ -17,8 +18,8 @@ class TenantScope implements Scope
         if (Auth::check()) {
             $user = Auth::user();
 
-            // Pengecualian Super Admin untuk keperluan pemantauan global
-            if ($user->isSuperAdmin()) {
+            // Pengecualian Super Admin dan Admin Keuangan Bappeda (Pusat) untuk pemantauan & audit anggaran lintas kampus
+            if ($user->isSuperAdmin() || ($user->hasRole(Role::ADMIN_KEUANGAN) && ! $user->university_id)) {
                 return;
             }
 

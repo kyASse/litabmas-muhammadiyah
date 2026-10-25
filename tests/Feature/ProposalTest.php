@@ -22,7 +22,7 @@ class ProposalTest extends TestCase
         $this->withoutVite();
     }
 
-    protected function createUserWithRole(string $roleName = Role::USER): User
+    protected function createUserWithRole(string $roleName = Role::PENELITI): User
     {
         $role = Role::firstOrCreate(['name' => $roleName], ['display_name' => $roleName]);
 
@@ -37,7 +37,7 @@ class ProposalTest extends TestCase
      */
     public function test_user_can_access_proposal_index_page()
     {
-        $user = $this->createUserWithRole(Role::USER);
+        $user = $this->createUserWithRole(Role::PENELITI);
 
         $response = $this->actingAs($user)->get(route('proposal.index'));
 
@@ -49,7 +49,7 @@ class ProposalTest extends TestCase
      */
     public function test_user_can_access_create_proposal_page()
     {
-        $user = $this->createUserWithRole(Role::USER);
+        $user = $this->createUserWithRole(Role::PENELITI);
 
         $response = $this->actingAs($user)->get(route('proposal.create'));
 
@@ -63,7 +63,7 @@ class ProposalTest extends TestCase
     {
         Storage::fake('public');
 
-        $user = $this->createUserWithRole(Role::USER);
+        $user = $this->createUserWithRole(Role::PENELITI);
         $schema = ResearchSchema::factory()->create(['is_active' => true]);
 
         $file = UploadedFile::fake()->create('proposal.pdf', 500, 'application/pdf');
@@ -93,7 +93,7 @@ class ProposalTest extends TestCase
      */
     public function test_user_can_store_proposal_as_draft()
     {
-        $user = $this->createUserWithRole(Role::USER);
+        $user = $this->createUserWithRole(Role::PENELITI);
         $schema = ResearchSchema::factory()->create(['is_active' => true]);
 
         $data = [
@@ -122,7 +122,7 @@ class ProposalTest extends TestCase
     {
         Storage::fake('public');
 
-        $user = $this->createUserWithRole(Role::USER);
+        $user = $this->createUserWithRole(Role::PENELITI);
         $proposal = Proposal::factory()->create([
             'user_id' => $user->id,
             'status_proposal' => Proposal::STATUS_DRAFT,
@@ -153,7 +153,7 @@ class ProposalTest extends TestCase
      */
     public function test_user_can_view_proposal_detail_page()
     {
-        $user = $this->createUserWithRole(Role::USER);
+        $user = $this->createUserWithRole(Role::PENELITI);
         $proposal = Proposal::factory()->create(['user_id' => $user->id]);
 
         $response = $this->actingAs($user)->get(route('proposal.show', $proposal));
@@ -166,7 +166,7 @@ class ProposalTest extends TestCase
      */
     public function test_authenticated_user_can_access_edit_proposal_page()
     {
-        $user = $this->createUserWithRole(Role::USER);
+        $user = $this->createUserWithRole(Role::PENELITI);
         $proposal = Proposal::factory()->create([
             'user_id' => $user->id,
             'status_proposal' => Proposal::STATUS_DRAFT,
@@ -182,7 +182,7 @@ class ProposalTest extends TestCase
      */
     public function test_user_can_update_their_own_proposal()
     {
-        $user = $this->createUserWithRole(Role::USER);
+        $user = $this->createUserWithRole(Role::PENELITI);
         $proposal = Proposal::factory()->create([
             'user_id' => $user->id,
             'status_proposal' => Proposal::STATUS_DRAFT,
@@ -207,8 +207,8 @@ class ProposalTest extends TestCase
      */
     public function test_user_cannot_update_others_proposal()
     {
-        $user1 = $this->createUserWithRole(Role::USER);
-        $user2 = $this->createUserWithRole(Role::USER);
+        $user1 = $this->createUserWithRole(Role::PENELITI);
+        $user2 = $this->createUserWithRole(Role::PENELITI);
         $proposal = Proposal::factory()->create([
             'user_id' => $user1->id,
             'status_proposal' => Proposal::STATUS_DRAFT,
@@ -229,7 +229,7 @@ class ProposalTest extends TestCase
      */
     public function test_user_can_delete_their_own_proposal()
     {
-        $user = $this->createUserWithRole(Role::USER);
+        $user = $this->createUserWithRole(Role::PENELITI);
         $proposal = Proposal::factory()->create([
             'user_id' => $user->id,
             'status_proposal' => Proposal::STATUS_DRAFT,
@@ -247,8 +247,8 @@ class ProposalTest extends TestCase
      */
     public function test_user_cannot_delete_others_proposal()
     {
-        $user1 = $this->createUserWithRole(Role::USER);
-        $user2 = $this->createUserWithRole(Role::USER);
+        $user1 = $this->createUserWithRole(Role::PENELITI);
+        $user2 = $this->createUserWithRole(Role::PENELITI);
         $proposal = Proposal::factory()->create([
             'user_id' => $user1->id,
             'status_proposal' => Proposal::STATUS_DRAFT,
@@ -275,14 +275,14 @@ class ProposalTest extends TestCase
     }
 
     /**
-     * Menguji Super Admin dapat menyetujui proposal (Validasi Administrasi).
+     * Menguji Super Admin dapat menyetujui proposal (Validasi Administrasi) yang telah disahkan kampus.
      */
     public function test_super_admin_can_approve_proposal()
     {
         $admin = $this->createUserWithRole(Role::SUPER_ADMIN);
 
         $proposal = Proposal::factory()->create([
-            'status_proposal' => Proposal::STATUS_SUBMITTED,
+            'status_proposal' => Proposal::STATUS_APPROVED_KAMPUS,
         ]);
 
         $response = $this->actingAs($admin)->post(route('admin.proposals.approve', $proposal));
@@ -296,14 +296,14 @@ class ProposalTest extends TestCase
     }
 
     /**
-     * Menguji Super Admin dapat menolak proposal dengan alasan.
+     * Menguji Super Admin dapat menolak proposal yang telah disahkan kampus dengan alasan administrasi.
      */
     public function test_super_admin_can_reject_proposal()
     {
         $admin = $this->createUserWithRole(Role::SUPER_ADMIN);
 
         $proposal = Proposal::factory()->create([
-            'status_proposal' => Proposal::STATUS_SUBMITTED,
+            'status_proposal' => Proposal::STATUS_APPROVED_KAMPUS,
         ]);
 
         $response = $this->actingAs($admin)->post(route('admin.proposals.reject', $proposal), [
@@ -315,7 +315,7 @@ class ProposalTest extends TestCase
         $this->assertDatabaseHas('proposals', [
             'id' => $proposal->id,
             'status_proposal' => Proposal::STATUS_DITOLAK,
-            'rejection_reason' => 'Format dokumen proposal tidak sesuai dengan template resmi.',
+            'catatan_administrasi' => 'Format dokumen proposal tidak sesuai dengan template resmi.',
         ]);
     }
 
@@ -326,7 +326,7 @@ class ProposalTest extends TestCase
     {
         Storage::fake('public');
 
-        $user = $this->createUserWithRole(Role::USER);
+        $user = $this->createUserWithRole(Role::PENELITI);
         $proposal = Proposal::factory()->create(['user_id' => $user->id]);
 
         $filePath = 'proposal_documents/test_doc.pdf';
