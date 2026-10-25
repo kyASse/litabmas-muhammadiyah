@@ -101,6 +101,9 @@ class ProposalController extends Controller
 
         $statusOptions = collect([
             ['value' => Proposal::STATUS_DRAFT,              'label' => 'Draft'],
+            ['value' => Proposal::STATUS_SUBMITTED_KAMPUS,   'label' => 'Menunggu Verifikasi Kampus'],
+            ['value' => Proposal::STATUS_APPROVED_KAMPUS,    'label' => 'Disetujui Kampus (Antrean Bappeda)'],
+            ['value' => Proposal::STATUS_REJECTED_KAMPUS,    'label' => 'Ditolak Kampus'],
             ['value' => Proposal::STATUS_SUBMITTED,          'label' => 'Submitted'],
             ['value' => Proposal::STATUS_ADMINISTRASI_VALID, 'label' => 'Valid Administrasi'],
             ['value' => Proposal::STATUS_LOLOS_ADMINISTRASI, 'label' => 'Lolos Administrasi'],
@@ -200,6 +203,13 @@ class ProposalController extends Controller
      */
     public function approve(Request $request, Proposal $proposal): RedirectResponse
     {
+        $user = $request->user();
+
+        // Jika user adalah Admin Kampus, delegasikan ke persetujuan internal kampus (Approved_Kampus)
+        if ($user && $user->isAdminKampus() && ! $user->isSuperAdmin()) {
+            return $this->campusApprove($request, $proposal);
+        }
+
         $this->authorize('approve', $proposal);
 
         $proposal->update([
@@ -219,6 +229,13 @@ class ProposalController extends Controller
      */
     public function reject(Request $request, Proposal $proposal): RedirectResponse
     {
+        $user = $request->user();
+
+        // Jika user adalah Admin Kampus, delegasikan ke penolakan internal kampus (Rejected_Kampus)
+        if ($user && $user->isAdminKampus() && ! $user->isSuperAdmin()) {
+            return $this->campusReject($request, $proposal);
+        }
+
         $this->authorize('reject', $proposal);
 
         $request->validate([

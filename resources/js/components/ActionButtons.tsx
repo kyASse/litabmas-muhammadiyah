@@ -3,8 +3,8 @@
  *
  * @description
  * Komponen tombol aksi terstandarisasi shadcn/ui untuk peninjauan dan tata kelola
- * proposal penelitian. Menampilkan tombol ringkas "Detail" dan menu dropdown
- * untuk aksi administratif kontekstual (Setujui, Tolak, Tunjuk/Ubah Reviewer).
+ * proposal penelitian. Membedakan wewenang Admin Kampus (campus-approve -> Approved_Kampus)
+ * dan Super Admin Bappeda (approve / verify-administration -> Lolos_Administrasi).
  */
 
 import { Button } from '@/components/ui/button';
@@ -16,8 +16,9 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTranslation } from '@/hooks/use-translation';
-import { Link, router } from '@inertiajs/react';
-import { CheckCircle, Eye, MoreHorizontal, UserCheck, UserX, XCircle } from 'lucide-react';
+import { type SharedData } from '@/types';
+import { Link, router, usePage } from '@inertiajs/react';
+import { CheckCircle, Eye, MoreHorizontal, ShieldCheck, UserCheck, UserX, XCircle } from 'lucide-react';
 import { route } from 'ziggy-js';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -54,8 +55,20 @@ export default function ActionButtons({
     disabled = false,
 }: ActionButtonsProps) {
     const { t, format } = useTranslation();
+    const { auth } = usePage<SharedData>().props;
 
-    const handleApprove = () => {
+    const isSuperAdmin = auth?.user?.role?.name === 'Super Admin' || auth?.user?.roles?.some((r) => r.name === 'Super Admin');
+    const isAdminKampus = auth?.user?.role?.name === 'Admin Kampus' || auth?.user?.roles?.some((r) => r.name === 'Admin Kampus');
+
+    // Aksi Persetujuan Internal Kampus (Admin Kampus) -> Mengubah status menjadi Approved_Kampus
+    const handleCampusApprove = () => {
+        const confirmMsg = format(t.adminProposals.confirmCampusApprove, { title: proposalTitle });
+        if (!confirm(confirmMsg)) return;
+        router.post(route('admin.proposals.campus-approve', { proposal: proposalId }));
+    };
+
+    // Aksi Validasi Administrasi Pusat (Super Admin Bappeda) -> Mengubah status menjadi Administrasi_Valid / Lolos_Administrasi
+    const handleAdminApprove = () => {
         const confirmMsg = format(t.adminProposals.confirmApprove, { title: proposalTitle });
         if (!confirm(confirmMsg)) return;
         router.post(route('admin.proposals.approve', { proposal: proposalId }));
@@ -69,7 +82,12 @@ export default function ActionButtons({
         }
     };
 
-    const hasExtraActions = status === 'Submitted' || status === 'Administrasi_Valid';
+    // Evaluasi status dan peran pengguna
+    const isSubmittedKampus = status === 'Submitted_Kampus' || (isAdminKampus && status === 'Submitted');
+    const isSubmittedBappeda = isSuperAdmin && (status === 'Submitted' || status === 'Approved_Kampus');
+    const isReviewable = isSuperAdmin && (status === 'Administrasi_Valid' || status === 'Lolos_Administrasi');
+
+    const hasExtraActions = isSubmittedKampus || isSubmittedBappeda || isReviewable;
 
     return (
         <div className="flex items-center justify-end gap-1.5">
@@ -103,13 +121,38 @@ export default function ActionButtons({
                             <span className="sr-only">{t.adminProposals.moreActions}</span>
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 shadow-lg">
-                        {status === 'Submitted' && (
+                    <DropdownMenuContent align="end" className="w-52 shadow-lg">
+                        {/* 1. Alur Admin Kampus: Persetujuan Tingkat Kampus */}
+                        {isSubmittedKampus && (
+                            <>
+                                <DropdownMenuItem
+                                    id={`btn-campus-approve-${proposalId}`}
+                                    disabled={disabled}
+                                    onClick={handleCampusApprove}
+                                    className="cursor-pointer text-emerald-700 focus:bg-emerald-50 focus:text-emerald-800 dark:text-emerald-400 dark:focus:bg-emerald-950/50"
+                                >
+                                    <ShieldCheck className="mr-2 h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                    {t.adminProposals.campusApproveBtn}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    id={`btn-campus-reject-${proposalId}`}
+                                    disabled={disabled}
+                                    onClick={onReject}
+                                    className="cursor-pointer text-rose-600 focus:bg-rose-50 focus:text-rose-700 dark:text-rose-400 dark:focus:bg-rose-950/50"
+                                >
+                                    <XCircle className="mr-2 h-4 w-4 text-rose-600 dark:text-rose-400" />
+                                    {t.adminProposals.campusRejectBtn}
+                                </DropdownMenuItem>
+                            </>
+                        )}
+
+                        {/* 2. Alur Super Admin Bappeda: Validasi Administrasi Pusat */}
+                        {!isSubmittedKampus && isSubmittedBappeda && (
                             <>
                                 <DropdownMenuItem
                                     id={`btn-approve-${proposalId}`}
                                     disabled={disabled}
-                                    onClick={handleApprove}
+                                    onClick={handleAdminApprove}
                                     className="cursor-pointer text-emerald-700 focus:bg-emerald-50 focus:text-emerald-800 dark:text-emerald-400 dark:focus:bg-emerald-950/50"
                                 >
                                     <CheckCircle className="mr-2 h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -127,7 +170,8 @@ export default function ActionButtons({
                             </>
                         )}
 
-                        {status === 'Administrasi_Valid' && (
+                        {/* 3. Alur Super Admin Bappeda: Plotting Reviewer untuk Proposal yang Lolos Administrasi */}
+                        {isReviewable && (
                             <>
                                 <DropdownMenuItem
                                     id={`btn-assign-${proposalId}`}

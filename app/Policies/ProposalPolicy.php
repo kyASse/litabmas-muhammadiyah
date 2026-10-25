@@ -87,7 +87,7 @@ class ProposalPolicy
 
         $status = strtolower($proposal->status_proposal ?? '');
 
-        return $status === 'submitted';
+        return in_array($status, ['submitted', 'submitted_kampus', 'approved_kampus', 'submitted_bappeda']);
     }
 
     /**
@@ -106,7 +106,7 @@ class ProposalPolicy
 
         $status = strtolower($proposal->status_proposal ?? '');
 
-        return $status === 'submitted';
+        return in_array($status, ['submitted', 'submitted_kampus', 'approved_kampus', 'submitted_bappeda']);
     }
 
     /**

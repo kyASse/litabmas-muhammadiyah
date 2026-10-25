@@ -20,7 +20,7 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, FileText, Search, UserCheck, UserX, X, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -91,7 +91,14 @@ interface Props {
 
 function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () => void }) {
     const { t, format } = useTranslation();
-    const { data, setData, post, processing, errors, reset } = useForm({ rejection_reason: '' });
+    const { auth } = usePage<SharedData>().props;
+    const isSuperAdmin = auth?.user?.role?.name === 'Super Admin' || auth?.user?.roles?.some((r) => r.name === 'Super Admin');
+    const isCampusReject = !isSuperAdmin || proposal.status_proposal === 'Submitted_Kampus';
+
+    const { data, setData, post, processing, errors, reset } = useForm({
+        rejection_reason: '',
+        catatan_penolakan: '',
+    });
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -100,7 +107,11 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.proposals.reject', { proposal: proposal.id }), {
+        const targetRoute = isCampusReject
+            ? route('admin.proposals.campus-reject', { proposal: proposal.id })
+            : route('admin.proposals.reject', { proposal: proposal.id });
+
+        post(targetRoute, {
             onSuccess: () => {
                 reset();
                 onClose();
@@ -116,8 +127,12 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
                         <XCircle className="h-5 w-5" />
                     </div>
                     <div>
-                        <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">{t.adminProposals.rejectModalTitle}</h2>
-                        <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{proposal.title}</p>
+                        <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                            {isCampusReject ? t.adminProposals.campusRejectModalTitle : t.adminProposals.rejectModalTitle}
+                        </h2>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">
+                            {isCampusReject ? t.adminProposals.campusRejectModalSubtitle : proposal.title}
+                        </p>
                     </div>
                     <button onClick={onClose} className="ml-auto rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-neutral-800">
                         <X className="h-4 w-4" />
@@ -133,16 +148,19 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
                             ref={textareaRef}
                             rows={4}
                             value={data.rejection_reason}
-                            onChange={(e) => setData('rejection_reason', e.target.value)}
+                            onChange={(e) => {
+                                setData('rejection_reason', e.target.value);
+                                setData('catatan_penolakan', e.target.value);
+                            }}
                             placeholder={t.adminProposals.rejectReasonPlaceholder}
                             className={`w-full resize-none rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-900 focus:ring-1 focus:ring-blue-900 focus:outline-hidden dark:bg-neutral-950 dark:text-slate-100 ${
-                                errors.rejection_reason ? 'border-rose-500' : 'border-slate-300 dark:border-neutral-800'
+                                errors.rejection_reason || errors.catatan_penolakan ? 'border-rose-500' : 'border-slate-300 dark:border-neutral-800'
                             }`}
                         />
-                        {errors.rejection_reason && (
+                        {(errors.rejection_reason || errors.catatan_penolakan) && (
                             <p className="mt-1 flex items-center gap-1 text-xs text-rose-600 dark:text-rose-400">
                                 <AlertTriangle className="h-3 w-3" />
-                                {errors.rejection_reason}
+                                {errors.rejection_reason || errors.catatan_penolakan}
                             </p>
                         )}
                         <p className="mt-1 text-xs text-slate-400">{format(t.adminProposals.charCount, { count: data.rejection_reason.length })}</p>
@@ -151,8 +169,8 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
                         <Button type="button" variant="outline" onClick={onClose} disabled={processing}>
                             {t.common.cancel}
                         </Button>
-                        <Button type="submit" variant="destructive" disabled={processing || data.rejection_reason.length < 10}>
-                            {processing ? t.common.loading : t.adminProposals.confirmRejectBtn}
+                        <Button type="submit" variant="destructive" disabled={processing || data.rejection_reason.length < 5}>
+                            {processing ? t.common.loading : (isCampusReject ? t.adminProposals.campusRejectBtn : t.adminProposals.confirmRejectBtn)}
                         </Button>
                     </div>
                 </form>

@@ -21,7 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
@@ -35,6 +35,7 @@ import {
     GraduationCap,
     Mail,
     RefreshCw,
+    ShieldCheck,
     UserCheck,
     UserX,
     X,
@@ -121,8 +122,21 @@ function StatusBadge({ status }: { status: string }) {
 
 // ─── Reject Modal ─────────────────────────────────────────────────────────────
 
-function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: number; proposalTitle: string; onClose: () => void }) {
-    const { data, setData, post, processing, errors, reset } = useForm({ rejection_reason: '' });
+function RejectModal({
+    proposalId,
+    proposalTitle,
+    isCampusReject,
+    onClose,
+}: {
+    proposalId: number;
+    proposalTitle: string;
+    isCampusReject?: boolean;
+    onClose: () => void;
+}) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        rejection_reason: '',
+        catatan_penolakan: '',
+    });
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -131,7 +145,11 @@ function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: numbe
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.proposals.reject', { proposal: proposalId }), {
+        const targetRoute = isCampusReject
+            ? route('admin.proposals.campus-reject', { proposal: proposalId })
+            : route('admin.proposals.reject', { proposal: proposalId });
+
+        post(targetRoute, {
             onSuccess: () => {
                 reset();
                 onClose();
@@ -147,9 +165,13 @@ function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: numbe
                         <XCircle className="h-5 w-5" />
                     </div>
                     <div>
-                        <h2 className="text-base font-semibold text-foreground">Tolak Proposal</h2>
+                        <h2 className="text-base font-semibold text-foreground">
+                            {isCampusReject ? 'Tolak Usulan Internal Kampus' : 'Tolak Proposal'}
+                        </h2>
                         <p className="mt-0.5 text-sm text-muted-foreground">
-                            Anda akan menolak proposal: <span className="font-medium text-foreground">{proposalTitle}</span>
+                            {isCampusReject
+                                ? 'Berikan catatan perbaikan internal agar dosen dapat merevisi usulan.'
+                                : <span>Anda akan menolak proposal: <span className="font-medium text-foreground">{proposalTitle}</span></span>}
                         </p>
                     </div>
                     <button onClick={onClose} className="ml-auto rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
@@ -166,16 +188,19 @@ function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: numbe
                             ref={textareaRef}
                             rows={4}
                             value={data.rejection_reason}
-                            onChange={(e) => setData('rejection_reason', e.target.value)}
-                            placeholder="Tuliskan alasan penolakan secara spesifik..."
+                            onChange={(e) => {
+                                setData('rejection_reason', e.target.value);
+                                setData('catatan_penolakan', e.target.value);
+                            }}
+                            placeholder="Tuliskan catatan perbaikan atau alasan penolakan secara spesifik..."
                             className={`w-full resize-none rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none ${
-                                errors.rejection_reason ? 'border-destructive' : 'border-border'
+                                errors.rejection_reason || errors.catatan_penolakan ? 'border-destructive' : 'border-border'
                             }`}
                         />
-                        {errors.rejection_reason && (
+                        {(errors.rejection_reason || errors.catatan_penolakan) && (
                             <p className="mt-1 flex items-center gap-1 text-xs text-destructive">
                                 <AlertTriangle className="h-3 w-3" />
-                                {errors.rejection_reason}
+                                {errors.rejection_reason || errors.catatan_penolakan}
                             </p>
                         )}
                         <p className="mt-1 text-xs text-muted-foreground">{data.rejection_reason.length}/500 karakter</p>
@@ -184,8 +209,8 @@ function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: numbe
                         <Button type="button" variant="outline" onClick={onClose} disabled={processing}>
                             Batal
                         </Button>
-                        <Button type="submit" variant="destructive" disabled={processing}>
-                            {processing ? 'Memproses...' : 'Konfirmasi Penolakan'}
+                        <Button type="submit" variant="destructive" disabled={processing || data.rejection_reason.length < 5}>
+                            {processing ? 'Memproses...' : (isCampusReject ? 'Tolak Kampus' : 'Konfirmasi Penolakan')}
                         </Button>
                     </div>
                 </form>
@@ -197,10 +222,17 @@ function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: numbe
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ShowProposal({ proposal, availableReviewers }: Props) {
-    const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
+    const { flash, auth } = usePage<SharedData>().props;
+    const isSuperAdmin = auth?.user?.role?.name === 'Super Admin' || auth?.user?.roles?.some((r) => r.name === 'Super Admin');
+    const isAdminKampus = auth?.user?.role?.name === 'Admin Kampus' || auth?.user?.roles?.some((r) => r.name === 'Admin Kampus');
+
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    const isSubmittedKampus = proposal.status_proposal === 'Submitted_Kampus' || (isAdminKampus && proposal.status_proposal === 'Submitted');
+    const isSubmittedBappeda = isSuperAdmin && (proposal.status_proposal === 'Submitted' || proposal.status_proposal === 'Approved_Kampus');
+    const isReviewable = isSuperAdmin && (proposal.status_proposal === 'Administrasi_Valid' || proposal.status_proposal === 'Lolos_Administrasi');
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
@@ -216,8 +248,13 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
         return () => clearTimeout(timer);
     }, [flash]);
 
-    const handleApprove = () => {
-        if (!confirm(`Setujui proposal "${proposal.title}" (Validasi Administrasi)?`)) return;
+    const handleCampusApprove = () => {
+        if (!confirm(`Setujui usulan "${proposal.title}" mewakili kampus?`)) return;
+        router.post(route('admin.proposals.campus-approve', { proposal: proposal.id }));
+    };
+
+    const handleAdminApprove = () => {
+        if (!confirm(`Setujui kelayakan administrasi proposal "${proposal.title}"?`)) return;
         router.post(route('admin.proposals.approve', { proposal: proposal.id }));
     };
 
@@ -259,7 +296,14 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
             )}
 
             {/* Reject Modal */}
-            {showRejectModal && <RejectModal proposalId={proposal.id} proposalTitle={proposal.title} onClose={() => setShowRejectModal(false)} />}
+            {showRejectModal && (
+                <RejectModal
+                    proposalId={proposal.id}
+                    proposalTitle={proposal.title}
+                    isCampusReject={isSubmittedKampus}
+                    onClose={() => setShowRejectModal(false)}
+                />
+            )}
 
             {/* Assign Modal */}
             <AssignModal
@@ -281,9 +325,24 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                     </Link>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        {proposal.status_proposal === 'Submitted' && (
+                        {/* Admin Kampus: Persetujuan Tingkat Kampus */}
+                        {isSubmittedKampus && (
                             <>
-                                <Button onClick={handleApprove} className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
+                                <Button onClick={handleCampusApprove} className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
+                                    <ShieldCheck className="h-4 w-4" />
+                                    Setujui Kampus
+                                </Button>
+                                <Button onClick={() => setShowRejectModal(true)} variant="destructive" className="gap-1.5">
+                                    <XCircle className="h-4 w-4" />
+                                    Tolak Kampus
+                                </Button>
+                            </>
+                        )}
+
+                        {/* Super Admin Bappeda: Validasi Administrasi Pusat */}
+                        {!isSubmittedKampus && isSubmittedBappeda && (
+                            <>
+                                <Button onClick={handleAdminApprove} className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
                                     <CheckCircle2 className="h-4 w-4" />
                                     Validasi Administrasi
                                 </Button>
@@ -294,7 +353,8 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                             </>
                         )}
 
-                        {proposal.status_proposal === 'Administrasi_Valid' && (
+                        {/* Super Admin Bappeda: Plotting Reviewer */}
+                        {isReviewable && (
                             <Button
                                 onClick={() => setShowAssignModal(true)}
                                 variant="outline"
