@@ -10,6 +10,7 @@ import {
     Award,
     BookType,
     Building2,
+    Calculator,
     CalendarDays,
     ClipboardList,
     Clock,
@@ -139,6 +140,11 @@ export function AppSidebar() {
         ];
     } else if (hasRole(ROLE_NAMES.ADMIN_KEUANGAN)) {
         roleNavItems = [
+            {
+                title: t.navigation.rabVerification,
+                href: '/finance/proposals',
+                icon: Calculator,
+            },
             {
                 title: t.navigation.contracts,
                 href: '/finance/contracts',

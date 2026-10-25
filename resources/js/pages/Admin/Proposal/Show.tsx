@@ -24,16 +24,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { useTranslation } from '@/hooks/use-translation';
+import { formatCurrency } from '@/lib/format';
 import {
     AlertTriangle,
     ArrowLeft,
     Building2,
     Calendar,
+    Calculator,
     CheckCircle2,
     Clock,
+    Coins,
     Download,
     FileText,
     GraduationCap,
+    Lock,
     Mail,
     RefreshCw,
     ShieldCheck,
@@ -89,6 +94,14 @@ interface ProposalDetail {
     status_proposal: string;
     rejection_reason: string | null;
     file_dokumen_proposal: string | null;
+    biaya_yang_diusulkan?: number;
+    rekomendasi_anggaran?: number | null;
+    is_administrasi_approved?: boolean | null;
+    is_rab_approved?: boolean | null;
+    catatan_administrasi?: string | null;
+    catatan_keuangan?: string | null;
+    tanggal_verifikasi_administrasi?: string | null;
+    tanggal_verifikasi_rab?: string | null;
     created_at: string;
     updated_at: string;
     user: ProposalUser | null;
@@ -115,7 +128,11 @@ function StatusBadge({ status }: { status: string }) {
     const config: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; bg: string }> = {
         Draft: { label: 'Draft', variant: 'secondary', bg: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
         Submitted: { label: 'Menunggu Review', variant: 'outline', bg: 'border-blue-500/40 bg-blue-500/10 text-blue-700 dark:text-blue-400' },
+        Submitted_Kampus: { label: 'Menunggu Kampus', variant: 'outline', bg: 'border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300' },
+        Approved_Kampus: { label: 'Disetujui Kampus', variant: 'default', bg: 'border-indigo-500/40 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300' },
         Administrasi_Valid: { label: 'Valid Administrasi', variant: 'default', bg: 'bg-emerald-600 text-white dark:bg-emerald-700' },
+        Lolos_Administrasi: { label: 'Lolos Administrasi & RAB', variant: 'default', bg: 'bg-emerald-600 text-white dark:bg-emerald-700' },
+        Ditolak_Administrasi: { label: 'Ditolak Administrasi', variant: 'destructive', bg: 'bg-red-600 text-white dark:bg-red-700' },
         Ditolak: { label: 'Ditolak', variant: 'destructive', bg: 'bg-red-600 text-white dark:bg-red-700' },
     };
     const { label, bg } = config[status] ?? { label: status, bg: 'bg-slate-200 text-slate-800' };
@@ -221,6 +238,147 @@ function RejectModal({
     );
 }
 
+// ─── Dual Verification Progress Card ─────────────────────────────────────────
+
+function DualVerificationProgressCard({ proposal }: { proposal: ProposalDetail }) {
+    const { t } = useTranslation();
+    const isDualApproved = (proposal.is_administrasi_approved === true && proposal.is_rab_approved === true) || proposal.status_proposal === 'Lolos_Administrasi';
+    const isDualRejected = proposal.is_administrasi_approved === false || proposal.is_rab_approved === false || proposal.status_proposal === 'Ditolak_Administrasi';
+
+    return (
+        <Card className="border border-border bg-card shadow-xs">
+            <CardHeader className="pb-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                        <ShieldCheck className="h-4 w-4 text-primary" />
+                        {t.dualVerificationCard.title}
+                    </CardTitle>
+                    {isDualApproved ? (
+                        <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-xs">
+                            [SIAP REVIEW]
+                        </Badge>
+                    ) : isDualRejected ? (
+                        <Badge className="bg-destructive/10 text-destructive border-destructive/30 text-xs">
+                            [DITOLAK]
+                        </Badge>
+                    ) : (
+                        <Badge variant="outline" className="text-amber-800 dark:text-amber-300 bg-amber-500/10 border-amber-500/30 text-xs">
+                            [MENUNGGU VERIFIKASI]
+                        </Badge>
+                    )}
+                </div>
+                <CardDescription className="text-xs">
+                    {t.dualVerificationCard.subtitle}
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Gate 1: Administrasi */}
+                    <div className="rounded-lg border border-border p-3.5 bg-muted/30 space-y-2">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-foreground">
+                                {t.dualVerificationCard.adminGateTitle}
+                            </span>
+                            {proposal.is_administrasi_approved === true ? (
+                                <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] font-medium gap-1">
+                                    <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                                    {t.dualVerificationCard.statusApproved}
+                                </Badge>
+                            ) : proposal.is_administrasi_approved === false ? (
+                                <Badge className="bg-destructive/10 text-destructive border-destructive/30 text-[11px] font-medium gap-1">
+                                    <XCircle className="h-3 w-3 text-destructive" />
+                                    {t.dualVerificationCard.statusRejected}
+                                </Badge>
+                            ) : (
+                                <Badge variant="outline" className="text-muted-foreground border-border text-[11px] font-medium gap-1">
+                                    <Clock className="h-3 w-3" />
+                                    {t.dualVerificationCard.statusPending}
+                                </Badge>
+                            )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                            {t.dualVerificationCard.adminGateDesc}
+                        </p>
+                        {proposal.tanggal_verifikasi_administrasi && (
+                            <div className="text-[10px] text-muted-foreground font-mono">
+                                {t.dualVerificationCard.verifiedOn.replace('{date}', proposal.tanggal_verifikasi_administrasi)}
+                            </div>
+                        )}
+                        {proposal.catatan_administrasi && (
+                            <div className="text-[11px] text-foreground/90 bg-background/60 p-2 rounded border border-border/50">
+                                <span className="font-semibold block text-[10px] text-muted-foreground uppercase">{t.dualVerificationCard.notesLabel}</span>
+                                {proposal.catatan_administrasi}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Gate 2: RAB Audit */}
+                    <div className="rounded-lg border border-border p-3.5 bg-muted/30 space-y-2">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-foreground">
+                                {t.dualVerificationCard.rabGateTitle}
+                            </span>
+                            {proposal.is_rab_approved === true ? (
+                                <Badge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 text-[11px] font-medium gap-1">
+                                    <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                                    {t.dualVerificationCard.statusApproved}
+                                </Badge>
+                            ) : proposal.is_rab_approved === false ? (
+                                <Badge className="bg-destructive/10 text-destructive border-destructive/30 text-[11px] font-medium gap-1">
+                                    <XCircle className="h-3 w-3 text-destructive" />
+                                    {t.dualVerificationCard.statusRejected}
+                                </Badge>
+                            ) : (
+                                <Badge variant="secondary" className="text-amber-800 dark:text-amber-300 bg-amber-500/10 border-amber-500/30 text-[11px] font-medium gap-1">
+                                    <Clock className="h-3 w-3 text-amber-600" />
+                                    {t.dualVerificationCard.statusPending}
+                                </Badge>
+                            )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                            {t.dualVerificationCard.rabGateDesc}
+                        </p>
+                        {proposal.biaya_yang_diusulkan && (
+                            <div className="text-[11px] font-mono text-muted-foreground">
+                                Diusulkan: <span className="font-semibold text-foreground">{formatCurrency(proposal.biaya_yang_diusulkan)}</span>
+                                {proposal.rekomendasi_anggaran && (
+                                    <span className="text-emerald-700 dark:text-emerald-400 block mt-0.5">
+                                        Rekomendasi: {formatCurrency(proposal.rekomendasi_anggaran)}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                        {proposal.tanggal_verifikasi_rab && (
+                            <div className="text-[10px] text-muted-foreground font-mono">
+                                {t.dualVerificationCard.verifiedOn.replace('{date}', proposal.tanggal_verifikasi_rab)}
+                            </div>
+                        )}
+                        {proposal.catatan_keuangan && (
+                            <div className="text-[11px] text-foreground/90 bg-background/60 p-2 rounded border border-border/50">
+                                <span className="font-semibold block text-[10px] text-muted-foreground uppercase">{t.dualVerificationCard.notesLabel}</span>
+                                {proposal.catatan_keuangan}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Status Notice Alert */}
+                {isDualApproved ? (
+                    <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                        <span>{t.dualVerificationCard.dualApprovedNotice}</span>
+                    </div>
+                ) : !isDualRejected && (
+                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                        <Clock className="h-4 w-4 shrink-0 text-amber-600" />
+                        <span>{t.dualVerificationCard.dualPendingNotice}</span>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ShowProposal({ proposal, availableReviewers, adminCriteria = [] }: Props) {
@@ -242,7 +400,8 @@ export default function ShowProposal({ proposal, availableReviewers, adminCriter
 
     const isSubmittedKampus = isAdminKampus && (proposal.status_proposal === 'Submitted_Kampus' || proposal.status_proposal === 'Submitted');
     const isSubmittedBappeda = isSuperAdmin && (proposal.status_proposal === 'Approved_Kampus' || proposal.status_proposal === 'Submitted_Bappeda');
-    const isReviewable = isSuperAdmin && (proposal.status_proposal === 'Administrasi_Valid' || proposal.status_proposal === 'Lolos_Administrasi');
+    const isDualApproved = (proposal.is_administrasi_approved === true && proposal.is_rab_approved === true) || proposal.status_proposal === 'Lolos_Administrasi';
+    const isReviewable = isSuperAdmin && isDualApproved;
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
@@ -361,9 +520,17 @@ export default function ShowProposal({ proposal, availableReviewers, adminCriter
                         {/* Super Admin Bappeda: Validasi Administrasi Pusat */}
                         {!isSubmittedKampus && isSubmittedBappeda && (
                             <>
-                                <Button onClick={() => setShowVerifyModal(true)} className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
+                                <Button
+                                    onClick={() => setShowVerifyModal(true)}
+                                    className={`gap-1.5 ${
+                                        proposal.is_administrasi_approved === true
+                                            ? 'border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950'
+                                            : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                    }`}
+                                    variant={proposal.is_administrasi_approved === true ? 'outline' : 'default'}
+                                >
                                     <CheckCircle2 className="h-4 w-4" />
-                                    Validasi Administrasi
+                                    {proposal.is_administrasi_approved === true ? 'Ubah Verifikasi Administrasi' : 'Validasi Administrasi'}
                                 </Button>
                                 <Button onClick={() => setShowRejectModal(true)} variant="destructive" className="gap-1.5">
                                     <XCircle className="h-4 w-4" />
@@ -373,7 +540,7 @@ export default function ShowProposal({ proposal, availableReviewers, adminCriter
                         )}
 
                         {/* Super Admin Bappeda: Plotting Reviewer */}
-                        {isReviewable && (
+                        {isReviewable ? (
                             <Button
                                 onClick={() => setShowAssignModal(true)}
                                 variant="outline"
@@ -395,7 +562,12 @@ export default function ShowProposal({ proposal, availableReviewers, adminCriter
                                     </>
                                 )}
                             </Button>
-                        )}
+                        ) : isSuperAdmin && proposal.is_administrasi_approved === true && !proposal.is_rab_approved && proposal.status_proposal !== 'Ditolak_Administrasi' ? (
+                            <Badge variant="outline" className="gap-1.5 border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300 px-3 py-1.5 text-xs font-medium">
+                                <Clock className="h-3.5 w-3.5 text-amber-600" />
+                                Menunggu Audit RAB Keuangan (SBM)
+                            </Badge>
+                        ) : null}
                     </div>
                 </div>
 
@@ -418,6 +590,9 @@ export default function ShowProposal({ proposal, availableReviewers, adminCriter
                         </div>
                     </CardHeader>
                 </Card>
+
+                {/* Dual Sign-Off Gatekeeper Progress Card */}
+                <DualVerificationProgressCard proposal={proposal} />
 
                 {/* Content Layout Grid */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
