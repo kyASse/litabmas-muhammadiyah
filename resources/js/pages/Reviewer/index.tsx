@@ -35,12 +35,16 @@ import { useEffect, useState, type FormEvent } from 'react';
 
 export interface MasterCriterion {
     id: number;
-    code: string;
-    question: string;
+    code?: string;
+    question?: string;
+    nama_kriteria?: string;
+    criterion?: string;
     description?: string;
-    weight: number;
-    answer_type: string;
-    requires_attachment: boolean;
+    deskripsi?: string;
+    weight?: number;
+    bobot?: number;
+    answer_type?: string;
+    requires_attachment?: boolean;
 }
 
 interface AssessmentCriteria {
@@ -68,6 +72,8 @@ interface Review {
     proposal?: Proposal | null;
     status: string;
     assessment_criteria?: AssessmentCriteria[];
+    scores?: AssessmentCriteria[];
+    komponen_penilaian?: any[];
     created_at: string;
     score?: number | null;
     total_score?: number | null;
@@ -205,24 +211,43 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
     };
 
     const initializeCriteria = (task: Review): AssessmentCriteria[] => {
-        if (task.assessment_criteria && task.assessment_criteria.length > 0) {
-            return task.assessment_criteria.map((item) => ({
+        const scores = task.scores || task.assessment_criteria;
+        if (scores && scores.length > 0) {
+            return scores.map((item) => ({
                 id: item.id,
-                criterion: item.criterion,
+                criterion: item.criterion || (item as any).kriteria || (item as any).nama_kriteria || 'Kriteria Penilaian',
                 score: Number(item.score ?? 0) > 5 ? Math.round((Number(item.score) / 100) * 5) : Number(item.score ?? 0),
-                notes: item.notes ?? '',
+                notes: item.notes ?? (item as any).komentar ?? '',
                 answer_type: item.answer_type ?? 'scale_1_5',
-                weight: item.weight ?? 25,
+                weight: item.weight ?? (item as any).bobot ?? 25,
+            }));
+        }
+        if (task.komponen_penilaian && Array.isArray(task.komponen_penilaian) && task.komponen_penilaian.length > 0) {
+            return task.komponen_penilaian.map((item: any, idx: number) => ({
+                id: idx + 1,
+                criterion: item.kriteria || item.criterion || item.nama_kriteria || 'Kriteria Penilaian',
+                score: Number(item.skor ?? item.score ?? 0) > 5 ? Math.round((Number(item.skor ?? item.score) / 100) * 5) : Number(item.skor ?? item.score ?? 0),
+                notes: item.komentar ?? item.komentar_indikator ?? item.notes ?? '',
+                answer_type: 'scale_1_5',
+                weight: Number(item.bobot ?? item.weight ?? 25),
             }));
         }
         if (masterCriteria && masterCriteria.length > 0) {
-            return masterCriteria.map((item) => ({
-                criterion: item.code ? `${item.code} - ${item.question}` : item.question,
-                score: 0,
-                notes: '',
-                answer_type: item.answer_type ?? 'scale_1_5',
-                weight: item.weight ?? 25,
-            }));
+            return masterCriteria.map((item) => {
+                const label = item.question || item.criterion || item.nama_kriteria || '';
+                const codePrefix = item.code ? `${item.code} - ` : '';
+                const criterion = label
+                    ? (item.code && !label.startsWith(item.code) ? `${codePrefix}${label}` : label)
+                    : (item.code ?? 'Kriteria Penilaian');
+
+                return {
+                    criterion,
+                    score: 0,
+                    notes: '',
+                    answer_type: item.answer_type ?? 'scale_1_5',
+                    weight: item.weight ?? item.bobot ?? 25,
+                };
+            });
         }
         return [
             { criterion: 'Rekam Jejak dan Kompetensi Tim Peneliti', score: 0, notes: '', answer_type: 'scale_1_5', weight: 20 },
@@ -757,9 +782,10 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
 
                                             <div className="space-y-3">
                                                 {criteriaInputs.map((item, idx) => {
-                                                    const parts = item.criterion.split(' - ');
+                                                    const rawCriterion = item.criterion || '';
+                                                    const parts = rawCriterion.includes(' - ') ? rawCriterion.split(' - ') : [];
                                                     const code = parts.length > 1 ? parts[0] : null;
-                                                    const titleText = parts.length > 1 ? parts.slice(1).join(' - ') : item.criterion;
+                                                    const titleText = parts.length > 1 ? parts.slice(1).join(' - ') : rawCriterion;
                                                     const itemWeight = item.weight ?? 25;
                                                     const currentScore = Number(item.score) || 0;
                                                     const weightedScore = currentScore > 0 ? ((currentScore / 5) * itemWeight).toFixed(2) : '0.00';

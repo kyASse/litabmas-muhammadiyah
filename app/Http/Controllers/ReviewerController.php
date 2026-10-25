@@ -32,7 +32,7 @@ class ReviewerController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $masterCriteria = AssessmentCriteria::orderBy('urutan')->get();
+        $masterCriteria = AssessmentCriteria::substansi()->active()->orderBy('urutan')->get();
 
         return Inertia::render('Reviewer/index', [
             'tasks' => $reviews,
@@ -51,7 +51,7 @@ class ReviewerController extends Controller
         $review = $this->findOwnReview($request, $reviewId);
         $review->load(['proposal']);
 
-        $masterCriteria = AssessmentCriteria::orderBy('urutan')->get();
+        $masterCriteria = AssessmentCriteria::substansi()->active()->orderBy('urutan')->get();
 
         return Inertia::render('Reviewer/index', [
             'tasks' => $this->reviewerReviewsQuery($request)

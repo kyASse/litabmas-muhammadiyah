@@ -74,6 +74,7 @@ class Review extends Model
         'status',
         'start_date',
         'end_date',
+        'scores',
     ];
 
     /**
@@ -183,6 +184,37 @@ class Review extends Model
     public function setTotalScoreAttribute($value): void
     {
         $this->attributes['skor_total'] = $value;
+    }
+
+    /**
+     * Get normalized scores array from komponen_penilaian JSON for frontend rubric rendering.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getScoresAttribute(): array
+    {
+        $components = $this->komponen_penilaian;
+        if (empty($components) || ! is_array($components)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($components as $idx => $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $result[] = [
+                'id' => $idx + 1,
+                'criterion' => $item['kriteria'] ?? $item['criterion'] ?? $item['nama_kriteria'] ?? '',
+                'score' => (float) ($item['skor'] ?? $item['score'] ?? 0),
+                'notes' => $item['komentar'] ?? $item['komentar_indikator'] ?? $item['catatan_kriteria'] ?? $item['notes'] ?? '',
+                'weight' => (int) ($item['bobot'] ?? $item['weight'] ?? 25),
+                'answer_type' => 'scale_1_5',
+            ];
+        }
+
+        return $result;
     }
 
     public function getFeedbackAttribute(): ?string

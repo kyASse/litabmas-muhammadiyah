@@ -410,27 +410,25 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
 
                                             {/* Reviewer Ditugaskan */}
                                             <TableCell className="align-middle py-3.5">
-                                                {proposal.status_proposal === 'Administrasi_Valid' ? (
-                                                    proposal.has_reviewer && proposal.reviewers && proposal.reviewers.length > 0 ? (
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="w-fit gap-1 border-emerald-300 bg-emerald-50 text-xs font-normal text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
-                                                            title={proposal.reviewers.map((r) => r.name).join(', ')}
-                                                        >
-                                                            <UserCheck className="h-3 w-3 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                                                            <span className="max-w-[120px] truncate">
-                                                                {proposal.reviewers.map((r) => r.name).join(', ')}
-                                                            </span>
-                                                        </Badge>
-                                                    ) : (
-                                                        <Badge
-                                                            variant="outline"
-                                                            className="w-fit gap-1 border-amber-300 bg-amber-50 text-xs font-normal text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300"
-                                                        >
-                                                            <UserX className="h-3 w-3 shrink-0 text-amber-600 dark:text-amber-400" />
-                                                            {t.adminProposals.badgeWaitingReview}
-                                                        </Badge>
-                                                    )
+                                                {proposal.has_reviewer && proposal.reviewers && proposal.reviewers.length > 0 ? (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="w-fit gap-1 border-emerald-300 bg-emerald-50 text-xs font-normal text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
+                                                        title={proposal.reviewers.map((r) => r.name).join(', ')}
+                                                    >
+                                                        <UserCheck className="h-3 w-3 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                                        <span className="max-w-[120px] truncate">
+                                                            {proposal.reviewers.map((r) => r.name).join(', ')}
+                                                        </span>
+                                                    </Badge>
+                                                ) : ['Administrasi_Valid', 'Lolos_Administrasi'].includes(proposal.status_proposal) ? (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="w-fit gap-1 border-amber-300 bg-amber-50 text-xs font-normal text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300"
+                                                    >
+                                                        <UserX className="h-3 w-3 shrink-0 text-amber-600 dark:text-amber-400" />
+                                                        {t.adminProposals.badgeWaitingReview}
+                                                    </Badge>
                                                 ) : (
                                                     <span className="text-xs text-muted-foreground">-</span>
                                                 )}
