@@ -217,4 +217,53 @@ class DualSignoffProposalVerificationTest extends TestCase
         $this->assertFalse($refreshed->isRabApproved());
         $this->assertEquals(Proposal::STATUS_DITOLAK_ADMINISTRASI, $refreshed->status_proposal);
     }
+
+    public function test_admin_keuangan_can_access_finance_proposals_index_and_show(): void
+    {
+        $adminKeuanganRole = Role::firstOrCreate(['name' => Role::ADMIN_KEUANGAN], [
+            'guard_name' => 'web',
+            'display_name' => 'Admin Keuangan',
+        ]);
+
+        $adminKeuangan = User::create([
+            'name' => 'Admin Keuangan Bappeda',
+            'email' => 'keuangan.queue@bappeda.go.id',
+            'password' => bcrypt('password'),
+            'role_id' => $adminKeuanganRole->id,
+            'is_active' => true,
+        ]);
+
+        $proposal = Proposal::create([
+            'university_id' => $this->university->id,
+            'id_pengusul' => $this->peneliti->id,
+            'id_skema_pendanaan' => $this->schema->id,
+            'judul_penelitian' => 'Kajian Akses Finance',
+            'abstrak' => 'Abstrak.',
+            'biaya_yang_diusulkan' => 25000000,
+            'status_proposal' => Proposal::STATUS_APPROVED_KAMPUS,
+        ]);
+
+        $responseIndex = $this->actingAs($adminKeuangan)->get(route('finance.proposals.index'));
+        $responseIndex->assertOk();
+
+        $responseShow = $this->actingAs($adminKeuangan)->get(route('finance.proposals.show', $proposal));
+        $responseShow->assertOk();
+
+        // Super Admin juga dapat mengakses antrean audit keuangan (global bypass)
+        $superAdminRole = Role::firstOrCreate(['name' => Role::SUPER_ADMIN], [
+            'guard_name' => 'web',
+            'display_name' => 'Super Administrator',
+        ]);
+        $superAdmin = User::create([
+            'name' => 'Super Admin Test',
+            'email' => 'superadmin.finance@bappeda.go.id',
+            'password' => bcrypt('password'),
+            'role_id' => $superAdminRole->id,
+            'is_active' => true,
+        ]);
+        $this->actingAs($superAdmin)->get(route('finance.proposals.index'))->assertOk();
+
+        // Peneliti/Dosen dilarang mengakses antrean audit keuangan (403 Forbidden)
+        $this->actingAs($this->peneliti)->get(route('finance.proposals.index'))->assertStatus(403);
+    }
 }

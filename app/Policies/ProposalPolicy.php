@@ -22,7 +22,9 @@ class ProposalPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->isAdminKampus();
+        return $user->isSuperAdmin()
+            || $user->isAdminKampus()
+            || $user->hasRole(\App\Models\Role::ADMIN_KEUANGAN);
     }
 
     /**
@@ -61,6 +63,15 @@ class ProposalPolicy
     public function view(User $user, Proposal $proposal): bool
     {
         if ($user->isSuperAdmin()) {
+            return true;
+        }
+
+        if ($user->hasRole(\App\Models\Role::ADMIN_KEUANGAN)) {
+            // Admin Keuangan berwenang melihat proposal untuk audit kelayakan RAB dan pencairan
+            if ($user->university_id && $proposal->university_id) {
+                return $user->university_id === $proposal->university_id;
+            }
+
             return true;
         }
 
