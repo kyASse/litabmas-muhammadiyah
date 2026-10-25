@@ -1,31 +1,23 @@
 /**
- * ActionButtons — Detail / Approve (Setujui) / Reject (Tolak) proposal
+ * ActionButtons — Detail / Approve (Setujui) / Reject (Tolak) / Assign Reviewer
  *
  * @description
- * Komponen tombol aksi untuk verifikasi administrasi dan peninjauan proposal penelitian.
- * Menampilkan tombol "Lihat Detail" untuk membuka rincian proposal, serta tombol
- * "Setujui" dan "Tolak" ketika status proposal adalah "Submitted".
- *
- * @props
- * - proposalId   : ID proposal
- * - proposalTitle: Judul proposal (untuk konfirmasi)
- * - status       : Status proposal saat ini
- * - onReject     : Callback yang dipanggil saat tombol Tolak diklik
- *
- * @usage
- * ```tsx
- * <ActionButtons
- *   proposalId={proposal.id}
- *   proposalTitle={proposal.title}
- *   status={proposal.status_proposal}
- *   onReject={() => setRejectTarget(proposal)}
- * />
- * ```
+ * Komponen tombol aksi terstandarisasi shadcn/ui untuk peninjauan dan tata kelola
+ * proposal penelitian. Menampilkan tombol ringkas "Detail" dan menu dropdown
+ * untuk aksi administratif kontekstual (Setujui, Tolak, Tunjuk/Ubah Reviewer).
  */
 
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useTranslation } from '@/hooks/use-translation';
 import { Link, router } from '@inertiajs/react';
-import { CheckCircle, Eye, UserCheck, UserX, XCircle } from 'lucide-react';
+import { CheckCircle, Eye, MoreHorizontal, UserCheck, UserX, XCircle } from 'lucide-react';
 import { route } from 'ziggy-js';
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -49,14 +41,6 @@ interface ActionButtonsProps {
     disabled?: boolean;
 }
 
-// ─── Status Labels ────────────────────────────────────────────────────────────
-
-const STATUS_LABELS: Record<string, string> = {
-    Administrasi_Valid: 'Valid Administrasi',
-    Ditolak: 'Sudah ditolak',
-    Draft: 'Belum disubmit',
-};
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function ActionButtons({
@@ -69,8 +53,11 @@ export default function ActionButtons({
     onUnassign,
     disabled = false,
 }: ActionButtonsProps) {
+    const { t, format } = useTranslation();
+
     const handleApprove = () => {
-        if (!confirm(`Setujui proposal "${proposalTitle}"?`)) return;
+        const confirmMsg = format(t.adminProposals.confirmApprove, { title: proposalTitle });
+        if (!confirm(confirmMsg)) return;
         router.post(route('admin.proposals.approve', { proposal: proposalId }));
     };
 
@@ -82,82 +69,93 @@ export default function ActionButtons({
         }
     };
 
+    const hasExtraActions = status === 'Submitted' || status === 'Administrasi_Valid';
+
     return (
-        <div className="flex items-center justify-end gap-2">
-            {/* Tombol Lihat Detail Proposal */}
+        <div className="flex items-center justify-end gap-1.5">
+            {/* Tombol Cepat: Lihat Detail Proposal */}
             <Link href={getDetailHref()}>
-                <Button id={`btn-detail-${proposalId}`} size="sm" variant="outline" className="gap-1.5" title="Lihat Detail Proposal">
+                <Button
+                    id={`btn-detail-${proposalId}`}
+                    size="sm"
+                    variant="outline"
+                    className="h-8 gap-1.5 px-2.5 text-xs font-medium text-slate-700 hover:bg-slate-100 hover:text-blue-900 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white"
+                    title={t.adminProposals.viewDetailsBtn}
+                >
                     <Eye className="h-3.5 w-3.5" />
-                    Detail
+                    <span>{t.adminProposals.viewDetailsBtn}</span>
                 </Button>
             </Link>
 
-            {/* Tombol Tunjuk / Ubah Reviewer (untuk status Administrasi_Valid) */}
-            {status === 'Administrasi_Valid' && (
-                <div className="flex items-center gap-1">
-                    <Button
-                        id={`btn-assign-${proposalId}`}
-                        size="sm"
-                        variant="outline"
-                        disabled={disabled}
-                        onClick={onAssign ? onAssign : () => router.get('/admin/reviewer/assign?proposal_id=' + proposalId)}
-                        className={`gap-1.5 ${
-                            hasReviewer
-                                ? 'border-green-500/40 text-green-700 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-950'
-                                : 'border-blue-500/30 text-blue-600 hover:bg-blue-50 hover:text-blue-700 dark:text-blue-400 dark:hover:bg-blue-950'
-                        }`}
-                        title={hasReviewer ? 'Ubah Reviewer' : 'Tunjuk Reviewer'}
-                    >
-                        <UserCheck className="h-3.5 w-3.5" />
-                        {hasReviewer ? 'Ubah Reviewer' : 'Tunjuk Reviewer'}
-                    </Button>
-
-                    {hasReviewer && onUnassign && (
+            {/* Dropdown Menu untuk Aksi Tambahan Administratif */}
+            {hasExtraActions && (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
                         <Button
-                            id={`btn-unassign-${proposalId}`}
+                            id={`btn-menu-${proposalId}`}
+                            variant="outline"
                             size="sm"
-                            variant="ghost"
                             disabled={disabled}
-                            onClick={onUnassign}
-                            className="h-8 w-8 p-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                            title="Hapus Penunjukan Reviewer"
+                            className="h-8 w-8 p-0 text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:border-neutral-800 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white"
+                            title={t.adminProposals.moreActions}
                         >
-                            <UserX className="h-4 w-4" />
+                            <MoreHorizontal className="h-4 w-4" />
+                            <span className="sr-only">{t.adminProposals.moreActions}</span>
                         </Button>
-                    )}
-                </div>
-            )}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 shadow-lg">
+                        {status === 'Submitted' && (
+                            <>
+                                <DropdownMenuItem
+                                    id={`btn-approve-${proposalId}`}
+                                    disabled={disabled}
+                                    onClick={handleApprove}
+                                    className="cursor-pointer text-emerald-700 focus:bg-emerald-50 focus:text-emerald-800 dark:text-emerald-400 dark:focus:bg-emerald-950/50"
+                                >
+                                    <CheckCircle className="mr-2 h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                    {t.adminProposals.approveBtn}
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    id={`btn-reject-${proposalId}`}
+                                    disabled={disabled}
+                                    onClick={onReject}
+                                    className="cursor-pointer text-rose-600 focus:bg-rose-50 focus:text-rose-700 dark:text-rose-400 dark:focus:bg-rose-950/50"
+                                >
+                                    <XCircle className="mr-2 h-4 w-4 text-rose-600 dark:text-rose-400" />
+                                    {t.adminProposals.rejectBtn}
+                                </DropdownMenuItem>
+                            </>
+                        )}
 
-            {/* Jika status Submitted, tampilkan tombol Setujui (Approve) & Tolak (Reject) */}
-            {status === 'Submitted' ? (
-                <>
-                    {/* Tombol Setujui (Approve) */}
-                    <Button
-                        id={`btn-approve-${proposalId}`}
-                        size="sm"
-                        disabled={disabled}
-                        onClick={handleApprove}
-                        className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-50"
-                    >
-                        <CheckCircle className="h-3.5 w-3.5" />
-                        Setujui
-                    </Button>
-
-                    {/* Tombol Tolak (Reject) — membuka modal penolakan */}
-                    <Button
-                        id={`btn-reject-${proposalId}`}
-                        size="sm"
-                        variant="destructive"
-                        disabled={disabled}
-                        onClick={onReject}
-                        className="gap-1.5"
-                    >
-                        <XCircle className="h-3.5 w-3.5" />
-                        Tolak
-                    </Button>
-                </>
-            ) : (
-                status !== 'Administrasi_Valid' && <span className="ml-1 text-xs text-muted-foreground">{STATUS_LABELS[status] ?? '—'}</span>
+                        {status === 'Administrasi_Valid' && (
+                            <>
+                                <DropdownMenuItem
+                                    id={`btn-assign-${proposalId}`}
+                                    disabled={disabled}
+                                    onClick={onAssign ? onAssign : () => router.get('/admin/reviewer/assign?proposal_id=' + proposalId)}
+                                    className="cursor-pointer text-blue-700 focus:bg-blue-50 focus:text-blue-800 dark:text-blue-400 dark:focus:bg-blue-950/50"
+                                >
+                                    <UserCheck className="mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                    {hasReviewer ? t.adminProposals.reassignReviewerBtn : t.adminProposals.assignReviewerBtn}
+                                </DropdownMenuItem>
+                                {hasReviewer && onUnassign && (
+                                    <>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            id={`btn-unassign-${proposalId}`}
+                                            disabled={disabled}
+                                            onClick={onUnassign}
+                                            className="cursor-pointer text-rose-600 focus:bg-rose-50 focus:text-rose-700 dark:text-rose-400 dark:focus:bg-rose-950/50"
+                                        >
+                                            <UserX className="mr-2 h-4 w-4 text-rose-500 dark:text-rose-400" />
+                                            {t.adminProposals.unassignBtn}
+                                        </DropdownMenuItem>
+                                    </>
+                                )}
+                            </>
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             )}
         </div>
     );

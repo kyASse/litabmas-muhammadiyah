@@ -3,7 +3,7 @@
  *
  * @description
  * Proposal monitoring, administrative validation, reviewer assignment,
- * and lifecycle management for LPPM / Admin Kampus.
+ * and lifecycle management for Super Admin / Admin Kampus.
  *
  * @filepath resources/js/pages/Admin/Proposal/Index.tsx
  */
@@ -14,7 +14,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
 import PageHeader from '@/components/ui/PageHeader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -22,7 +21,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { AlertTriangle, CheckCircle, ChevronLeft, ChevronRight, FileText, Search, UserCheck, UserX, X, XCircle } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
@@ -111,22 +110,22 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs">
-            <div className="relative w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-xl">
+            <div className="relative w-full max-w-md rounded-xl border border-slate-200 bg-white p-6 shadow-xl dark:border-neutral-800 dark:bg-neutral-900">
                 <div className="mb-4 flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400">
                         <XCircle className="h-5 w-5" />
                     </div>
                     <div>
-                        <h2 className="text-base font-bold text-slate-900">{t.adminProposals.rejectModalTitle}</h2>
+                        <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">{t.adminProposals.rejectModalTitle}</h2>
                         <p className="mt-0.5 line-clamp-2 text-xs text-slate-500">{proposal.title}</p>
                     </div>
-                    <button onClick={onClose} className="ml-auto rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700">
+                    <button onClick={onClose} className="ml-auto rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-neutral-800">
                         <X className="h-4 w-4" />
                     </button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="rejection_reason" className="mb-1.5 block text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                        <label htmlFor="rejection_reason" className="mb-1.5 block text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                             {t.adminProposals.rejectReasonLabel} <span className="text-rose-500">*</span>
                         </label>
                         <textarea
@@ -136,12 +135,12 @@ function RejectModal({ proposal, onClose }: { proposal: Proposal; onClose: () =>
                             value={data.rejection_reason}
                             onChange={(e) => setData('rejection_reason', e.target.value)}
                             placeholder={t.adminProposals.rejectReasonPlaceholder}
-                            className={`w-full resize-none rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-900 focus:ring-1 focus:ring-blue-900 focus:outline-hidden ${
-                                errors.rejection_reason ? 'border-rose-500' : 'border-slate-300'
+                            className={`w-full resize-none rounded-lg border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-900 focus:ring-1 focus:ring-blue-900 focus:outline-hidden dark:bg-neutral-950 dark:text-slate-100 ${
+                                errors.rejection_reason ? 'border-rose-500' : 'border-slate-300 dark:border-neutral-800'
                             }`}
                         />
                         {errors.rejection_reason && (
-                            <p className="mt-1 flex items-center gap-1 text-xs text-rose-600">
+                            <p className="mt-1 flex items-center gap-1 text-xs text-rose-600 dark:text-rose-400">
                                 <AlertTriangle className="h-3 w-3" />
                                 {errors.rejection_reason}
                             </p>
@@ -225,8 +224,8 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                 <div
                     className={`fixed top-4 right-4 z-50 flex items-center gap-2 rounded-lg border px-4 py-3 text-sm shadow-lg ${
                         flashMessage.type === 'success'
-                            ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-                            : 'border-rose-200 bg-rose-50 text-rose-800'
+                            ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                            : 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-300'
                     }`}
                 >
                     {flashMessage.type === 'success' ? (
@@ -250,36 +249,42 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
             />
 
             <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
-                {/* Header */}
+                {/* Header: Bersih tanpa duplikasi breadcrumb dan language switcher */}
                 <PageHeader
                     title={t.adminProposals.pageTitle}
                     subtitle={t.adminProposals.pageSubtitle}
-                    isEditorialSerif={false}
-                    breadcrumbs={breadcrumbs}
-                    actions={<LanguageSwitcher variant="compact" />}
                 />
 
                 {/* Filters */}
-                <Card className="border-slate-200 bg-white shadow-xs">
+                <Card className="border-sidebar-border/60 bg-white/70 shadow-sm backdrop-blur-md dark:border-sidebar-border dark:bg-neutral-950/70">
                     <CardContent className="p-4">
-                        <form onSubmit={handleSearch} className="flex flex-wrap items-end gap-3">
-                            <div className="flex min-w-[240px] flex-1 items-center gap-2 rounded-lg border border-slate-300 bg-slate-50/50 px-3 py-2">
-                                <Search className="h-4 w-4 shrink-0 text-slate-400" />
+                        <form onSubmit={handleSearch} className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            {/* Search input */}
+                            <div className="relative flex-1 min-w-[240px]">
+                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     id="search-proposals"
                                     type="text"
                                     placeholder={t.adminProposals.searchPlaceholder}
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="h-auto border-0 bg-transparent p-0 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:ring-0"
+                                    className="h-10 border-sidebar-border bg-white pl-9 text-sm dark:bg-neutral-900"
                                 />
                             </div>
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                <SelectTrigger id="filter-status" className="w-[200px] border-slate-300 bg-white text-sm">
+
+                            {/* Status filter */}
+                            <Select
+                                value={statusFilter}
+                                onValueChange={(val) => {
+                                    setStatusFilter(val);
+                                    router.get(route('admin.proposals.index'), { search, status: val }, { preserveState: true });
+                                }}
+                            >
+                                <SelectTrigger id="filter-status" className="h-10 w-full sm:w-[200px] border-sidebar-border bg-white text-sm dark:bg-neutral-900">
                                     <SelectValue placeholder={t.adminProposals.allStatuses} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">{t.adminProposals.allStatuses}</SelectItem>
+                                    <SelectItem value="all">{t.adminProposals.allStatuses}</SelectItem>
                                     {statusOptions.map((opt) => (
                                         <SelectItem key={opt.value} value={opt.value}>
                                             {opt.label}
@@ -287,7 +292,9 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <Button type="submit" id="btn-search-proposals" className="bg-blue-900 text-white hover:bg-blue-800">
+
+                            {/* Buttons */}
+                            <Button type="submit" id="btn-search-proposals" className="h-10 bg-blue-900 text-white hover:bg-blue-800 px-5 font-semibold">
                                 {t.common.filter}
                             </Button>
                             {hasActiveFilters && (
@@ -295,7 +302,7 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                     type="button"
                                     variant="ghost"
                                     onClick={handleClearFilters}
-                                    className="shrink-0 text-slate-500 hover:text-slate-800"
+                                    className="h-10 text-muted-foreground hover:text-foreground"
                                 >
                                     <X className="mr-1.5 h-3.5 w-3.5" />
                                     {t.common.reset}
@@ -305,31 +312,31 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                     </CardContent>
                 </Card>
 
-                {/* Table */}
-                <Card className="border-slate-200 bg-white shadow-xs">
-                    <CardContent className="p-0">
-                        <Table>
+                {/* Table Container */}
+                <div className="overflow-hidden rounded-xl border border-sidebar-border/60 bg-white shadow-sm dark:border-sidebar-border dark:bg-neutral-950">
+                    <div className="overflow-x-auto">
+                        <Table className="w-full">
                             <TableHeader>
-                                <TableRow className="border-b border-slate-200 bg-slate-100 hover:bg-slate-100">
-                                    <TableHead className="w-[30%] text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                <TableRow className="border-b border-sidebar-border/60 bg-neutral-50/50 hover:bg-neutral-50/50 dark:bg-neutral-900/30">
+                                    <TableHead className="w-[28%] min-w-[220px] text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminProposals.tableColTitle}
                                     </TableHead>
-                                    <TableHead className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    <TableHead className="w-[18%] min-w-[160px] text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminProposals.tableColAuthor}
                                     </TableHead>
-                                    <TableHead className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
-                                        {t.adminSchema.pageTitle}
+                                    <TableHead className="w-[18%] min-w-[160px] text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                        {t.adminProposals.tableColSchema}
                                     </TableHead>
-                                    <TableHead className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    <TableHead className="w-[12%] min-w-[120px] text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminProposals.tableColStatus}
                                     </TableHead>
-                                    <TableHead className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    <TableHead className="w-[12%] min-w-[130px] text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminProposals.tableColReviewers}
                                     </TableHead>
-                                    <TableHead className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    <TableHead className="w-[8%] min-w-[85px] text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminProposals.tableColDate}
                                     </TableHead>
-                                    <TableHead className="text-right text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    <TableHead className="w-[110px] min-w-[110px] text-right text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminProposals.tableColActions}
                                     </TableHead>
                                 </TableRow>
@@ -337,66 +344,91 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                             <TableBody>
                                 {proposals.data.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="py-12 text-center text-slate-500">
-                                            <FileText className="mx-auto mb-2 h-8 w-8 text-slate-300" />
+                                        <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
+                                            <FileText className="mx-auto mb-2 h-8 w-8 text-neutral-300 dark:text-neutral-700" />
                                             <p className="text-sm font-medium">{t.adminProposals.emptyTitle}</p>
-                                            <p className="mt-1 text-xs text-slate-400">{t.adminProposals.emptySubtitle}</p>
+                                            <p className="mt-1 text-xs text-muted-foreground">{t.adminProposals.emptySubtitle}</p>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     proposals.data.map((proposal) => (
-                                        <TableRow key={proposal.id} className="border-b border-slate-100 hover:bg-slate-50/70">
-                                            <TableCell>
-                                                <p className="line-clamp-2 font-medium text-slate-900">{proposal.title}</p>
+                                        <TableRow key={proposal.id} className="border-b border-sidebar-border/40 hover:bg-neutral-50/50 dark:hover:bg-neutral-900/40">
+                                            {/* Judul Proposal */}
+                                            <TableCell className="align-middle py-3.5">
+                                                <Link
+                                                    href={route('admin.proposals.show', { proposal: proposal.id })}
+                                                    className="line-clamp-2 text-sm font-semibold text-slate-900 hover:text-blue-900 dark:text-slate-100 dark:hover:text-blue-400"
+                                                    title={proposal.title}
+                                                >
+                                                    {proposal.title}
+                                                </Link>
                                             </TableCell>
-                                            <TableCell>
+
+                                            {/* Pengusul Utama */}
+                                            <TableCell className="align-middle py-3.5">
                                                 {proposal.user ? (
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-900">{proposal.user.name}</p>
-                                                        <p className="text-xs text-slate-500">{proposal.user.email}</p>
+                                                    <div className="space-y-0.5">
+                                                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{proposal.user.name}</p>
+                                                        <p className="text-xs text-muted-foreground truncate max-w-[190px]" title={proposal.user.email}>
+                                                            {proposal.user.email}
+                                                        </p>
                                                     </div>
                                                 ) : (
-                                                    <span className="text-sm text-slate-400">-</span>
+                                                    <span className="text-sm text-muted-foreground">-</span>
                                                 )}
                                             </TableCell>
-                                            <TableCell>
-                                                <span className="text-sm text-slate-700">
-                                                    {proposal.research_schema?.name ?? <span className="text-slate-400">-</span>}
+
+                                            {/* Skema Penelitian */}
+                                            <TableCell className="align-middle py-3.5">
+                                                <span className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
+                                                    {proposal.research_schema?.name ?? <span className="text-muted-foreground">-</span>}
                                                 </span>
                                             </TableCell>
-                                            <TableCell>
+
+                                            {/* Status Proposal */}
+                                            <TableCell className="align-middle py-3.5">
                                                 <StatusBadge status={proposal.status_proposal} />
                                             </TableCell>
-                                            <TableCell>
+
+                                            {/* Reviewer Ditugaskan */}
+                                            <TableCell className="align-middle py-3.5">
                                                 {proposal.status_proposal === 'Administrasi_Valid' ? (
                                                     proposal.has_reviewer && proposal.reviewers && proposal.reviewers.length > 0 ? (
                                                         <Badge
                                                             variant="outline"
-                                                            className="w-fit gap-1 border-emerald-300 bg-emerald-50 font-normal text-emerald-800"
+                                                            className="w-fit gap-1 border-emerald-300 bg-emerald-50 text-xs font-normal text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-300"
                                                             title={proposal.reviewers.map((r) => r.name).join(', ')}
                                                         >
-                                                            <UserCheck className="h-3 w-3 shrink-0 text-emerald-600" />
-                                                            <span className="max-w-[130px] truncate">
+                                                            <UserCheck className="h-3 w-3 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                                                            <span className="max-w-[120px] truncate">
                                                                 {proposal.reviewers.map((r) => r.name).join(', ')}
                                                             </span>
                                                         </Badge>
                                                     ) : (
                                                         <Badge
                                                             variant="outline"
-                                                            className="w-fit gap-1 border-amber-300 bg-amber-50 font-normal text-amber-800"
+                                                            className="w-fit gap-1 border-amber-300 bg-amber-50 text-xs font-normal text-amber-800 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-300"
                                                         >
-                                                            <UserX className="h-3 w-3 shrink-0 text-amber-600" />
+                                                            <UserX className="h-3 w-3 shrink-0 text-amber-600 dark:text-amber-400" />
                                                             {t.adminProposals.badgeWaitingReview}
                                                         </Badge>
                                                     )
                                                 ) : (
-                                                    <span className="text-xs text-slate-400">-</span>
+                                                    <span className="text-xs text-muted-foreground">-</span>
                                                 )}
                                             </TableCell>
-                                            <TableCell className="text-sm text-slate-500">
-                                                {new Date(proposal.created_at).toLocaleDateString()}
+
+                                            {/* Tanggal Pengajuan */}
+                                            <TableCell className="align-middle py-3.5 text-xs text-muted-foreground tabular-nums">
+                                                {new Date(proposal.created_at).toLocaleDateString('id-ID', {
+                                                    day: '2-digit',
+                                                    month: '2-digit',
+                                                    year: 'numeric',
+                                                })}
                                             </TableCell>
-                                            <TableCell className="text-right">
+
+                                            {/* Aksi */}
+                                            <TableCell className="align-middle py-3.5 text-right">
                                                 <ActionButtons
                                                     proposalId={proposal.id}
                                                     proposalTitle={proposal.title}
@@ -412,44 +444,48 @@ export default function ProposalIndex({ proposals, filters, statusOptions }: Pro
                                 )}
                             </TableBody>
                         </Table>
-                    </CardContent>
-                </Card>
-
-                {/* Pagination */}
-                {proposals.last_page > 1 && (
-                    <div className="flex items-center justify-between">
-                        <p className="text-xs text-slate-500">
-                            {(proposals.current_page - 1) * proposals.per_page + 1}-
-                            {Math.min(proposals.current_page * proposals.per_page, proposals.total)} of {proposals.total}
-                        </p>
-                        <div className="flex items-center gap-1">
-                            {proposals.links.map((link, idx) => {
-                                const isFirst = idx === 0;
-                                const isLast = idx === proposals.links.length - 1;
-                                return (
-                                    <button
-                                        key={idx}
-                                        disabled={!link.url}
-                                        onClick={() => link.url && router.get(link.url)}
-                                        className={`flex h-8 min-w-[2rem] items-center justify-center rounded-md px-2 text-sm transition-colors ${
-                                            link.active
-                                                ? 'bg-blue-900 text-white'
-                                                : 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
-                                        } disabled:pointer-events-none disabled:opacity-40`}
-                                    >
-                                        {isFirst ? (
-                                            <ChevronLeft className="h-4 w-4" />
-                                        ) : isLast ? (
-                                            <ChevronRight className="h-4 w-4" />
-                                        ) : (
-                                            <span dangerouslySetInnerHTML={{ __html: link.label }} />
-                                        )}
-                                    </button>
-                                );
-                            })}
-                        </div>
                     </div>
-                )}
+
+                    {/* Pagination */}
+                    {proposals.last_page > 1 && (
+                        <div className="border-t border-sidebar-border/60 px-6 py-4 dark:border-sidebar-border">
+                            <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+                                <p className="text-center text-sm text-muted-foreground md:text-left">
+                                    Menampilkan {(proposals.current_page - 1) * proposals.per_page + 1} – {Math.min(proposals.current_page * proposals.per_page, proposals.total)} dari {proposals.total} proposal
+                                </p>
+                                <div className="flex items-center gap-1.5">
+                                    {proposals.links.map((link, idx) => {
+                                        if (link.url === null) return null;
+                                        const isFirst = idx === 0;
+                                        const isLast = idx === proposals.links.length - 1;
+
+                                        return (
+                                            <Link key={idx} href={link.url} preserveState preserveScroll>
+                                                <Button
+                                                    variant={link.active ? 'default' : 'outline'}
+                                                    size="sm"
+                                                    className={
+                                                        link.active
+                                                            ? 'bg-blue-900 hover:bg-blue-800 text-white'
+                                                            : 'text-muted-foreground'
+                                                    }
+                                                >
+                                                    {isFirst ? (
+                                                        <ChevronLeft className="h-4 w-4" />
+                                                    ) : isLast ? (
+                                                        <ChevronRight className="h-4 w-4" />
+                                                    ) : (
+                                                        <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                    )}
+                                                </Button>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </AppLayout>
     );
