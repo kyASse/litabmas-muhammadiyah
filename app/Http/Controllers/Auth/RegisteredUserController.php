@@ -36,7 +36,7 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Handle an incoming registration request.
+     * Handle an incoming registration request for Researcher (Peneliti).
      *
      * @throws ValidationException
      */
@@ -47,24 +47,19 @@ class RegisteredUserController extends Controller
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'university_id' => 'required|exists:universities,id',
-            'role_type' => 'required|in:lppm,user',
-            'position' => 'nullable|string|max:100',
-            'phone' => 'nullable|string|max:20',
+            'nidn' => 'nullable|string|max:50',
+            'faculty' => 'nullable|string|max:150',
+            'study_program' => 'nullable|string|max:150',
+            'phone' => 'nullable|string|max:50',
         ]);
 
-        // Determine role_id based on selection
-        if ($request->role_type === 'lppm') {
-            // LPPM registration - role will be assigned by Dikti after approval
-            $roleId = null;
-        } else {
-            // Regular User registration
-            $roleId = DB::table('roles')->where('name', Role::USER)->value('id');
+        // Automatically assign Peneliti role for public researcher registration
+        $roleId = DB::table('roles')->where('name', Role::PENELITI)->value('id');
 
-            if (! $roleId) {
-                return back()->withErrors([
-                    'role_type' => 'Role configuration error. Please contact administrator.',
-                ]);
-            }
+        if (! $roleId) {
+            return back()->withErrors([
+                'email' => 'Role configuration error: Role Peneliti not found. Please contact administrator.',
+            ]);
         }
 
         $user = User::create([
@@ -73,40 +68,31 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
             'role_id' => $roleId,
             'university_id' => $request->university_id,
-            'position' => $request->position,
+            'nidn' => $request->nidn,
+            'faculty' => $request->faculty,
+            'study_program' => $request->study_program,
             'phone' => $request->phone,
             'is_active' => false, // Will be activated after approval
         ]);
 
         event(new Registered($user));
 
-        // Send notifications based on role type
-        if ($request->role_type === 'lppm') {
-            // Notify Dikti (Super Admin) for LPPM approval
-            $diktiAdmins = User::whereHas('role', function ($q) {
-                $q->where('name', Role::SUPER_ADMIN);
-            })->get();
+        // Notify LPPM admins from the same university for Researcher approval
+        $lppmAdmins = User::where('university_id', $request->university_id)
+            ->whereHas('role', function ($q) {
+                $q->where('name', Role::ADMIN_KAMPUS);
+            })
+            ->where('is_active', true)
+            ->get();
 
-            foreach ($diktiAdmins as $admin) {
-                // TODO: Send notification - NewLPPMRegistrationNotification
-                // $admin->notify(new NewLPPMRegistrationNotification($user));
-            }
-        } else {
-            // Notify LPPM admins from the same university for User approval
-            $lppmAdmins = User::where('university_id', $request->university_id)
-                ->whereHas('role', function ($q) {
-                    $q->where('name', Role::ADMIN_KAMPUS);
-                })
-                ->where('is_active', true)
-                ->get();
-
-            foreach ($lppmAdmins as $admin) {
-                // TODO: Send notification - NewUserRegistrationNotification
-                // $admin->notify(new NewUserRegistrationNotification($user));
-            }
+        foreach ($lppmAdmins as $admin) {
+            // TODO: Send notification - NewResearcherRegistrationNotification
         }
 
         // Don't auto-login - user must wait for approval
-        return redirect()->route('login')->with('status', 'Pendaftaran berhasil! Akun Anda menunggu persetujuan dari admin. Anda akan menerima email setelah akun disetujui.');
+        return redirect()->route('login')->with(
+            'status',
+            'Pendaftaran berhasil! Akun Peneliti Anda sedang menunggu verifikasi dan persetujuan dari Admin LPPM kampus Anda.'
+        );
     }
 }

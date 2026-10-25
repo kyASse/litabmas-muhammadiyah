@@ -35,10 +35,34 @@ abstract class TestCase extends BaseTestCase
         );
 
         Role::firstOrCreate(
+            ['name' => Role::PENELITI],
+            [
+                'display_name' => 'Peneliti',
+                'description' => 'Dosen / Peneliti Pengusul',
+            ]
+        );
+
+        Role::firstOrCreate(
+            ['name' => Role::REVIEWER],
+            [
+                'display_name' => 'Reviewer',
+                'description' => 'Reviewer Substansi Riset',
+            ]
+        );
+
+        Role::firstOrCreate(
+            ['name' => Role::ADMIN_KEUANGAN],
+            [
+                'display_name' => 'Admin Keuangan',
+                'description' => 'Administrator Keuangan Bappeda',
+            ]
+        );
+
+        Role::firstOrCreate(
             ['name' => Role::USER],
             [
-                'display_name' => 'Pengelola Jurnal',
-                'description' => 'Journal Manager',
+                'display_name' => 'User',
+                'description' => 'Generic User / Legacy Compatibility',
             ]
         );
     }

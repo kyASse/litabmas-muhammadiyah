@@ -56,7 +56,7 @@ class LoginRequest extends FormRequest
             Auth::logout();
 
             throw ValidationException::withMessages([
-                'email' => 'Your account has been deactivated. Please contact the administrator.',
+                'email' => 'Your account is pending verification or has been deactivated. Please contact your campus LPPM or Bappeda administrator.',
             ]);
         }
 
