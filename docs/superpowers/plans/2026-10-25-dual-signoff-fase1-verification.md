@@ -35,12 +35,12 @@
   * `isDualApproved(): bool`
   * `evaluateDualSignoffStatus(): string`
 
-- [ ] **Step 1: Tulis tes gagal untuk evaluasi status dual sign-off proposal**
-- [ ] **Step 2: Buat migrasi inkremental kolom dual sign-off pada tabel proposals**
-- [ ] **Step 3: Jalankan migrasi basis data pada runtime MySQL dan environment pengujian**
-- [ ] **Step 4: Tambahkan atribut fillable, casts, dan helper methods pada App\Models\Proposal**
-- [ ] **Step 5: Jalankan pengujian unit/feature hingga lolos**
-- [ ] **Step 6: Commit perubahan dengan pesan: `feat(database): add dual sign-off columns and evaluation helpers to proposals table`**
+- [x] **Step 1: Tulis tes gagal untuk evaluasi status dual sign-off proposal**
+- [x] **Step 2: Buat migrasi inkremental kolom dual sign-off pada tabel proposals**
+- [x] **Step 3: Jalankan migrasi basis data pada runtime MySQL dan environment pengujian**
+- [x] **Step 4: Tambahkan atribut fillable, casts, dan helper methods pada App\Models\Proposal**
+- [x] **Step 5: Jalankan pengujian unit/feature hingga lolos**
+- [x] **Step 6: Commit perubahan dengan pesan: `feat(database): add dual sign-off columns and evaluation helpers to proposals table`**
 
 ---
 
@@ -61,13 +61,13 @@
   * `POST /finance/proposals/{proposal}/verify-rab`: Admin Keuangan memvalidasi RAB. Menandai `is_rab_approved = true/false`, `catatan_keuangan`, dan `rekomendasi_anggaran`. Jika `is_administrasi_approved === true`, status menjadi `Lolos_Administrasi`.
   * Kebijakan otorisasi: Role `Admin Keuangan` berhak melakukan audit RAB usulan; Super Admin memiliki hak bypass.
 
-- [ ] **Step 1: Tulis tes fitur untuk verifikasi administrasi dan audit RAB bertingkat**
-- [ ] **Step 2: Perbarui method verifyAdministration pada ProposalController agar memeriksa kelengkapan persetujuan ganda**
-- [ ] **Step 3: Buat FinanceProposalController dengan method index, show, dan verifyRab**
-- [ ] **Step 4: Daftarkan rute finance/proposals pada routes/web.php di bawah middleware role Admin Keuangan**
-- [ ] **Step 5: Perbarui ProposalPolicy untuk mengizinkan otorisasi verifyRab bagi Admin Keuangan**
-- [ ] **Step 6: Jalankan pengujian otomatis hingga seluruh asersi lolos**
-- [ ] **Step 7: Commit perubahan dengan pesan: `feat(finance): implement dual sign-off verification controllers and routes for rab audit`**
+- [x] **Step 1: Tulis tes fitur untuk verifikasi administrasi dan audit RAB bertingkat**
+- [x] **Step 2: Perbarui method verifyAdministration pada ProposalController agar memeriksa kelengkapan persetujuan ganda**
+- [x] **Step 3: Buat FinanceProposalController dengan method index, show, dan verifyRab**
+- [x] **Step 4: Daftarkan rute finance/proposals pada routes/web.php di bawah middleware role Admin Keuangan**
+- [x] **Step 5: Perbarui ProposalPolicy untuk mengizinkan otorisasi verifyRab bagi Admin Keuangan**
+- [x] **Step 6: Jalankan pengujian otomatis hingga seluruh asersi lolos**
+- [x] **Step 7: Commit perubahan dengan pesan: `feat(finance): implement dual sign-off verification controllers and routes for rab audit`**
 
 ---
 
@@ -84,12 +84,12 @@
 - Consumes: Props proposal list, endpoint `finance.proposals.verify-rab`.
 - Produces: Halaman antrean audit RAB Admin Keuangan (`/finance/proposals`), modal interaktif telaah RAB sesuai standar SBM Kota Yogyakarta, dan pendaftaran menu sidebar.
 
-- [ ] **Step 1: Daftarkan kunci kamus bahasa internasionalisasi pada en.ts dan id.ts**
-- [ ] **Step 2: Buat komponen RabVerificationModal berbasis shadcn/ui dan UI/UX Pro Max**
-- [ ] **Step 3: Buat halaman antarmuka Finance/Proposal/Index.tsx untuk antrean audit RAB usulan**
-- [ ] **Step 4: Tambahkan item menu "Verifikasi RAB Usulan" pada sidebar Admin Keuangan di app-sidebar.tsx**
-- [ ] **Step 5: Verifikasi kompilasi TypeScript (npx tsc --noEmit)**
-- [ ] **Step 6: Commit perubahan dengan pesan: `feat(ui-finance): build rab verification modal and proposals audit queue for finance admin`**
+- [x] **Step 1: Daftarkan kunci kamus bahasa internasionalisasi pada en.ts dan id.ts**
+- [x] **Step 2: Buat komponen RabVerificationModal berbasis shadcn/ui dan UI/UX Pro Max**
+- [x] **Step 3: Buat halaman antarmuka Finance/Proposal/Index.tsx untuk antrean audit RAB usulan**
+- [x] **Step 4: Tambahkan item menu "Verifikasi RAB Usulan" pada sidebar Admin Keuangan di app-sidebar.tsx**
+- [x] **Step 5: Verifikasi kompilasi TypeScript (npx tsc --noEmit)**
+- [x] **Step 6: Commit perubahan dengan pesan: `feat(ui-finance): build rab verification modal and proposals audit queue for finance admin`**
 
 ---
 
@@ -104,11 +104,11 @@
 - Consumes: Atribut proposal (`is_administrasi_approved`, `is_rab_approved`, `catatan_administrasi`, `catatan_keuangan`).
 - Produces: Komponen kartu ringkasan progres verifikasi Fase 1 bertingkat (Status Checklist Administrasi + Status Audit RAB Keuangan) di halaman detail proposal.
 
-- [ ] **Step 1: Tambahkan kunci status progres dual sign-off pada kamus bahasa en.ts dan id.ts**
-- [ ] **Step 2: Tampilkan DualVerificationProgressCard pada Show.tsx yang memperlihatkan status verifikasi dari kedua pihak**
-- [ ] **Step 3: Pastikan tombol "Tunjuk Reviewer" hanya aktif jika isDualApproved bernilai true**
-- [ ] **Step 4: Jalankan kompilasi TypeScript dan build Vite**
-- [ ] **Step 5: Commit perubahan dengan pesan: `feat(ui-admin): display dual sign-off progress card on proposal show view`**
+- [x] **Step 1: Tambahkan kunci status progres dual sign-off pada kamus bahasa en.ts dan id.ts**
+- [x] **Step 2: Tampilkan DualVerificationProgressCard pada Show.tsx yang memperlihatkan status verifikasi dari kedua pihak**
+- [x] **Step 3: Pastikan tombol "Tunjuk Reviewer" hanya aktif jika isDualApproved bernilai true**
+- [x] **Step 4: Jalankan kompilasi TypeScript dan build Vite**
+- [x] **Step 5: Commit perubahan dengan pesan: `feat(ui-admin): display dual sign-off progress card on proposal show view`**
 
 ---
 
@@ -118,8 +118,8 @@
 - Test: `tests/Feature/DualSignoffProposalVerificationTest.php`
 - Test: `tests/Feature/RoleAndProposalWorkflowTest.php`
 
-- [ ] **Step 1: Jalankan seluruh pengujian unit dan fitur proposal**
-- [ ] **Step 2: Jalankan pengujian tipe data TypeScript (npx tsc --noEmit)**
-- [ ] **Step 3: Jalankan kompilasi produksi Vite (npm run build)**
-- [ ] **Step 4: Uji skenario alur kerja nyata di basis data MySQL**
-- [ ] **Step 5: Push branch feat/ejarlit-bappeda-revision ke remote repository**
+- [x] **Step 1: Jalankan seluruh pengujian unit dan fitur proposal**
+- [x] **Step 2: Jalankan pengujian tipe data TypeScript (npx tsc --noEmit)**
+- [x] **Step 3: Jalankan kompilasi produksi Vite (npm run build)**
+- [x] **Step 4: Uji skenario alur kerja nyata di basis data MySQL**
+- [x] **Step 5: Push branch feat/ejarlit-bappeda-revision ke remote repository**
