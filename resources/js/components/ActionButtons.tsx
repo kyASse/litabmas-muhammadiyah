@@ -67,11 +67,9 @@ export default function ActionButtons({
         router.post(route('admin.proposals.campus-approve', { proposal: proposalId }));
     };
 
-    // Aksi Validasi Administrasi Pusat (Super Admin Bappeda) -> Mengubah status menjadi Administrasi_Valid / Lolos_Administrasi
+    // Aksi Validasi Administrasi Pusat (Super Admin Bappeda) -> Arahkan ke halaman detail untuk pemeriksaan berkas & checklist
     const handleAdminApprove = () => {
-        const confirmMsg = format(t.adminProposals.confirmApprove, { title: proposalTitle });
-        if (!confirm(confirmMsg)) return;
-        router.post(route('admin.proposals.approve', { proposal: proposalId }));
+        router.visit(route('admin.proposals.show', { proposal: proposalId, verify: 1 }));
     };
 
     const getDetailHref = () => {

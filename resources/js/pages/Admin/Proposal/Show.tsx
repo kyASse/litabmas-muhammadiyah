@@ -16,6 +16,7 @@
  * @route GET /admin/proposals/{proposal}
  */
 import AssignModal from '@/components/AssignModal';
+import AdminVerificationModal, { type AdminCriterionItem } from '@/components/AdminVerificationModal';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -105,6 +106,7 @@ interface AvailableReviewer {
 interface Props {
     proposal: ProposalDetail;
     availableReviewers: AvailableReviewer[];
+    adminCriteria?: AdminCriterionItem[];
 }
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
@@ -221,14 +223,22 @@ function RejectModal({
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function ShowProposal({ proposal, availableReviewers }: Props) {
+export default function ShowProposal({ proposal, availableReviewers, adminCriteria = [] }: Props) {
     const { flash, auth } = usePage<SharedData>().props;
     const isSuperAdmin = auth?.user?.role?.name === 'Super Admin' || auth?.user?.roles?.some((r) => r.name === 'Super Admin');
     const isAdminKampus = auth?.user?.role?.name === 'Admin Kampus' || auth?.user?.roles?.some((r) => r.name === 'Admin Kampus');
 
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
+    const [showVerifyModal, setShowVerifyModal] = useState(false);
     const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    // Auto-open modal jika URL mengindikasikan aksi verifikasi dari tabel antrean
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.search.includes('verify=1')) {
+            setShowVerifyModal(true);
+        }
+    }, []);
 
     const isSubmittedKampus = isAdminKampus && (proposal.status_proposal === 'Submitted_Kampus' || proposal.status_proposal === 'Submitted');
     const isSubmittedBappeda = isSuperAdmin && (proposal.status_proposal === 'Approved_Kampus' || proposal.status_proposal === 'Submitted_Bappeda');
@@ -295,6 +305,15 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                 </div>
             )}
 
+            {/* Admin Verification Modal */}
+            <AdminVerificationModal
+                isOpen={showVerifyModal}
+                onClose={() => setShowVerifyModal(false)}
+                proposalId={proposal.id}
+                proposalTitle={proposal.title}
+                adminCriteria={adminCriteria}
+            />
+
             {/* Reject Modal */}
             {showRejectModal && (
                 <RejectModal
@@ -342,7 +361,7 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                         {/* Super Admin Bappeda: Validasi Administrasi Pusat */}
                         {!isSubmittedKampus && isSubmittedBappeda && (
                             <>
-                                <Button onClick={handleAdminApprove} className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
+                                <Button onClick={() => setShowVerifyModal(true)} className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
                                     <CheckCircle2 className="h-4 w-4" />
                                     Validasi Administrasi
                                 </Button>
