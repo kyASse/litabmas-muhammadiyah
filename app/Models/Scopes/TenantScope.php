@@ -17,8 +17,8 @@ class TenantScope implements Scope
         if (Auth::check()) {
             $user = Auth::user();
 
-            // Pengecualian Super Admin untuk keperluan pemantauan global
-            if ($user->isSuperAdmin()) {
+            // Pengecualian Super Admin dan Admin Keuangan Bappeda (Pusat) untuk pemantauan & audit anggaran lintas kampus
+            if ($user->isSuperAdmin() || ($user->hasRole(\App\Models\Role::ADMIN_KEUANGAN) && ! $user->university_id)) {
                 return;
             }
 
