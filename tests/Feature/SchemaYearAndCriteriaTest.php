@@ -300,6 +300,7 @@ class SchemaYearAndCriteriaTest extends TestCase
             'abstrak' => 'Abstrak riset sistem cerdas',
             'biaya_yang_diusulkan' => 35000000,
             'status_proposal' => Proposal::STATUS_APPROVED_KAMPUS,
+            'is_rab_approved' => true,
         ]);
 
         $response = $this->actingAs($this->superAdmin)
@@ -356,6 +357,7 @@ class SchemaYearAndCriteriaTest extends TestCase
             'abstrak' => 'Abstrak riset sistem cerdas gagal format',
             'biaya_yang_diusulkan' => 35000000,
             'status_proposal' => Proposal::STATUS_APPROVED_KAMPUS,
+            'is_rab_approved' => true,
         ]);
 
         $response = $this->actingAs($this->superAdmin)

@@ -311,18 +311,28 @@ class ProposalController extends Controller
             );
         }
 
-        $newStatus = $allPassed
-            ? Proposal::STATUS_LOLOS_ADMINISTRASI
-            : Proposal::STATUS_DITOLAK_ADMINISTRASI;
-
         $proposal->update([
-            'status_proposal' => $newStatus,
+            'is_administrasi_approved' => $allPassed,
+            'tanggal_verifikasi_administrasi' => now(),
             'catatan_administrasi' => $request->catatan_administrasi,
         ]);
 
-        $statusMessage = $allPassed
-            ? "Proposal \"{$proposal->title}\" dinyatakan LOLOS seleksi administrasi."
-            : "Proposal \"{$proposal->title}\" dinyatakan DITOLAK seleksi administrasi.";
+        if (! $allPassed) {
+            $proposal->update([
+                'status_proposal' => Proposal::STATUS_DITOLAK_ADMINISTRASI,
+            ]);
+            $statusMessage = "Proposal \"{$proposal->title}\" dinyatakan DITOLAK seleksi administrasi.";
+        } else {
+            // Cek apakah Admin Keuangan juga telah menyetujui audit RAB (Dual Sign-Off Gatekeeper)
+            if ($proposal->isRabApproved()) {
+                $proposal->update([
+                    'status_proposal' => Proposal::STATUS_LOLOS_ADMINISTRASI,
+                ]);
+                $statusMessage = "Proposal \"{$proposal->title}\" dinyatakan LOLOS seleksi administrasi & audit RAB (siap penugasan reviewer).";
+            } else {
+                $statusMessage = "Verifikasi berkas administrasi berhasil. Menunggu audit RAB oleh Admin Keuangan untuk membuka penugasan reviewer.";
+            }
+        }
 
         return redirect()
             ->back()

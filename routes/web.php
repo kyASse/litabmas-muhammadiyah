@@ -230,6 +230,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/reports', [FinanceReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/summary', [FinanceReportController::class, 'summary'])->name('reports.summary');
         Route::post('/reports/filter', [FinanceReportController::class, 'filter'])->name('reports.filter');
+
+        // Proposal RAB Verification (Dual Sign-Off Gatekeeper Fase 1)
+        Route::prefix('proposals')->name('proposals.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Finance\FinanceProposalController::class, 'index'])->name('index');
+            Route::get('{proposal}', [\App\Http\Controllers\Finance\FinanceProposalController::class, 'show'])->name('show');
+            Route::post('{proposal}/verify-rab', [\App\Http\Controllers\Finance\FinanceProposalController::class, 'verifyRab'])->name('verify-rab');
+        });
     });
 
     // Contract & Funding Route Aliases (Ziggy & Backward Compatibility)

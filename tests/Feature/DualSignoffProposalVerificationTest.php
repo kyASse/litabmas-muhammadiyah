@@ -96,4 +96,125 @@ class DualSignoffProposalVerificationTest extends TestCase
         $this->assertTrue($refreshed->isDualApproved());
         $this->assertEquals(42000000, (float) $refreshed->rekomendasi_anggaran);
     }
+
+    public function test_super_admin_verify_administration_alone_leaves_proposal_in_approved_kampus_until_rab_verified(): void
+    {
+        $superAdminRole = Role::firstOrCreate(['name' => Role::SUPER_ADMIN], [
+            'guard_name' => 'web',
+            'display_name' => 'Super Administrator',
+        ]);
+
+        $superAdmin = User::create([
+            'name' => 'Super Admin Pusat',
+            'email' => 'superadmin.fase1@bappeda.go.id',
+            'password' => bcrypt('password'),
+            'role_id' => $superAdminRole->id,
+            'is_active' => true,
+        ]);
+
+        $proposal = Proposal::create([
+            'university_id' => $this->university->id,
+            'id_pengusul' => $this->peneliti->id,
+            'id_skema_pendanaan' => $this->schema->id,
+            'judul_penelitian' => 'Kajian Tata Ruang Hijau',
+            'abstrak' => 'Abstrak kajian tata ruang.',
+            'biaya_yang_diusulkan' => 30000000,
+            'status_proposal' => Proposal::STATUS_APPROVED_KAMPUS,
+        ]);
+
+        $response = $this->actingAs($superAdmin)->post(route('admin.proposals.verify-administration', $proposal), [
+            'checklist' => [1 => true],
+            'catatan_administrasi' => 'Berkas proposal lengkap.',
+        ]);
+
+        $response->assertRedirect();
+        $refreshed = $proposal->fresh();
+
+        $this->assertTrue($refreshed->isAdministrasiApproved());
+        $this->assertFalse($refreshed->isRabApproved());
+        // Status belum menjadi Lolos_Administrasi karena RAB belum diverifikasi Admin Keuangan
+        $this->assertEquals(Proposal::STATUS_APPROVED_KAMPUS, $refreshed->status_proposal);
+    }
+
+    public function test_admin_keuangan_can_verify_rab_and_completes_transition_to_lolos_administrasi(): void
+    {
+        $adminKeuanganRole = Role::firstOrCreate(['name' => Role::ADMIN_KEUANGAN], [
+            'guard_name' => 'web',
+            'display_name' => 'Admin Keuangan',
+        ]);
+
+        $adminKeuangan = User::create([
+            'name' => 'Admin Keuangan Bappeda',
+            'email' => 'keuangan.fase1@bappeda.go.id',
+            'password' => bcrypt('password'),
+            'role_id' => $adminKeuanganRole->id,
+            'is_active' => true,
+        ]);
+
+        $proposal = Proposal::create([
+            'university_id' => $this->university->id,
+            'id_pengusul' => $this->peneliti->id,
+            'id_skema_pendanaan' => $this->schema->id,
+            'judul_penelitian' => 'Kajian Drainase Cerdas',
+            'abstrak' => 'Abstrak kajian drainase.',
+            'biaya_yang_diusulkan' => 35000000,
+            'status_proposal' => Proposal::STATUS_APPROVED_KAMPUS,
+            'is_administrasi_approved' => true, // Super Admin sudah menyetujui sebelumnya
+            'tanggal_verifikasi_administrasi' => now(),
+        ]);
+
+        $response = $this->actingAs($adminKeuangan)->post(route('finance.proposals.verify-rab', $proposal), [
+            'status_rab' => 'Approved',
+            'rekomendasi_anggaran' => 32000000,
+            'catatan_keuangan' => 'RAB disetujui dengan penyesuaian plafon konsumsi seminar.',
+        ]);
+
+        $response->assertRedirect();
+        $refreshed = $proposal->fresh();
+
+        $this->assertTrue($refreshed->isAdministrasiApproved());
+        $this->assertTrue($refreshed->isRabApproved());
+        $this->assertTrue($refreshed->isDualApproved());
+        // Status resmi berubah menjadi Lolos_Administrasi karena KEDUA belah pihak telah menyetujui
+        $this->assertEquals(Proposal::STATUS_LOLOS_ADMINISTRASI, $refreshed->status_proposal);
+        $this->assertEquals(32000000, (float) $refreshed->rekomendasi_anggaran);
+    }
+
+    public function test_rejection_by_admin_keuangan_sets_status_to_ditolak_administrasi(): void
+    {
+        $adminKeuanganRole = Role::firstOrCreate(['name' => Role::ADMIN_KEUANGAN], [
+            'guard_name' => 'web',
+            'display_name' => 'Admin Keuangan',
+        ]);
+
+        $adminKeuangan = User::create([
+            'name' => 'Admin Keuangan Bappeda',
+            'email' => 'keuangan.tolak@bappeda.go.id',
+            'password' => bcrypt('password'),
+            'role_id' => $adminKeuanganRole->id,
+            'is_active' => true,
+        ]);
+
+        $proposal = Proposal::create([
+            'university_id' => $this->university->id,
+            'id_pengusul' => $this->peneliti->id,
+            'id_skema_pendanaan' => $this->schema->id,
+            'judul_penelitian' => 'Kajian Material Daur Ulang',
+            'abstrak' => 'Abstrak material.',
+            'biaya_yang_diusulkan' => 48000000,
+            'status_proposal' => Proposal::STATUS_APPROVED_KAMPUS,
+            'is_administrasi_approved' => true,
+        ]);
+
+        $response = $this->actingAs($adminKeuangan)->post(route('finance.proposals.verify-rab', $proposal), [
+            'status_rab' => 'Rejected',
+            'catatan_keuangan' => 'Komponen honorarium melebihi ambang batas SBM Kota Yogyakarta.',
+        ]);
+
+        $response->assertRedirect();
+        $refreshed = $proposal->fresh();
+
+        $this->assertFalse($refreshed->isRabApproved());
+        $this->assertEquals(Proposal::STATUS_DITOLAK_ADMINISTRASI, $refreshed->status_proposal);
+    }
 }

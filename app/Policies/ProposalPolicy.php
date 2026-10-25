@@ -167,6 +167,21 @@ class ProposalPolicy
     }
 
     /**
+     * Tentukan apakah user dapat memverifikasi/audit kelayakan RAB proposal (Fase 1).
+     * Admin Keuangan dan Super Admin (bypass).
+     */
+    public function verifyRab(User $user, Proposal $proposal): bool
+    {
+        if (! ($user->isSuperAdmin() || $user->hasRole(\App\Models\Role::ADMIN_KEUANGAN))) {
+            return false;
+        }
+
+        $status = strtolower($proposal->status_proposal ?? '');
+
+        return in_array($status, ['approved_kampus', 'submitted_bappeda', 'administrasi_valid', 'lolos_administrasi']);
+    }
+
+    /**
      * Tentukan apakah user dapat mengunggah dokumen proposal.
      * Hanya pemilik proposal yang dapat mengunggah.
      */
