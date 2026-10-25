@@ -75,9 +75,15 @@ class Proposal extends Model
         'abstrak',
         'latar_belakang',
         'biaya_yang_diusulkan',
+        'rekomendasi_anggaran',
         'status_proposal',
+        'is_administrasi_approved',
+        'is_rab_approved',
         'catatan_administrasi',
+        'catatan_keuangan',
         'tanggal_pengajuan',
+        'tanggal_verifikasi_administrasi',
+        'tanggal_verifikasi_rab',
         // Virtual / legacy aliases
         'title',
         'description',
@@ -91,6 +97,15 @@ class Proposal extends Model
         'background',
         'file_dokumen_proposal',
         'proposal_doc_path',
+    ];
+
+    protected $casts = [
+        'is_administrasi_approved' => 'boolean',
+        'is_rab_approved' => 'boolean',
+        'rekomendasi_anggaran' => 'decimal:2',
+        'biaya_yang_diusulkan' => 'decimal:2',
+        'tanggal_verifikasi_administrasi' => 'datetime',
+        'tanggal_verifikasi_rab' => 'datetime',
     ];
 
     /**
@@ -263,6 +278,21 @@ class Proposal extends Model
     public function isDitolakAdministrasi(): bool
     {
         return in_array($this->status_proposal, [self::STATUS_DITOLAK_ADMINISTRASI, self::STATUS_DITOLAK], true);
+    }
+
+    public function isAdministrasiApproved(): bool
+    {
+        return (bool) $this->is_administrasi_approved;
+    }
+
+    public function isRabApproved(): bool
+    {
+        return (bool) $this->is_rab_approved;
+    }
+
+    public function isDualApproved(): bool
+    {
+        return $this->isAdministrasiApproved() && $this->isRabApproved();
     }
 
     /**
