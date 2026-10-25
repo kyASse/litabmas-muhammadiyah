@@ -46,16 +46,34 @@ class ResearchSchema extends Model
         'tanggal_selesai',
         'file_panduan',
         'is_active',
+        'tahun_anggaran',
+        'year',
         'name',
         'description',
         'max_funding',
+    ];
+
+    protected $casts = [
+        'tahun_anggaran' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     protected $appends = [
         'name',
         'description',
         'max_funding',
+        'year',
     ];
+
+    public function getYearAttribute(): ?int
+    {
+        return isset($this->attributes['tahun_anggaran']) ? (int) $this->attributes['tahun_anggaran'] : null;
+    }
+
+    public function setYearAttribute($value): void
+    {
+        $this->attributes['tahun_anggaran'] = $value;
+    }
 
     public function getNameAttribute(): ?string
     {
