@@ -16,10 +16,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ROLE_NAMES } from '@/constants/roles';
 import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Building2, Edit, Eye, GraduationCap, Power, RotateCcw, Search, ShieldCheck, UserCheck, UserPlus, Users } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -96,6 +97,17 @@ export default function UsersIndex({
     filters = {},
 }: IndexProps) {
     const { t, format } = useTranslation();
+    const { auth } = usePage<SharedData>().props;
+    const currentUser = auth?.user;
+
+    const hasRole = (roleName: string) => {
+        if (!currentUser) return false;
+        if (currentUser.role?.name === roleName) return true;
+        if (currentUser.roles?.some((r) => r.name === roleName)) return true;
+        return false;
+    };
+
+    const isAdminKampus = hasRole(ROLE_NAMES.ADMIN_KAMPUS) && !hasRole(ROLE_NAMES.SUPER_ADMIN);
 
     const userList: UserItem[] = Array.isArray(users) ? users : users?.data || [];
     const isPaginated = !Array.isArray(users) && Boolean(users?.links);
@@ -106,6 +118,12 @@ export default function UsersIndex({
     const [role, setRole] = useState(filters.role || 'all');
     const [isActive, setIsActive] = useState(filters.is_active || 'all');
     const [toggleUser, setToggleUser] = useState<UserItem | null>(null);
+
+    React.useEffect(() => {
+        setIsActive(filters.is_active || 'all');
+    }, [filters.is_active]);
+
+    const pendingCount = Math.max(0, (stats?.total_users ?? 0) - (stats?.active_users ?? 0));
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t.navigation.dashboard, href: '/dashboard' },
@@ -281,28 +299,46 @@ export default function UsersIndex({
                             />
                         </div>
 
-                        {/* University Filter */}
-                        <div className="w-full lg:w-60">
-                            <Select
-                                value={universityId}
-                                onValueChange={(val) => {
-                                    setUniversityId(val);
-                                    applyFilters({ university_id: val });
-                                }}
+                        {/* University Filter / Institution Badge */}
+                        {isAdminKampus ? (
+                            <div
+                                className="flex h-9 w-full items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1 lg:w-auto"
+                                title={currentUser?.university?.name || universities[0]?.name || ''}
                             >
-                                <SelectTrigger className="w-full font-sans text-sm">
-                                    <SelectValue placeholder={t.adminUsers.filterUniversity} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">{t.adminUsers.filterUniversity}</SelectItem>
-                                    {universities.map((u) => (
-                                        <SelectItem key={u.id} value={String(u.id)}>
-                                            {u.code ? `[${u.code}] ${u.name}` : u.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                                <Building2 className="h-4 w-4 shrink-0 text-slate-400" />
+                                <span className="max-w-[280px] truncate font-sans text-xs font-medium text-slate-700">
+                                    {format(t.adminUsers.ownInstitutionOnly, {
+                                        name:
+                                            currentUser?.university?.short_name ||
+                                            currentUser?.university?.name ||
+                                            universities[0]?.name ||
+                                            '-',
+                                    })}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="w-full lg:w-60">
+                                <Select
+                                    value={universityId}
+                                    onValueChange={(val) => {
+                                        setUniversityId(val);
+                                        applyFilters({ university_id: val });
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full font-sans text-sm">
+                                        <SelectValue placeholder={t.adminUsers.filterUniversity} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">{t.adminUsers.filterUniversity}</SelectItem>
+                                        {universities.map((u) => (
+                                            <SelectItem key={u.id} value={String(u.id)}>
+                                                {u.code ? `[${u.code}] ${u.name}` : u.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
 
                         {/* Role Filter */}
                         <div className="w-full lg:w-48">
@@ -359,6 +395,58 @@ export default function UsersIndex({
                     </form>
                 </div>
 
+                {/* Quick-switch Tabs */}
+                <div className="flex items-center gap-2 border-b border-slate-200">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setIsActive('all');
+                            applyFilters({ is_active: 'all' });
+                        }}
+                        className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-sans text-sm font-medium transition-colors ${
+                            isActive === 'all' || !isActive
+                                ? 'border-blue-900 font-semibold text-blue-900'
+                                : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
+                        }`}
+                    >
+                        <span>{t.adminUsers.tabAll}</span>
+                        <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 font-mono text-xs ${
+                                isActive === 'all' || !isActive
+                                    ? 'bg-blue-100 font-semibold text-blue-900'
+                                    : 'bg-slate-100 text-slate-600'
+                            }`}
+                        >
+                            {stats?.total_users ?? 0}
+                        </span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setIsActive('0');
+                            applyFilters({ is_active: '0' });
+                        }}
+                        className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-sans text-sm font-medium transition-colors ${
+                            isActive === '0'
+                                ? 'border-amber-600 font-semibold text-amber-900'
+                                : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
+                        }`}
+                    >
+                        <span>{t.adminUsers.tabPending}</span>
+                        <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 font-mono text-xs font-semibold ${
+                                isActive === '0'
+                                    ? 'bg-amber-100 text-amber-900'
+                                    : pendingCount > 0
+                                      ? 'border border-amber-300 bg-amber-50 text-amber-800'
+                                      : 'bg-slate-100 text-slate-600'
+                            }`}
+                        >
+                            {pendingCount}
+                        </span>
+                    </button>
+                </div>
+
                 {/* Users Table Card */}
                 <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs">
                     <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
@@ -413,7 +501,14 @@ export default function UsersIndex({
                                                 .toUpperCase() || 'U';
 
                                         return (
-                                            <TableRow key={user.id} className="transition-colors hover:bg-slate-50/50">
+                                            <TableRow
+                                                key={user.id}
+                                                className={`transition-colors ${
+                                                    !user.is_active
+                                                        ? 'bg-amber-50/40 hover:bg-amber-50/70'
+                                                        : 'hover:bg-slate-50/50'
+                                                }`}
+                                            >
                                                 {/* User & Email */}
                                                 <TableCell className="py-3 pl-6">
                                                     <div className="flex items-center gap-3">
@@ -484,19 +579,28 @@ export default function UsersIndex({
                                                             </Link>
                                                         </Button>
 
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => setToggleUser(user)}
-                                                            className={`h-8 px-2 ${
-                                                                user.is_active
-                                                                    ? 'text-slate-500 hover:bg-rose-50 hover:text-rose-700'
-                                                                    : 'text-slate-500 hover:bg-emerald-50 hover:text-emerald-700'
-                                                            }`}
-                                                            title={user.is_active ? t.adminUsers.deactivate : t.adminUsers.activate}
-                                                        >
-                                                            <Power className="h-4 w-4" />
-                                                        </Button>
+                                                        {!user.is_active ? (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => setToggleUser(user)}
+                                                                className="h-8 border-emerald-300 bg-emerald-50 px-2.5 font-sans text-xs font-medium text-emerald-800 hover:bg-emerald-100 hover:text-emerald-900"
+                                                                title={t.adminUsers.activateAction}
+                                                            >
+                                                                <UserCheck className="mr-1.5 h-3.5 w-3.5 text-emerald-700" />
+                                                                {t.adminUsers.activateAction}
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => setToggleUser(user)}
+                                                                className="h-8 px-2 text-slate-500 hover:bg-rose-50 hover:text-rose-700"
+                                                                title={t.adminUsers.deactivate}
+                                                            >
+                                                                <Power className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
