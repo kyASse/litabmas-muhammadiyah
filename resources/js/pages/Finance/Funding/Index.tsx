@@ -180,6 +180,7 @@ export default function FundingIndex({ fundings }: Props) {
                                 <TableHead className="text-center">{t.funding.tableColTranche}</TableHead>
                                 <TableHead className="text-right">{t.funding.tableColPercentage}</TableHead>
                                 <TableHead className="text-right">{t.funding.tableColAmount}</TableHead>
+                                <TableHead className="text-center">{t.funding.tableColBillingDoc}</TableHead>
                                 <TableHead>{t.funding.tableColStatus}</TableHead>
                                 <TableHead className="text-center">{t.funding.tableColActions}</TableHead>
                             </TableRow>
@@ -187,7 +188,7 @@ export default function FundingIndex({ fundings }: Props) {
                         <TableBody>
                             {fundings.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="py-12 text-center text-slate-500">
+                                    <TableCell colSpan={9} className="py-12 text-center text-slate-500">
                                         <FileText className="mx-auto mb-2 h-10 w-10 text-slate-300" />
                                         <p className="font-medium">{t.funding.emptyList}</p>
                                     </TableCell>
@@ -246,6 +247,29 @@ export default function FundingIndex({ fundings }: Props) {
                                                     weight="bold"
                                                     className={isDisbursed ? 'text-emerald-700' : 'text-slate-900'}
                                                 />
+                                            </TableCell>
+                                            <TableCell className="text-center">
+                                                {funding.file_tagihan ? (
+                                                    <div className="flex flex-col items-center gap-1 text-xs">
+                                                        <a
+                                                            href={`/storage/${funding.file_tagihan}`}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="inline-flex items-center gap-1 rounded border border-teal-200 bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-800 transition-colors hover:bg-teal-100"
+                                                            title={t.funding.viewBillingDoc}
+                                                        >
+                                                            <FileText className="h-3.5 w-3.5 text-teal-600" />
+                                                            <span>{t.funding.viewBillingDoc}</span>
+                                                        </a>
+                                                        {funding.nominal_tagihan && (
+                                                            <div className="font-mono text-[11px] font-semibold text-teal-900">
+                                                                <TabularFigure value={funding.nominal_tagihan} type="currency" size="sm" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-xs text-slate-400">-</span>
+                                                )}
                                             </TableCell>
                                             <TableCell>
                                                 {isDisbursed ? (

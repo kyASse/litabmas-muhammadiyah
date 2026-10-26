@@ -7,6 +7,7 @@ use App\Models\Proposal;
 use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -339,5 +340,61 @@ class AdminKampusController extends Controller
         $status = $admin_kampus->is_active ? 'activated' : 'deactivated';
 
         return back()->with('success', "Admin Kampus {$status} successfully.");
+    }
+
+    /**
+     * Persetujuan internal proposal oleh Admin Kampus mitra.
+     *
+     * @route POST /admin/proposals/{proposal}/campus-approve
+     */
+    public function campusApprove(Request $request, Proposal $proposal): RedirectResponse
+    {
+        $this->authorize('campusApprove', $proposal);
+
+        $proposal->update([
+            'status_proposal' => Proposal::STATUS_APPROVED_KAMPUS,
+            'catatan_administrasi' => null,
+        ]);
+
+        if ($request->header('Referer')) {
+            return redirect()->back()->with('success', '[SUKSES] Usulan penelitian berhasil disetujui kampus dan diteruskan ke antrean Bappeda.');
+        }
+
+        return redirect()->route('admin.proposals.index')
+            ->with('success', '[SUKSES] Usulan penelitian berhasil disetujui kampus dan diteruskan ke antrean Bappeda.');
+    }
+
+    /**
+     * Penolakan internal proposal oleh Admin Kampus dengan catatan perbaikan.
+     *
+     * @route POST /admin/proposals/{proposal}/campus-reject
+     */
+    public function campusReject(Request $request, Proposal $proposal): RedirectResponse
+    {
+        $this->authorize('campusReject', $proposal);
+
+        $request->validate([
+            'catatan_penolakan' => ['required_without_all:catatan,rejection_reason,catatan_administrasi', 'nullable', 'string', 'min:5', 'max:1000'],
+            'catatan' => ['nullable', 'string', 'min:5', 'max:1000'],
+            'rejection_reason' => ['nullable', 'string', 'min:5', 'max:1000'],
+            'catatan_administrasi' => ['nullable', 'string', 'min:5', 'max:1000'],
+        ]);
+
+        $reason = $request->input('catatan_penolakan')
+            ?? $request->input('catatan')
+            ?? $request->input('rejection_reason')
+            ?? $request->input('catatan_administrasi');
+
+        $proposal->update([
+            'status_proposal' => Proposal::STATUS_REJECTED_KAMPUS,
+            'catatan_administrasi' => $reason,
+        ]);
+
+        if ($request->header('Referer')) {
+            return redirect()->back()->with('success', '[SUKSES] Usulan penelitian ditolak dengan catatan perbaikan untuk peneliti.');
+        }
+
+        return redirect()->route('admin.proposals.index')
+            ->with('success', '[SUKSES] Usulan penelitian ditolak dengan catatan perbaikan untuk peneliti.');
     }
 }

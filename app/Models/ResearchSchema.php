@@ -34,6 +34,9 @@ class ResearchSchema extends Model
             if (! isset($schema->biaya_maksimal)) {
                 $schema->biaya_maksimal = 10000000;
             }
+            if (! $schema->tahun_anggaran) {
+                $schema->tahun_anggaran = (int) now()->year;
+            }
         });
     }
 

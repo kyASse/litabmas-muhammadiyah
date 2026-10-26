@@ -37,16 +37,25 @@ class SchemaController extends Controller
             $query->where('is_active', $request->boolean('is_active'));
         }
 
+        // Filter berdasarkan tahun anggaran
+        if ($request->filled('tahun_anggaran')) {
+            $query->where('tahun_anggaran', $request->input('tahun_anggaran'));
+        } elseif ($request->filled('year')) {
+            $query->where('tahun_anggaran', $request->input('year'));
+        }
+
         // Sorting (default: terbaru)
         $sortBy = $request->input('sort_by', 'created_at');
         $sortDir = $request->input('sort_dir', 'desc');
-        $allowedSorts = ['nama_skema', 'name', 'created_at', 'biaya_maksimal', 'max_funding', 'is_active', 'proposals_count'];
+        $allowedSorts = ['nama_skema', 'name', 'created_at', 'biaya_maksimal', 'max_funding', 'is_active', 'proposals_count', 'tahun_anggaran', 'year'];
 
         $dbSortColumn = $sortBy;
         if ($dbSortColumn === 'name') {
             $dbSortColumn = 'nama_skema';
         } elseif ($dbSortColumn === 'max_funding') {
             $dbSortColumn = 'biaya_maksimal';
+        } elseif ($dbSortColumn === 'year') {
+            $dbSortColumn = 'tahun_anggaran';
         }
 
         if (in_array($sortBy, $allowedSorts)) {
@@ -57,11 +66,33 @@ class SchemaController extends Controller
 
         $schemas = $query->paginate($request->input('per_page', 10))->withQueryString();
 
+        $schemas->through(function ($schema) {
+            return (new SchemaResource($schema))->resolve();
+        });
+
+        $availableYears = ResearchSchema::query()
+            ->whereNotNull('tahun_anggaran')
+            ->distinct()
+            ->orderByDesc('tahun_anggaran')
+            ->pluck('tahun_anggaran')
+            ->map(fn ($y) => (int) $y)
+            ->values()
+            ->toArray();
+
+        $currentYear = (int) date('Y');
+        if (! in_array($currentYear, $availableYears)) {
+            $availableYears[] = $currentYear;
+            rsort($availableYears);
+        }
+
         return Inertia::render('Admin/Schema/Index', [
-            'schemas' => SchemaResource::collection($schemas),
+            'schemas' => $schemas,
+            'available_years' => $availableYears,
             'filters' => [
                 'search' => $request->search ?? '',
                 'is_active' => $request->is_active ?? '',
+                'tahun_anggaran' => $request->tahun_anggaran ?? $request->year ?? '',
+                'year' => $request->year ?? $request->tahun_anggaran ?? '',
                 'sort_by' => $sortBy,
                 'sort_dir' => $sortDir,
             ],

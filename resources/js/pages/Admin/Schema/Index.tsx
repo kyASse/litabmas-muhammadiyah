@@ -51,7 +51,7 @@ import {
     Trash2,
     X,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
 /* -------------------------------------------------------------------------- */
@@ -73,6 +73,8 @@ interface Schema {
     description: string | null;
     max_funding: number;
     is_active: boolean;
+    tahun_anggaran?: number;
+    year?: number;
     proposals_count: number;
     created_at: string;
     updated_at: string;
@@ -80,28 +82,51 @@ interface Schema {
 
 interface PaginatedSchemas {
     data: Schema[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number;
-    to: number;
-    links: Array<{
-        url: string | null;
-        label: string;
-        active: boolean;
-    }>;
+    current_page?: number;
+    last_page?: number;
+    per_page?: number;
+    total?: number;
+    from?: number;
+    to?: number;
+    links?:
+        | Array<{
+              url: string | null;
+              label: string;
+              active: boolean;
+          }>
+        | {
+              first?: string;
+              last?: string;
+              prev?: string | null;
+              next?: string | null;
+          };
+    meta?: {
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number;
+        to: number;
+        links: Array<{
+            url: string | null;
+            label: string;
+            active: boolean;
+        }>;
+    };
 }
 
 interface Filters {
     search: string;
     is_active: string;
+    tahun_anggaran?: string;
+    year?: string;
     sort_by: string;
     sort_dir: string;
 }
 
 interface Props {
     schemas: PaginatedSchemas;
+    available_years?: number[];
     filters: Filters;
 }
 
@@ -169,13 +194,14 @@ function SortableHead({ label, column, currentSort, currentDir, onSort, classNam
 /*  Main Component                                                             */
 /* -------------------------------------------------------------------------- */
 
-export default function SchemaIndex({ schemas, filters }: Props) {
+export default function SchemaIndex({ schemas, available_years, filters }: Props) {
     const { flash } = usePage<SharedData>().props;
     const { t, format, locale } = useTranslation();
 
     // Local filter states
     const [search, setSearch] = useState(filters.search || '');
     const [statusFilter, setStatusFilter] = useState(filters.is_active || 'all');
+    const [yearFilter, setYearFilter] = useState(filters.tahun_anggaran || filters.year || '');
     const [sortBy, setSortBy] = useState(filters.sort_by || 'created_at');
     const [sortDir, setSortDir] = useState(filters.sort_dir || 'desc');
 
@@ -189,6 +215,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const createForm = useForm({
         name: '',
         description: '',
+        tahun_anggaran: new Date().getFullYear(),
         max_funding: '',
         is_active: true,
     });
@@ -196,6 +223,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const editForm = useForm({
         name: '',
         description: '',
+        tahun_anggaran: new Date().getFullYear(),
         max_funding: '',
         is_active: true,
     });
@@ -212,6 +240,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
             const params: Record<string, string> = {
                 search,
                 is_active: statusFilter === 'all' ? '' : statusFilter,
+                tahun_anggaran: yearFilter,
                 sort_by: sortBy,
                 sort_dir: sortDir,
                 ...overrides,
@@ -227,7 +256,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                 preserveScroll: true,
             });
         },
-        [search, statusFilter, sortBy, sortDir],
+        [search, statusFilter, yearFilter, sortBy, sortDir],
     );
 
     // --- Search --------------------------------------------------------------
@@ -239,6 +268,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const handleClearSearch = () => {
         setSearch('');
         setStatusFilter('all');
+        setYearFilter('');
         setSortBy('created_at');
         setSortDir('desc');
         router.get(route('admin.schema.index'));
@@ -248,6 +278,13 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     const handleStatusChange = (value: string) => {
         setStatusFilter(value);
         applyFilters({ is_active: value === 'all' ? '' : value });
+    };
+
+    // --- Year filter ---------------------------------------------------------
+    const handleYearChange = (value: string) => {
+        const nextVal = value === 'all' ? '' : value;
+        setYearFilter(nextVal);
+        applyFilters({ tahun_anggaran: nextVal });
     };
 
     // --- Sorting -------------------------------------------------------------
@@ -282,6 +319,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
         editForm.setData({
             name: schema.name,
             description: schema.description || '',
+            tahun_anggaran: schema.tahun_anggaran || schema.year || new Date().getFullYear(),
             max_funding: String(schema.max_funding || ''),
             is_active: schema.is_active,
         });
@@ -318,9 +356,31 @@ export default function SchemaIndex({ schemas, filters }: Props) {
     };
 
     // --- Derived state -------------------------------------------------------
-    const hasActiveFilters = search || statusFilter !== 'all';
+    const hasActiveFilters = Boolean(search || (statusFilter && statusFilter !== 'all') || yearFilter);
     const schemaList = schemas.data ?? [];
     const isEmpty = schemaList.length === 0;
+
+    const yearOptions = useMemo(() => {
+        const set = new Set<number>(available_years ?? []);
+        schemaList.forEach((s) => {
+            const y = s.tahun_anggaran || s.year;
+            if (y) set.add(Number(y));
+        });
+        const currentYear = new Date().getFullYear();
+        set.add(currentYear);
+        set.add(currentYear - 1);
+        set.add(currentYear + 1);
+
+        return Array.from(set).sort((a, b) => b - a);
+    }, [available_years, schemaList]);
+
+    const currentPage = schemas.current_page ?? schemas.meta?.current_page ?? 1;
+    const perPage = schemas.per_page ?? schemas.meta?.per_page ?? 10;
+    const totalItems = schemas.total ?? schemas.meta?.total ?? schemaList.length;
+    const fromItem = schemas.from ?? schemas.meta?.from ?? (schemaList.length > 0 ? (currentPage - 1) * perPage + 1 : 0);
+    const toItem = schemas.to ?? schemas.meta?.to ?? Math.min(currentPage * perPage, totalItems);
+    const lastPage = schemas.last_page ?? schemas.meta?.last_page ?? 1;
+    const paginationLinks = schemas.meta?.links ?? (Array.isArray(schemas.links) ? schemas.links : []);
 
     /* ======================================================================== */
     /*  RENDER                                                                  */
@@ -356,7 +416,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                 <Input
                                     type="text"
-                                    placeholder="Cari berdasarkan nama atau deskripsi..."
+                                    placeholder={t.adminSchema.searchPlaceholder}
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
                                     className="h-10 border-sidebar-border bg-white pl-9 dark:bg-neutral-900"
@@ -366,18 +426,36 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                             {/* Status filter */}
                             <Select value={statusFilter} onValueChange={handleStatusChange}>
                                 <SelectTrigger className="h-10 w-full border-sidebar-border bg-white sm:w-44 dark:bg-neutral-900">
-                                    <SelectValue placeholder="Semua Status" />
+                                    <SelectValue placeholder={t.adminSchema.allStatuses} />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">Semua Status</SelectItem>
-                                    <SelectItem value="1">Aktif</SelectItem>
-                                    <SelectItem value="0">Nonaktif</SelectItem>
+                                    <SelectItem value="all">{t.adminSchema.allStatuses}</SelectItem>
+                                    <SelectItem value="1">{t.adminSchema.statusActive.replace(/\[|\]/g, '')}</SelectItem>
+                                    <SelectItem value="0">{t.adminSchema.statusInactive.replace(/\[|\]/g, '')}</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            {/* Year filter (shadcn-ui Select) */}
+                            <Select value={yearFilter || 'all'} onValueChange={handleYearChange}>
+                                <SelectTrigger className="h-10 w-full border-sidebar-border bg-white sm:w-44 dark:bg-neutral-900">
+                                    <div className="flex items-center gap-2 truncate">
+                                        <Calendar className="h-4 w-4 shrink-0 text-muted-foreground" />
+                                        <SelectValue placeholder={t.adminSchema.allYears} />
+                                    </div>
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">{t.adminSchema.allYears}</SelectItem>
+                                    {yearOptions.map((year) => (
+                                        <SelectItem key={year} value={String(year)}>
+                                            {year}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
 
                             {/* Buttons */}
                             <Button type="submit" variant="secondary" className="h-10 px-5 font-semibold">
-                                Cari
+                                {t.common.filter || 'Cari'}
                             </Button>
                             {hasActiveFilters && (
                                 <Button
@@ -387,7 +465,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                     className="h-10 text-muted-foreground hover:text-foreground"
                                 >
                                     <X className="mr-1 h-4 w-4" />
-                                    Reset
+                                    {t.common.reset || 'Reset'}
                                 </Button>
                             )}
                         </form>
@@ -403,6 +481,14 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 <TableRow className="border-sidebar-border/60">
                                     <TableHead className="w-[60px] text-center font-semibold">No</TableHead>
                                     <SortableHead label="Nama Skema" column="name" currentSort={sortBy} currentDir={sortDir} onSort={handleSort} />
+                                    <SortableHead
+                                        label={t.adminSchema.tableColYear}
+                                        column="tahun_anggaran"
+                                        currentSort={sortBy}
+                                        currentDir={sortDir}
+                                        onSort={handleSort}
+                                        className="w-[110px]"
+                                    />
                                     <TableHead className="font-semibold">Deskripsi</TableHead>
                                     <SortableHead
                                         label="Pagu Dana"
@@ -442,7 +528,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                             <TableBody>
                                 {isEmpty ? (
                                     <TableRow>
-                                        <TableCell colSpan={8} className="h-40 text-center">
+                                        <TableCell colSpan={9} className="h-40 text-center">
                                             <div className="flex flex-col items-center gap-2 text-muted-foreground">
                                                 <ClipboardList className="h-10 w-10 text-neutral-300 dark:text-neutral-700" />
                                                 <p className="font-medium">Tidak ada skema penelitian ditemukan.</p>
@@ -456,7 +542,7 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                     </TableRow>
                                 ) : (
                                     schemaList.map((schema, index) => {
-                                        const rowNumber = (schemas.current_page - 1) * schemas.per_page + index + 1;
+                                        const rowNumber = (currentPage - 1) * perPage + index + 1;
                                         return (
                                             <TableRow
                                                 key={schema.id}
@@ -468,6 +554,13 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                                 {/* Nama Skema */}
                                                 <TableCell>
                                                     <span className="font-bold text-foreground">{schema.name}</span>
+                                                </TableCell>
+
+                                                {/* Tahun Anggaran */}
+                                                <TableCell>
+                                                    <span className="font-mono text-sm text-foreground">
+                                                        {schema.tahun_anggaran || schema.year || '—'}
+                                                    </span>
                                                 </TableCell>
 
                                                 {/* Deskripsi */}
@@ -655,17 +748,17 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                     </div>
 
                     {/* ── Pagination ──────────────────────────────────── */}
-                    {schemas.last_page > 1 && (
+                    {lastPage > 1 && (
                         <div className="border-t border-sidebar-border/60 px-6 py-4 dark:border-sidebar-border">
                             <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
                                 <p className="text-center text-sm text-muted-foreground md:text-left">
-                                    Menampilkan {schemas.from} – {schemas.to} dari {schemas.total} skema
+                                    Menampilkan {fromItem} – {toItem} dari {totalItems} skema
                                 </p>
                                 <div className="flex items-center gap-1.5">
-                                    {schemas.links.map((link, idx) => {
+                                    {paginationLinks.map((link, idx) => {
                                         if (link.url === null) return null;
                                         const isFirst = idx === 0;
-                                        const isLast = idx === schemas.links.length - 1;
+                                        const isLast = idx === paginationLinks.length - 1;
 
                                         return (
                                             <Link key={idx} href={link.url} preserveState preserveScroll>
@@ -725,6 +818,27 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 disabled={createForm.processing}
                             />
                             {createForm.errors.name && <p className="text-xs font-semibold text-destructive">{createForm.errors.name}</p>}
+                        </div>
+
+                        {/* Tahun Anggaran */}
+                        <div className="space-y-2">
+                            <Label htmlFor="create-tahun-anggaran" className="text-sm font-semibold">
+                                {t.adminSchema.yearLabel} <span className="text-destructive">*</span>
+                            </Label>
+                            <Input
+                                id="create-tahun-anggaran"
+                                type="number"
+                                min="2000"
+                                max="2100"
+                                value={createForm.data.tahun_anggaran}
+                                onChange={(e) => createForm.setData('tahun_anggaran', parseInt(e.target.value) || new Date().getFullYear())}
+                                placeholder={t.adminSchema.yearPlaceholder}
+                                className="h-10"
+                                disabled={createForm.processing}
+                            />
+                            {createForm.errors.tahun_anggaran && (
+                                <p className="text-xs font-semibold text-destructive">{createForm.errors.tahun_anggaran}</p>
+                            )}
                         </div>
 
                         {/* Description */}
@@ -837,6 +951,27 @@ export default function SchemaIndex({ schemas, filters }: Props) {
                                 disabled={editForm.processing}
                             />
                             {editForm.errors.name && <p className="text-xs font-semibold text-destructive">{editForm.errors.name}</p>}
+                        </div>
+
+                        {/* Tahun Anggaran */}
+                        <div className="space-y-2">
+                            <Label htmlFor="edit-tahun-anggaran" className="text-sm font-semibold">
+                                {t.adminSchema.yearLabel} <span className="text-destructive">*</span>
+                            </Label>
+                            <Input
+                                id="edit-tahun-anggaran"
+                                type="number"
+                                min="2000"
+                                max="2100"
+                                value={editForm.data.tahun_anggaran}
+                                onChange={(e) => editForm.setData('tahun_anggaran', parseInt(e.target.value) || new Date().getFullYear())}
+                                placeholder={t.adminSchema.yearPlaceholder}
+                                className="h-10"
+                                disabled={editForm.processing}
+                            />
+                            {editForm.errors.tahun_anggaran && (
+                                <p className="text-xs font-semibold text-destructive">{editForm.errors.tahun_anggaran}</p>
+                            )}
                         </div>
 
                         {/* Description */}

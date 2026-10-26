@@ -10,6 +10,7 @@ import {
     Award,
     BookType,
     Building2,
+    Calculator,
     CalendarDays,
     ClipboardList,
     Clock,
@@ -44,37 +45,14 @@ export function AppSidebar() {
     if (hasRole(ROLE_NAMES.SUPER_ADMIN)) {
         roleNavItems = [
             {
-                title: t.navigation.universities,
-                href: '/admin/universities',
-                icon: Building2,
-            },
-            {
-                title: t.navigation.campusAdmins,
-                href: '/admin/admin-kampus',
-                icon: ShieldCheck,
-            },
-            {
-                title: t.navigation.users,
-                href: '/admin/users',
-                icon: Users,
-            },
-            {
-                title: t.navigation.systemLogs,
-                href: '/admin/logs',
-                icon: ClipboardList,
-            },
-            {
-                title: t.navigation.settings,
-                href: '/admin/settings',
-                icon: Settings,
-            },
-        ];
-    } else if (hasRole(ROLE_NAMES.ADMIN_KAMPUS)) {
-        roleNavItems = [
-            {
                 title: t.navigation.schemes,
                 href: '/admin/schemas',
                 icon: BookType,
+            },
+            {
+                title: t.navigation.criteria,
+                href: '/admin/criteria',
+                icon: ClipboardList,
             },
             {
                 title: t.navigation.proposals,
@@ -121,9 +99,52 @@ export function AppSidebar() {
                 href: '/admin/evaluations',
                 icon: GraduationCap,
             },
+            {
+                title: t.navigation.universities,
+                href: '/admin/universities',
+                icon: Building2,
+            },
+            {
+                title: t.navigation.campusAdmins,
+                href: '/admin/admin-kampus',
+                icon: ShieldCheck,
+            },
+            {
+                title: t.navigation.users,
+                href: '/admin/users',
+                icon: Users,
+            },
+            {
+                title: t.navigation.systemLogs,
+                href: '/admin/logs',
+                icon: ClipboardList,
+            },
+            {
+                title: t.navigation.settings,
+                href: '/admin/settings',
+                icon: Settings,
+            },
+        ];
+    } else if (hasRole(ROLE_NAMES.ADMIN_KAMPUS)) {
+        roleNavItems = [
+            {
+                title: t.navigation.proposals,
+                href: '/admin/proposals',
+                icon: FileText,
+            },
+            {
+                title: t.navigation.monev,
+                href: '/admin/monev',
+                icon: CalendarDays,
+            },
         ];
     } else if (hasRole(ROLE_NAMES.ADMIN_KEUANGAN)) {
         roleNavItems = [
+            {
+                title: t.navigation.rabVerification,
+                href: '/finance/proposals',
+                icon: Calculator,
+            },
             {
                 title: t.navigation.contracts,
                 href: '/finance/contracts',
@@ -202,7 +223,7 @@ export function AppSidebar() {
     const isReviewerOnly =
         !hasRole(ROLE_NAMES.SUPER_ADMIN) && !hasRole(ROLE_NAMES.ADMIN_KAMPUS) && !hasRole(ROLE_NAMES.ADMIN_KEUANGAN) && hasRole(ROLE_NAMES.REVIEWER);
 
-    const dashboardHref = hasRole(ROLE_NAMES.ADMIN_KAMPUS) ? '/admin/dashboard' : '/dashboard';
+    const dashboardHref = hasRole(ROLE_NAMES.SUPER_ADMIN) || hasRole(ROLE_NAMES.ADMIN_KAMPUS) ? '/admin/dashboard' : '/dashboard';
 
     const baseNavItems: NavItem[] = isReviewerOnly
         ? []

@@ -13,7 +13,7 @@ class EditorDecisionRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()?->hasAnyRole([Role::USER, Role::SUPER_ADMIN]) ?? false;
+        return $this->user()?->hasAnyRole([Role::PENELITI, Role::SUPER_ADMIN]) ?? false;
     }
 
     /**

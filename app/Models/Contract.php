@@ -346,6 +346,18 @@ class Contract extends Model
         $this->setTanggalKontrakAttribute($value);
     }
 
+    public function getSignedAtAttribute(): ?Carbon
+    {
+        return $this->getTanggalKontrakAttribute($this->attributes['tanggal_kontrak'] ?? null);
+    }
+
+    public function setSignedAtAttribute($value): void
+    {
+        if (empty($this->attributes['tanggal_kontrak'])) {
+            $this->setTanggalKontrakAttribute($value);
+        }
+    }
+
     public function getFileDokumenKontrakAttribute(): ?string
     {
         return $this->attributes['file_dokumen_kontrak'] ?? null;
@@ -401,8 +413,6 @@ class Contract extends Model
     public function setParty2Attribute($value): void {}
 
     public function setEndDateAttribute($value): void {}
-
-    public function setSignedAtAttribute($value): void {}
 
     public function setNotesAttribute($value): void {}
 

@@ -86,6 +86,17 @@ describe('AppSidebar Navigation Across Roles', () => {
         expect(screen.getByText(en.common.appName)).toBeDefined();
         expect(screen.getByText(en.common.specTag)).toBeDefined();
         expect(screen.getByText(en.navigation.dashboard)).toBeDefined();
+        // Research Lifecycle Features (Merged from Admin LPPM)
+        expect(screen.getByText(en.navigation.schemes)).toBeDefined();
+        expect(screen.getByText(en.navigation.criteria)).toBeDefined();
+        expect(screen.getByText(en.navigation.proposals)).toBeDefined();
+        expect(screen.getByText(en.navigation.reviewerAssignment)).toBeDefined();
+        expect(screen.getAllByText(en.navigation.monev).length).toBeGreaterThan(0);
+        expect(screen.getByText(en.navigation.monevSchedules)).toBeDefined();
+        expect(screen.getAllByText(en.navigation.outputs).length).toBeGreaterThan(0);
+        expect(screen.getByText(en.navigation.outputReports)).toBeDefined();
+        expect(screen.getByText(en.navigation.graduationSkts)).toBeDefined();
+        // Platform Master Data Features
         expect(screen.getByText(en.navigation.universities)).toBeDefined();
         expect(screen.getByText(en.navigation.campusAdmins)).toBeDefined();
         expect(screen.getByText(en.navigation.users)).toBeDefined();
@@ -95,7 +106,7 @@ describe('AppSidebar Navigation Across Roles', () => {
         expect(emojiRegex.test(container.textContent || '')).toBe(false);
     });
 
-    it('renders Admin Kampus sidebar with research lifecycle features', () => {
+    it('renders Admin Kampus sidebar with proposal approval and campus monitoring features', () => {
         currentUser = {
             id: 2,
             name: 'LPPM Operator',
@@ -109,14 +120,8 @@ describe('AppSidebar Navigation Across Roles', () => {
             </TranslationProvider>,
         );
 
-        expect(screen.getByText(en.navigation.schemes)).toBeDefined();
         expect(screen.getByText(en.navigation.proposals)).toBeDefined();
-        expect(screen.getByText(en.navigation.reviewerAssignment)).toBeDefined();
-        expect(screen.getAllByText(en.navigation.monev).length).toBeGreaterThan(0);
-        expect(screen.getByText(en.navigation.monevSchedules)).toBeDefined();
-        expect(screen.getAllByText(en.navigation.outputs).length).toBeGreaterThan(0);
-        expect(screen.getByText(en.navigation.outputReports)).toBeDefined();
-        expect(screen.getByText(en.navigation.graduationSkts)).toBeDefined();
+        expect(screen.getByText(en.navigation.monev)).toBeDefined();
         expect(screen.getByText(en.common.appName)).toBeDefined();
 
         expect(emojiRegex.test(container.textContent || '')).toBe(false);

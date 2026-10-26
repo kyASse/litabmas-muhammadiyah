@@ -1,22 +1,9 @@
 /**
- * CriteriaIndex Component
- *
- * @description
- * Dashboard list page for managing Kriteria Penilaian (Assessment Criteria).
- * Displays a paginated list of evaluation indicators with rich search/filtering,
- * status toggling, and quick actions (view, edit, delete).
- *
- * @route GET /admin/criteria
- *
- * @features
- * - List all criteria with hierarchical relations
- * - Multi-criteria filter (Sub-category, Status, Answer type, Search query)
- * - Beautiful design with status indicators, weight badges, and icons
- * - Pagination control
- * - Delete confirmation modal
- *
- * @author JurnalMU Team
+ * @file Index.tsx
+ * @description Master Kriteria Penilaian: Seleksi Administrasi Dinamis & Rubrik Substansi.
+ *              Menggunakan Hybrid Scholarly Enterprise Design System dan i18n terstandarisasi.
  */
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -30,535 +17,725 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Pagination, PaginationContent, PaginationItem, PaginationLink } from '@/components/ui/pagination';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import LanguageSwitcher from '@/components/ui/LanguageSwitcher';
+import PageHeader from '@/components/ui/PageHeader';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import StatusBadge from '@/components/ui/StatusBadge';
+import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem, type PaginatedData } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
-import { ClipboardList, Edit, Filter, Layers, MoreVertical, Paperclip, Plus, RefreshCw, Search, SlidersHorizontal, Trash2 } from 'lucide-react';
-import { useState } from 'react';
+import { type BreadcrumbItem, type PaginatedData, type SharedData } from '@/types';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { ClipboardCheck, Edit, FileText, Layers, ListChecks, Plus, Search, Trash2, X } from 'lucide-react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-interface SubCategory {
+interface AssessmentCriterion {
     id: number;
-    name: string;
-    category_id: number;
-    category_name: string;
-    template_name: string;
-}
-
-interface Criterion {
-    id: number;
-    code: string;
-    question: string;
-    description?: string;
-    weight: string | number;
-    answer_type: 'boolean' | 'scale' | 'text';
-    answer_type_label: string;
-    requires_attachment: boolean;
-    sort_order: number;
+    nama_kriteria: string;
+    tahap_seleksi: 'Administrasi' | 'Substansi';
+    tipe_jawaban: 'Ya_Tidak' | 'Pilihan_Ganda';
+    bobot: number;
+    deskripsi?: string | null;
+    urutan: number;
     is_active: boolean;
-    sub_category?: {
-        id: number;
-        name: string;
-        category?: {
-            id: number;
-            name: string;
-            template?: {
-                id: number;
-                name: string;
-            };
-        };
-    } | null;
+    created_at?: string;
+    updated_at?: string;
 }
 
 interface Props {
-    criteria: PaginatedData<Criterion>;
-    subCategories: SubCategory[];
+    criteria: PaginatedData<AssessmentCriterion>;
     filters: {
-        sub_category_id?: string;
-        category_id?: string;
+        tahap_seleksi?: string;
+        tipe_jawaban?: string;
         is_active?: string;
-        answer_type?: string;
         search?: string;
     };
 }
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-    },
-    {
-        title: 'Kriteria Penilaian',
-        href: '/admin/criteria',
-    },
-];
+export default function CriteriaIndex({ criteria, filters }: Props) {
+    const { flash } = usePage<SharedData>().props;
+    const { t } = useTranslation();
 
-export default function CriteriaIndex({ criteria, subCategories, filters }: Props) {
+    const breadcrumbs: BreadcrumbItem[] = [
+        { title: t.navigation.dashboard, href: '/dashboard' },
+        { title: t.adminCriteria.pageTitle, href: route('admin.criteria.index') },
+    ];
+
+    // Local filters
     const [search, setSearch] = useState(filters.search || '');
-    const [subCategoryId, setSubCategoryId] = useState(filters.sub_category_id || 'all');
-    const [isActive, setIsActive] = useState(filters.is_active || 'all');
-    const [answerType, setAnswerType] = useState(filters.answer_type || 'all');
-    const [isLoading, setIsLoading] = useState(false);
-    const [deleteDialog, setDeleteDialog] = useState<Criterion | null>(null);
+    const [stageFilter, setStageFilter] = useState(filters.tahap_seleksi || 'all');
+    const [statusFilter, setStatusFilter] = useState(filters.is_active || 'all');
 
-    // Group sub-categories by template > category
-    const groupedSubCategories = subCategories.reduce(
-        (acc, sub) => {
-            const groupKey = `${sub.template_name} › ${sub.category_name}`;
-            if (!acc[groupKey]) {
-                acc[groupKey] = [];
-            }
-            acc[groupKey].push(sub);
-            return acc;
+    // Dialog state
+    const [isCreateOpen, setIsCreateOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [selectedCriterion, setSelectedCriterion] = useState<AssessmentCriterion | null>(null);
+
+    // Form: Create
+    const createForm = useForm({
+        nama_kriteria: '',
+        tahap_seleksi: 'Administrasi',
+        tipe_jawaban: 'Ya_Tidak',
+        bobot: 0,
+        urutan: 1,
+        deskripsi: '',
+        is_active: true,
+    });
+
+    // Form: Edit
+    const editForm = useForm({
+        nama_kriteria: '',
+        tahap_seleksi: 'Administrasi',
+        tipe_jawaban: 'Ya_Tidak',
+        bobot: 0,
+        urutan: 1,
+        deskripsi: '',
+        is_active: true,
+    });
+
+    useEffect(() => {
+        if (flash?.success) toast.success(flash.success);
+        if (flash?.error) toast.error(flash.error);
+    }, [flash]);
+
+    // Apply filters
+    const applyFilters = useCallback(
+        (overrides: Record<string, string> = {}) => {
+            const params: Record<string, string> = {
+                search,
+                tahap_seleksi: stageFilter === 'all' ? '' : stageFilter,
+                is_active: statusFilter === 'all' ? '' : statusFilter,
+                ...overrides,
+            };
+
+            Object.keys(params).forEach((key) => {
+                if (!params[key]) delete params[key];
+            });
+
+            router.get(route('admin.criteria.index'), params, {
+                preserveState: true,
+                preserveScroll: true,
+            });
         },
-        {} as Record<string, SubCategory[]>,
+        [search, stageFilter, statusFilter],
     );
 
-    const handleSearch = (e: React.FormEvent) => {
+    const handleSearchSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         applyFilters();
     };
 
-    const applyFilters = () => {
-        setIsLoading(true);
-        router.get(
-            route('admin.criteria.index'),
-            {
-                ...(search && { search }),
-                ...(subCategoryId !== 'all' && { sub_category_id: subCategoryId }),
-                ...(isActive !== 'all' && { is_active: isActive }),
-                ...(answerType !== 'all' && { answer_type: answerType }),
-            },
-            {
-                preserveState: true,
-                preserveScroll: true,
-                onFinish: () => setIsLoading(false),
-            },
-        );
-    };
-
     const handleClearFilters = () => {
         setSearch('');
-        setSubCategoryId('all');
-        setIsActive('all');
-        setAnswerType('all');
-        setIsLoading(true);
-        router.get(
-            route('admin.criteria.index'),
-            {},
-            {
-                preserveState: false,
-                onFinish: () => setIsLoading(false),
-            },
-        );
+        setStageFilter('all');
+        setStatusFilter('all');
+        router.get(route('admin.criteria.index'));
     };
 
-    const handleDelete = (criterion: Criterion) => {
-        setDeleteDialog(criterion);
+    const handleStageTab = (stage: string) => {
+        setStageFilter(stage);
+        applyFilters({ tahap_seleksi: stage === 'all' ? '' : stage });
     };
 
-    const confirmDelete = () => {
-        if (!deleteDialog) return;
-        router.delete(route('admin.criteria.destroy', deleteDialog.id), {
-            preserveScroll: true,
+    // Open create dialog
+    const handleOpenCreate = () => {
+        createForm.reset();
+        createForm.clearErrors();
+        createForm.setData({
+            nama_kriteria: '',
+            tahap_seleksi: stageFilter === 'Substansi' ? 'Substansi' : 'Administrasi',
+            tipe_jawaban: stageFilter === 'Substansi' ? 'Pilihan_Ganda' : 'Ya_Tidak',
+            bobot: stageFilter === 'Substansi' ? 20 : 0,
+            urutan: (criteria.total ?? 0) + 1,
+            deskripsi: '',
+            is_active: true,
+        });
+        setIsCreateOpen(true);
+    };
+
+    const handleCreateSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        createForm.post(route('admin.criteria.store'), {
             onSuccess: () => {
-                toast.success('Kriteria Penilaian berhasil dihapus');
-                setDeleteDialog(null);
+                setIsCreateOpen(false);
+                createForm.reset();
+                toast.success(t.adminCriteria.saveSuccess);
             },
-            onError: (err) => {
-                toast.error(err.error || 'Gagal menghapus kriteria penilaian');
-                setDeleteDialog(null);
+            onError: () => {
+                toast.error(t.adminCriteria.saveError);
             },
         });
     };
 
-    // Helper to decode HTML entities for pagination labels
-    const decodeHtml = (html: string) => {
-        const txt = document.createElement('textarea');
-        txt.innerHTML = html;
-        return txt.value;
+    // Open edit dialog
+    const handleOpenEdit = (item: AssessmentCriterion) => {
+        setSelectedCriterion(item);
+        editForm.setData({
+            nama_kriteria: item.nama_kriteria,
+            tahap_seleksi: item.tahap_seleksi,
+            tipe_jawaban: item.tipe_jawaban,
+            bobot: item.bobot,
+            urutan: item.urutan,
+            deskripsi: item.deskripsi || '',
+            is_active: item.is_active,
+        });
+        editForm.clearErrors();
+        setIsEditOpen(true);
     };
+
+    const handleEditSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedCriterion) return;
+        editForm.put(route('admin.criteria.update', selectedCriterion.id), {
+            onSuccess: () => {
+                setIsEditOpen(false);
+                setSelectedCriterion(null);
+                toast.success(t.adminCriteria.saveSuccess);
+            },
+            onError: () => {
+                toast.error(t.adminCriteria.saveError);
+            },
+        });
+    };
+
+    // Open delete dialog
+    const handleOpenDelete = (item: AssessmentCriterion) => {
+        setSelectedCriterion(item);
+        setIsDeleteOpen(true);
+    };
+
+    const handleDeleteConfirm = () => {
+        if (!selectedCriterion) return;
+        router.delete(route('admin.criteria.destroy', selectedCriterion.id), {
+            onSuccess: () => {
+                setIsDeleteOpen(false);
+                setSelectedCriterion(null);
+                toast.success(t.adminCriteria.deleteSuccess);
+            },
+        });
+    };
+
+    const hasActiveFilters = Boolean(search || (stageFilter && stageFilter !== 'all') || (statusFilter && statusFilter !== 'all'));
+    const criteriaList = criteria.data ?? [];
+    const isEmpty = criteriaList.length === 0;
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Kriteria Penilaian" />
+            <Head title={t.adminCriteria.pageTitle} />
 
-            <div className="flex h-full flex-col space-y-6 p-4 md:p-6">
-                {/* Title & Add Button */}
-                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-                    <div className="space-y-1">
-                        <div className="flex items-center gap-2.5">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-                                <ClipboardList className="h-5 w-5 text-primary" />
-                            </div>
-                            <h2 className="text-2xl font-bold tracking-tight">Kriteria Penilaian</h2>
+            <div className="flex h-full flex-1 flex-col gap-6 p-4 sm:p-6 lg:p-8">
+                {/* PageHeader */}
+                <PageHeader
+                    title={t.adminCriteria.pageTitle}
+                    subtitle={t.adminCriteria.pageSubtitle}
+                    isEditorialSerif={false}
+                    breadcrumbs={breadcrumbs}
+                    actions={
+                        <div className="flex items-center gap-3">
+                            <LanguageSwitcher variant="compact" />
+                            <Button onClick={handleOpenCreate} className="gap-2 bg-blue-900 font-medium text-white hover:bg-blue-800">
+                                <Plus className="h-4 w-4" />
+                                {t.adminCriteria.btnCreate}
+                            </Button>
                         </div>
-                        <p className="text-sm text-muted-foreground">Kelola parameter rubrik kriteria penilaian untuk evaluasi proposal jurnal</p>
-                    </div>
-                    <Button asChild className="gap-2 self-start shadow-md transition-all duration-300 hover:shadow-lg sm:self-auto">
-                        <Link href={route('admin.criteria.create')}>
-                            <Plus className="h-4 w-4" /> Tambah Kriteria
-                        </Link>
+                    }
+                />
+
+                {/* Stage Tabs */}
+                <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
+                    <Button
+                        variant={stageFilter === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => handleStageTab('all')}
+                        className={stageFilter === 'all' ? 'bg-blue-900 text-white' : ''}
+                    >
+                        <Layers className="mr-1.5 h-4 w-4" />
+                        {t.adminCriteria.tabAll}
+                    </Button>
+                    <Button
+                        variant={stageFilter === 'Administrasi' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => handleStageTab('Administrasi')}
+                        className={stageFilter === 'Administrasi' ? 'bg-blue-900 text-white' : ''}
+                    >
+                        <ListChecks className="mr-1.5 h-4 w-4" />
+                        {t.adminCriteria.tabAdmin}
+                    </Button>
+                    <Button
+                        variant={stageFilter === 'Substansi' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => handleStageTab('Substansi')}
+                        className={stageFilter === 'Substansi' ? 'bg-blue-900 text-white' : ''}
+                    >
+                        <ClipboardCheck className="mr-1.5 h-4 w-4" />
+                        {t.adminCriteria.tabSubstantive}
                     </Button>
                 </div>
 
-                {/* Filters */}
-                <Card className="border border-border/50 bg-card/40 backdrop-blur-sm">
+                {/* Filter & Search Bar */}
+                <Card className="border-slate-200 bg-white shadow-xs">
                     <CardContent className="p-4">
-                        <form onSubmit={handleSearch} className="space-y-4">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <SlidersHorizontal className="mr-1 h-4 w-4 text-muted-foreground" />
-                                <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Filter Pencarian</span>
-                            </div>
-                            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5">
-                                {/* Search */}
-                                <div className="relative lg:col-span-2">
-                                    <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-muted-foreground" />
-                                    <Input
-                                        type="search"
-                                        placeholder="Cari kode, pertanyaan, deskripsi..."
-                                        className="bg-background/50 pl-8 transition-all duration-200 focus:bg-background"
-                                        value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
-                                        disabled={isLoading}
-                                    />
-                                </div>
-
-                                {/* Sub Category */}
-                                <div>
-                                    <Select value={subCategoryId} onValueChange={setSubCategoryId}>
-                                        <SelectTrigger className="bg-background/50 transition-all duration-200 focus:bg-background">
-                                            <SelectValue placeholder="Semua Sub-Kategori" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Semua Sub-Kategori</SelectItem>
-                                            {Object.entries(groupedSubCategories).map(([groupName, subs]) => (
-                                                <SelectGroup key={groupName}>
-                                                    <SelectLabel className="rounded-sm bg-accent/40 px-2 py-1.5 text-xs font-bold tracking-wider text-muted-foreground uppercase">
-                                                        {groupName}
-                                                    </SelectLabel>
-                                                    {subs.map((sub) => (
-                                                        <SelectItem key={sub.id} value={sub.id.toString()}>
-                                                            {sub.name}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectGroup>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                {/* Status */}
-                                <div>
-                                    <Select value={isActive} onValueChange={setIsActive}>
-                                        <SelectTrigger className="bg-background/50 transition-all duration-200 focus:bg-background">
-                                            <SelectValue placeholder="Semua Status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Semua Status</SelectItem>
-                                            <SelectItem value="active">Aktif</SelectItem>
-                                            <SelectItem value="inactive">Nonaktif</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                {/* Answer Type */}
-                                <div>
-                                    <Select value={answerType} onValueChange={setAnswerType}>
-                                        <SelectTrigger className="bg-background/50 transition-all duration-200 focus:bg-background">
-                                            <SelectValue placeholder="Tipe Jawaban" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">Semua Tipe</SelectItem>
-                                            <SelectItem value="boolean">Ya / Tidak</SelectItem>
-                                            <SelectItem value="scale">Skala 1-5</SelectItem>
-                                            <SelectItem value="text">Teks Bebas</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                        <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <div className="relative flex-1">
+                                <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                                <Input
+                                    type="text"
+                                    placeholder={t.adminCriteria.searchPlaceholder}
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="h-10 border-slate-300 bg-white pl-9 text-sm"
+                                />
                             </div>
 
-                            <div className="flex flex-col justify-end gap-2 border-t border-border/30 pt-2 sm:flex-row">
-                                {(search || subCategoryId !== 'all' || isActive !== 'all' || answerType !== 'all') && (
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={handleClearFilters}
-                                        disabled={isLoading}
-                                        className="h-9 gap-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
-                                    >
-                                        <RefreshCw className="h-3.5 w-3.5" />
-                                        Reset Filter
-                                    </Button>
-                                )}
-                                <Button type="submit" disabled={isLoading} size="sm" className="h-9 gap-1.5 px-4">
-                                    <Filter className="h-3.5 w-3.5" />
-                                    {isLoading ? 'Memuat...' : 'Terapkan Filter'}
+                            <Select
+                                value={statusFilter}
+                                onValueChange={(val) => {
+                                    setStatusFilter(val);
+                                    applyFilters({ is_active: val === 'all' ? '' : val });
+                                }}
+                            >
+                                <SelectTrigger className="h-10 w-full border-slate-300 bg-white text-sm sm:w-44">
+                                    <SelectValue placeholder={t.adminCriteria.filterStatus} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">{t.adminCriteria.allStatuses}</SelectItem>
+                                    <SelectItem value="1">{t.adminCriteria.statusActive}</SelectItem>
+                                    <SelectItem value="0">{t.adminCriteria.statusInactive}</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <Button type="submit" variant="secondary" className="h-10 px-5 font-semibold">
+                                {t.common.search}
+                            </Button>
+
+                            {hasActiveFilters && (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    onClick={handleClearFilters}
+                                    className="h-10 text-slate-500 hover:text-slate-900"
+                                >
+                                    <X className="mr-1 h-4 w-4" />
+                                    {t.common.reset}
                                 </Button>
-                            </div>
+                            )}
                         </form>
                     </CardContent>
                 </Card>
 
-                {/* Table list */}
-                <div className="overflow-hidden rounded-lg border border-border/50 bg-card shadow-sm">
+                {/* Table */}
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
                     <Table>
-                        <TableHeader className="bg-muted/40">
-                            <TableRow>
-                                <TableHead className="w-[100px] font-semibold text-foreground/80">Kode</TableHead>
-                                <TableHead className="min-w-[280px] font-semibold text-foreground/80">Pertanyaan & Detail</TableHead>
-                                <TableHead className="w-[180px] font-semibold text-foreground/80">Klasifikasi</TableHead>
-                                <TableHead className="w-[110px] text-center font-semibold text-foreground/80">Bobot</TableHead>
-                                <TableHead className="w-[140px] font-semibold text-foreground/80">Tipe Jawaban</TableHead>
-                                <TableHead className="w-[130px] text-center font-semibold text-foreground/80">Dok. Lampiran</TableHead>
-                                <TableHead className="w-[110px] text-center font-semibold text-foreground/80">Status</TableHead>
-                                <TableHead className="w-[80px] text-right"></TableHead>
+                        <TableHeader className="bg-slate-50">
+                            <TableRow className="border-slate-200">
+                                <TableHead className="w-[60px] text-center font-semibold text-slate-700">{t.adminCriteria.tableColNo}</TableHead>
+                                <TableHead className="font-semibold text-slate-700">{t.adminCriteria.tableColName}</TableHead>
+                                <TableHead className="w-[140px] font-semibold text-slate-700">{t.adminCriteria.tableColStage}</TableHead>
+                                <TableHead className="w-[180px] font-semibold text-slate-700">{t.adminCriteria.tableColType}</TableHead>
+                                <TableHead className="w-[110px] text-center font-semibold text-slate-700">{t.adminCriteria.tableColWeight}</TableHead>
+                                <TableHead className="w-[80px] text-center font-semibold text-slate-700">{t.adminCriteria.tableColOrder}</TableHead>
+                                <TableHead className="w-[120px] font-semibold text-slate-700">{t.adminCriteria.tableColStatus}</TableHead>
+                                <TableHead className="w-[110px] text-right font-semibold text-slate-700">{t.adminCriteria.tableColActions}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {criteria.data.length > 0 ? (
-                                criteria.data.map((item) => (
-                                    <TableRow key={item.id} className="group transition-colors hover:bg-muted/20">
-                                        {/* Code */}
-                                        <TableCell className="pt-4 align-top font-semibold">
-                                            <Badge
-                                                variant="outline"
-                                                className="border-primary/20 bg-background py-1 font-mono text-primary shadow-sm"
-                                            >
-                                                {item.code}
-                                            </Badge>
-                                        </TableCell>
-
-                                        {/* Question & Description */}
-                                        <TableCell className="pt-4 align-top">
-                                            <div className="space-y-1">
-                                                <p className="leading-relaxed font-medium text-foreground">{item.question}</p>
-                                                {item.description && (
-                                                    <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">{item.description}</p>
-                                                )}
-                                            </div>
-                                        </TableCell>
-
-                                        {/* Classification */}
-                                        <TableCell className="pt-4 align-top text-xs">
-                                            {item.sub_category ? (
-                                                <div className="space-y-1 text-muted-foreground">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <Layers className="h-3 w-3 text-primary/60" />
-                                                        <span
-                                                            className="max-w-[150px] truncate font-medium text-foreground/75"
-                                                            title={item.sub_category.name}
-                                                        >
-                                                            {item.sub_category.name}
-                                                        </span>
-                                                    </div>
-                                                    {item.sub_category.category && (
-                                                        <div className="pl-4 text-[10px] opacity-75">
-                                                            {item.sub_category.category.template?.name} &bull; {item.sub_category.category.name}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <span className="text-[11px] text-muted-foreground italic">Legacy (Flat)</span>
-                                            )}
-                                        </TableCell>
-
-                                        {/* Weight */}
-                                        <TableCell className="pt-4 text-center align-top font-bold">
-                                            <Badge
-                                                variant="secondary"
-                                                className="border-purple-100 bg-purple-50 px-2.5 py-0.5 font-mono text-purple-700 hover:bg-purple-50"
-                                            >
-                                                {Number(item.weight).toFixed(2)}
-                                            </Badge>
-                                        </TableCell>
-
-                                        {/* Answer Type */}
-                                        <TableCell className="pt-4 align-top">
-                                            {item.answer_type === 'boolean' && (
-                                                <Badge
-                                                    className="border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm hover:bg-indigo-50"
-                                                    variant="outline"
-                                                >
-                                                    Ya / Tidak
-                                                </Badge>
-                                            )}
-                                            {item.answer_type === 'scale' && (
-                                                <Badge
-                                                    className="border-purple-200 bg-purple-50 text-purple-700 shadow-sm hover:bg-purple-50"
-                                                    variant="outline"
-                                                >
-                                                    Skala 1-5
-                                                </Badge>
-                                            )}
-                                            {item.answer_type === 'text' && (
-                                                <Badge
-                                                    className="border-amber-200 bg-amber-50 text-amber-700 shadow-sm hover:bg-amber-50"
-                                                    variant="outline"
-                                                >
-                                                    Teks Bebas
-                                                </Badge>
-                                            )}
-                                        </TableCell>
-
-                                        {/* Attachment */}
-                                        <TableCell className="pt-4 text-center align-top">
-                                            {item.requires_attachment ? (
-                                                <div className="inline-flex items-center gap-1 rounded-full border border-rose-100 bg-rose-50 px-2 py-0.5 text-xs font-medium text-rose-700">
-                                                    <Paperclip className="h-3 w-3" />
-                                                    Wajib
-                                                </div>
-                                            ) : (
-                                                <span className="text-xs text-muted-foreground">Tidak</span>
-                                            )}
-                                        </TableCell>
-
-                                        {/* Status */}
-                                        <TableCell className="pt-4 text-center align-top">
-                                            {item.is_active ? (
-                                                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
-                                                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                                                    Aktif
-                                                </span>
-                                            ) : (
-                                                <span className="inline-flex items-center gap-1.5 rounded-full border bg-secondary px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                                                    <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
-                                                    Nonaktif
-                                                </span>
-                                            )}
-                                        </TableCell>
-
-                                        {/* Actions */}
-                                        <TableCell className="pt-3 text-right align-top">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="h-8 w-8 opacity-60 transition-opacity group-hover:opacity-100 hover:bg-muted/80"
-                                                    >
-                                                        <MoreVertical className="h-4 w-4" />
-                                                        <span className="sr-only">Actions</span>
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="w-[140px] border-border/50 shadow-md">
-                                                    <DropdownMenuLabel className="text-[11px] text-muted-foreground">Opsi Aksi</DropdownMenuLabel>
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem asChild>
-                                                        <Link
-                                                            href={route('admin.criteria.edit', item.id)}
-                                                            className="flex cursor-pointer items-center gap-2"
-                                                        >
-                                                            <Edit className="h-3.5 w-3.5 text-muted-foreground" />
-                                                            Edit
-                                                        </Link>
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem
-                                                        className="flex cursor-pointer items-center gap-2 text-destructive focus:bg-destructive/10"
-                                                        onClick={() => handleDelete(item)}
-                                                    >
-                                                        <Trash2 className="h-3.5 w-3.5" />
-                                                        Hapus
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            ) : (
+                            {isEmpty ? (
                                 <TableRow>
-                                    <TableCell colSpan={8} className="h-48 bg-muted/5 text-center">
-                                        <div className="flex flex-col items-center justify-center gap-3">
-                                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent text-muted-foreground">
-                                                <ClipboardList className="h-6 w-6" />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-semibold text-foreground">Kriteria tidak ditemukan</p>
-                                                <p className="text-xs text-muted-foreground">Coba ubah kueri pencarian atau buat kriteria baru</p>
-                                            </div>
-                                            <Button variant="outline" size="sm" asChild className="mt-1">
-                                                <Link href={route('admin.criteria.create')}>
-                                                    <Plus className="mr-1 h-3.5 w-3.5" /> Tambah Kriteria
-                                                </Link>
-                                            </Button>
+                                    <TableCell colSpan={8} className="h-40 text-center">
+                                        <div className="flex flex-col items-center gap-2 text-slate-500">
+                                            <FileText className="h-10 w-10 text-slate-300" />
+                                            <p className="font-medium">{t.adminCriteria.emptyTitle}</p>
+                                            <p className="text-xs text-slate-400">{t.adminCriteria.emptySubtitle}</p>
                                         </div>
                                     </TableCell>
                                 </TableRow>
+                            ) : (
+                                criteriaList.map((item, index) => {
+                                    const rowNumber = (criteria.current_page - 1) * criteria.per_page + index + 1;
+                                    return (
+                                        <TableRow key={item.id} className="border-slate-100 hover:bg-slate-50/60">
+                                            <TableCell className="text-center font-mono text-xs text-slate-500">{rowNumber}</TableCell>
+                                            <TableCell>
+                                                <div className="space-y-0.5">
+                                                    <p className="font-bold text-slate-900">{item.nama_kriteria}</p>
+                                                    {item.deskripsi && <p className="line-clamp-1 text-xs text-slate-500">{item.deskripsi}</p>}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge
+                                                    variant="outline"
+                                                    className={
+                                                        item.tahap_seleksi === 'Administrasi'
+                                                            ? 'border-sky-300 bg-sky-50 text-sky-800'
+                                                            : 'border-indigo-300 bg-indigo-50 text-indigo-800'
+                                                    }
+                                                >
+                                                    {item.tahap_seleksi === 'Administrasi'
+                                                        ? t.adminCriteria.stageAdmin
+                                                        : t.adminCriteria.stageSubstantive}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span className="text-xs text-slate-600">
+                                                    {item.tipe_jawaban === 'Ya_Tidak'
+                                                        ? t.adminCriteria.typeYesNo
+                                                        : t.adminCriteria.typeMultipleChoice}
+                                                </span>
+                                            </TableCell>
+                                            <TableCell className="text-center">
+                                                <span className="font-mono text-sm font-semibold text-slate-700">{item.bobot}%</span>
+                                            </TableCell>
+                                            <TableCell className="text-center font-mono text-xs text-slate-600">{item.urutan}</TableCell>
+                                            <TableCell>
+                                                <StatusBadge
+                                                    status={item.is_active ? 'Draft' : 'Terminated'}
+                                                    labelOverride={item.is_active ? t.adminCriteria.statusActive : t.adminCriteria.statusInactive}
+                                                    size="sm"
+                                                />
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleOpenEdit(item)}
+                                                        className="h-8 w-8 p-0 text-slate-600 hover:text-slate-900"
+                                                    >
+                                                        <Edit className="h-4 w-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleOpenDelete(item)}
+                                                        className="h-8 w-8 p-0 text-rose-600 hover:text-rose-800"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
+                                    );
+                                })
                             )}
                         </TableBody>
                     </Table>
+
+                    {/* Pagination */}
+                    {criteria.total > criteria.per_page && (
+                        <div className="border-t border-slate-100 p-4">
+                            <div className="flex items-center justify-between">
+                                <p className="text-xs text-slate-500">
+                                    Menampilkan {criteria.from} – {criteria.to} dari {criteria.total} kriteria
+                                </p>
+                                <div className="flex items-center gap-1">
+                                    {criteria.links.map((link, idx) => {
+                                        if (!link.url) return null;
+                                        return (
+                                            <Link key={idx} href={link.url} preserveState preserveScroll>
+                                                <Button
+                                                    variant={link.active ? 'default' : 'outline'}
+                                                    size="sm"
+                                                    className={link.active ? 'bg-blue-900 text-white' : ''}
+                                                >
+                                                    <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                </Button>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
-
-                {/* Pagination */}
-                {criteria.links && criteria.links.length > 3 && (
-                    <div className="flex flex-col items-center justify-between gap-4 pt-2 sm:flex-row">
-                        <span className="text-xs text-muted-foreground">
-                            Menampilkan <span className="font-semibold text-foreground">{criteria.from || 0}</span> sampai{' '}
-                            <span className="font-semibold text-foreground">{criteria.to || 0}</span> dari{' '}
-                            <span className="font-semibold text-foreground">{criteria.total || 0}</span> kriteria
-                        </span>
-                        <Pagination className="mx-0 w-auto">
-                            <PaginationContent>
-                                {criteria.links.map((link, i: number) => {
-                                    if (!link.url && !link.label) return null;
-
-                                    const label = decodeHtml(link.label);
-
-                                    // Render custom buttons for Prev and Next to make layout cleaner
-                                    const isPrev = link.label.includes('Previous');
-                                    const isNext = link.label.includes('Next');
-
-                                    let linkText = label;
-                                    if (isPrev) linkText = 'Sebelumnya';
-                                    if (isNext) linkText = 'Berikutnya';
-
-                                    return (
-                                        <PaginationItem key={`${link.label}-${i}`}>
-                                            {link.url ? (
-                                                <PaginationLink href={link.url} isActive={link.active} className="h-8 min-w-[32px] text-xs">
-                                                    {linkText}
-                                                </PaginationLink>
-                                            ) : (
-                                                <span className="px-3 py-1.5 text-xs text-muted-foreground/60 select-none">{linkText}</span>
-                                            )}
-                                        </PaginationItem>
-                                    );
-                                })}
-                            </PaginationContent>
-                        </Pagination>
-                    </div>
-                )}
             </div>
 
-            {/* Delete Confirmation Dialog */}
-            <AlertDialog open={!!deleteDialog} onOpenChange={(open) => !open && setDeleteDialog(null)}>
+            {/* ── CREATE DIALOG ─────────────────────────────────────────────── */}
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                <DialogContent className="sm:max-w-[540px]">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-bold text-slate-900">{t.adminCriteria.createTitle}</DialogTitle>
+                        <DialogDescription className="text-xs text-slate-500">{t.adminCriteria.createSubtitle}</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleCreateSubmit} className="space-y-4 py-2">
+                        {/* Tahap Seleksi */}
+                        <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldStage}</Label>
+                            <Select
+                                value={createForm.data.tahap_seleksi}
+                                onValueChange={(val: 'Administrasi' | 'Substansi') => {
+                                    createForm.setData((prev) => ({
+                                        ...prev,
+                                        tahap_seleksi: val,
+                                        tipe_jawaban: val === 'Administrasi' ? 'Ya_Tidak' : 'Pilihan_Ganda',
+                                        bobot: val === 'Administrasi' ? 0 : 20,
+                                    }));
+                                }}
+                            >
+                                <SelectTrigger className="h-10 border-slate-300">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Administrasi">{t.adminCriteria.stageAdmin}</SelectItem>
+                                    <SelectItem value="Substansi">{t.adminCriteria.stageSubstantive}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Nama Kriteria */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="create-nama" className="text-xs font-semibold text-slate-700">
+                                {t.adminCriteria.fieldName} <span className="text-rose-500">*</span>
+                            </Label>
+                            <Input
+                                id="create-nama"
+                                value={createForm.data.nama_kriteria}
+                                onChange={(e) => createForm.setData('nama_kriteria', e.target.value)}
+                                className="h-10 border-slate-300"
+                                required
+                            />
+                            {createForm.errors.nama_kriteria && <p className="text-xs text-rose-600">{createForm.errors.nama_kriteria}</p>}
+                        </div>
+
+                        {/* Tipe Jawaban & Bobot */}
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldType}</Label>
+                                <Select
+                                    value={createForm.data.tipe_jawaban}
+                                    onValueChange={(val: 'Ya_Tidak' | 'Pilihan_Ganda') => createForm.setData('tipe_jawaban', val)}
+                                >
+                                    <SelectTrigger className="h-10 border-slate-300">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Ya_Tidak">{t.adminCriteria.typeYesNo}</SelectItem>
+                                        <SelectItem value="Pilihan_Ganda">{t.adminCriteria.typeMultipleChoice}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="create-bobot" className="text-xs font-semibold text-slate-700">
+                                    {t.adminCriteria.fieldWeight}
+                                </Label>
+                                <Input
+                                    id="create-bobot"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={createForm.data.bobot}
+                                    onChange={(e) => createForm.setData('bobot', Number(e.target.value))}
+                                    className="h-10 border-slate-300"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Urutan */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="create-urutan" className="text-xs font-semibold text-slate-700">
+                                {t.adminCriteria.fieldOrder}
+                            </Label>
+                            <Input
+                                id="create-urutan"
+                                type="number"
+                                min="1"
+                                value={createForm.data.urutan}
+                                onChange={(e) => createForm.setData('urutan', Number(e.target.value))}
+                                className="h-10 border-slate-300"
+                            />
+                        </div>
+
+                        {/* Deskripsi */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="create-desc" className="text-xs font-semibold text-slate-700">
+                                {t.adminCriteria.fieldDesc}
+                            </Label>
+                            <Textarea
+                                id="create-desc"
+                                value={createForm.data.deskripsi}
+                                onChange={(e) => createForm.setData('deskripsi', e.target.value)}
+                                rows={3}
+                                className="resize-none border-slate-300 text-sm"
+                            />
+                        </div>
+
+                        {/* Status Aktif */}
+                        <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="create-status" className="text-xs font-semibold text-slate-700">
+                                    {t.adminCriteria.fieldStatus}
+                                </Label>
+                                <p className="text-xs text-slate-400">Aktifkan agar butir kriteria digunakan pada penilaian.</p>
+                            </div>
+                            <Switch
+                                id="create-status"
+                                checked={createForm.data.is_active}
+                                onCheckedChange={(val) => createForm.setData('is_active', val)}
+                            />
+                        </div>
+
+                        <DialogFooter className="pt-3">
+                            <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
+                                {t.adminCriteria.btnCancel}
+                            </Button>
+                            <Button type="submit" disabled={createForm.processing} className="bg-blue-900 text-white hover:bg-blue-800">
+                                {createForm.processing ? t.common.loading : t.adminCriteria.btnSave}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── EDIT DIALOG ───────────────────────────────────────────────── */}
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="sm:max-w-[540px]">
+                    <DialogHeader>
+                        <DialogTitle className="text-lg font-bold text-slate-900">{t.adminCriteria.editTitle}</DialogTitle>
+                        <DialogDescription className="text-xs text-slate-500">{t.adminCriteria.editSubtitle}</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleEditSubmit} className="space-y-4 py-2">
+                        {/* Tahap Seleksi */}
+                        <div className="space-y-1.5">
+                            <Label className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldStage}</Label>
+                            <Select
+                                value={editForm.data.tahap_seleksi}
+                                onValueChange={(val: 'Administrasi' | 'Substansi') => editForm.setData('tahap_seleksi', val)}
+                            >
+                                <SelectTrigger className="h-10 border-slate-300">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Administrasi">{t.adminCriteria.stageAdmin}</SelectItem>
+                                    <SelectItem value="Substansi">{t.adminCriteria.stageSubstantive}</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {/* Nama Kriteria */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="edit-nama" className="text-xs font-semibold text-slate-700">
+                                {t.adminCriteria.fieldName} <span className="text-rose-500">*</span>
+                            </Label>
+                            <Input
+                                id="edit-nama"
+                                value={editForm.data.nama_kriteria}
+                                onChange={(e) => editForm.setData('nama_kriteria', e.target.value)}
+                                className="h-10 border-slate-300"
+                                required
+                            />
+                            {editForm.errors.nama_kriteria && <p className="text-xs text-rose-600">{editForm.errors.nama_kriteria}</p>}
+                        </div>
+
+                        {/* Tipe Jawaban & Bobot */}
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <div className="space-y-1.5">
+                                <Label className="text-xs font-semibold text-slate-700">{t.adminCriteria.fieldType}</Label>
+                                <Select
+                                    value={editForm.data.tipe_jawaban}
+                                    onValueChange={(val: 'Ya_Tidak' | 'Pilihan_Ganda') => editForm.setData('tipe_jawaban', val)}
+                                >
+                                    <SelectTrigger className="h-10 border-slate-300">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Ya_Tidak">{t.adminCriteria.typeYesNo}</SelectItem>
+                                        <SelectItem value="Pilihan_Ganda">{t.adminCriteria.typeMultipleChoice}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="edit-bobot" className="text-xs font-semibold text-slate-700">
+                                    {t.adminCriteria.fieldWeight}
+                                </Label>
+                                <Input
+                                    id="edit-bobot"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={editForm.data.bobot}
+                                    onChange={(e) => editForm.setData('bobot', Number(e.target.value))}
+                                    className="h-10 border-slate-300"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Urutan */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="edit-urutan" className="text-xs font-semibold text-slate-700">
+                                {t.adminCriteria.fieldOrder}
+                            </Label>
+                            <Input
+                                id="edit-urutan"
+                                type="number"
+                                min="1"
+                                value={editForm.data.urutan}
+                                onChange={(e) => editForm.setData('urutan', Number(e.target.value))}
+                                className="h-10 border-slate-300"
+                            />
+                        </div>
+
+                        {/* Deskripsi */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="edit-desc" className="text-xs font-semibold text-slate-700">
+                                {t.adminCriteria.fieldDesc}
+                            </Label>
+                            <Textarea
+                                id="edit-desc"
+                                value={editForm.data.deskripsi}
+                                onChange={(e) => editForm.setData('deskripsi', e.target.value)}
+                                rows={3}
+                                className="resize-none border-slate-300 text-sm"
+                            />
+                        </div>
+
+                        {/* Status Aktif */}
+                        <div className="flex items-center justify-between rounded-lg border border-slate-200 p-3">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="edit-status" className="text-xs font-semibold text-slate-700">
+                                    {t.adminCriteria.fieldStatus}
+                                </Label>
+                                <p className="text-xs text-slate-400">Aktifkan agar butir kriteria digunakan pada penilaian.</p>
+                            </div>
+                            <Switch
+                                id="edit-status"
+                                checked={editForm.data.is_active}
+                                onCheckedChange={(val) => editForm.setData('is_active', val)}
+                            />
+                        </div>
+
+                        <DialogFooter className="pt-3">
+                            <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>
+                                {t.adminCriteria.btnCancel}
+                            </Button>
+                            <Button type="submit" disabled={editForm.processing} className="bg-blue-900 text-white hover:bg-blue-800">
+                                {editForm.processing ? t.common.loading : t.adminCriteria.btnSave}
+                            </Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* ── DELETE DIALOG ─────────────────────────────────────────────── */}
+            <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Hapus Kriteria Penilaian</AlertDialogTitle>
+                        <AlertDialogTitle>{t.adminCriteria.deleteConfirmTitle}</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Apakah Anda yakin ingin menghapus kriteria penilaian <strong className="text-foreground">"{deleteDialog?.code}"</strong>?
-                            <br />
-                            <br />
-                            Tindakan ini tidak dapat dibatalkan. Kriteria ini tidak akan dapat digunakan lagi di rubrik baru.
+                            {t.adminCriteria.deleteConfirmDesc} ({selectedCriterion?.nama_kriteria})
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                            Hapus Kriteria
+                        <AlertDialogCancel>{t.adminCriteria.btnCancel}</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDeleteConfirm} className="bg-rose-600 text-white hover:bg-rose-700">
+                            {t.common.delete}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

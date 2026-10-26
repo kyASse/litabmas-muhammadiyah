@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('assessment_criteria', function (Blueprint $table) {
             $table->id();
             $table->string('nama_kriteria');
-            $table->unsignedInteger('bobot');
+            $table->unsignedInteger('bobot')->default(0);
             $table->text('deskripsi')->nullable();
             $table->unsignedInteger('urutan')->default(1);
             $table->timestamps();

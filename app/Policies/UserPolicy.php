@@ -42,8 +42,8 @@ class UserPolicy
      * Determine whether the user can create users.
      *
      * Rules:
-     * - Super Admin: Can create Admin Kampus and User
-     * - Admin Kampus: Can create User only within their university.
+     * - Super Admin: Can create Admin Kampus, Admin Keuangan, Reviewer, Peneliti
+     * - Admin Kampus: Can create Peneliti and Reviewer only within their university.
      */
     public function create(User $user): bool
     {
@@ -53,26 +53,25 @@ class UserPolicy
     /**
      * Determine whether the user can assign when creating.
      *
-     * Now supports multi-role assignment. Returns true if user can assign at least one of the specified roles.
+     * Supports multi-role assignment. Returns true if user can assign at least one of the specified roles.
      */
     public function canAssignRole(User $user, string $roleName): bool
     {
-        // Super Admin can assign any role except Super Admin
+        // Super Admin can assign official system roles except Super Admin
         if ($user->isSuperAdmin()) {
             return in_array($roleName, [
                 'Admin Kampus',
-                'User',
-                'Pengelola Jurnal',
+                'Admin Keuangan',
                 'Reviewer',
+                'Peneliti',
             ]);
         }
 
-        // Admin kampus can assign User, Pengelola Jurnal, and Reviewer roles
+        // Admin Kampus can assign Peneliti and Reviewer roles within their university
         if ($user->isAdminKampus()) {
             return in_array($roleName, [
-                'User',
-                'Pengelola Jurnal',
                 'Reviewer',
+                'Peneliti',
             ]);
         }
 
@@ -139,7 +138,7 @@ class UserPolicy
         // Admin Kampus can delete users within their university except Super Admins
         if ($authUser->isAdminKampus()) {
             return $authUser->university_id === $targetUser->university_id
-                && $targetUser->isUser();
+                && $targetUser->isPeneliti();
         }
 
         return false;
@@ -158,7 +157,7 @@ class UserPolicy
         // Admin Kampus can restore users within their university except Super Admins
         if ($authUser->isAdminKampus()) {
             return $authUser->university_id === $targetUser->university_id
-            && $targetUser->isUser();
+            && $targetUser->isPeneliti();
         }
 
         return false;
@@ -191,7 +190,7 @@ class UserPolicy
         // Admin Kampus can toggle users within their university except Super Admins
         if ($authUser->isAdminKampus()) {
             return $authUser->university_id === $targetUser->university_id
-                && $targetUser->isUser();
+                && $targetUser->isPeneliti();
         }
 
         return false;

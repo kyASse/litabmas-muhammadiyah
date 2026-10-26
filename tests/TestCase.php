@@ -13,6 +13,19 @@ use Illuminate\Support\Collection;
 abstract class TestCase extends BaseTestCase
 {
     /**
+     * Creates the application and enforces in-memory sqlite for testing.
+     */
+    public function createApplication()
+    {
+        $app = parent::createApplication();
+
+        if (config('database.default') === 'sqlite') {
+            config(['database.connections.sqlite.database' => ':memory:']);
+        }
+
+        return $app;
+    }
+    /**
      * Seed roles for testing.
      * This is required because many tests use User::factory() which needs roles to exist.
      */
@@ -55,14 +68,6 @@ abstract class TestCase extends BaseTestCase
             [
                 'display_name' => 'Admin Keuangan',
                 'description' => 'Administrator Keuangan Bappeda',
-            ]
-        );
-
-        Role::firstOrCreate(
-            ['name' => Role::USER],
-            [
-                'display_name' => 'User',
-                'description' => 'Generic User / Legacy Compatibility',
             ]
         );
     }

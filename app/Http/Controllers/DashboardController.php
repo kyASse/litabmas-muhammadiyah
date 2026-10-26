@@ -53,9 +53,9 @@ class DashboardController extends Controller
             }
             $proposalCounts = $query->selectRaw("
                 COUNT(*) as total,
-                SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
+                SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted', 'Submitted_Kampus', 'submitted_kampus', 'Approved_Kampus', 'approved_kampus') THEN 1 ELSE 0 END) as masuk,
                 SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved') THEN 1 ELSE 0 END) as lolos,
-                SUM(CASE WHEN status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
+                SUM(CASE WHEN status_proposal IN ('Ditolak', 'ditolak', 'rejected', 'Rejected_Kampus', 'rejected_kampus') THEN 1 ELSE 0 END) as gagal,
                 SUM(CASE WHEN status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft
             ")->first();
         } else {
@@ -65,9 +65,9 @@ class DashboardController extends Controller
             }
             $proposalCounts = $query->selectRaw("
                 COUNT(*) as total,
-                SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted') THEN 1 ELSE 0 END) as masuk,
+                SUM(CASE WHEN status_proposal IN ('Submitted', 'submitted', 'Submitted_Kampus', 'submitted_kampus', 'Approved_Kampus', 'approved_kampus') THEN 1 ELSE 0 END) as masuk,
                 SUM(CASE WHEN status_proposal IN ('Administrasi_Valid', 'administrasi_valid', 'approved') THEN 1 ELSE 0 END) as lolos,
-                SUM(CASE WHEN status_proposal IN ('Ditolak', 'ditolak', 'rejected') THEN 1 ELSE 0 END) as gagal,
+                SUM(CASE WHEN status_proposal IN ('Ditolak', 'ditolak', 'rejected', 'Rejected_Kampus', 'rejected_kampus') THEN 1 ELSE 0 END) as gagal,
                 SUM(CASE WHEN status_proposal IN ('Draft', 'draft') THEN 1 ELSE 0 END) as draft
             ")->first();
         }

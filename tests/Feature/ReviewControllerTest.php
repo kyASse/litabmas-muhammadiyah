@@ -12,11 +12,11 @@ use App\Models\User;
 function sampleKomponenPenilaian(int $skor = 4): array
 {
     return [
-        ['kriteria' => 'Orisinalitas & Kebaruan', 'bobot' => 20, 'skor' => $skor],
-        ['kriteria' => 'Tinjauan Pustaka', 'bobot' => 15, 'skor' => $skor],
-        ['kriteria' => 'Metodologi Penelitian', 'bobot' => 25, 'skor' => $skor],
-        ['kriteria' => 'Luaran & Dampak', 'bobot' => 20, 'skor' => $skor],
-        ['kriteria' => 'Kelayakan Anggaran', 'bobot' => 20, 'skor' => $skor],
+        ['kriteria' => 'Orisinalitas & Kebaruan', 'bobot' => 20, 'skor' => $skor, 'komentar' => 'Memiliki kebaruan yang baik.'],
+        ['kriteria' => 'Tinjauan Pustaka', 'bobot' => 15, 'skor' => $skor, 'komentar' => 'Pustaka cukup mutakhir.'],
+        ['kriteria' => 'Metodologi Penelitian', 'bobot' => 25, 'skor' => $skor, 'komentar' => 'Metodologi terstruktur.'],
+        ['kriteria' => 'Luaran & Dampak', 'bobot' => 20, 'skor' => $skor, 'komentar' => 'Luaran jelas.'],
+        ['kriteria' => 'Kelayakan Anggaran', 'bobot' => 20, 'skor' => $skor, 'komentar' => 'Anggaran wajar.'],
     ];
 }
 
@@ -29,8 +29,8 @@ describe('ReviewController', function () {
         );
 
         $this->userRole = Role::firstOrCreate(
-            ['name' => Role::USER],
-            ['display_name' => 'User', 'description' => 'Regular user']
+            ['name' => Role::PENELITI],
+            ['display_name' => 'Peneliti', 'description' => 'Regular user']
         );
 
         // Pastikan ResearchSchema ada (dibutuhkan oleh ProposalFactory FK)
@@ -57,7 +57,7 @@ describe('ReviewController', function () {
      */
     function createRegularUser(): User
     {
-        $role = Role::where('name', Role::USER)->first();
+        $role = Role::where('name', Role::PENELITI)->first();
 
         return User::factory()->create(['role_id' => $role->id]);
     }
@@ -98,10 +98,10 @@ describe('ReviewController', function () {
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('reviews', [
-            'proposal_id' => $proposal->id,
-            'reviewer_id' => $reviewer->id,
-            'score' => 80,
-            'recommendation' => 'accepted',
+            'id_proposal' => $proposal->id,
+            'id_reviewer' => $reviewer->id,
+            'skor_total' => 80,
+            'keputusan_rekomendasi' => 'Diterima',
         ]);
     });
 
@@ -223,8 +223,8 @@ describe('ReviewController', function () {
 
         $this->assertDatabaseHas('reviews', [
             'id' => $review->id,
-            'score' => 80,
-            'recommendation' => 'accepted',
+            'skor_total' => 80,
+            'keputusan_rekomendasi' => 'Diterima',
         ]);
     });
 
@@ -255,8 +255,8 @@ describe('ReviewController', function () {
         // Pastikan data tidak berubah
         $this->assertDatabaseHas('reviews', [
             'id' => $review->id,
-            'score' => 60,
-            'recommendation' => 'revision',
+            'skor_total' => 60,
+            'keputusan_rekomendasi' => 'Revisi',
         ]);
     });
 });

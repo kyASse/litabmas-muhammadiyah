@@ -30,11 +30,15 @@ interface ProgressReportItem {
     id: number;
     id_proposal?: number;
     id_monev_schedule?: number;
+    tipe_laporan?: string | null;
     persentase_kemajuan: number;
     ringkasan_progres: string;
     catatan_kendala?: string | null;
     file_laporan_kemajuan?: string | null;
     file_logbook?: string | null;
+    file_presentasi?: string | null;
+    file_tagihan?: string | null;
+    nominal_tagihan?: number | string | null;
     skor_monev?: number | string | null;
     catatan_reviewer_monev?: string | null;
     status_laporan: string;
@@ -47,6 +51,7 @@ interface ProgressReportItem {
 interface Filters {
     search?: string;
     status?: string;
+    tipe_laporan?: string;
 }
 
 interface Props {
@@ -71,6 +76,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
     const { t, locale } = useTranslation();
     const [search, setSearch] = useState(initialFilters?.search || '');
     const [status, setStatus] = useState(initialFilters?.status || 'all');
+    const [stage, setStage] = useState(initialFilters?.tipe_laporan || 'all');
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t.navigation.dashboard, href: route('dashboard') },
@@ -84,6 +90,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
             {
                 search: search || undefined,
                 status: status !== 'all' ? status : undefined,
+                tipe_laporan: stage !== 'all' ? stage : undefined,
             },
             { preserveState: true },
         );
@@ -96,6 +103,20 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
             {
                 search: search || undefined,
                 status: val !== 'all' ? val : undefined,
+                tipe_laporan: stage !== 'all' ? stage : undefined,
+            },
+            { preserveState: true },
+        );
+    };
+
+    const handleStageFilter = (val: string) => {
+        setStage(val);
+        router.get(
+            route('progress.index'),
+            {
+                search: search || undefined,
+                status: status !== 'all' ? status : undefined,
+                tipe_laporan: val !== 'all' ? val : undefined,
             },
             { preserveState: true },
         );
@@ -115,6 +136,34 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
         if (lower === 'approved') return 'Monev_Approved';
         if (lower === 'revision') return 'Revisi';
         return 'Submitted';
+    };
+
+    const getStageBadgeStyle = (tipe?: string | null) => {
+        switch (tipe) {
+            case 'Pendahuluan':
+                return 'bg-sky-100 text-sky-800 dark:bg-sky-950/40 dark:text-sky-300 border-sky-200';
+            case 'Bulanan':
+                return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300 border-indigo-200';
+            case 'Akhir':
+                return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200';
+            case 'Antara':
+            default:
+                return 'bg-amber-100 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border-amber-200';
+        }
+    };
+
+    const getStageLabel = (tipe?: string | null) => {
+        switch (tipe) {
+            case 'Pendahuluan':
+                return t.monev.stagePendahuluan;
+            case 'Bulanan':
+                return t.monev.stageBulanan;
+            case 'Akhir':
+                return t.monev.stageAkhir;
+            case 'Antara':
+            default:
+                return t.monev.stageAntara;
+        }
     };
 
     return (
@@ -146,8 +195,9 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                 <Input placeholder={t.common.search} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
                             </div>
 
+                            {/* Filter Status */}
                             <Select value={status} onValueChange={handleStatusFilter}>
-                                <SelectTrigger className="w-full sm:w-48">
+                                <SelectTrigger className="w-full sm:w-44">
                                     <SelectValue placeholder={t.common.all} />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -155,6 +205,20 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                     <SelectItem value="submitted">{t.statuses.Submitted}</SelectItem>
                                     <SelectItem value="approved">{t.statuses.Approved}</SelectItem>
                                     <SelectItem value="revision">{t.statuses.Revision}</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            {/* Filter Tahapan Laporan */}
+                            <Select value={stage} onValueChange={handleStageFilter}>
+                                <SelectTrigger className="w-full sm:w-48">
+                                    <SelectValue placeholder={t.monev.reportStageLabel} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">{t.common.all}</SelectItem>
+                                    <SelectItem value="Pendahuluan">{t.monev.stagePendahuluan}</SelectItem>
+                                    <SelectItem value="Bulanan">{t.monev.stageBulanan}</SelectItem>
+                                    <SelectItem value="Antara">{t.monev.stageAntara}</SelectItem>
+                                    <SelectItem value="Akhir">{t.monev.stageAkhir}</SelectItem>
                                 </SelectContent>
                             </Select>
 
@@ -171,6 +235,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                         <TableHeader>
                             <TableRow className="bg-slate-50 dark:bg-slate-900/40">
                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColProposal}</TableHead>
+                                <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColStage}</TableHead>
                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColSchedule}</TableHead>
                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColPercentage}</TableHead>
                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t.monev.tableColReportFile}</TableHead>
@@ -181,7 +246,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                         <TableBody>
                             {progressReports.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} className="py-12 text-center text-muted-foreground">
+                                    <TableCell colSpan={7} className="py-12 text-center text-muted-foreground">
                                         <FileText className="mx-auto mb-2 h-8 w-8 text-slate-300" />
                                         <p className="text-sm">{t.monev.emptyProgress}</p>
                                     </TableCell>
@@ -191,7 +256,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                     const sched = report.monevSchedule || report.monev_schedule;
                                     return (
                                         <TableRow key={report.id} className="hover:bg-slate-50/60 dark:hover:bg-slate-900/60">
-                                            <TableCell>
+                                            <TableCell className="max-w-xs">
                                                 <div className="font-medium text-foreground">
                                                     {report.proposal?.judul ||
                                                         report.proposal?.title ||
@@ -201,6 +266,13 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                                     <div className="font-mono text-xs text-muted-foreground">{report.proposal.nomor_proposal}</div>
                                                 )}
                                                 <div className="mt-1 line-clamp-1 text-xs text-muted-foreground">{report.ringkasan_progres}</div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <span
+                                                    className={`inline-flex items-center rounded border px-2 py-0.5 font-mono text-xs font-semibold ${getStageBadgeStyle(report.tipe_laporan)}`}
+                                                >
+                                                    {getStageLabel(report.tipe_laporan)}
+                                                </span>
                                             </TableCell>
                                             <TableCell>
                                                 <div className="text-sm font-medium text-foreground">{sched?.nama_tahap || '-'}</div>
@@ -227,7 +299,7 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                                             href={`/storage/${report.file_laporan_kemajuan}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="inline-flex items-center gap-1 font-medium text-blue-900 hover:underline"
+                                                            className="inline-flex items-center gap-1 font-medium text-blue-900 hover:underline dark:text-blue-400"
                                                         >
                                                             <Download className="h-3 w-3" />
                                                             {t.monev.tableColReportFile}
@@ -238,11 +310,40 @@ export default function ProgressIndex({ progressReports, filters: initialFilters
                                                             href={`/storage/${report.file_logbook}`}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="inline-flex items-center gap-1 text-slate-600 hover:underline"
+                                                            className="inline-flex items-center gap-1 text-slate-600 hover:underline dark:text-slate-400"
                                                         >
                                                             <Download className="h-3 w-3" />
                                                             {t.monev.tableColLogbookFile}
                                                         </a>
+                                                    )}
+                                                    {report.file_presentasi && (
+                                                        <a
+                                                            href={`/storage/${report.file_presentasi}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-1 font-medium text-purple-700 hover:underline dark:text-purple-400"
+                                                        >
+                                                            <Download className="h-3 w-3" />
+                                                            {t.monev.tableColPresentation}
+                                                        </a>
+                                                    )}
+                                                    {report.file_tagihan && (
+                                                        <div className="flex flex-col gap-0.5 border-t border-slate-200/60 pt-0.5 dark:border-slate-800">
+                                                            <a
+                                                                href={`/storage/${report.file_tagihan}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1 font-medium text-emerald-700 hover:underline dark:text-emerald-400"
+                                                            >
+                                                                <Download className="h-3 w-3" />
+                                                                {t.monev.tableColBilling}
+                                                            </a>
+                                                            {report.nominal_tagihan && (
+                                                                <div className="font-mono text-[11px] font-semibold text-emerald-800 dark:text-emerald-300">
+                                                                    <TabularFigure value={Number(report.nominal_tagihan)} type="currency" size="sm" />
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     )}
                                                 </div>
                                             </TableCell>

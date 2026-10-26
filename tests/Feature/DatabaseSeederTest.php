@@ -222,15 +222,63 @@ class DatabaseSeederTest extends TestCase
     {
         $this->assertGreaterThanOrEqual(4, AssessmentCriteria::count());
 
-        $totalBobot = (int) AssessmentCriteria::sum('bobot');
+        $substansiCriteria = AssessmentCriteria::where('tahap_seleksi', AssessmentCriteria::TAHAP_SUBSTANSI)->get();
+        $this->assertCount(4, $substansiCriteria);
+
+        $totalBobot = (int) $substansiCriteria->sum('bobot');
         $this->assertEquals(100, $totalBobot);
 
-        $criteria = AssessmentCriteria::orderBy('urutan')->get();
-        foreach ($criteria as $item) {
+        foreach ($substansiCriteria as $item) {
             $this->assertNotEmpty($item->nama_kriteria);
             $this->assertNotEmpty($item->deskripsi);
             $this->assertGreaterThan(0, $item->bobot);
             $this->assertGreaterThan(0, $item->urutan);
+        }
+
+        // Verify dynamic administrative criteria
+        $adminCriteria = AssessmentCriteria::where('tahap_seleksi', AssessmentCriteria::TAHAP_ADMINISTRASI)->get();
+        $this->assertCount(4, $adminCriteria);
+        foreach ($adminCriteria as $item) {
+            $this->assertNotEmpty($item->nama_kriteria);
+            $this->assertEquals(AssessmentCriteria::TIPE_YA_TIDAK, $item->tipe_jawaban);
+            $this->assertEquals(0, $item->bobot);
+            $this->assertTrue((bool) $item->is_active);
+        }
+    }
+
+    /**
+     * Test E-Jarlit Bappeda Kota Yogyakarta 2026 master data is cleanly seeded.
+     */
+    public function test_ejarlit_bappeda_master_data_seeded_successfully(): void
+    {
+        // 1. Verify Core Bappeda accounts
+        $adminBappeda = User::where('email', 'admin.bappeda@jogjakota.go.id')->first();
+        $this->assertNotNull($adminBappeda);
+        $this->assertTrue($adminBappeda->hasRole(Role::SUPER_ADMIN));
+        $this->assertNull($adminBappeda->university_id);
+
+        $keuanganBappeda = User::where('email', 'keuangan.bappeda@jogjakota.go.id')->first();
+        $this->assertNotNull($keuanganBappeda);
+        $this->assertTrue($keuanganBappeda->hasRole(Role::ADMIN_KEUANGAN));
+        $this->assertNull($keuanganBappeda->university_id);
+
+        $reviewerBappeda = User::where('email', 'reviewer.ejarlit@jogjakota.go.id')->first();
+        $this->assertNotNull($reviewerBappeda);
+        $this->assertTrue($reviewerBappeda->hasRole(Role::REVIEWER));
+        $this->assertTrue((bool) $reviewerBappeda->is_reviewer);
+
+        // 2. Verify 7 Partner Universities
+        $expectedCodes = ['UGM', 'UNY', 'UAD', 'UMY', 'UIN', 'UST', 'ISI'];
+        foreach ($expectedCodes as $code) {
+            $univ = University::where('code', $code)->first();
+            $this->assertNotNull($univ, "[FAIL] Universitas mitra {$code} tidak ditemukan.");
+            $this->assertTrue((bool) $univ->is_active);
+
+            // Verify schemas for this university
+            $schemas = ResearchSchema::where('university_id', $univ->id)
+                ->where('tahun_anggaran', 2026)
+                ->get();
+            $this->assertGreaterThanOrEqual(2, $schemas->count());
         }
     }
 
