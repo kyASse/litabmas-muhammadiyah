@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Role;
 use App\Models\University;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;

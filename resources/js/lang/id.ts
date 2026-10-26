@@ -446,8 +446,10 @@ export const id: TranslationType = {
         registeringButton: 'Mendaftarkan Akun...',
         alreadyHaveAccount: 'Sudah memiliki akun?',
         loginHere: 'Masuk di sini',
-        approvalNotice: 'Perhatian: Akun peneliti baru memerlukan verifikasi dan aktivasi oleh Admin LPPM kampus Anda sebelum dapat mengajukan proposal riset.',
-        accountPendingNotice: 'Akun Anda sedang menunggu persetujuan LPPM kampus atau telah dinonaktifkan. Silakan hubungi administrator kampus Anda.',
+        approvalNotice:
+            'Perhatian: Akun peneliti baru memerlukan verifikasi dan aktivasi oleh Admin LPPM kampus Anda sebelum dapat mengajukan proposal riset.',
+        accountPendingNotice:
+            'Akun Anda sedang menunggu persetujuan LPPM kampus atau telah dinonaktifkan. Silakan hubungi administrator kampus Anda.',
     },
     proposalWizard: {
         pageTitle: 'Formulir Pengajuan Proposal Riset',

@@ -25,6 +25,7 @@ abstract class TestCase extends BaseTestCase
 
         return $app;
     }
+
     /**
      * Seed roles for testing.
      * This is required because many tests use User::factory() which needs roles to exist.

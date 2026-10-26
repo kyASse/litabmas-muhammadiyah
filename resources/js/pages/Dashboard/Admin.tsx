@@ -99,15 +99,13 @@ export default function AdminDashboard({ stats, yearlyFundingData, facultyPerfor
                 />
 
                 {Boolean(stats.pending_researchers_count && stats.pending_researchers_count > 0) && (
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50/80 p-4 shadow-xs">
+                    <div className="flex flex-col items-start justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50/80 p-4 shadow-xs sm:flex-row sm:items-center">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-800 shrink-0">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-800">
                                 <UserCheck className="h-5 w-5" />
                             </div>
                             <div>
-                                <h3 className="font-sans text-sm font-semibold text-amber-900">
-                                    {t.adminUsers.pendingResearchers}
-                                </h3>
+                                <h3 className="font-sans text-sm font-semibold text-amber-900">{t.adminUsers.pendingResearchers}</h3>
                                 <p className="font-sans text-xs text-amber-700">
                                     {format(t.adminUsers.pendingCount, { count: stats.pending_researchers_count! })}
                                 </p>

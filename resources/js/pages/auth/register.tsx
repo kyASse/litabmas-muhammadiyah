@@ -63,12 +63,8 @@ export default function Register({ universities }: Props) {
                             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white p-2 shadow-md ring-1 ring-slate-200/90 dark:bg-slate-900 dark:ring-slate-800">
                                 <img src={logoUrl} alt={t.common.appName} className="h-10 w-10 object-contain" />
                             </div>
-                            <h1 className="mt-3 font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-                                {t.common.appName}
-                            </h1>
-                            <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-                                {t.auth.portalSubtitle}
-                            </p>
+                            <h1 className="mt-3 font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.common.appName}</h1>
+                            <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">{t.auth.portalSubtitle}</p>
                         </Link>
                     </div>
 
@@ -76,12 +72,8 @@ export default function Register({ universities }: Props) {
                     <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-800 dark:bg-slate-900">
                         <div className="mb-6 flex items-start justify-between gap-4">
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                                    {t.auth.registerTitle}
-                                </h2>
-                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                    {t.auth.registerSubtitle}
-                                </p>
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t.auth.registerTitle}</h2>
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t.auth.registerSubtitle}</p>
                             </div>
                             <LanguageSwitcher variant="segmented" />
                         </div>
@@ -89,9 +81,7 @@ export default function Register({ universities }: Props) {
                         {/* Approval Notice Banner */}
                         <div className="mb-6 flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50/70 p-3 text-xs text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/40 dark:text-blue-300">
                             <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-800 dark:text-blue-400" />
-                            <p className="leading-relaxed">
-                                {t.auth.approvalNotice}
-                            </p>
+                            <p className="leading-relaxed">{t.auth.approvalNotice}</p>
                         </div>
 
                         <form onSubmit={submit} className="space-y-4">
@@ -245,9 +235,7 @@ export default function Register({ universities }: Props) {
                                 </div>
                             </div>
 
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                                {t.auth.passwordHint}
-                            </p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">{t.auth.passwordHint}</p>
 
                             {/* Submit Button */}
                             <Button

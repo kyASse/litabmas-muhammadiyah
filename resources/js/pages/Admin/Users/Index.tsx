@@ -308,11 +308,7 @@ export default function UsersIndex({
                                 <Building2 className="h-4 w-4 shrink-0 text-slate-400" />
                                 <span className="max-w-[280px] truncate font-sans text-xs font-medium text-slate-700">
                                     {format(t.adminUsers.ownInstitutionOnly, {
-                                        name:
-                                            currentUser?.university?.short_name ||
-                                            currentUser?.university?.name ||
-                                            universities[0]?.name ||
-                                            '-',
+                                        name: currentUser?.university?.short_name || currentUser?.university?.name || universities[0]?.name || '-',
                                     })}
                                 </span>
                             </div>
@@ -412,9 +408,7 @@ export default function UsersIndex({
                         <span>{t.adminUsers.tabAll}</span>
                         <span
                             className={`inline-flex items-center rounded-full px-2 py-0.5 font-mono text-xs ${
-                                isActive === 'all' || !isActive
-                                    ? 'bg-blue-100 font-semibold text-blue-900'
-                                    : 'bg-slate-100 text-slate-600'
+                                isActive === 'all' || !isActive ? 'bg-blue-100 font-semibold text-blue-900' : 'bg-slate-100 text-slate-600'
                             }`}
                         >
                             {stats?.total_users ?? 0}
@@ -504,9 +498,7 @@ export default function UsersIndex({
                                             <TableRow
                                                 key={user.id}
                                                 className={`transition-colors ${
-                                                    !user.is_active
-                                                        ? 'bg-amber-50/40 hover:bg-amber-50/70'
-                                                        : 'hover:bg-slate-50/50'
+                                                    !user.is_active ? 'bg-amber-50/40 hover:bg-amber-50/70' : 'hover:bg-slate-50/50'
                                                 }`}
                                             >
                                                 {/* User & Email */}

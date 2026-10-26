@@ -443,8 +443,10 @@ export const en = {
         registeringButton: 'Submitting Registration...',
         alreadyHaveAccount: 'Already have an account?',
         loginHere: 'Sign in here',
-        approvalNotice: 'Notice: Newly registered researcher accounts require institutional verification and activation by your campus LPPM administrator before accessing research schemes.',
-        accountPendingNotice: 'Your account is awaiting approval by your campus LPPM or has been deactivated. Please contact your campus administrator.',
+        approvalNotice:
+            'Notice: Newly registered researcher accounts require institutional verification and activation by your campus LPPM administrator before accessing research schemes.',
+        accountPendingNotice:
+            'Your account is awaiting approval by your campus LPPM or has been deactivated. Please contact your campus administrator.',
     },
     proposalWizard: {
         pageTitle: 'Research Proposal Submission Wizard',
