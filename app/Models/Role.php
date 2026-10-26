@@ -20,6 +20,11 @@ class Role extends Model
     public const PENELITI = 'Peneliti';
 
     /**
+     * Legacy role constant alias
+     */
+    public const USER = 'Peneliti';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
