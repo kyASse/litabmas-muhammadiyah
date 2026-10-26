@@ -1,3 +1,4 @@
+import logoUrl from '@/assets/logo_dark.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -5,7 +6,7 @@ import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { UniversityCombobox } from '@/components/ui/university-combobox';
 import { useTranslation } from '@/hooks/use-translation';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { GraduationCap, Info } from 'lucide-react';
+import { Info } from 'lucide-react';
 import { FormEventHandler } from 'react';
 
 type University = {
@@ -59,8 +60,8 @@ export default function Register({ universities }: Props) {
                     {/* Header */}
                     <div className="mb-6 text-center">
                         <Link href="/" className="inline-flex flex-col items-center">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-900 text-white shadow-md">
-                                <GraduationCap className="h-7 w-7" />
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white p-2 shadow-md ring-1 ring-slate-200/90 dark:bg-slate-900 dark:ring-slate-800">
+                                <img src={logoUrl} alt={t.common.appName} className="h-10 w-10 object-contain" />
                             </div>
                             <h1 className="mt-3 font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
                                 {t.common.appName}
