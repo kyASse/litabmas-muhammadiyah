@@ -57,8 +57,8 @@ class RegisteredUserController extends Controller
             // LPPM registration - role will be assigned by Dikti after approval
             $roleId = null;
         } else {
-            // Regular User registration
-            $roleId = DB::table('roles')->where('name', Role::USER)->value('id');
+            // Regular User registration (Peneliti)
+            $roleId = DB::table('roles')->where('name', Role::PENELITI)->value('id');
 
             if (! $roleId) {
                 return back()->withErrors([

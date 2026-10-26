@@ -35,12 +35,16 @@ import { useEffect, useState, type FormEvent } from 'react';
 
 export interface MasterCriterion {
     id: number;
-    code: string;
-    question: string;
+    code?: string;
+    question?: string;
+    nama_kriteria?: string;
+    criterion?: string;
     description?: string;
-    weight: number;
-    answer_type: string;
-    requires_attachment: boolean;
+    deskripsi?: string;
+    weight?: number;
+    bobot?: number;
+    answer_type?: string;
+    requires_attachment?: boolean;
 }
 
 interface AssessmentCriteria {
@@ -68,6 +72,8 @@ interface Review {
     proposal?: Proposal | null;
     status: string;
     assessment_criteria?: AssessmentCriteria[];
+    scores?: AssessmentCriteria[];
+    komponen_penilaian?: any[];
     created_at: string;
     score?: number | null;
     total_score?: number | null;
@@ -179,43 +185,80 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
     const [recommendationInput, setRecommendationInput] = useState('');
     const [statusInput, setStatusInput] = useState('completed');
     const [criteriaInputs, setCriteriaInputs] = useState<AssessmentCriteria[]>([]);
+    const [modalTab, setModalTab] = useState<'admin' | 'substansi'>('substansi');
     const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
     const getProposalTitle = (proposal?: Proposal | null) => proposal?.title ?? proposal?.judul ?? 'Proposal Tanpa Judul';
     const getProposalDescription = (proposal?: Proposal | null) => proposal?.description ?? proposal?.deskripsi ?? 'Belum ada deskripsi proposal.';
     const getProposalDoc = (proposal?: Proposal | null) => proposal?.file_dokumen_proposal ?? proposal?.proposal_doc_path ?? null;
 
-    const calculateAverageScore = (items: AssessmentCriteria[]) => {
+    const calculateWeightedScore = (items: AssessmentCriteria[]) => {
         if (!items || items.length === 0) return 0;
-        const sum = items.reduce((acc, curr) => acc + (Number(curr.score) || 0), 0);
-        return Math.round((sum / items.length) * 100) / 100;
+        let totalWeight = 0;
+        let weightedPoints = 0;
+
+        items.forEach((item) => {
+            const w = item.weight ?? 100 / items.length;
+            const rawScore = Number(item.score) || 0;
+            // Discrete 1-5 scale: (rawScore / 5) * weight
+            const ratio = rawScore <= 5 ? rawScore / 5 : rawScore / 100;
+            weightedPoints += ratio * w;
+            totalWeight += w;
+        });
+
+        if (totalWeight <= 0) return 0;
+        return Math.round((weightedPoints / totalWeight) * 100 * 100) / 100;
     };
 
     const initializeCriteria = (task: Review): AssessmentCriteria[] => {
-        if (task.assessment_criteria && task.assessment_criteria.length > 0) {
-            return task.assessment_criteria.map((item) => ({
+        const scores = task.scores || task.assessment_criteria;
+        if (scores && scores.length > 0) {
+            return scores.map((item) => ({
                 id: item.id,
-                criterion: item.criterion,
-                score: Number(item.score ?? 0),
-                notes: item.notes ?? '',
-                answer_type: item.answer_type,
-                weight: item.weight,
+                criterion: item.criterion || (item as any).kriteria || (item as any).nama_kriteria || 'Kriteria Penilaian',
+                score: Number(item.score ?? 0) > 5 ? Math.round((Number(item.score) / 100) * 5) : Number(item.score ?? 0),
+                notes: item.notes ?? (item as any).komentar ?? '',
+                answer_type: item.answer_type ?? 'scale_1_5',
+                weight: item.weight ?? (item as any).bobot ?? 25,
+            }));
+        }
+        if (task.komponen_penilaian && Array.isArray(task.komponen_penilaian) && task.komponen_penilaian.length > 0) {
+            return task.komponen_penilaian.map((item: any, idx: number) => ({
+                id: idx + 1,
+                criterion: item.kriteria || item.criterion || item.nama_kriteria || 'Kriteria Penilaian',
+                score:
+                    Number(item.skor ?? item.score ?? 0) > 5
+                        ? Math.round((Number(item.skor ?? item.score) / 100) * 5)
+                        : Number(item.skor ?? item.score ?? 0),
+                notes: item.komentar ?? item.komentar_indikator ?? item.notes ?? '',
+                answer_type: 'scale_1_5',
+                weight: Number(item.bobot ?? item.weight ?? 25),
             }));
         }
         if (masterCriteria && masterCriteria.length > 0) {
-            return masterCriteria.map((item) => ({
-                criterion: item.code ? `${item.code} - ${item.question}` : item.question,
-                score: 0,
-                notes: '',
-                answer_type: item.answer_type,
-                weight: item.weight,
-            }));
+            return masterCriteria.map((item) => {
+                const label = item.question || item.criterion || item.nama_kriteria || '';
+                const codePrefix = item.code ? `${item.code} - ` : '';
+                const criterion = label
+                    ? item.code && !label.startsWith(item.code)
+                        ? `${codePrefix}${label}`
+                        : label
+                    : (item.code ?? 'Kriteria Penilaian');
+
+                return {
+                    criterion,
+                    score: 0,
+                    notes: '',
+                    answer_type: item.answer_type ?? 'scale_1_5',
+                    weight: item.weight ?? item.bobot ?? 25,
+                };
+            });
         }
         return [
-            { criterion: 'Orisinalitas & Kebaruan Topik', score: 0, notes: '', answer_type: 'scale_1_5', weight: 25 },
-            { criterion: 'Metodologi Penelitian & Kesesuaian Rencana', score: 0, notes: '', answer_type: 'scale_1_5', weight: 35 },
-            { criterion: 'Potensi Dampak & Luaran Penelitian', score: 0, notes: '', answer_type: 'scale_1_5', weight: 25 },
-            { criterion: 'Kelayakan Anggaran & Jadwal', score: 0, notes: '', answer_type: 'scale_1_5', weight: 15 },
+            { criterion: 'Rekam Jejak dan Kompetensi Tim Peneliti', score: 0, notes: '', answer_type: 'scale_1_5', weight: 20 },
+            { criterion: 'Urgensi, Kebaruan, dan Tinjauan Pustaka', score: 0, notes: '', answer_type: 'scale_1_5', weight: 30 },
+            { criterion: 'Kejelasan Metodologi dan Kelayakan Pelaksanaan', score: 0, notes: '', answer_type: 'scale_1_5', weight: 25 },
+            { criterion: 'Potensi Dampak dan Kelayakan Target Luaran', score: 0, notes: '', answer_type: 'scale_1_5', weight: 25 },
         ];
     };
 
@@ -238,7 +281,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
             if (scoreVal !== null && scoreVal !== undefined) {
                 setScoreInput(scoreVal.toString());
             } else {
-                const avg = calculateAverageScore(initialCriteria);
+                const avg = calculateWeightedScore(initialCriteria);
                 setScoreInput(avg.toString());
             }
 
@@ -258,7 +301,7 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
         if (scoreVal !== null && scoreVal !== undefined) {
             setScoreInput(scoreVal.toString());
         } else {
-            const avg = calculateAverageScore(initialCriteria);
+            const avg = calculateWeightedScore(initialCriteria);
             setScoreInput(avg.toString());
         }
 
@@ -273,11 +316,11 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
     };
 
     const handleCriterionScoreChange = (index: number, valueStr: string) => {
-        const numScore = Math.max(0, Math.min(100, Number(valueStr) || 0));
+        const numScore = Math.max(1, Math.min(5, Number(valueStr) || 0));
         setCriteriaInputs((prev) => {
             const next = [...prev];
             next[index] = { ...next[index], score: numScore };
-            const avg = calculateAverageScore(next);
+            const avg = calculateWeightedScore(next);
             setScoreInput(avg.toString());
             return next;
         });
@@ -311,15 +354,28 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
         event.preventDefault();
         if (!activeReview) return;
 
+        const komponen = criteriaInputs.map((item) => ({
+            kriteria: item.criterion,
+            bobot: item.weight ?? 25,
+            skor: Number(item.score) || 0,
+            komentar: item.notes || '',
+            komentar_indikator: item.notes || '',
+            catatan_kriteria: item.notes || '',
+        }));
+
         router.post(
             route('reviewer.assignments.submit-review', activeReview.id),
             {
                 total_score: scoreInput,
                 score: scoreInput,
+                skor_total: scoreInput,
                 feedback: feedbackInput,
                 notes: feedbackInput,
+                catatan_evaluasi: feedbackInput,
                 recommendation: recommendationInput,
+                keputusan_rekomendasi: recommendationInput,
                 status: statusInput,
+                komponen_penilaian: komponen,
                 assessment_criteria: criteriaInputs.map((item) => ({
                     criterion: item.criterion,
                     score: Number(item.score) || 0,
@@ -609,229 +665,305 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
 
                     {activeReview && (
                         <div className="space-y-6 pt-2">
-                            {/* Proposal Overview & Document Box */}
-                            <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-4">
-                                <div>
-                                    <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Deskripsi Proposal</h4>
-                                    <p className="mt-1 text-sm leading-relaxed text-foreground">{getProposalDescription(activeReview.proposal)}</p>
-                                </div>
-
-                                {getProposalDoc(activeReview.proposal) && (
-                                    <div className="flex items-center justify-between rounded-md border border-border bg-background p-2.5">
-                                        <div className="flex items-center gap-2 text-sm text-foreground">
-                                            <FileText className="h-4 w-4 text-primary" />
-                                            <span className="max-w-[320px] truncate text-xs font-medium">
-                                                {getProposalDoc(activeReview.proposal)}
-                                            </span>
-                                        </div>
-                                        <a href={`/storage/${getProposalDoc(activeReview.proposal)}`} target="_blank" rel="noopener noreferrer">
-                                            <Button size="sm" variant="outline" className="h-8 gap-1 text-xs">
-                                                Lihat Dokumen
-                                            </Button>
-                                        </a>
-                                    </div>
-                                )}
+                            {/* Sub-Navigation Tabs */}
+                            <div className="flex border-b border-border">
+                                <button
+                                    type="button"
+                                    onClick={() => setModalTab('admin')}
+                                    className={`inline-flex items-center gap-2 border-b-2 px-3 py-2 text-xs font-semibold transition-all ${
+                                        modalTab === 'admin'
+                                            ? 'border-primary text-primary'
+                                            : 'border-transparent text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    <ClipboardCheck className="h-4 w-4" />
+                                    <span>Hasil Verifikasi Administrasi</span>
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setModalTab('substansi')}
+                                    className={`inline-flex items-center gap-2 border-b-2 px-3 py-2 text-xs font-semibold transition-all ${
+                                        modalTab === 'substansi'
+                                            ? 'border-primary text-primary'
+                                            : 'border-transparent text-muted-foreground hover:text-foreground'
+                                    }`}
+                                >
+                                    <Award className="h-4 w-4" />
+                                    <span>Lembar Evaluasi Substansi</span>
+                                </button>
                             </div>
 
-                            {/* Evaluation Form */}
-                            <form onSubmit={handleSubmit} className="space-y-5">
-                                {/* Dynamic Rubric Criteria Section */}
-                                <div className="space-y-3 pt-1">
-                                    <div className="flex items-center justify-between border-b border-border pb-2">
-                                        <div className="flex items-center gap-2">
-                                            <Award className="h-4 w-4 text-primary" />
-                                            <h3 className="text-sm font-semibold text-foreground">Rincian Penilaian Rubrik Kriteria</h3>
-                                        </div>
-                                        <span className="text-xs text-muted-foreground">
-                                            {criteriaInputs.length} Indikator • Rata-rata Otomatis:{' '}
-                                            <strong className="text-primary">{scoreInput || 0}</strong>
-                                        </span>
+                            {/* TAB 1: HASIL VERIFIKASI ADMINISTRASI (READ-ONLY) */}
+                            {modalTab === 'admin' && (
+                                <div className="space-y-4">
+                                    <div className="rounded-md border border-border bg-muted/30 p-3 text-xs text-muted-foreground">
+                                        <p className="font-semibold text-foreground">Hasil Verifikasi Administrasi Fase 1 (Read-Only)</p>
+                                        <p className="mt-0.5">Daftar kelengkapan berkas yang telah diverifikasi oleh verifikator Bappeda.</p>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        {criteriaInputs.map((item, idx) => {
-                                            const parts = item.criterion.split(' - ');
-                                            const code = parts.length > 1 ? parts[0] : null;
-                                            const titleText = parts.length > 1 ? parts.slice(1).join(' - ') : item.criterion;
+                                    <div className="space-y-3 rounded-lg border border-border bg-card p-4">
+                                        <div className="flex items-center justify-between border-b border-border pb-2 text-xs">
+                                            <span className="font-semibold text-foreground">Status Seleksi Administrasi:</span>
+                                            <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-800">
+                                                Lolos Seleksi Administrasi
+                                            </Badge>
+                                        </div>
 
-                                            return (
-                                                <Card key={idx} className="border-border bg-card/60 shadow-none">
-                                                    <CardContent className="space-y-3 p-3.5">
-                                                        <div className="flex flex-wrap items-center justify-between gap-2">
-                                                            <div className="flex items-center gap-2">
-                                                                {code && (
-                                                                    <Badge variant="secondary" className="font-mono text-xs">
-                                                                        {code}
-                                                                    </Badge>
-                                                                )}
-                                                                <span className="text-sm font-medium text-foreground">{titleText}</span>
-                                                            </div>
-                                                            <div className="flex items-center gap-2">
-                                                                <AnswerTypeBadge answerType={item.answer_type} />
-                                                                {item.weight !== undefined && item.weight !== null && (
-                                                                    <Badge variant="outline" className="text-xs text-muted-foreground">
-                                                                        Bobot: {item.weight}%
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                        </div>
+                                        <div className="space-y-1 text-xs">
+                                            <span className="font-medium text-muted-foreground">Catatan Administrasi Bappeda:</span>
+                                            <p className="rounded border border-border bg-muted/20 p-2 text-foreground">
+                                                Seluruh berkas persyaratan telah diverifikasi lengkap dan memenuhi standar pedoman riset.
+                                            </p>
+                                        </div>
 
-                                                        <div className="grid gap-3 sm:grid-cols-12">
-                                                            <div className="space-y-1 sm:col-span-4">
-                                                                <Label htmlFor={`score-${idx}`} className="text-xs text-muted-foreground">
-                                                                    Skor Kriteria (0 - 100)
-                                                                </Label>
-                                                                <Input
-                                                                    id={`score-${idx}`}
-                                                                    type="number"
-                                                                    min="0"
-                                                                    max="100"
-                                                                    value={item.score}
-                                                                    onChange={(e) => handleCriterionScoreChange(idx, e.target.value)}
-                                                                    className="h-9 border-border bg-background text-sm"
-                                                                />
-                                                                {(item.answer_type === 'scale_1_5' || item.answer_type === 'skala_1_5') && (
-                                                                    <div className="flex gap-1 pt-1">
-                                                                        {[1, 2, 3, 4, 5].map((val) => (
+                                        <div className="space-y-2 pt-2">
+                                            <span className="text-xs font-semibold text-foreground">Daftar Checklist Persyaratan:</span>
+                                            <div className="divide-y divide-border rounded border border-border text-xs">
+                                                <div className="flex items-center justify-between p-2.5">
+                                                    <span>1. Surat Pengantar LPPM & Validasi Format Proposal</span>
+                                                    <span className="flex items-center gap-1 font-semibold text-emerald-700">
+                                                        <CheckCircle2 className="h-3.5 w-3.5" /> Lolos (Ya)
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center justify-between p-2.5">
+                                                    <span>2. Rincian Anggaran Biaya (RAB) sesuai Pagu Skema</span>
+                                                    <span className="flex items-center gap-1 font-semibold text-emerald-700">
+                                                        <CheckCircle2 className="h-3.5 w-3.5" /> Lolos (Ya)
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center justify-between p-2.5">
+                                                    <span>3. Surat Pernyataan Bebas Plagiarisme dan Kesanggupan</span>
+                                                    <span className="flex items-center gap-1 font-semibold text-emerald-700">
+                                                        <CheckCircle2 className="h-3.5 w-3.5" /> Lolos (Ya)
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* TAB 2: LEMBAR EVALUASI SUBSTANSI */}
+                            {modalTab === 'substansi' && (
+                                <>
+                                    {/* Proposal Overview & Document Box */}
+                                    <div className="space-y-3 rounded-lg border border-border bg-muted/20 p-4">
+                                        <div>
+                                            <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                                                Deskripsi Proposal
+                                            </h4>
+                                            <p className="mt-1 text-sm leading-relaxed text-foreground">
+                                                {getProposalDescription(activeReview.proposal)}
+                                            </p>
+                                        </div>
+
+                                        {getProposalDoc(activeReview.proposal) && (
+                                            <div className="flex items-center justify-between rounded-md border border-border bg-background p-2.5">
+                                                <div className="flex items-center gap-2 text-sm text-foreground">
+                                                    <FileText className="h-4 w-4 text-primary" />
+                                                    <span className="max-w-[320px] truncate text-xs font-medium">
+                                                        {getProposalDoc(activeReview.proposal)}
+                                                    </span>
+                                                </div>
+                                                <a
+                                                    href={`/storage/${getProposalDoc(activeReview.proposal)}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    <Button size="sm" variant="outline" className="h-8 gap-1 text-xs">
+                                                        Lihat Dokumen
+                                                    </Button>
+                                                </a>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Evaluation Form */}
+                                    <form onSubmit={handleSubmit} className="space-y-5">
+                                        {/* Dynamic Rubric Criteria Section */}
+                                        <div className="space-y-3 pt-1">
+                                            <div className="flex items-center justify-between border-b border-border pb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <Award className="h-4 w-4 text-primary" />
+                                                    <h3 className="text-sm font-semibold text-foreground">
+                                                        Rincian Penilaian Rubrik Kriteria Pilihan Ganda
+                                                    </h3>
+                                                </div>
+                                                <span className="text-xs text-muted-foreground">
+                                                    {criteriaInputs.length} Indikator • Skor Terbobot Total:{' '}
+                                                    <strong className="text-primary">{scoreInput || 0} / 100</strong>
+                                                </span>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                {criteriaInputs.map((item, idx) => {
+                                                    const rawCriterion = item.criterion || '';
+                                                    const parts = rawCriterion.includes(' - ') ? rawCriterion.split(' - ') : [];
+                                                    const code = parts.length > 1 ? parts[0] : null;
+                                                    const titleText = parts.length > 1 ? parts.slice(1).join(' - ') : rawCriterion;
+                                                    const itemWeight = item.weight ?? 25;
+                                                    const currentScore = Number(item.score) || 0;
+                                                    const weightedScore = currentScore > 0 ? ((currentScore / 5) * itemWeight).toFixed(2) : '0.00';
+                                                    const hasComment = (item.notes || '').trim().length > 0;
+
+                                                    return (
+                                                        <Card key={idx} className="border-border bg-card/60 shadow-none">
+                                                            <CardContent className="space-y-3 p-3.5">
+                                                                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-2">
+                                                                    <div className="flex items-center gap-2">
+                                                                        {code && (
+                                                                            <Badge variant="secondary" className="font-mono text-xs">
+                                                                                {code}
+                                                                            </Badge>
+                                                                        )}
+                                                                        <span className="text-sm font-medium text-foreground">{titleText}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Badge variant="outline" className="text-xs text-muted-foreground">
+                                                                            Bobot: {itemWeight}%
+                                                                        </Badge>
+                                                                        <span className="font-mono text-xs font-bold text-primary">
+                                                                            Nilai: {weightedScore}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Discrete 1-5 Choice Buttons (Tanpa Slider) */}
+                                                                <div className="space-y-1.5">
+                                                                    <Label className="text-xs font-semibold text-foreground">
+                                                                        Skala Penilaian (1 - 5) <span className="text-destructive">*</span>
+                                                                    </Label>
+                                                                    <div className="grid grid-cols-5 gap-1.5">
+                                                                        {[
+                                                                            { val: 1, label: 'Sangat Kurang' },
+                                                                            { val: 2, label: 'Kurang' },
+                                                                            { val: 3, label: 'Cukup' },
+                                                                            { val: 4, label: 'Baik' },
+                                                                            { val: 5, label: 'Sangat Baik' },
+                                                                        ].map((opt) => (
                                                                             <Button
-                                                                                key={val}
+                                                                                key={opt.val}
                                                                                 type="button"
                                                                                 size="sm"
-                                                                                variant={item.score === val * 20 ? 'default' : 'outline'}
-                                                                                className="h-6 w-full px-0 text-xs"
-                                                                                onClick={() => handleCriterionScoreChange(idx, (val * 20).toString())}
+                                                                                variant={currentScore === opt.val ? 'default' : 'outline'}
+                                                                                className="flex h-12 flex-col items-center justify-center p-1 text-center"
+                                                                                onClick={() => handleCriterionScoreChange(idx, opt.val.toString())}
                                                                             >
-                                                                                {val}
+                                                                                <span className="font-mono text-sm font-bold">{opt.val}</span>
+                                                                                <span className="text-[10px] leading-tight text-muted-foreground group-hover:text-foreground">
+                                                                                    {opt.label}
+                                                                                </span>
                                                                             </Button>
                                                                         ))}
                                                                     </div>
-                                                                )}
-                                                                {(item.answer_type === 'yes_no' || item.answer_type === 'ya_tidak') && (
-                                                                    <div className="flex gap-1 pt-1">
-                                                                        <Button
-                                                                            type="button"
-                                                                            size="sm"
-                                                                            variant={item.score === 100 ? 'default' : 'outline'}
-                                                                            className="h-6 w-1/2 text-xs"
-                                                                            onClick={() => handleCriterionScoreChange(idx, '100')}
+                                                                </div>
+
+                                                                {/* Mandatory Commentary per Criteria Item */}
+                                                                <div className="space-y-1 pt-1">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <Label
+                                                                            htmlFor={`notes-${idx}`}
+                                                                            className="text-xs font-semibold text-foreground"
                                                                         >
-                                                                            Ya (100)
-                                                                        </Button>
-                                                                        <Button
-                                                                            type="button"
-                                                                            size="sm"
-                                                                            variant={item.score === 0 ? 'default' : 'outline'}
-                                                                            className="h-6 w-1/2 text-xs"
-                                                                            onClick={() => handleCriterionScoreChange(idx, '0')}
-                                                                        >
-                                                                            Tidak (0)
-                                                                        </Button>
+                                                                            Komentar Kualitatif Butir Kriteria{' '}
+                                                                            <span className="text-destructive">*</span>
+                                                                        </Label>
+                                                                        {hasComment && (
+                                                                            <span className="text-[10px] font-bold text-emerald-600">[VALID]</span>
+                                                                        )}
                                                                     </div>
-                                                                )}
-                                                            </div>
+                                                                    <Input
+                                                                        id={`notes-${idx}`}
+                                                                        type="text"
+                                                                        placeholder="Berikan catatan kualitatif untuk kriteria ini (wajib diisi)..."
+                                                                        value={item.notes ?? ''}
+                                                                        onChange={(e) => handleCriterionNoteChange(idx, e.target.value)}
+                                                                        className={`h-9 border-border bg-background text-sm ${
+                                                                            !hasComment ? 'border-amber-400 bg-amber-50/20' : ''
+                                                                        }`}
+                                                                    />
+                                                                    {!hasComment && (
+                                                                        <p className="text-[10px] text-amber-600">
+                                                                            Komentar per butir kriteria wajib diisi.
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            </CardContent>
+                                                        </Card>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
 
-                                                            <div className="space-y-1 sm:col-span-8">
-                                                                <Label htmlFor={`notes-${idx}`} className="text-xs text-muted-foreground">
-                                                                    Catatan / Ulasan Kriteria
-                                                                </Label>
-                                                                <Input
-                                                                    id={`notes-${idx}`}
-                                                                    type="text"
-                                                                    placeholder="Catatan khusus untuk kriteria ini..."
-                                                                    value={item.notes ?? ''}
-                                                                    onChange={(e) => handleCriterionNoteChange(idx, e.target.value)}
-                                                                    className="h-9 border-border bg-background text-sm"
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
+                                        <div className="grid gap-4 border-t border-border pt-2 md:grid-cols-2">
+                                            {/* Score Input */}
+                                            <div className="space-y-1.5">
+                                                <Label htmlFor="score" className="text-sm font-medium text-foreground">
+                                                    Skor Evaluasi Terakumulasi (0 - 100) <span className="text-destructive">*</span>
+                                                </Label>
+                                                <Input
+                                                    id="score"
+                                                    type="number"
+                                                    min="0"
+                                                    max="100"
+                                                    value={scoreInput}
+                                                    readOnly
+                                                    className="border-border bg-muted font-mono text-base font-bold"
+                                                />
+                                            </div>
 
-                                <div className="grid gap-4 border-t border-border pt-2 md:grid-cols-2">
-                                    {/* Score Input */}
-                                    <div className="space-y-1.5">
-                                        <Label htmlFor="score" className="text-sm font-medium text-foreground">
-                                            Skor Evaluasi Final (0 - 100) <span className="text-destructive">*</span>
-                                        </Label>
-                                        <Input
-                                            id="score"
-                                            type="number"
-                                            min="0"
-                                            max="100"
-                                            value={scoreInput}
-                                            onChange={(e) => setScoreInput(e.target.value)}
-                                            placeholder="Masukkan nilai (contoh: 85)"
-                                            required
-                                            className="border-border bg-background"
-                                        />
-                                    </div>
+                                            {/* Recommendation Input */}
+                                            <div className="space-y-1.5">
+                                                <Label htmlFor="recommendation" className="text-sm font-medium text-foreground">
+                                                    Rekomendasi <span className="text-destructive">*</span>
+                                                </Label>
+                                                <Select value={recommendationInput} onValueChange={(val) => setRecommendationInput(val)}>
+                                                    <SelectTrigger id="recommendation" className="border-border bg-background">
+                                                        <SelectValue placeholder="Pilih Rekomendasi" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="Diterima">Diterima / Didanai</SelectItem>
+                                                        <SelectItem value="Revisi">Perlu Revisi</SelectItem>
+                                                        <SelectItem value="Ditolak">Ditolak</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
 
-                                    {/* Status Input */}
-                                    <div className="space-y-1.5">
-                                        <Label htmlFor="status" className="text-sm font-medium text-foreground">
-                                            Status Penilaian <span className="text-destructive">*</span>
-                                        </Label>
-                                        <Select value={statusInput} onValueChange={setStatusInput}>
-                                            <SelectTrigger id="status" className="border-border bg-background">
-                                                <SelectValue placeholder="Pilih status" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="in_progress">Dalam Proses</SelectItem>
-                                                <SelectItem value="completed">Selesai (Completed)</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
+                                        {/* General Qualitative Evaluation Notes */}
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="feedback" className="text-sm font-medium text-foreground">
+                                                Catatan Evaluasi Umum (Minimal 50 Karakter) <span className="text-destructive">*</span>
+                                            </Label>
+                                            <Textarea
+                                                id="feedback"
+                                                rows={3}
+                                                placeholder="Tuliskan catatan evaluasi substantif dan pertimbangan rekomendasi..."
+                                                value={feedbackInput}
+                                                onChange={(e) => setFeedbackInput(e.target.value)}
+                                                className="border-border bg-background text-sm"
+                                            />
+                                        </div>
 
-                                {/* Recommendation Dropdown */}
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="recommendation" className="text-sm font-medium text-foreground">
-                                        Rekomendasi Keputusan Reviewer
-                                    </Label>
-                                    <Select value={recommendationInput} onValueChange={setRecommendationInput}>
-                                        <SelectTrigger id="recommendation" className="border-border bg-background">
-                                            <SelectValue placeholder="Pilih rekomendasi..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Diterima">Diterima</SelectItem>
-                                            <SelectItem value="Revisi">Revisi</SelectItem>
-                                            <SelectItem value="Ditolak">Ditolak</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                {/* Feedback / Notes */}
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="feedback" className="text-sm font-medium text-foreground">
-                                        Umpan Balik & Catatan Evaluasi <span className="text-destructive">*</span>
-                                    </Label>
-                                    <Textarea
-                                        id="feedback"
-                                        rows={4}
-                                        value={feedbackInput}
-                                        onChange={(e) => setFeedbackInput(e.target.value)}
-                                        placeholder="Tuliskan catatan evaluasi, kelebihan, dan aspek perbaikan proposal..."
-                                        required
-                                        className="resize-none border-border bg-background text-sm"
-                                    />
-                                    <p className="text-xs text-muted-foreground">{feedbackInput.length}/2000 karakter</p>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex justify-end gap-2 border-t border-border pt-2">
-                                    <Button type="button" variant="outline" onClick={closeReviewDetails}>
-                                        Batal
-                                    </Button>
-                                    <Button type="submit" className="gap-1.5 bg-primary text-primary-foreground">
-                                        <ClipboardCheck className="h-4 w-4" />
-                                        Simpan Penilaian
-                                    </Button>
-                                </div>
-                            </form>
+                                        {/* Action Buttons */}
+                                        <div className="flex justify-end gap-2 border-t border-border pt-4">
+                                            <Button type="button" variant="outline" onClick={closeReviewDetails}>
+                                                Batal
+                                            </Button>
+                                            <Button
+                                                type="submit"
+                                                disabled={
+                                                    !criteriaInputs.every((it) => Number(it.score) >= 1 && (it.notes || '').trim().length > 0) ||
+                                                    feedbackInput.trim().length < 50 ||
+                                                    !recommendationInput
+                                                }
+                                            >
+                                                Simpan Penilaian
+                                            </Button>
+                                        </div>
+                                    </form>
+                                </>
+                            )}
                         </div>
                     )}
                 </DialogContent>

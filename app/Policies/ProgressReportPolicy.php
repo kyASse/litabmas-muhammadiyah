@@ -14,7 +14,7 @@ class ProgressReportPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasAnyRole([Role::USER, Role::REVIEWER, Role::ADMIN_KAMPUS, Role::SUPER_ADMIN]);
+        return $user->hasAnyRole([Role::PENELITI, Role::REVIEWER, Role::ADMIN_KAMPUS, Role::SUPER_ADMIN]);
     }
 
     /**
@@ -54,7 +54,7 @@ class ProgressReportPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasAnyRole([Role::USER, Role::SUPER_ADMIN]);
+        return $user->hasAnyRole([Role::PENELITI, Role::SUPER_ADMIN]);
     }
 
     /**

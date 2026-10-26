@@ -198,6 +198,39 @@ class Funding extends Model
     |--------------------------------------------------------------------------
     */
 
+    public function isAntaraApproved(): bool
+    {
+        if ($this->termin_ke !== 2) {
+            return true;
+        }
+
+        $proposal = $this->contract?->proposal;
+        if (! $proposal) {
+            return false;
+        }
+
+        return $proposal->progressReports()
+            ->where('status_laporan', ProgressReport::STATUS_APPROVED)
+            ->where(function ($query) {
+                $query->where('tipe_laporan', ProgressReport::TIPE_ANTARA)
+                    ->orWhereNull('tipe_laporan');
+            })
+            ->exists();
+    }
+
+    public function canBeDisbursed(): bool
+    {
+        if ($this->status_pencairan === self::STATUS_DISBURSED) {
+            return false;
+        }
+
+        if ($this->termin_ke === 2) {
+            return $this->isAntaraApproved();
+        }
+
+        return true;
+    }
+
     public function getIdContractAttribute(): ?int
     {
         return isset($this->attributes['id_contract']) ? (int) $this->attributes['id_contract'] : null;

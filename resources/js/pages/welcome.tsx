@@ -1,3 +1,4 @@
+import logoUrl from '@/assets/logo_dark.png';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { MetricCard } from '@/components/ui/MetricCard';
@@ -7,19 +8,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useTranslation } from '@/hooks/use-translation';
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
-import {
-    ArrowRight,
-    Award,
-    BookOpen,
-    Building2,
-    CheckCircle2,
-    FileText,
-    GraduationCap,
-    LayoutDashboard,
-    Lock,
-    Search,
-    ShieldCheck,
-} from 'lucide-react';
+import { ArrowRight, Award, BookOpen, Building2, CheckCircle2, FileText, LayoutDashboard, Lock, Search, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 
 interface ResearchSchemeItem {
@@ -85,8 +74,8 @@ export default function Welcome() {
                 <nav className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/95">
                     <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-900 text-white shadow-sm">
-                                <GraduationCap className="h-6 w-6" />
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+                                <img src={logoUrl} alt={t.common.appName} className="h-8 w-8 object-contain" />
                             </div>
                             <div className="flex min-w-0 flex-col">
                                 <span className="font-serif text-base font-bold tracking-tight text-slate-900 sm:text-lg dark:text-white">
@@ -376,13 +365,17 @@ export default function Welcome() {
                 <footer className="border-t border-slate-200 bg-slate-50 py-12 dark:border-slate-800 dark:bg-slate-950">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-900 text-white">
-                                    <GraduationCap className="h-5 w-5" />
+                            <div className="flex items-start gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+                                    <img src={logoUrl} alt={t.common.appName} className="h-8 w-8 object-contain" />
                                 </div>
                                 <div className="min-w-0">
                                     <p className="font-serif text-sm font-bold text-slate-900 dark:text-white">{t.common.appName}</p>
-                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">{t.welcome.footerInstitution}</p>
+                                    <p className="text-[11px] font-semibold text-slate-600 dark:text-slate-300">{t.welcome.footerInstitution}</p>
+                                    <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">{t.common.bappedaAddress}</p>
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                                        Surel: {t.common.bappedaEmail} | Telepon: {t.common.bappedaPhone}
+                                    </p>
                                 </div>
                             </div>
 

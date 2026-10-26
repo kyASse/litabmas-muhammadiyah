@@ -18,6 +18,10 @@ export interface FundingDisburseTarget {
     status_pencairan: string;
     status_label?: string;
     is_monev_approved?: boolean;
+    file_tagihan?: string | null;
+    nominal_tagihan?: number | null;
+    file_presentasi?: string | null;
+    tipe_laporan_tagihan?: string | null;
     contract?: {
         id: number;
         nomor_kontrak: string;
@@ -137,6 +141,28 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({ funding, open, onO
                             className="font-semibold text-emerald-700"
                         />
                     </div>
+
+                    {funding.file_tagihan && (
+                        <div className="flex items-center justify-between border-t border-slate-200/80 pt-2 text-xs">
+                            <div className="space-y-0.5">
+                                <span className="font-semibold text-slate-700">{t.funding.tableColBillingDoc}</span>
+                                {funding.nominal_tagihan && (
+                                    <div className="font-mono text-xs text-slate-900">
+                                        <TabularFigure value={funding.nominal_tagihan} type="currency" size="sm" weight="semibold" />
+                                    </div>
+                                )}
+                            </div>
+                            <a
+                                href={`/storage/${funding.file_tagihan}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1 rounded border border-slate-300 bg-white px-2.5 py-1 font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                            >
+                                <FileCheck className="h-3.5 w-3.5 text-teal-600" />
+                                <span>{t.funding.viewBillingDoc}</span>
+                            </a>
+                        </div>
+                    )}
                 </div>
 
                 {/* Monev Gatekeeper Lock Warning / Indicator */}

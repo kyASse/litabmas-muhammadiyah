@@ -79,7 +79,7 @@ class UpdateProposalRequest extends FormRequest
             'abstrak' => ['nullable', 'string'],
             'latar_belakang' => ['nullable', 'string'],
             'biaya_yang_diusulkan' => ['nullable', 'numeric', 'min:0'],
-            'action' => ['nullable', 'string', 'in:draft,submit'],
+            'action' => ['nullable', 'string', 'in:draft,submit,submit_kampus,submit-kampus,campus'],
             'file_dokumen_proposal' => [
                 'nullable',
                 'file',

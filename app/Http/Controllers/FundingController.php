@@ -177,7 +177,14 @@ class FundingController extends Controller
 
         $fundings = $query->orderBy('created_at', 'desc')->paginate(10)->through(function ($f) {
             $proposal = $f->contract?->proposal;
-            $hasApprovedMonev = (bool) ($proposal && $proposal->progressReports->contains(fn ($r) => $r->status_laporan === 'Approved'));
+            $hasApprovedMonev = (bool) ($proposal && $proposal->progressReports->contains(
+                fn ($r) => $r->status_laporan === 'Approved' && ($r->tipe_laporan === 'Antara' || empty($r->tipe_laporan))
+            ));
+
+            $billingReport = $proposal?->progressReports
+                ->filter(fn ($r) => ! empty($r->file_tagihan))
+                ->sortByDesc('id')
+                ->first();
 
             return [
                 'id' => $f->id,
@@ -194,6 +201,10 @@ class FundingController extends Controller
                 'catatan_keuangan' => $f->catatan_keuangan ?? $f->notes,
                 'reference_number' => $f->reference_number,
                 'is_monev_approved' => $hasApprovedMonev,
+                'file_tagihan' => $billingReport?->file_tagihan,
+                'nominal_tagihan' => $billingReport?->nominal_tagihan ? (float) $billingReport->nominal_tagihan : null,
+                'file_presentasi' => $billingReport?->file_presentasi,
+                'tipe_laporan_tagihan' => $billingReport?->tipe_laporan,
                 'contract' => $f->contract ? [
                     'id' => $f->contract->id,
                     'nomor_kontrak' => $f->contract->nomor_kontrak ?? $f->contract->contract_number,

@@ -60,7 +60,7 @@ class PresentationDemoSeeder extends Seeder
             ->where('name', Role::ADMIN_KAMPUS)
             ->value('id');
         $userRoleId = DB::table('roles')
-            ->where('name', Role::USER)
+            ->where('name', Role::PENELITI)
             ->value('id');
 
         // Get UAD university ID

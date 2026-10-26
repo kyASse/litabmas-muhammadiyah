@@ -253,11 +253,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Scope to get Users (Pengelola Jurnal)
+     * Scope to get Peneliti (Dosen)
      */
-    public function scopePengelolaJurnal($query)
+    public function scopePeneliti($query)
     {
-        return $query->byRole(Role::USER);
+        return $query->byRole(Role::PENELITI);
     }
 
     /**
@@ -307,20 +307,11 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user is Pengelola Jurnal (User role)
+     * Check if user is Peneliti
      */
-    public function isUser(): bool
+    public function isPeneliti(): bool
     {
-        return $this->hasRole(Role::USER);
-    }
-
-    /**
-     * Check if user is Pengelola Jurnal
-     */
-    public function isPengelolaJurnal(): bool
-    {
-        // Pengelola Jurnal is the same as User role, or a separate role
-        return $this->isUser() || $this->hasRole(Role::PENGELOLA_JURNAL);
+        return $this->hasRole(Role::PENELITI);
     }
 
     /**

@@ -30,8 +30,8 @@ class RegisterController extends Controller
             'phone' => 'nullable|string|max:20',
         ]);
 
-        // Automatically assign User role (Author default)
-        $roleId = DB::table('roles')->where('name', Role::USER)->value('id');
+        // Automatically assign Peneliti role (Author / Peneliti default)
+        $roleId = DB::table('roles')->where('name', Role::PENELITI)->value('id');
 
         if (! $roleId) {
             return back()->withErrors([

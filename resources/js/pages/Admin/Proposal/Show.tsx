@@ -15,13 +15,16 @@
  *
  * @route GET /admin/proposals/{proposal}
  */
+import AdminVerificationModal, { type AdminCriterionItem } from '@/components/AdminVerificationModal';
 import AssignModal from '@/components/AssignModal';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
+import { formatCurrency } from '@/lib/format';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import {
     AlertTriangle,
@@ -35,6 +38,7 @@ import {
     GraduationCap,
     Mail,
     RefreshCw,
+    ShieldCheck,
     UserCheck,
     UserX,
     X,
@@ -87,6 +91,14 @@ interface ProposalDetail {
     status_proposal: string;
     rejection_reason: string | null;
     file_dokumen_proposal: string | null;
+    biaya_yang_diusulkan?: number;
+    rekomendasi_anggaran?: number | null;
+    is_administrasi_approved?: boolean | null;
+    is_rab_approved?: boolean | null;
+    catatan_administrasi?: string | null;
+    catatan_keuangan?: string | null;
+    tanggal_verifikasi_administrasi?: string | null;
+    tanggal_verifikasi_rab?: string | null;
     created_at: string;
     updated_at: string;
     user: ProposalUser | null;
@@ -104,6 +116,7 @@ interface AvailableReviewer {
 interface Props {
     proposal: ProposalDetail;
     availableReviewers: AvailableReviewer[];
+    adminCriteria?: AdminCriterionItem[];
 }
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
@@ -112,7 +125,19 @@ function StatusBadge({ status }: { status: string }) {
     const config: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; bg: string }> = {
         Draft: { label: 'Draft', variant: 'secondary', bg: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
         Submitted: { label: 'Menunggu Review', variant: 'outline', bg: 'border-blue-500/40 bg-blue-500/10 text-blue-700 dark:text-blue-400' },
+        Submitted_Kampus: {
+            label: 'Menunggu Kampus',
+            variant: 'outline',
+            bg: 'border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300',
+        },
+        Approved_Kampus: {
+            label: 'Disetujui Kampus',
+            variant: 'default',
+            bg: 'border-indigo-500/40 bg-indigo-500/10 text-indigo-700 dark:text-indigo-300',
+        },
         Administrasi_Valid: { label: 'Valid Administrasi', variant: 'default', bg: 'bg-emerald-600 text-white dark:bg-emerald-700' },
+        Lolos_Administrasi: { label: 'Lolos Administrasi & RAB', variant: 'default', bg: 'bg-emerald-600 text-white dark:bg-emerald-700' },
+        Ditolak_Administrasi: { label: 'Ditolak Administrasi', variant: 'destructive', bg: 'bg-red-600 text-white dark:bg-red-700' },
         Ditolak: { label: 'Ditolak', variant: 'destructive', bg: 'bg-red-600 text-white dark:bg-red-700' },
     };
     const { label, bg } = config[status] ?? { label: status, bg: 'bg-slate-200 text-slate-800' };
@@ -121,8 +146,21 @@ function StatusBadge({ status }: { status: string }) {
 
 // ─── Reject Modal ─────────────────────────────────────────────────────────────
 
-function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: number; proposalTitle: string; onClose: () => void }) {
-    const { data, setData, post, processing, errors, reset } = useForm({ rejection_reason: '' });
+function RejectModal({
+    proposalId,
+    proposalTitle,
+    isCampusReject,
+    onClose,
+}: {
+    proposalId: number;
+    proposalTitle: string;
+    isCampusReject?: boolean;
+    onClose: () => void;
+}) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        rejection_reason: '',
+        catatan_penolakan: '',
+    });
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
@@ -131,7 +169,11 @@ function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: numbe
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        post(route('admin.proposals.reject', { proposal: proposalId }), {
+        const targetRoute = isCampusReject
+            ? route('admin.proposals.campus-reject', { proposal: proposalId })
+            : route('admin.proposals.reject', { proposal: proposalId });
+
+        post(targetRoute, {
             onSuccess: () => {
                 reset();
                 onClose();
@@ -147,9 +189,17 @@ function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: numbe
                         <XCircle className="h-5 w-5" />
                     </div>
                     <div>
-                        <h2 className="text-base font-semibold text-foreground">Tolak Proposal</h2>
+                        <h2 className="text-base font-semibold text-foreground">
+                            {isCampusReject ? 'Tolak Usulan Internal Kampus' : 'Tolak Proposal'}
+                        </h2>
                         <p className="mt-0.5 text-sm text-muted-foreground">
-                            Anda akan menolak proposal: <span className="font-medium text-foreground">{proposalTitle}</span>
+                            {isCampusReject ? (
+                                'Berikan catatan perbaikan internal agar dosen dapat merevisi usulan.'
+                            ) : (
+                                <span>
+                                    Anda akan menolak proposal: <span className="font-medium text-foreground">{proposalTitle}</span>
+                                </span>
+                            )}
                         </p>
                     </div>
                     <button onClick={onClose} className="ml-auto rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground">
@@ -166,16 +216,19 @@ function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: numbe
                             ref={textareaRef}
                             rows={4}
                             value={data.rejection_reason}
-                            onChange={(e) => setData('rejection_reason', e.target.value)}
-                            placeholder="Tuliskan alasan penolakan secara spesifik..."
+                            onChange={(e) => {
+                                setData('rejection_reason', e.target.value);
+                                setData('catatan_penolakan', e.target.value);
+                            }}
+                            placeholder="Tuliskan catatan perbaikan atau alasan penolakan secara spesifik..."
                             className={`w-full resize-none rounded-lg border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-ring focus:outline-none ${
-                                errors.rejection_reason ? 'border-destructive' : 'border-border'
+                                errors.rejection_reason || errors.catatan_penolakan ? 'border-destructive' : 'border-border'
                             }`}
                         />
-                        {errors.rejection_reason && (
+                        {(errors.rejection_reason || errors.catatan_penolakan) && (
                             <p className="mt-1 flex items-center gap-1 text-xs text-destructive">
                                 <AlertTriangle className="h-3 w-3" />
-                                {errors.rejection_reason}
+                                {errors.rejection_reason || errors.catatan_penolakan}
                             </p>
                         )}
                         <p className="mt-1 text-xs text-muted-foreground">{data.rejection_reason.length}/500 karakter</p>
@@ -184,8 +237,8 @@ function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: numbe
                         <Button type="button" variant="outline" onClick={onClose} disabled={processing}>
                             Batal
                         </Button>
-                        <Button type="submit" variant="destructive" disabled={processing}>
-                            {processing ? 'Memproses...' : 'Konfirmasi Penolakan'}
+                        <Button type="submit" variant="destructive" disabled={processing || data.rejection_reason.length < 5}>
+                            {processing ? 'Memproses...' : isCampusReject ? 'Tolak Kampus' : 'Konfirmasi Penolakan'}
                         </Button>
                     </div>
                 </form>
@@ -194,13 +247,170 @@ function RejectModal({ proposalId, proposalTitle, onClose }: { proposalId: numbe
     );
 }
 
+// ─── Dual Verification Progress Card ─────────────────────────────────────────
+
+function DualVerificationProgressCard({ proposal }: { proposal: ProposalDetail }) {
+    const { t } = useTranslation();
+    const isDualApproved =
+        (proposal.is_administrasi_approved === true && proposal.is_rab_approved === true) || proposal.status_proposal === 'Lolos_Administrasi';
+    const isDualRejected =
+        proposal.is_administrasi_approved === false || proposal.is_rab_approved === false || proposal.status_proposal === 'Ditolak_Administrasi';
+
+    return (
+        <Card className="border border-border bg-card shadow-xs">
+            <CardHeader className="pb-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                    <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                        <ShieldCheck className="h-4 w-4 text-primary" />
+                        {t.dualVerificationCard.title}
+                    </CardTitle>
+                    {isDualApproved ? (
+                        <Badge className="border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-700 dark:text-emerald-300">
+                            [SIAP REVIEW]
+                        </Badge>
+                    ) : isDualRejected ? (
+                        <Badge className="border-destructive/30 bg-destructive/10 text-xs text-destructive">[DITOLAK]</Badge>
+                    ) : (
+                        <Badge variant="outline" className="border-amber-500/30 bg-amber-500/10 text-xs text-amber-800 dark:text-amber-300">
+                            [MENUNGGU VERIFIKASI]
+                        </Badge>
+                    )}
+                </div>
+                <CardDescription className="text-xs">{t.dualVerificationCard.subtitle}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {/* Gate 1: Administrasi */}
+                    <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3.5">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-foreground">{t.dualVerificationCard.adminGateTitle}</span>
+                            {proposal.is_administrasi_approved === true ? (
+                                <Badge className="gap-1 border-emerald-500/30 bg-emerald-500/10 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+                                    <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                                    {t.dualVerificationCard.statusApproved}
+                                </Badge>
+                            ) : proposal.is_administrasi_approved === false ? (
+                                <Badge className="gap-1 border-destructive/30 bg-destructive/10 text-[11px] font-medium text-destructive">
+                                    <XCircle className="h-3 w-3 text-destructive" />
+                                    {t.dualVerificationCard.statusRejected}
+                                </Badge>
+                            ) : (
+                                <Badge variant="outline" className="gap-1 border-border text-[11px] font-medium text-muted-foreground">
+                                    <Clock className="h-3 w-3" />
+                                    {t.dualVerificationCard.statusPending}
+                                </Badge>
+                            )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">{t.dualVerificationCard.adminGateDesc}</p>
+                        {proposal.tanggal_verifikasi_administrasi && (
+                            <div className="font-mono text-[10px] text-muted-foreground">
+                                {t.dualVerificationCard.verifiedOn.replace('{date}', proposal.tanggal_verifikasi_administrasi)}
+                            </div>
+                        )}
+                        {proposal.catatan_administrasi && (
+                            <div className="rounded border border-border/50 bg-background/60 p-2 text-[11px] text-foreground/90">
+                                <span className="block text-[10px] font-semibold text-muted-foreground uppercase">
+                                    {t.dualVerificationCard.notesLabel}
+                                </span>
+                                {proposal.catatan_administrasi}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Gate 2: RAB Audit */}
+                    <div className="space-y-2 rounded-lg border border-border bg-muted/30 p-3.5">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-semibold text-foreground">{t.dualVerificationCard.rabGateTitle}</span>
+                            {proposal.is_rab_approved === true ? (
+                                <Badge className="gap-1 border-emerald-500/30 bg-emerald-500/10 text-[11px] font-medium text-emerald-700 dark:text-emerald-300">
+                                    <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                                    {t.dualVerificationCard.statusApproved}
+                                </Badge>
+                            ) : proposal.is_rab_approved === false ? (
+                                <Badge className="gap-1 border-destructive/30 bg-destructive/10 text-[11px] font-medium text-destructive">
+                                    <XCircle className="h-3 w-3 text-destructive" />
+                                    {t.dualVerificationCard.statusRejected}
+                                </Badge>
+                            ) : (
+                                <Badge
+                                    variant="secondary"
+                                    className="gap-1 border-amber-500/30 bg-amber-500/10 text-[11px] font-medium text-amber-800 dark:text-amber-300"
+                                >
+                                    <Clock className="h-3 w-3 text-amber-600" />
+                                    {t.dualVerificationCard.statusPending}
+                                </Badge>
+                            )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">{t.dualVerificationCard.rabGateDesc}</p>
+                        {proposal.biaya_yang_diusulkan && (
+                            <div className="font-mono text-[11px] text-muted-foreground">
+                                Diusulkan: <span className="font-semibold text-foreground">{formatCurrency(proposal.biaya_yang_diusulkan)}</span>
+                                {proposal.rekomendasi_anggaran && (
+                                    <span className="mt-0.5 block text-emerald-700 dark:text-emerald-400">
+                                        Rekomendasi: {formatCurrency(proposal.rekomendasi_anggaran)}
+                                    </span>
+                                )}
+                            </div>
+                        )}
+                        {proposal.tanggal_verifikasi_rab && (
+                            <div className="font-mono text-[10px] text-muted-foreground">
+                                {t.dualVerificationCard.verifiedOn.replace('{date}', proposal.tanggal_verifikasi_rab)}
+                            </div>
+                        )}
+                        {proposal.catatan_keuangan && (
+                            <div className="rounded border border-border/50 bg-background/60 p-2 text-[11px] text-foreground/90">
+                                <span className="block text-[10px] font-semibold text-muted-foreground uppercase">
+                                    {t.dualVerificationCard.notesLabel}
+                                </span>
+                                {proposal.catatan_keuangan}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Status Notice Alert */}
+                {isDualApproved ? (
+                    <div className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-800 dark:text-emerald-300">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                        <span>{t.dualVerificationCard.dualApprovedNotice}</span>
+                    </div>
+                ) : (
+                    !isDualRejected && (
+                        <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-800 dark:text-amber-300">
+                            <Clock className="h-4 w-4 shrink-0 text-amber-600" />
+                            <span>{t.dualVerificationCard.dualPendingNotice}</span>
+                        </div>
+                    )
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export default function ShowProposal({ proposal, availableReviewers }: Props) {
-    const { flash } = usePage<{ flash: { success?: string; error?: string } }>().props;
+export default function ShowProposal({ proposal, availableReviewers, adminCriteria = [] }: Props) {
+    const { flash, auth } = usePage<SharedData>().props;
+    const isSuperAdmin = auth?.user?.role?.name === 'Super Admin' || auth?.user?.roles?.some((r) => r.name === 'Super Admin');
+    const isAdminKampus = auth?.user?.role?.name === 'Admin Kampus' || auth?.user?.roles?.some((r) => r.name === 'Admin Kampus');
+
     const [showAssignModal, setShowAssignModal] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
+    const [showVerifyModal, setShowVerifyModal] = useState(false);
     const [flashMessage, setFlashMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+    // Auto-open modal jika URL mengindikasikan aksi verifikasi dari tabel antrean
+    useEffect(() => {
+        if (typeof window !== 'undefined' && window.location.search.includes('verify=1')) {
+            setShowVerifyModal(true);
+        }
+    }, []);
+
+    const isSubmittedKampus = isAdminKampus && (proposal.status_proposal === 'Submitted_Kampus' || proposal.status_proposal === 'Submitted');
+    const isSubmittedBappeda = isSuperAdmin && (proposal.status_proposal === 'Approved_Kampus' || proposal.status_proposal === 'Submitted_Bappeda');
+    const isDualApproved =
+        (proposal.is_administrasi_approved === true && proposal.is_rab_approved === true) || proposal.status_proposal === 'Lolos_Administrasi';
+    const isReviewable = isSuperAdmin && isDualApproved;
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: 'Dashboard', href: '/dashboard' },
@@ -216,8 +426,13 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
         return () => clearTimeout(timer);
     }, [flash]);
 
-    const handleApprove = () => {
-        if (!confirm(`Setujui proposal "${proposal.title}" (Validasi Administrasi)?`)) return;
+    const handleCampusApprove = () => {
+        if (!confirm(`Setujui usulan "${proposal.title}" mewakili kampus?`)) return;
+        router.post(route('admin.proposals.campus-approve', { proposal: proposal.id }));
+    };
+
+    const handleAdminApprove = () => {
+        if (!confirm(`Setujui kelayakan administrasi proposal "${proposal.title}"?`)) return;
         router.post(route('admin.proposals.approve', { proposal: proposal.id }));
     };
 
@@ -258,8 +473,24 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                 </div>
             )}
 
+            {/* Admin Verification Modal */}
+            <AdminVerificationModal
+                isOpen={showVerifyModal}
+                onClose={() => setShowVerifyModal(false)}
+                proposalId={proposal.id}
+                proposalTitle={proposal.title}
+                adminCriteria={adminCriteria}
+            />
+
             {/* Reject Modal */}
-            {showRejectModal && <RejectModal proposalId={proposal.id} proposalTitle={proposal.title} onClose={() => setShowRejectModal(false)} />}
+            {showRejectModal && (
+                <RejectModal
+                    proposalId={proposal.id}
+                    proposalTitle={proposal.title}
+                    isCampusReject={isSubmittedKampus}
+                    onClose={() => setShowRejectModal(false)}
+                />
+            )}
 
             {/* Assign Modal */}
             <AssignModal
@@ -281,11 +512,34 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                     </Link>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        {proposal.status_proposal === 'Submitted' && (
+                        {/* Admin Kampus: Persetujuan Tingkat Kampus */}
+                        {isSubmittedKampus && (
                             <>
-                                <Button onClick={handleApprove} className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
+                                <Button onClick={handleCampusApprove} className="gap-1.5 bg-emerald-600 text-white hover:bg-emerald-700">
+                                    <ShieldCheck className="h-4 w-4" />
+                                    Setujui Kampus
+                                </Button>
+                                <Button onClick={() => setShowRejectModal(true)} variant="destructive" className="gap-1.5">
+                                    <XCircle className="h-4 w-4" />
+                                    Tolak Kampus
+                                </Button>
+                            </>
+                        )}
+
+                        {/* Super Admin Bappeda: Validasi Administrasi Pusat */}
+                        {!isSubmittedKampus && isSubmittedBappeda && (
+                            <>
+                                <Button
+                                    onClick={() => setShowVerifyModal(true)}
+                                    className={`gap-1.5 ${
+                                        proposal.is_administrasi_approved === true
+                                            ? 'border border-emerald-500/40 bg-emerald-500/10 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950'
+                                            : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                    }`}
+                                    variant={proposal.is_administrasi_approved === true ? 'outline' : 'default'}
+                                >
                                     <CheckCircle2 className="h-4 w-4" />
-                                    Validasi Administrasi
+                                    {proposal.is_administrasi_approved === true ? 'Ubah Verifikasi Administrasi' : 'Validasi Administrasi'}
                                 </Button>
                                 <Button onClick={() => setShowRejectModal(true)} variant="destructive" className="gap-1.5">
                                     <XCircle className="h-4 w-4" />
@@ -294,7 +548,8 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                             </>
                         )}
 
-                        {proposal.status_proposal === 'Administrasi_Valid' && (
+                        {/* Super Admin Bappeda: Plotting Reviewer */}
+                        {isReviewable ? (
                             <Button
                                 onClick={() => setShowAssignModal(true)}
                                 variant="outline"
@@ -316,7 +571,18 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                                     </>
                                 )}
                             </Button>
-                        )}
+                        ) : isSuperAdmin &&
+                          proposal.is_administrasi_approved === true &&
+                          !proposal.is_rab_approved &&
+                          proposal.status_proposal !== 'Ditolak_Administrasi' ? (
+                            <Badge
+                                variant="outline"
+                                className="gap-1.5 border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-800 dark:text-amber-300"
+                            >
+                                <Clock className="h-3.5 w-3.5 text-amber-600" />
+                                Menunggu Audit RAB Keuangan (SBM)
+                            </Badge>
+                        ) : null}
                     </div>
                 </div>
 
@@ -339,6 +605,9 @@ export default function ShowProposal({ proposal, availableReviewers }: Props) {
                         </div>
                     </CardHeader>
                 </Card>
+
+                {/* Dual Sign-Off Gatekeeper Progress Card */}
+                <DualVerificationProgressCard proposal={proposal} />
 
                 {/* Content Layout Grid */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

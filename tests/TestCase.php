@@ -35,10 +35,10 @@ abstract class TestCase extends BaseTestCase
         );
 
         Role::firstOrCreate(
-            ['name' => Role::USER],
+            ['name' => Role::PENELITI],
             [
-                'display_name' => 'Pengelola Jurnal',
-                'description' => 'Journal Manager',
+                'display_name' => 'Dosen / Peneliti',
+                'description' => 'Peneliti',
             ]
         );
     }

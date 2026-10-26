@@ -25,6 +25,14 @@ class ProgressReport extends Model
 
     public const STATUS_REVISION = 'Revision';
 
+    public const TIPE_PENDAHULUAN = 'Pendahuluan';
+
+    public const TIPE_BULANAN = 'Bulanan';
+
+    public const TIPE_ANTARA = 'Antara';
+
+    public const TIPE_AKHIR = 'Akhir';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -33,11 +41,15 @@ class ProgressReport extends Model
     protected $fillable = [
         'id_proposal',
         'id_monev_schedule',
+        'tipe_laporan',
         'persentase_kemajuan',
         'ringkasan_progres',
         'catatan_kendala',
         'file_laporan_kemajuan',
         'file_logbook',
+        'file_presentasi',
+        'file_tagihan',
+        'nominal_tagihan',
         'logbook',
         'skor_monev',
         'catatan_reviewer_monev',
@@ -45,12 +57,17 @@ class ProgressReport extends Model
         // Virtual / legacy aliases
         'proposal_id',
         'monev_schedule_id',
+        'stage',
+        'report_stage',
         'progress_percentage',
         'summary',
         'issues',
         'status',
         'report_file',
         'logbook_file',
+        'presentation_file',
+        'billing_file',
+        'billing_amount',
         'score',
         'reviewer_notes',
         'content',
@@ -72,6 +89,8 @@ class ProgressReport extends Model
     protected $casts = [
         'persentase_kemajuan' => 'integer',
         'progress_percentage' => 'integer',
+        'nominal_tagihan' => 'decimal:2',
+        'billing_amount' => 'decimal:2',
         'skor_monev' => 'decimal:2',
         'score' => 'decimal:2',
         'created_at' => 'datetime',
@@ -83,11 +102,15 @@ class ProgressReport extends Model
         'status',
         'progress_percentage',
         'status_label',
+        'tipe_laporan',
     ];
 
     protected static function booted(): void
     {
         static::creating(function (ProgressReport $report) {
+            if (! $report->tipe_laporan) {
+                $report->tipe_laporan = self::TIPE_ANTARA;
+            }
             if (! $report->ringkasan_progres) {
                 $report->ringkasan_progres = $report->content ?? 'Ringkasan progres pelaksanaan penelitian.';
             }
@@ -183,6 +206,50 @@ class ProgressReport extends Model
     public function scopeSubmitted(Builder $query): Builder
     {
         return $query->where('status_laporan', self::STATUS_SUBMITTED);
+    }
+
+    public function scopeAntara(Builder $query): Builder
+    {
+        return $query->where('tipe_laporan', self::TIPE_ANTARA);
+    }
+
+    public function scopeByTipe(Builder $query, ?string $tipe): Builder
+    {
+        if (! $tipe || $tipe === 'all') {
+            return $query;
+        }
+
+        return $query->where('tipe_laporan', $tipe);
+    }
+
+    public function isPendahuluan(): bool
+    {
+        return $this->tipe_laporan === self::TIPE_PENDAHULUAN;
+    }
+
+    public function isBulanan(): bool
+    {
+        return $this->tipe_laporan === self::TIPE_BULANAN;
+    }
+
+    public function isAntara(): bool
+    {
+        return $this->tipe_laporan === self::TIPE_ANTARA;
+    }
+
+    public function isAkhir(): bool
+    {
+        return $this->tipe_laporan === self::TIPE_AKHIR;
+    }
+
+    public function hasPresentation(): bool
+    {
+        return ! empty($this->file_presentasi);
+    }
+
+    public function hasBilling(): bool
+    {
+        return ! empty($this->file_tagihan);
     }
 
     /*
@@ -455,6 +522,96 @@ class ProgressReport extends Model
             self::STATUS_REVISION => 'Revisi',
             default => 'Diajukan',
         };
+    }
+
+    public function getTipeLaporanAttribute(): string
+    {
+        return $this->attributes['tipe_laporan'] ?? self::TIPE_ANTARA;
+    }
+
+    public function setTipeLaporanAttribute($value): void
+    {
+        $this->attributes['tipe_laporan'] = $value ?: self::TIPE_ANTARA;
+    }
+
+    public function getStageAttribute(): string
+    {
+        return $this->getTipeLaporanAttribute();
+    }
+
+    public function setStageAttribute($value): void
+    {
+        $this->setTipeLaporanAttribute($value);
+    }
+
+    public function getReportStageAttribute(): string
+    {
+        return $this->getTipeLaporanAttribute();
+    }
+
+    public function setReportStageAttribute($value): void
+    {
+        $this->setTipeLaporanAttribute($value);
+    }
+
+    public function getFilePresentasiAttribute(): ?string
+    {
+        return $this->attributes['file_presentasi'] ?? null;
+    }
+
+    public function setFilePresentasiAttribute($value): void
+    {
+        $this->attributes['file_presentasi'] = $value;
+    }
+
+    public function getPresentationFileAttribute(): ?string
+    {
+        return $this->getFilePresentasiAttribute();
+    }
+
+    public function setPresentationFileAttribute($value): void
+    {
+        $this->setFilePresentasiAttribute($value);
+    }
+
+    public function getFileTagihanAttribute(): ?string
+    {
+        return $this->attributes['file_tagihan'] ?? null;
+    }
+
+    public function setFileTagihanAttribute($value): void
+    {
+        $this->attributes['file_tagihan'] = $value;
+    }
+
+    public function getBillingFileAttribute(): ?string
+    {
+        return $this->getFileTagihanAttribute();
+    }
+
+    public function setBillingFileAttribute($value): void
+    {
+        $this->setFileTagihanAttribute($value);
+    }
+
+    public function getNominalTagihanAttribute(): ?float
+    {
+        return isset($this->attributes['nominal_tagihan']) ? (float) $this->attributes['nominal_tagihan'] : null;
+    }
+
+    public function setNominalTagihanAttribute($value): void
+    {
+        $this->attributes['nominal_tagihan'] = $value !== null && $value !== '' ? (float) $value : null;
+    }
+
+    public function getBillingAmountAttribute(): ?float
+    {
+        return $this->getNominalTagihanAttribute();
+    }
+
+    public function setBillingAmountAttribute($value): void
+    {
+        $this->setNominalTagihanAttribute($value);
     }
 
     public function getUserIdAttribute(): ?int

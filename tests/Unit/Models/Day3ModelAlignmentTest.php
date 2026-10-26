@@ -35,7 +35,7 @@ class Day3ModelAlignmentTest extends TestCase
             'code' => 'UMS',
         ]);
 
-        $role = Role::firstOrCreate(['name' => Role::USER], ['display_name' => 'Peneliti']);
+        $role = Role::firstOrCreate(['name' => Role::PENELITI], ['display_name' => 'Peneliti']);
 
         $this->researcher = User::create([
             'name' => 'Dr. Ahmad Dahlan',

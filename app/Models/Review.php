@@ -74,6 +74,7 @@ class Review extends Model
         'status',
         'start_date',
         'end_date',
+        'scores',
     ];
 
     /**
@@ -183,6 +184,37 @@ class Review extends Model
     public function setTotalScoreAttribute($value): void
     {
         $this->attributes['skor_total'] = $value;
+    }
+
+    /**
+     * Get normalized scores array from komponen_penilaian JSON for frontend rubric rendering.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getScoresAttribute(): array
+    {
+        $components = $this->komponen_penilaian;
+        if (empty($components) || ! is_array($components)) {
+            return [];
+        }
+
+        $result = [];
+        foreach ($components as $idx => $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $result[] = [
+                'id' => $idx + 1,
+                'criterion' => $item['kriteria'] ?? $item['criterion'] ?? $item['nama_kriteria'] ?? '',
+                'score' => (float) ($item['skor'] ?? $item['score'] ?? 0),
+                'notes' => $item['komentar'] ?? $item['komentar_indikator'] ?? $item['catatan_kriteria'] ?? $item['notes'] ?? '',
+                'weight' => (int) ($item['bobot'] ?? $item['weight'] ?? 25),
+                'answer_type' => 'scale_1_5',
+            ];
+        }
+
+        return $result;
     }
 
     public function getFeedbackAttribute(): ?string
@@ -327,6 +359,62 @@ class Review extends Model
     public function hasRecommendation(): bool
     {
         return ! empty($this->keputusan_rekomendasi);
+    }
+
+    /**
+     * Check if a user / reviewer has a conflict of interest with the proposal.
+     */
+    public function hasConflictOfInterest(?int $userId = null): bool
+    {
+        $reviewerId = $userId ?? $this->id_reviewer ?? $this->reviewer_id;
+        $proposalAuthorId = $this->proposal?->id_pengusul ?? $this->proposal?->user_id;
+
+        if ($reviewerId && $proposalAuthorId && (int) $reviewerId === (int) $proposalAuthorId) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Calculate total score from rubric components.
+     * Supports discrete 1-5 scale: (pilihan / 5) * bobot, scaled to 0 - 100.
+     * Also gracefully supports legacy 0-100 scores.
+     *
+     * @param  array<int, array<string, mixed>>|null  $components
+     */
+    public static function calculateScoreFromComponents(?array $components): float
+    {
+        if (empty($components) || ! is_array($components)) {
+            return 0.00;
+        }
+
+        $totalWeight = 0.0;
+        $sumPoints = 0.0;
+
+        foreach ($components as $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $bobot = (float) ($item['bobot'] ?? $item['weight'] ?? 0);
+            $skor = (float) ($item['skor'] ?? $item['score'] ?? $item['nilai'] ?? 0);
+
+            if ($bobot <= 0) {
+                continue;
+            }
+
+            // Discrete 1-5 scale vs legacy 0-100 scale
+            $ratio = $skor <= 5.0 ? ($skor / 5.0) : ($skor / 100.0);
+            $sumPoints += ($ratio * $bobot);
+            $totalWeight += $bobot;
+        }
+
+        if ($totalWeight <= 0) {
+            return 0.00;
+        }
+
+        return round(($sumPoints / $totalWeight) * 100.0, 2);
     }
 
     /**

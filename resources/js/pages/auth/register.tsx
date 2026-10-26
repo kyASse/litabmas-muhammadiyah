@@ -1,8 +1,10 @@
+import logoUrl from '@/assets/logo_dark.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { UniversityCombobox } from '@/components/ui/university-combobox';
+import { useTranslation } from '@/hooks/use-translation';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 
@@ -40,6 +42,7 @@ export default function Register({ universities }: Props) {
         position: '',
     });
 
+    const { t } = useTranslation();
     const [roleType, setRoleType] = useState<'user' | 'lppm'>('user');
 
     const submit: FormEventHandler = (e) => {
@@ -49,15 +52,18 @@ export default function Register({ universities }: Props) {
 
     return (
         <>
-            <Head title="Register" />
+            <Head title={`${t.common.appName} - ${t.navigation.register}`} />
 
-            <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 via-white to-yellow-50 p-4 dark:bg-gradient-to-br dark:from-[#020617] dark:via-[#0f172a] dark:to-[#020617]">
+            <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
                 <div className="w-full max-w-md">
                     {/* Header */}
                     <div className="mb-8 text-center">
-                        <Link href="/">
-                            <h1 className="text-3xl font-bold text-green-600 dark:text-green-300">Journal MU</h1>
-                            <p className="mt-2 text-gray-600 dark:text-gray-300">Platform Manajemen Jurnal Ilmiah PTMA</p>
+                        <Link href="/" className="inline-flex flex-col items-center">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white p-1.5 shadow-md ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+                                <img src={logoUrl} alt={t.common.appName} className="h-9 w-9 object-contain" />
+                            </div>
+                            <h1 className="mt-3 font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.common.appName}</h1>
+                            <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">{t.common.tagline}</p>
                         </Link>
                     </div>
 
