@@ -1923,6 +1923,12 @@ export const en = {
         updating: 'Saving...',
         scientificField: 'Scientific Field',
         selectScientificField: 'Select Scientific Field',
+        tabAll: 'All Users',
+        tabPending: 'Pending Approval',
+        pendingCount: '{count} Pending',
+        activateAction: 'Approve Account',
+        ownInstitutionOnly: 'Your Institution ({name})',
+        pendingResearchers: 'Pending Researchers',
     },
     adminLogs: {
         title: 'System Activity Logs',

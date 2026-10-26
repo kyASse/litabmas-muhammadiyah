@@ -1930,6 +1930,12 @@ export const id: TranslationType = {
         updating: 'Menyimpan...',
         scientificField: 'Bidang Keilmuan',
         selectScientificField: 'Pilih Bidang Keilmuan',
+        tabAll: 'Semua Pengguna',
+        tabPending: 'Menunggu Persetujuan',
+        pendingCount: '{count} Menunggu',
+        activateAction: 'Setujui Akun',
+        ownInstitutionOnly: 'Institusi Anda ({name})',
+        pendingResearchers: 'Peneliti Menunggu Aktivasi',
     },
     adminLogs: {
         title: 'Log Aktivitas Sistem',

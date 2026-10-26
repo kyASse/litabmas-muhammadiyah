@@ -137,6 +137,11 @@ export function AppSidebar() {
                 href: '/admin/monev',
                 icon: CalendarDays,
             },
+            {
+                title: t.navigation.users,
+                href: '/admin/users',
+                icon: Users,
+            },
         ];
     } else if (hasRole(ROLE_NAMES.ADMIN_KEUANGAN)) {
         roleNavItems = [
