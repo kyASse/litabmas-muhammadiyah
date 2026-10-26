@@ -16,6 +16,7 @@ import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useTranslation } from '@/hooks/use-translation';
 
 const activeItemStyles = 'text-neutral-900 dark:bg-neutral-800 dark:text-neutral-100';
@@ -157,6 +158,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
                                 ))}
                             </div>
                         </div>
+                        <ThemeToggle variant="compact" />
                         <LanguageSwitcher variant="compact" />
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
