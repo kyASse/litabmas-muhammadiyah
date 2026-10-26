@@ -20,7 +20,7 @@ describe('Interactive Components Dark Mode', () => {
     it('renders SplitScreenViewer with dark toolbar and panel classes', () => {
         const { container } = render(
             <TranslationProvider>
-                <SplitScreenViewer pdfUrl="/mock.pdf" documentTitle="Usulan Riset" formContent={<div>Form</div>} />
+                <SplitScreenViewer pdfUrl="about:blank" documentTitle="Usulan Riset" formContent={<div>Form</div>} />
             </TranslationProvider>
         );
         const outer = container.firstChild as HTMLElement;
