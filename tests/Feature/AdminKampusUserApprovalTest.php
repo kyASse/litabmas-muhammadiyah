@@ -118,3 +118,13 @@ test('admin kampus receives 403 forbidden when attempting to deactivate or delet
     $deleteResponse->assertStatus(403);
     expect(User::find($this->superAdmin->id))->not->toBeNull();
 });
+
+test('admin kampus dashboard includes pending researchers count for own university', function () {
+    $response = $this->actingAs($this->adminKampusA)->get(route('admin.dashboard'));
+
+    $response->assertStatus(200);
+    $response->assertInertia(fn (Assert $page) => $page
+        ->component('Dashboard/Admin')
+        ->where('stats.pending_researchers_count', 1)
+    );
+});

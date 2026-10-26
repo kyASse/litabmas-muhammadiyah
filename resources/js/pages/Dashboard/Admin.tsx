@@ -20,8 +20,8 @@ import PageHeader from '@/components/ui/PageHeader';
 import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
-import { Head } from '@inertiajs/react';
-import { Coins, FileText, TrendingUp } from 'lucide-react';
+import { Head, Link } from '@inertiajs/react';
+import { ArrowRight, Coins, FileText, TrendingUp, UserCheck } from 'lucide-react';
 
 interface DashboardStats {
     total_proposals: number;
@@ -29,6 +29,7 @@ interface DashboardStats {
     rejected_proposals: number;
     success_rate: number;
     total_absorbed_funding: number;
+    pending_researchers_count?: number;
 }
 
 interface FacultyPerformanceItem {
@@ -96,6 +97,31 @@ export default function AdminDashboard({ stats, yearlyFundingData, facultyPerfor
                     breadcrumbs={breadcrumbs}
                     actions={<LanguageSwitcher variant="compact" />}
                 />
+
+                {Boolean(stats.pending_researchers_count && stats.pending_researchers_count > 0) && (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50/80 p-4 shadow-xs">
+                        <div className="flex items-center gap-3">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-100 text-amber-800 shrink-0">
+                                <UserCheck className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <h3 className="font-sans text-sm font-semibold text-amber-900">
+                                    {t.adminUsers.pendingResearchers}
+                                </h3>
+                                <p className="font-sans text-xs text-amber-700">
+                                    {format(t.adminUsers.pendingCount, { count: stats.pending_researchers_count! })}
+                                </p>
+                            </div>
+                        </div>
+                        <Link
+                            href="/admin/users?is_active=0"
+                            className="inline-flex items-center gap-1.5 rounded-md bg-amber-700 px-3 py-1.5 font-sans text-xs font-medium text-white shadow-xs transition-colors hover:bg-amber-800"
+                        >
+                            <span>{t.adminUsers.activateAction}</span>
+                            <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                    </div>
+                )}
 
                 {/* ROW 1: Summary Metric Cards */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
