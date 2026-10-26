@@ -325,6 +325,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/proposals/{proposal}/terminate', [SktsController::class, 'terminateForceMajeure'])->name('proposals.terminate');
         Route::post('/evaluations/{proposal}/certify', [SktsController::class, 'generateSkts'])->name('evaluations.certify');
 
+        // Users Management & Researcher Approval
+        Route::resource('users', AdminUserController::class);
+        Route::post('users/{user}/toggle-active', [AdminUserController::class, 'toggleActive'])
+            ->name('users.toggle-active');
+
         // Dashboard Admin Kampus / LPPM
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     });
@@ -345,10 +350,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('admin-kampus/{admin_kampus}/toggle-active', [AdminKampusController::class, 'toggleActive'])
             ->name('admin-kampus.toggle-active');
 
-        // Users Management
-        Route::resource('users', AdminUserController::class);
-        Route::post('users/{user}/toggle-active', [AdminUserController::class, 'toggleActive'])
-            ->name('users.toggle-active');
+        // User Role Revocation (Super Admin only)
         Route::delete('users/revoke/{id}', [AdminUserRoleController::class, 'revoke'])
             ->name('users.revoke');
 
