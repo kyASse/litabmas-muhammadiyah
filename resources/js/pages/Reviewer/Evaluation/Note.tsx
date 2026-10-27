@@ -125,26 +125,26 @@ export default function EvaluationNote({ assignment, existingReview }: Props) {
                             <CardContent className="space-y-4 text-sm">
                                 <div>
                                     <Label className="text-xs text-muted-foreground">Nama Jurnal</Label>
-                                    <p className="font-medium text-gray-900">{journal?.title || '-'}</p>
+                                    <p className="font-medium text-foreground">{journal?.title || '-'}</p>
                                 </div>
                                 <div>
                                     <Label className="text-xs text-muted-foreground">ISSN / E-ISSN</Label>
-                                    <p className="font-medium text-gray-900">{journal?.issn || '-'}</p>
+                                    <p className="font-medium text-foreground">{journal?.issn || '-'}</p>
                                 </div>
                                 <div>
                                     <Label className="text-xs text-muted-foreground">Program Pembinaan</Label>
-                                    <p className="font-medium text-gray-900">{pembinaan?.name || '-'}</p>
+                                    <p className="font-medium text-foreground">{pembinaan?.name || '-'}</p>
                                     <Badge className="mt-1 capitalize" variant="outline">
                                         {pembinaan?.category || '-'}
                                     </Badge>
                                 </div>
                                 <div>
                                     <Label className="text-xs text-muted-foreground">Universitas</Label>
-                                    <p className="font-medium text-gray-900">{journal?.university?.name || '-'}</p>
+                                    <p className="font-medium text-foreground">{journal?.university?.name || '-'}</p>
                                 </div>
                                 <div>
                                     <Label className="text-xs text-muted-foreground">Bidang Ilmu</Label>
-                                    <p className="font-medium text-gray-900">{journal?.scientific_field?.name || '-'}</p>
+                                    <p className="font-medium text-foreground">{journal?.scientific_field?.name || '-'}</p>
                                 </div>
                                 <div className="border-t pt-2">
                                     <Label className="mb-1 block text-xs text-muted-foreground">Status Evaluasi Monev</Label>

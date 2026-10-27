@@ -99,21 +99,21 @@ export default function AdminDashboard({ stats, yearlyFundingData, facultyPerfor
                 />
 
                 {Boolean(stats.pending_researchers_count && stats.pending_researchers_count > 0) && (
-                    <div className="flex flex-col items-start justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50/80 p-4 shadow-xs sm:flex-row sm:items-center">
+                    <div className="flex flex-col items-start justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50/80 p-4 shadow-xs dark:border-amber-900/50 dark:bg-amber-950/30 sm:flex-row sm:items-center">
                         <div className="flex items-center gap-3">
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-800">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
                                 <UserCheck className="h-5 w-5" />
                             </div>
                             <div>
-                                <h3 className="font-sans text-sm font-semibold text-amber-900">{t.adminUsers.pendingResearchers}</h3>
-                                <p className="font-sans text-xs text-amber-700">
+                                <h3 className="font-sans text-sm font-semibold text-amber-900 dark:text-amber-200">{t.adminUsers.pendingResearchers}</h3>
+                                <p className="font-sans text-xs text-amber-700 dark:text-amber-300">
                                     {format(t.adminUsers.pendingCount, { count: stats.pending_researchers_count! })}
                                 </p>
                             </div>
                         </div>
                         <Link
                             href="/admin/users?is_active=0"
-                            className="inline-flex items-center gap-1.5 rounded-md bg-amber-700 px-3 py-1.5 font-sans text-xs font-medium text-white shadow-xs transition-colors hover:bg-amber-800"
+                            className="inline-flex items-center gap-1.5 rounded-md bg-amber-700 px-3 py-1.5 font-sans text-xs font-medium text-white shadow-xs transition-colors hover:bg-amber-800 dark:bg-amber-600 dark:hover:bg-amber-500"
                         >
                             <span>{t.adminUsers.activateAction}</span>
                             <ArrowRight className="h-3.5 w-3.5" />
@@ -128,8 +128,8 @@ export default function AdminDashboard({ stats, yearlyFundingData, facultyPerfor
                         value={stats.total_absorbed_funding}
                         type="currency"
                         icon={Coins}
-                        iconBgClass="bg-blue-50"
-                        iconColorClass="text-blue-900"
+                        iconBgClass="bg-blue-50 dark:bg-blue-950/50"
+                        iconColorClass="text-blue-900 dark:text-blue-300"
                         caption={t.adminDashboard.absorbedFundingSubtitle}
                     />
 
@@ -138,8 +138,8 @@ export default function AdminDashboard({ stats, yearlyFundingData, facultyPerfor
                         value={stats.total_proposals}
                         type="integer"
                         icon={FileText}
-                        iconBgClass="bg-slate-100"
-                        iconColorClass="text-slate-800"
+                        iconBgClass="bg-slate-100 dark:bg-slate-800"
+                        iconColorClass="text-slate-800 dark:text-slate-200"
                         caption={proposalsCaption}
                     />
 
@@ -148,8 +148,8 @@ export default function AdminDashboard({ stats, yearlyFundingData, facultyPerfor
                         value={stats.success_rate}
                         type="percentage"
                         icon={TrendingUp}
-                        iconBgClass="bg-emerald-50"
-                        iconColorClass="text-emerald-700"
+                        iconBgClass="bg-emerald-50 dark:bg-emerald-950/50"
+                        iconColorClass="text-emerald-700 dark:text-emerald-400"
                         caption={t.adminDashboard.successRateSubtitle}
                     />
                 </div>
@@ -157,8 +157,8 @@ export default function AdminDashboard({ stats, yearlyFundingData, facultyPerfor
                 {/* ROW 2: Graphs Split Screen */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
                     {/* Left: BarChart (60%) */}
-                    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs lg:col-span-3">
-                        <h2 className="mb-4 text-base font-bold text-slate-900">{t.adminDashboard.yearlyFundingTitle}</h2>
+                    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900 lg:col-span-3">
+                        <h2 className="mb-4 text-base font-bold text-slate-900 dark:text-slate-100">{t.adminDashboard.yearlyFundingTitle}</h2>
                         <BarChart data={yearlyFundingData} />
                     </div>
 

@@ -71,11 +71,11 @@ export const TabularFigure: React.FC<TabularFigureProps> = ({
 
   return (
     <span
-      className={`font-mono tabular-nums tracking-tight text-slate-900 ${sizeClasses} ${weightClasses} ${alignClasses} ${className}`}
+      className={`font-mono tabular-nums tracking-tight text-slate-900 dark:text-slate-100 ${sizeClasses} ${weightClasses} ${alignClasses} ${className}`}
     >
-      {prefix && <span className="text-slate-500 mr-0.5">{prefix}</span>}
+      {prefix && <span className="text-slate-500 dark:text-slate-400 mr-0.5">{prefix}</span>}
       {formatted}
-      {suffix && <span className="text-slate-500 ml-0.5">{suffix}</span>}
+      {suffix && <span className="text-slate-500 dark:text-slate-400 ml-0.5">{suffix}</span>}
     </span>
   );
 };

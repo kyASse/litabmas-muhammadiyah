@@ -111,27 +111,27 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto bg-white p-6 shadow-xl sm:rounded-xl">
-                <DialogHeader className="border-b border-slate-200 pb-4">
-                    <DialogTitle className="font-serif text-2xl font-bold tracking-tight text-slate-900">{t.output.modalTitle}</DialogTitle>
-                    <DialogDescription className="font-sans text-sm text-slate-600">{t.output.modalSubtitle}</DialogDescription>
+            <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-xl">
+                <DialogHeader className="border-b border-slate-200 pb-4 dark:border-slate-800">
+                    <DialogTitle className="font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{t.output.modalTitle}</DialogTitle>
+                    <DialogDescription className="font-sans text-sm text-slate-600 dark:text-slate-400">{t.output.modalSubtitle}</DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className="space-y-6 pt-2">
                     {/* Proposal Selection */}
                     <div className="space-y-1.5">
-                        <Label htmlFor="id_proposal" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                        <Label htmlFor="id_proposal" className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                             {t.output.proposal} <span className="text-rose-600">*</span>
                         </Label>
                         {proposals.length > 0 ? (
                             <Select value={String(data.id_proposal)} onValueChange={(val) => setData('id_proposal', Number(val))}>
-                                <SelectTrigger id="id_proposal" className="w-full bg-white text-slate-800">
+                                <SelectTrigger id="id_proposal" className="w-full bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                     <SelectValue placeholder={t.output.selectProposalPlaceholder} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {proposals.map((prop) => (
                                         <SelectItem key={prop.id} value={String(prop.id)}>
-                                            <span className="font-medium text-slate-900">#{prop.id}</span> - {prop.judul || prop.judul_penelitian}
+                                            <span className="font-medium text-slate-900 dark:text-slate-100">#{prop.id}</span> - {prop.judul || prop.judul_penelitian}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -143,15 +143,15 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                 value={data.id_proposal}
                                 onChange={(e) => setData('id_proposal', e.target.value)}
                                 placeholder="Proposal ID"
-                                className="bg-white"
+                                className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                             />
                         )}
                         {errors.id_proposal && <p className="text-xs font-medium text-rose-600">{errors.id_proposal}</p>}
                     </div>
 
                     {/* Target Status (Wajib vs Tambahan) */}
-                    <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/70 p-4">
-                        <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                    <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+                        <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                             {t.output.targetStatus} <span className="text-rose-600">*</span>
                         </Label>
                         <div className="grid grid-cols-2 gap-3">
@@ -160,15 +160,15 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                 onClick={() => setData('target_status', 'Wajib')}
                                 className={`flex items-center justify-between rounded-md border p-3 text-left transition-all ${
                                     data.target_status === 'Wajib'
-                                        ? 'border-blue-900 bg-white shadow-xs ring-1 ring-blue-900'
-                                        : 'border-slate-200 bg-white hover:border-slate-300'
+                                        ? 'border-blue-900 bg-white shadow-xs ring-1 ring-blue-900 dark:border-blue-600 dark:bg-blue-950/40 dark:ring-blue-600'
+                                        : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600'
                                 }`}
                             >
                                 <div>
-                                    <span className="block text-sm font-semibold text-slate-900">{t.output.mandatory}</span>
-                                    <span className="text-xs text-slate-500">{t.output.mandatoryBadge}</span>
+                                    <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">{t.output.mandatory}</span>
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">{t.output.mandatoryBadge}</span>
                                 </div>
-                                <FileCheck2 className={`h-5 w-5 ${data.target_status === 'Wajib' ? 'text-blue-900' : 'text-slate-400'}`} />
+                                <FileCheck2 className={`h-5 w-5 ${data.target_status === 'Wajib' ? 'text-blue-900 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
                             </button>
 
                             <button
@@ -176,52 +176,52 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                 onClick={() => setData('target_status', 'Tambahan')}
                                 className={`flex items-center justify-between rounded-md border p-3 text-left transition-all ${
                                     data.target_status === 'Tambahan'
-                                        ? 'border-blue-900 bg-white shadow-xs ring-1 ring-blue-900'
-                                        : 'border-slate-200 bg-white hover:border-slate-300'
+                                        ? 'border-blue-900 bg-white shadow-xs ring-1 ring-blue-900 dark:border-blue-600 dark:bg-blue-950/40 dark:ring-blue-600'
+                                        : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600'
                                 }`}
                             >
                                 <div>
-                                    <span className="block text-sm font-semibold text-slate-900">{t.output.additional}</span>
-                                    <span className="text-xs text-slate-500">{t.output.additionalBadge}</span>
+                                    <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">{t.output.additional}</span>
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">{t.output.additionalBadge}</span>
                                 </div>
-                                <FileCheck2 className={`h-5 w-5 ${data.target_status === 'Tambahan' ? 'text-blue-900' : 'text-slate-400'}`} />
+                                <FileCheck2 className={`h-5 w-5 ${data.target_status === 'Tambahan' ? 'text-blue-900 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
                             </button>
                         </div>
-                        <p className="text-xs text-slate-500">{t.output.targetHelper}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{t.output.targetHelper}</p>
                         {errors.target_status && <p className="text-xs font-medium text-rose-600">{errors.target_status}</p>}
                     </div>
 
                     {/* Cluster Tabs Switcher */}
                     <div className="space-y-3">
-                        <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                        <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                             {t.output.cluster} <span className="text-rose-600">*</span>
                         </Label>
                         <Tabs value={data.tipe_luaran} onValueChange={handleClusterChange} className="w-full">
-                            <TabsList className="grid w-full grid-cols-4 bg-slate-100 p-1">
+                            <TabsList className="grid w-full grid-cols-4 bg-slate-100 p-1 dark:bg-slate-800">
                                 <TabsTrigger
                                     value="Journal"
-                                    className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-blue-950"
+                                    className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-blue-950 dark:data-[state=active]:bg-slate-900 dark:data-[state=active]:text-blue-300"
                                 >
                                     <BookOpen className="h-4 w-4" />
                                     <span className="hidden sm:inline">{t.output.journalShort}</span>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="Book"
-                                    className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-blue-950"
+                                    className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-blue-950 dark:data-[state=active]:bg-slate-900 dark:data-[state=active]:text-blue-300"
                                 >
                                     <BookMarked className="h-4 w-4" />
                                     <span className="hidden sm:inline">{t.output.bookShort}</span>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="Hki"
-                                    className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-blue-950"
+                                    className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-blue-950 dark:data-[state=active]:bg-slate-900 dark:data-[state=active]:text-blue-300"
                                 >
                                     <ShieldCheck className="h-4 w-4" />
                                     <span className="hidden sm:inline">{t.output.hkiShort}</span>
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="Product"
-                                    className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-blue-950"
+                                    className="flex items-center gap-1.5 data-[state=active]:bg-white data-[state=active]:text-blue-950 dark:data-[state=active]:bg-slate-900 dark:data-[state=active]:text-blue-300"
                                 >
                                     <Box className="h-4 w-4" />
                                     <span className="hidden sm:inline">{t.output.productShort}</span>
@@ -232,7 +232,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                             <TabsContent value="Journal" className="space-y-4 pt-3">
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-1 sm:col-span-2">
-                                        <Label htmlFor="judul_artikel" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="judul_artikel" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.articleTitle} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -240,13 +240,13 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.judul_artikel}
                                             onChange={(e) => setData('judul_artikel', e.target.value)}
                                             placeholder={t.output.articleTitlePlaceholder}
-                                            className="bg-white"
+                                            className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.judul_artikel && <p className="text-xs text-rose-600">{errors.judul_artikel}</p>}
                                     </div>
 
                                     <div className="space-y-1 sm:col-span-2">
-                                        <Label htmlFor="nama_jurnal" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="nama_jurnal" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.journalName} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -254,13 +254,13 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.nama_jurnal}
                                             onChange={(e) => setData('nama_jurnal', e.target.value)}
                                             placeholder={t.output.journalNamePlaceholder}
-                                            className="bg-white"
+                                            className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.nama_jurnal && <p className="text-xs text-rose-600">{errors.nama_jurnal}</p>}
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="issn" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="issn" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.issn}
                                         </Label>
                                         <Input
@@ -268,17 +268,17 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.issn}
                                             onChange={(e) => setData('issn', e.target.value)}
                                             placeholder={t.output.issnPlaceholder}
-                                            className="bg-white font-mono"
+                                            className="bg-white font-mono dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.issn && <p className="text-xs text-rose-600">{errors.issn}</p>}
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="indeksasi" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="indeksasi" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.indexation} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Select value={data.indeksasi} onValueChange={(val) => setData('indeksasi', val)}>
-                                            <SelectTrigger id="indeksasi" className="bg-white">
+                                            <SelectTrigger id="indeksasi" className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                                 <SelectValue placeholder={t.output.indexationPlaceholder} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -295,11 +295,11 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="status_publikasi" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="status_publikasi" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.pubStatus} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Select value={data.status_publikasi} onValueChange={(val) => setData('status_publikasi', val)}>
-                                            <SelectTrigger id="status_publikasi" className="bg-white">
+                                            <SelectTrigger id="status_publikasi" className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                                 <SelectValue placeholder={t.output.pubStatusPlaceholder} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -312,7 +312,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="doi_url" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="doi_url" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.doi}
                                         </Label>
                                         <Input
@@ -320,9 +320,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.doi_url}
                                             onChange={(e) => setData('doi_url', e.target.value)}
                                             placeholder={t.output.doiPlaceholder}
-                                            className="bg-white font-mono"
+                                            className="bg-white font-mono dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
-                                        <p className="text-[11px] text-slate-500">{t.output.doiHelp}</p>
+                                        <p className="text-[11px] text-slate-500 dark:text-slate-400">{t.output.doiHelp}</p>
                                         {errors.doi_url && <p className="text-xs font-medium text-rose-600">{errors.doi_url}</p>}
                                     </div>
                                 </div>
@@ -332,7 +332,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                             <TabsContent value="Book" className="space-y-4 pt-3">
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-1 sm:col-span-2">
-                                        <Label htmlFor="judul_buku" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="judul_buku" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.bookTitle} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -340,13 +340,13 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.judul_buku}
                                             onChange={(e) => setData('judul_buku', e.target.value)}
                                             placeholder={t.output.bookTitlePlaceholder}
-                                            className="bg-white"
+                                            className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.judul_buku && <p className="text-xs text-rose-600">{errors.judul_buku}</p>}
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="isbn" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="isbn" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.isbn} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -354,14 +354,14 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.isbn}
                                             onChange={(e) => setData('isbn', e.target.value)}
                                             placeholder={t.output.isbnPlaceholder}
-                                            className="bg-white font-mono"
+                                            className="bg-white font-mono dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
-                                        <p className="text-[11px] text-slate-500">{t.output.isbnHelp}</p>
+                                        <p className="text-[11px] text-slate-500 dark:text-slate-400">{t.output.isbnHelp}</p>
                                         {errors.isbn && <p className="text-xs font-medium text-rose-600">{errors.isbn}</p>}
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="penerbit" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="penerbit" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.publisher} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -369,13 +369,13 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.penerbit}
                                             onChange={(e) => setData('penerbit', e.target.value)}
                                             placeholder={t.output.publisherPlaceholder}
-                                            className="bg-white"
+                                            className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.penerbit && <p className="text-xs text-rose-600">{errors.penerbit}</p>}
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="tahun_terbit" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="tahun_terbit" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.pubYear} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -383,13 +383,13 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             type="number"
                                             value={data.tahun_terbit}
                                             onChange={(e) => setData('tahun_terbit', e.target.value)}
-                                            className="bg-white font-mono"
+                                            className="bg-white font-mono dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.tahun_terbit && <p className="text-xs text-rose-600">{errors.tahun_terbit}</p>}
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="jumlah_halaman" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="jumlah_halaman" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.pageCount}
                                         </Label>
                                         <Input
@@ -398,7 +398,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.jumlah_halaman}
                                             onChange={(e) => setData('jumlah_halaman', e.target.value)}
                                             placeholder="120"
-                                            className="bg-white font-mono"
+                                            className="bg-white font-mono dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.jumlah_halaman && <p className="text-xs text-rose-600">{errors.jumlah_halaman}</p>}
                                     </div>
@@ -409,7 +409,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                             <TabsContent value="Hki" className="space-y-4 pt-3">
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-1 sm:col-span-2">
-                                        <Label htmlFor="judul_ciptaan" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="judul_ciptaan" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.creationTitle} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -417,17 +417,17 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.judul_ciptaan}
                                             onChange={(e) => setData('judul_ciptaan', e.target.value)}
                                             placeholder={t.output.creationTitlePlaceholder}
-                                            className="bg-white"
+                                            className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.judul_ciptaan && <p className="text-xs text-rose-600">{errors.judul_ciptaan}</p>}
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="jenis_hki" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="jenis_hki" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.hkiType} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Select value={data.jenis_hki} onValueChange={(val) => setData('jenis_hki', val)}>
-                                            <SelectTrigger id="jenis_hki" className="bg-white">
+                                            <SelectTrigger id="jenis_hki" className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                                 <SelectValue placeholder={t.output.hkiTypePlaceholder} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -440,7 +440,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="nomor_pendaftaran" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="nomor_pendaftaran" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.regNumber}
                                         </Label>
                                         <Input
@@ -448,14 +448,14 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.nomor_pendaftaran}
                                             onChange={(e) => setData('nomor_pendaftaran', e.target.value)}
                                             placeholder={t.output.regNumberPlaceholder}
-                                            className="bg-white font-mono"
+                                            className="bg-white font-mono dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
-                                        <p className="text-[11px] text-slate-500">{t.output.regNumberHelp}</p>
+                                        <p className="text-[11px] text-slate-500 dark:text-slate-400">{t.output.regNumberHelp}</p>
                                         {errors.nomor_pendaftaran && <p className="text-xs font-medium text-rose-600">{errors.nomor_pendaftaran}</p>}
                                     </div>
 
                                     <div className="space-y-1 sm:col-span-2">
-                                        <Label htmlFor="nomor_sertifikat" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="nomor_sertifikat" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.certNumber}
                                         </Label>
                                         <Input
@@ -463,7 +463,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.nomor_sertifikat}
                                             onChange={(e) => setData('nomor_sertifikat', e.target.value)}
                                             placeholder={t.output.certNumberPlaceholder}
-                                            className="bg-white font-mono"
+                                            className="bg-white font-mono dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.nomor_sertifikat && <p className="text-xs text-rose-600">{errors.nomor_sertifikat}</p>}
                                     </div>
@@ -474,7 +474,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                             <TabsContent value="Product" className="space-y-4 pt-3">
                                 <div className="space-y-4">
                                     <div className="space-y-1">
-                                        <Label htmlFor="nama_produk" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="nama_produk" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.productName} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -482,13 +482,13 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.nama_produk}
                                             onChange={(e) => setData('nama_produk', e.target.value)}
                                             placeholder={t.output.productNamePlaceholder}
-                                            className="bg-white"
+                                            className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.nama_produk && <p className="text-xs text-rose-600">{errors.nama_produk}</p>}
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="deskripsi_produk" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="deskripsi_produk" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.description} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Textarea
@@ -497,20 +497,20 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             value={data.deskripsi_produk}
                                             onChange={(e) => setData('deskripsi_produk', e.target.value)}
                                             placeholder={t.output.descriptionPlaceholder}
-                                            className="bg-white"
+                                            className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                         />
                                         {errors.deskripsi_produk && <p className="text-xs text-rose-600">{errors.deskripsi_produk}</p>}
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="tingkat_kesiapan_teknologi" className="text-xs font-medium text-slate-700">
+                                        <Label htmlFor="tingkat_kesiapan_teknologi" className="text-xs font-medium text-slate-700 dark:text-slate-300">
                                             {t.output.tkt} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Select
                                             value={String(data.tingkat_kesiapan_teknologi)}
                                             onValueChange={(val) => setData('tingkat_kesiapan_teknologi', Number(val))}
                                         >
-                                            <SelectTrigger id="tingkat_kesiapan_teknologi" className="bg-white font-mono">
+                                            <SelectTrigger id="tingkat_kesiapan_teknologi" className="bg-white font-mono dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                                 <SelectValue placeholder={t.output.tktPlaceholder} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -544,17 +544,17 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                     </div>
 
                     {/* Footer Actions */}
-                    <DialogFooter className="gap-2 border-t border-slate-200 pt-4 sm:gap-0">
+                    <DialogFooter className="gap-2 border-t border-slate-200 pt-4 dark:border-slate-800 sm:gap-0">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => onOpenChange(false)}
                             disabled={processing}
-                            className="border-slate-300 text-slate-700 hover:bg-slate-50"
+                            className="border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                         >
                             {t.output.cancel}
                         </Button>
-                        <Button type="submit" disabled={processing || !data.file_dokumen} className="bg-blue-900 text-white hover:bg-blue-800">
+                        <Button type="submit" disabled={processing || !data.file_dokumen} className="bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500">
                             {processing ? (
                                 <span className="flex items-center gap-1.5">
                                     <Loader2 className="h-4 w-4 animate-spin" />

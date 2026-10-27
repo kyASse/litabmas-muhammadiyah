@@ -61,33 +61,33 @@ export default function Logs({ logs }: Props) {
 
             <div className="mx-auto max-w-7xl p-4 sm:p-6 lg:p-8">
                 {/* --- Breadcrumbs Manual --- */}
-                <div className="mb-4 text-sm font-medium text-gray-500">
-                    <Link href="/finance" className="transition-colors hover:text-gray-900">
+                <div className="mb-4 text-sm font-medium text-slate-500 dark:text-slate-400">
+                    <Link href="/finance" className="transition-colors hover:text-slate-900 dark:hover:text-slate-100">
                         Finance
                     </Link>
-                    <span className="mx-2 text-gray-400">/</span>
-                    <span className="text-gray-900">Funding Logs</span>
+                    <span className="mx-2 text-slate-400 dark:text-slate-600">/</span>
+                    <span className="text-slate-900 dark:text-slate-100">Funding Logs</span>
                 </div>
                 {/* -------------------------- */}
 
-                <Card className="shadow-sm">
+                <Card className="shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <CardHeader>
-                        <CardTitle className="text-2xl font-bold tracking-tight">Riwayat Termin</CardTitle>
-                        <CardDescription>Log perubahan dan cetak kwitansi pendanaan.</CardDescription>
+                        <CardTitle className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Riwayat Termin</CardTitle>
+                        <CardDescription className="text-slate-500 dark:text-slate-400">Log perubahan dan cetak kwitansi pendanaan.</CardDescription>
                     </CardHeader>
 
                     <CardContent>
                         {/* Panel Pengaturan Cetak (Control Bar) */}
-                        <div className="mb-6 flex flex-wrap items-center gap-4 rounded-lg border border-gray-200 bg-gray-50/50 p-4">
-                            <span className="flex items-center gap-1.5 text-sm font-semibold text-gray-700">
+                        <div className="mb-6 flex flex-wrap items-center gap-4 rounded-lg border border-slate-200 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-950/50">
+                            <span className="flex items-center gap-1.5 text-sm font-semibold text-slate-700 dark:text-slate-200">
                                 <Settings className="h-4 w-4" /> Pengaturan Kertas:
                             </span>
 
                             <Select value={paperSize} onValueChange={setPaperSize}>
-                                <SelectTrigger className="w-[140px] bg-white">
+                                <SelectTrigger className="w-[140px] bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                     <SelectValue placeholder="Pilih Kertas" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="dark:border-slate-800 dark:bg-slate-900">
                                     <SelectItem value="A4">A4</SelectItem>
                                     <SelectItem value="legal">Legal</SelectItem>
                                     <SelectItem value="letter">Letter</SelectItem>
@@ -97,10 +97,10 @@ export default function Logs({ logs }: Props) {
 
                             {paperSize !== 'custom' && (
                                 <Select value={orientation} onValueChange={setOrientation}>
-                                    <SelectTrigger className="w-[140px] bg-white">
+                                    <SelectTrigger className="w-[140px] bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                         <SelectValue placeholder="Orientasi" />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="dark:border-slate-800 dark:bg-slate-900">
                                         <SelectItem value="landscape">Landscape</SelectItem>
                                         <SelectItem value="portrait">Portrait</SelectItem>
                                     </SelectContent>
@@ -110,22 +110,22 @@ export default function Logs({ logs }: Props) {
                             {paperSize === 'custom' && (
                                 <div className="flex items-center gap-3">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-sm font-medium text-gray-600">W:</span>
+                                        <span className="text-sm font-medium text-slate-600 dark:text-slate-400">W:</span>
                                         <Input
                                             type="number"
                                             value={customWidth}
                                             onChange={(e) => setCustomWidth(Number(e.target.value))}
-                                            className="w-24 bg-white"
+                                            className="w-24 bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                             placeholder="Width"
                                         />
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className="text-sm font-medium text-gray-600">H:</span>
+                                        <span className="text-sm font-medium text-slate-600 dark:text-slate-400">H:</span>
                                         <Input
                                             type="number"
                                             value={customHeight}
                                             onChange={(e) => setCustomHeight(Number(e.target.value))}
-                                            className="w-24 bg-white"
+                                            className="w-24 bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                             placeholder="Height"
                                         />
                                     </div>
@@ -134,9 +134,9 @@ export default function Logs({ logs }: Props) {
                         </div>
 
                         {/* Tabel Data */}
-                        <div className="overflow-hidden rounded-md border border-gray-200">
-                            <table className="w-full text-left text-sm text-gray-600">
-                                <thead className="border-b border-gray-200 bg-gray-50/80 text-xs text-gray-700 uppercase">
+                        <div className="overflow-hidden rounded-md border border-slate-200 dark:border-slate-800">
+                            <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300">
+                                <thead className="border-b border-slate-200 bg-slate-50/80 text-xs text-slate-700 uppercase dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-300">
                                     <tr>
                                         <th className="px-4 py-3 font-semibold">Judul Kontrak</th>
                                         <th className="px-4 py-3 font-semibold">Termin</th>
@@ -147,18 +147,18 @@ export default function Logs({ logs }: Props) {
                                     </tr>
                                 </thead>
 
-                                <tbody className="divide-y divide-gray-200">
+                                <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                                     {logs.data.map((log) => (
-                                        <tr key={log.id} className="bg-white transition-colors hover:bg-gray-50/50">
-                                            <td className="px-4 py-4 font-medium text-gray-900">{log.contract?.title ?? '-'}</td>
+                                        <tr key={log.id} className="bg-white transition-colors hover:bg-slate-50/50 dark:bg-slate-900 dark:hover:bg-slate-800/50">
+                                            <td className="px-4 py-4 font-medium text-slate-900 dark:text-slate-100">{log.contract?.title ?? '-'}</td>
                                             <td className="px-4 py-4">{log.termin_number}</td>
-                                            <td className="px-4 py-4 font-mono text-gray-900">Rp {Number(log.amount).toLocaleString('id-ID')}</td>
+                                            <td className="px-4 py-4 font-mono text-slate-900 dark:text-slate-100">Rp {Number(log.amount).toLocaleString('id-ID')}</td>
                                             <td className="px-4 py-4">
-                                                <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset">
+                                                <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset dark:bg-blue-950/40 dark:text-blue-300 dark:ring-blue-800/40">
                                                     {log.status}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-4 text-gray-500">
+                                            <td className="px-4 py-4 text-slate-500 dark:text-slate-400">
                                                 {new Date(log.updated_at).toLocaleString('id-ID', {
                                                     day: '2-digit',
                                                     month: 'short',
@@ -168,7 +168,7 @@ export default function Logs({ logs }: Props) {
                                                 })}
                                             </td>
                                             <td className="px-4 py-4 text-right">
-                                                <Button asChild size="sm">
+                                                <Button asChild size="sm" className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
                                                     <a href={getPrintUrl(log.id)} target="_blank" rel="noopener noreferrer">
                                                         Cetak PDF
                                                     </a>
@@ -179,7 +179,7 @@ export default function Logs({ logs }: Props) {
 
                                     {logs.data.length === 0 && (
                                         <tr>
-                                            <td colSpan={6} className="py-8 text-center text-sm font-medium text-gray-500">
+                                            <td colSpan={6} className="py-8 text-center text-sm font-medium text-slate-500 dark:text-slate-400">
                                                 Tidak ada riwayat termin ditemukan.
                                             </td>
                                         </tr>
@@ -196,7 +196,7 @@ export default function Logs({ logs }: Props) {
                                         return (
                                             <span
                                                 key={index}
-                                                className="cursor-not-allowed rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400"
+                                                className="cursor-not-allowed rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-400 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-600"
                                                 dangerouslySetInnerHTML={{ __html: link.label }}
                                             />
                                         );
@@ -208,8 +208,8 @@ export default function Logs({ logs }: Props) {
                                             href={link.url}
                                             className={`rounded-md border px-3 py-2 text-sm transition-colors ${
                                                 link.active
-                                                    ? 'border-gray-900 bg-gray-900 font-medium text-white'
-                                                    : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                    ? 'border-slate-900 bg-slate-900 font-medium text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900'
+                                                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100'
                                             }`}
                                             dangerouslySetInnerHTML={{ __html: link.label }}
                                         />

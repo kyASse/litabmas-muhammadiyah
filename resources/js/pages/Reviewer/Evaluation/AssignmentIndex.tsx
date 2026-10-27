@@ -1,4 +1,4 @@
-﻿import { Badge } from '@/components/ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link } from '@inertiajs/react';
@@ -92,7 +92,7 @@ export default function EvaluationIndex({ assignments }: Props) {
                                 <div className="space-y-4">
                                     <div className="flex items-start justify-between gap-4">
                                         <div className="space-y-1">
-                                            <h2 className="line-clamp-1 text-lg font-bold text-gray-900 transition-colors group-hover:text-primary">
+                                            <h2 className="line-clamp-1 text-lg font-bold text-foreground transition-colors group-hover:text-primary">
                                                 {assignment.registration?.journal?.name ?? '-'}
                                             </h2>
                                             <p className="text-sm font-medium text-muted-foreground">

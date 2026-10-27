@@ -81,65 +81,91 @@ Banyak aplikasi modern yang dibangun oleh perkakas kecerdasan buatan (*AI-genera
 
 ---
 
+### 2.3 Spesifikasi Fondasi Tema Dark (Deep Academic Midnight Slate Architecture)
+
+Sistem menetapkan konsep visual **Deep Academic Midnight Slate** yang dirancang khusus untuk kenyamanan membaca proposal penelitian berlembar-lembar di malam hari tanpa menimbulkan kelelahan visual (*visual fatigue*). Mode gelap pada SIM-Penelitian bukan sekadar pembalikan warna (*invert*) otomatis atau pemaksaan tema gelap generik, melainkan perancangan ulang hierarki pencahayaan institusional yang bermartabat dan mempertahankan wibawa tradisi akademik (*Scholarly*) serta presisi operasional (*Enterprise*).
+
+Sistem secara ketat menerapkan standar anti-slop pada tema dark untuk mencegah kecenderungan estetika AI yang murahan (*cheap dark mode aesthetic*):
+
+| Karakteristik AI Slop (DILARANG) | Standar Deep Academic Midnight (WAJIB) | Rasional Rekayasa |
+|---|---|---|
+| **Kanvas Hitam Legam Murni (`#000000`)**: Mengakibatkan mata cepat lelah dan kontras terlalu tajam (*harsh glare*). | **Kanvas Slate-950 (`#020617`) & Kartu Slate-900 (`#0F172A`)**: Kedalaman gelap berbobot abu-abu dingin institusional. | Mengurangi kelelahan mata (*eye strain*) saat penelaah membaca proposal dalam durasi panjang. |
+| **Aksen Neon Berpendar Liar**: Border atau tombol dengan pendaran ungu/cyan menyilaukan (*neon glow*). | **Aksen Akademik Terukur**: Deep Navy disesuaikan ke Blue-500 (`#3B82F6`) dan Emerald disesuaikan ke Emerald-500 (`#10B981`) tanpa bayangan neon. | Menjaga martabat dokumen resmi akademik dan integritas platform enterprise. |
+| **Badge Silau atau Tak Terbaca**: Badge warna pastel putih di atas latar gelap atau warna gelap pekat tanpa sekat. | **Deep Slate Semi-Transparent Tint**: Kombinasi latar transparan `bg-{color}-950/40`, teks cerah `text-{color}-300`, dan border pembatas 1px `border-{color}-800/60`. | Menghasilkan penanda status yang tegas, rapi, dan memiliki rasio kontras prima. |
+| **Bayangan Gelap Berpendar (Colored Drop Shadows)**: Drop shadow warna-warni yang mengaburkan batas elemen. | **Garis Pembatas Presisi 1px**: Pembatas Slate-800 (`#1E293B`) atau Slate-700 (`#334155`) dengan bayangan mikro minimalis. | Mempertahankan batas arsitektur kartu dan formulir tanpa polusi visual. |
+
+---
+
 ## 3. Bab 2: Spesifikasi Token Desain & Palet Warna
 
-### 3.1 Token Warna Permukaan & Kanvas (Cool Slate Foundation)
+### 3.1 Token Warna Permukaan & Kanvas (Dynamic Surface Foundation)
 
-Sistem mengadopsi palet Cool Slate yang memberikan kesejukan visual netral, ketegasan garis pembatas, dan keterbacaan prima:
+Sistem mengadopsi fondasi palet dinamis yang merespons preferensi mode pengguna: **Cool Slate** untuk tema terang (*Light Mode*) dan **Deep Academic Midnight Slate** untuk tema gelap (*Dark Mode*):
 
-| Token Semantik | Kode Hex | Kelas Tailwind | Rasional & Penggunaan |
+| Token Semantik | Light (Hex / Tailwind) | Dark (Hex / Tailwind) | Rasional & Penggunaan |
 |---|---|---|---|
-| `surface-base` | `#F8FAFC` | `bg-slate-50` | Kanvas latar belakang utama seluruh viewport aplikasi. |
-| `surface-card` | `#FFFFFF` | `bg-white` | Permukaan kartu konten, panel kerja form, tabel data, dan modal. |
-| `surface-elevated` | `#F1F5F9` | `bg-slate-100` | Header tabel data, panel filter, popover, dan bilah status sekunder. |
-| `surface-muted` | `#E2E8F0` | `bg-slate-200` | Latar badge netral, placeholder berkas, dan kondisi disabled. |
-| `surface-sidebar` | `#0F172A` | `bg-slate-900` | Latar bilah navigasi utama LPPM (kontras tinggi institusional). |
+| `--surface-base` | `#F8FAFC` (`bg-slate-50`) | `#020617` (`dark:bg-slate-950`) | Kanvas latar belakang utama seluruh viewport aplikasi. |
+| `--surface-card` | `#FFFFFF` (`bg-white`) | `#0F172A` (`dark:bg-slate-900`) | Permukaan kartu konten, panel kerja form, tabel data, dan modal. |
+| `--surface-elevated` | `#F1F5F9` (`bg-slate-100`) | `#1E293B` (`dark:bg-slate-800`) | Header tabel data, panel filter, popover, dan bilah status sekunder. |
+| `--surface-muted` | `#E2E8F0` (`bg-slate-200`) | `#334155` (`dark:bg-slate-700`) | Latar badge netral, placeholder berkas, dan kondisi disabled. |
+| `--surface-sidebar` | `#0F172A` (`bg-slate-900`) | `#020617` (`dark:bg-slate-950`) | Latar bilah navigasi utama LPPM (kontras tinggi institusional). |
 
 ---
 
-### 3.2 Token Garis Pembatas (Borders)
+### 3.2 Token Garis Pembatas (Dynamic Borders)
 
-| Token Semantik | Kode Hex | Kelas Tailwind | Rasional & Penggunaan |
+| Token Semantik | Light (Hex / Tailwind) | Dark (Hex / Tailwind) | Rasional & Penggunaan |
 |---|---|---|---|
-| `border-subtle` | `#E2E8F0` | `border-slate-200` | Pembatas standar 1px antar baris tabel, sekat kartu, dan panel. |
-| `border-strong` | `#CBD5E1` | `border-slate-300` | Garis batas input form aktif, tab navigasi aktif, dan kartu saat hover. |
-| `border-focus` | `#1E3A8A` | `border-blue-900` | Cincin fokus interaksi keyboard (*focus ring*) bersama `ring-2`. |
+| `--border-subtle` | `#E2E8F0` (`border-slate-200`) | `#1E293B` (`dark:border-slate-800`) | Pembatas standar 1px antar baris tabel, sekat kartu, dan panel. |
+| `--border-strong` | `#CBD5E1` (`border-slate-300`) | `#334155` (`dark:border-slate-700`) | Garis batas input form aktif, tab navigasi aktif, dan kartu saat hover. |
+| `--border-focus` | `#1E3A8A` (`border-blue-900`) | `#3B82F6` (`dark:border-blue-500`) | Cincin fokus interaksi keyboard (*focus ring*) bersama `ring-2`. |
 
 ---
 
-### 3.3 Token Tipografi (Text Colors & Contrast)
+### 3.3 Token Tipografi (Dynamic Text Colors & Contrast)
 
-| Token Semantik | Kode Hex | Kelas Tailwind | Rasio Kontras WCAG | Penggunaan |
+Sistem memastikan keterbacaan prima dengan penegakan rasio kontras WCAG AAA/AA pada kedua mode:
+
+| Token Semantik | Light (Hex / Tailwind) | Dark (Hex / Tailwind) | Rasio Kontras (Light / Dark) | Penggunaan |
 |---|---|---|---|---|
-| `text-primary` | `#0F172A` | `text-slate-900` | 12.0:1 (AAA) | Judul utama, isi teks bacaan, data penting pada tabel. |
-| `text-secondary` | `#475569` | `text-slate-600` | 6.8:1 (AA) | Label formulir, deskripsi penjelas, breadcrumbs, metadata. |
-| `text-muted` | `#94A3B8` | `text-slate-400` | 3.5:1 (Dekoratif) | Placeholder input form, ikon navigasi tidak aktif. |
-| `text-inverse` | `#FFFFFF` | `text-white` | 15.0:1 (AAA) | Teks pada tombol primer brand navy dan badge warna gelap. |
+| `--text-primary` | `#0F172A` (`text-slate-900`) | `#F8FAFC` (`dark:text-slate-50`) | 12.0:1 (AAA) / 14.5:1 (AAA) | Judul utama, isi teks bacaan, data penting pada tabel. |
+| `--text-secondary` | `#475569` (`text-slate-600`) | `#94A3B8` (`dark:text-slate-400`) | 6.8:1 (AA) / 7.2:1 (AA+) | Label formulir, deskripsi penjelas, breadcrumbs, metadata. |
+| `--text-muted` | `#94A3B8` (`text-slate-400`) | `#64748B` (`dark:text-slate-500`) | 3.5:1 (Dekoratif) / 4.8:1 (AA) | Placeholder input form, ikon navigasi tidak aktif. |
+| `--text-inverse` | `#FFFFFF` (`text-white`) | `#0F172A` (`dark:text-slate-900`) | 15.0:1 (AAA) / 14.5:1 (AAA) | Teks pada tombol primer brand navy dan badge warna gelap. |
 
 ---
 
 ### 3.4 Token Identitas Brand Institusi
 
-| Token Semantik | Kode Hex | Kelas Tailwind | Rasional & Penggunaan |
+| Token Semantik | Light (Hex / Tailwind) | Dark (Hex / Tailwind) | Rasional & Penggunaan |
 |---|---|---|---|
-| `brand-primary` | `#1E3A8A` | `bg-blue-900` / `text-blue-900` | **Deep Academic Navy**: Warna jangkar universitas untuk tombol utama, link interaktif, dan brand banner. |
-| `brand-primary-hover` | `#1E40AF` | `hover:bg-blue-800` | Status interaksi hover pada komponen tombol primer. |
-| `brand-primary-light` | `#EFF6FF` | `bg-blue-50` | Latar belakang lencana atau baris tabel yang sedang aktif terpilih. |
-| `brand-accent` | `#059669` | `bg-emerald-600` / `text-emerald-600` | **Academic Emerald**: Penanda keberhasilan, status lolos didanai, pencairan dana, dan kelulusan monev. |
-| `brand-accent-hover` | `#047857` | `hover:bg-emerald-700` | Status hover aksi sekunder positif (verifikasi, setujui). |
-| `brand-accent-light` | `#ECFDF5` | `bg-emerald-50` | Latar badge status sukses dan kartu evaluasi positif. |
+| `--brand-primary` | `#1E3A8A` (`bg-blue-900` / `text-blue-900`) | `#3B82F6` (`dark:bg-blue-500` / `dark:text-blue-400`) | **Academic Navy / Blue**: Warna jangkar universitas untuk tombol utama, link interaktif, dan brand banner. |
+| `--brand-primary-hover` | `#1E40AF` (`hover:bg-blue-800`) | `#60A5FA` (`dark:hover:bg-blue-400`) | Status interaksi hover pada komponen tombol primer. |
+| `--brand-primary-light` | `#EFF6FF` (`bg-blue-50`) | `#1E293B` (`dark:bg-slate-800`) | Latar belakang lencana atau baris tabel yang sedang aktif terpilih. |
+| `--brand-accent` | `#059669` (`bg-emerald-600` / `text-emerald-600`) | `#10B981` (`dark:bg-emerald-500` / `dark:text-emerald-400`) | **Academic Emerald**: Penanda keberhasilan, status lolos didanai, pencairan dana, dan kelulusan monev. |
+| `--brand-accent-hover` | `#047857` (`hover:bg-emerald-700`) | `#34D399` (`dark:hover:bg-emerald-400`) | Status hover aksi sekunder positif (verifikasi, setujui). |
+| `--brand-accent-light` | `#ECFDF5` (`bg-emerald-50`) | `#064E3B` (`dark:bg-emerald-950`) | Latar badge status sukses dan kartu evaluasi positif. |
 
 ---
 
-### 3.5 Token Keadaan Sistem (Semantic State Colors)
+### 3.5 Token Keadaan Sistem & Rumus Deep Slate Semi-Transparent Tint
 
-| Keadaan Sistem | Hex Warna Teks/Ikon | Hex Latar Belakang | Hex Border | Implementasi Tailwind |
-|---|---|---|---|---|
-| **Sukses / Lolos / Verified** | `#059669` (Emerald 600) | `#ECFDF5` (Emerald 50) | `#A7F3D0` (Emerald 200) | `text-emerald-700 bg-emerald-50 border-emerald-200` |
-| **Info / Submitted / Kontrak** | `#0284C7` (Sky 600) | `#F0F9FF` (Sky 50) | `#BAE6FD` (Sky 200) | `text-sky-700 bg-sky-50 border-sky-200` |
-| **Warning / Review / Revisi** | `#D97706` (Amber 600) | `#FFFBEB` (Amber 50) | `#FDE68A` (Amber 200) | `text-amber-700 bg-amber-50 border-amber-200` |
-| **Danger / Ditolak / Overdue** | `#E11D48` (Rose 600) | `#FFF1F2` (Rose 50) | `#FECDD3` (Rose 200) | `text-rose-700 bg-rose-50 border-rose-200` |
-| **Neutral / Draft / Arsip** | `#475569` (Slate 600) | `#F1F5F9` (Slate 100) | `#CBD5E1` (Slate 300) | `text-slate-700 bg-slate-100 border-slate-300` |
+Pada mode terang, status disajikan dengan latar pastel lembut dan teks pekat berbingkai 1px. Pada mode gelap, sistem menerapkan formula khusus **Deep Slate Semi-Transparent Tint**:
+
+`Latar transparan bg-{color}-950/40 + Teks cerah text-{color}-300 + Garis pembatas 1px border-{color}-800/60`
+
+Formula ini mengombinasikan latar belakang gelap transparan beropasitas 40% dari shade 950 (`bg-{color}-950/40`), teks cerah bernilai keterbacaan tinggi dari shade 300 (`text-{color}-300`), dan garis pembatas presisi 1px dari shade 800 beropasitas 60% (`border-{color}-800/60`). Pendekatan ini mencegah kebiasaan buruk tema gelap berupa latar solid pekat tanpa sekat atau warna putih terang menyilaukan.
+
+| Keadaan Sistem | Implementasi Light Mode | Implementasi Dark Mode (Semi-Transparent Tint) | Contoh Status Siklus Riset |
+|---|---|---|---|
+| **Sukses / Lolos / Verified** | `bg-emerald-50 text-emerald-700 border-emerald-200` | `dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60` | `Lolos_Didanai`, `Disbursed_T2`, `Monev_Approved` |
+| **Info / Submitted / Kontrak** | `bg-sky-50 text-sky-700 border-sky-200` | `dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800/60` | `Submitted`, `Contracted` (`blue-950/40`), `Output_Verified` (`indigo-950/40`) |
+| **Warning / Review / Revisi** | `bg-amber-50 text-amber-700 border-amber-200` | `dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60` | `In_Review`, `Revisi` |
+| **Danger / Ditolak / Overdue** | `bg-rose-50 text-rose-700 border-rose-200` | `dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60` | `Ditolak`, `Terminated` |
+| **Neutral / Draft / Arsip** | `bg-slate-100 text-slate-700 border-slate-300` | `dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700` | `Draft`, `Inactive` |
+| **Terkunci Monev** | `bg-purple-50 text-purple-700 border-purple-200` | `dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/60` | `Monev_Locked` |
+| **Pencairan Termin 1** | `bg-teal-50 text-teal-700 border-teal-200` | `dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800/60` | `Disbursed_T1` |
+| **Selesai Resmi SKTS** | `bg-slate-900 text-white border-slate-900` | `dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-700/70` | `Completed_SKTS` |
 
 ---
 
@@ -368,72 +394,72 @@ interface StatusConfig {
 const statusMap: Record<BadgeStatusType, StatusConfig> = {
   Draft: {
     label: '[DRAFT]',
-    classes: 'bg-slate-100 text-slate-700 border-slate-300',
+    classes: 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800/80 dark:text-slate-300 dark:border-slate-700',
     icon: FileEdit,
   },
   Submitted: {
     label: '[DIAJUKAN]',
-    classes: 'bg-sky-50 text-sky-700 border-sky-200',
+    classes: 'bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800/60',
     icon: Send,
   },
   In_Review: {
     label: '[SEDANG DIREVIEW]',
-    classes: 'bg-amber-50 text-amber-700 border-amber-200',
+    classes: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60',
     icon: Clock,
   },
   Lolos_Didanai: {
     label: '[LOLOS DIDANAI]',
-    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60',
     icon: CheckCircle2,
   },
   Ditolak: {
     label: '[DITOLAK]',
-    classes: 'bg-rose-50 text-rose-700 border-rose-200',
+    classes: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60',
     icon: XCircle,
   },
   Revisi: {
     label: '[PERLU REVISI]',
-    classes: 'bg-amber-50 text-amber-800 border-amber-300',
+    classes: 'bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60',
     icon: AlertTriangle,
   },
   Contracted: {
     label: '[TERKONTRAK]',
-    classes: 'bg-blue-50 text-blue-800 border-blue-200',
+    classes: 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/60',
     icon: FileCheck,
   },
   Disbursed_T1: {
     label: '[CAIR TERMIN 1]',
-    classes: 'bg-teal-50 text-teal-700 border-teal-200',
+    classes: 'bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800/60',
     icon: CheckCircle2,
   },
   Disbursed_T2: {
     label: '[CAIR TERMIN 2]',
-    classes: 'bg-emerald-50 text-emerald-800 border-emerald-300',
+    classes: 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60',
     icon: CheckCircle2,
   },
   Monev_Approved: {
     label: '[MONEV DISETUJUI]',
-    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    classes: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60',
     icon: Unlock,
   },
   Monev_Locked: {
     label: '[TERKUNCI MONEV]',
-    classes: 'bg-rose-50 text-rose-700 border-rose-200',
+    classes: 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/60',
     icon: Lock,
   },
   Output_Verified: {
     label: '[LUARAN TERVERIFIKASI]',
-    classes: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+    classes: 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800/60',
     icon: ShieldCheck,
   },
   Completed_SKTS: {
     label: '[SELESAI (SKTS)]',
-    classes: 'bg-slate-900 text-white border-slate-900',
+    classes: 'bg-slate-900 text-white border-slate-900 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-700/70',
     icon: Archive,
   },
   Terminated: {
     label: '[FORCE MAJEURE / DIBATALKAN]',
-    classes: 'bg-rose-100 text-rose-800 border-rose-300',
+    classes: 'bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60',
     icon: XCircle,
   },
 };
@@ -1273,7 +1299,7 @@ Sebelum sebuah layar antarmuka modul dinyatakan selesai (*Done*), pengembang waj
 
 - [ ] **Bebas Emoji 100%**: Tidak ada karakter emoji pada teks, judul, lencana status, tombol, atau kode.
 - [ ] **Tipografi Hibrida Terpenuhi**: Judul riset, abstrak, dan SKTS menggunakan font serif; antarmuka dan form menggunakan font sans; angka uang dan skor menggunakan font mono tabular.
-- [ ] **Warna Cool Slate Patuh**: Menggunakan token resmi `slate-50`, `white`, `slate-200`, `blue-900`, dan `emerald-600`.
+- [ ] **Warna & Palet Patuh (Light Cool Slate & Dark Deep Academic Midnight)**: Menggunakan token resmi `surface-*`, `border-*`, `text-*`, `brand-*`, serta adaptasi `dark:` sesuai spesifikasi.
 - [ ] **Komponen Inti Dipakai Ulang**: Memanfaatkan `StatusBadge`, `PDFUploader`, `TabularFigure`, `MetricCard`, dan `PageHeader` tanpa membuat varian lokal duplikat.
 - [ ] **Proteksi Form Inertia**: Tombol submit terkunci saat `processing`, tersedia konfirmasi `isDirty`, dan auto-focus ke error pertama.
 - [ ] **Aksesibilitas Kontras & Fokus**: Seluruh teks lolos uji kontras WCAG dan navigasi keyboard memiliki cincin fokus yang jelas.

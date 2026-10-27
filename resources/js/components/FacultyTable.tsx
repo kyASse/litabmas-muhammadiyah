@@ -131,10 +131,10 @@ export default function FacultyTable({ data }: FacultyTableProps) {
             </CardHeader>
 
             <CardContent>
-                <div className="overflow-x-auto rounded-lg border">
+                <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
                     <table className="w-full min-w-[500px] text-sm">
                         <thead>
-                            <tr className="border-b bg-muted/50">
+                            <tr className="border-b border-slate-200 bg-muted/50 dark:border-slate-800">
                                 <th className="w-14 px-4 py-3 text-left font-medium text-muted-foreground">#</th>
                                 <th
                                     className="cursor-pointer px-4 py-3 text-left font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -159,7 +159,7 @@ export default function FacultyTable({ data }: FacultyTableProps) {
                                 </th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y">
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                             {filteredData.map((item, index) => (
                                 <tr key={item.faculty_name} className="transition-colors hover:bg-muted/30">
                                     <td className="px-4 py-3 text-muted-foreground">{index + 1}</td>

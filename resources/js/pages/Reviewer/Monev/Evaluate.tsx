@@ -423,7 +423,7 @@ export default function MonevEvaluate({ report }: Props) {
                                                 {t.monev.reviewerNotesLabel} <span className="text-rose-600">*</span>
                                             </Label>
                                             <span
-                                                className={`font-mono text-xs ${data.catatan_reviewer_monev.length >= 10 ? 'font-semibold text-emerald-700' : 'text-slate-500'}`}
+                                                className={`font-mono text-xs ${data.catatan_reviewer_monev.length >= 10 ? 'font-semibold text-emerald-700 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}
                                             >
                                                 {data.catatan_reviewer_monev.length} / 10 min {data.catatan_reviewer_monev.length >= 10 && `[VALID]`}
                                             </span>
@@ -447,7 +447,7 @@ export default function MonevEvaluate({ report }: Props) {
                                         <Button
                                             type="submit"
                                             disabled={!canSubmit}
-                                            className="w-full bg-blue-900 text-white hover:bg-blue-800 disabled:opacity-50"
+                                            className="w-full bg-blue-900 text-white hover:bg-blue-800 disabled:opacity-50 dark:bg-sky-600 dark:text-white dark:hover:bg-sky-500"
                                         >
                                             <Send className="mr-2 h-4 w-4" />
                                             {processing

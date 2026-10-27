@@ -201,7 +201,7 @@ export default function AdminKampusIndex({ adminKampus, universities, stats, fil
                 </div>
 
                 {/* Filters */}
-                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <form onSubmit={handleSearch} className="grid grid-cols-1 gap-4 md:grid-cols-12">
                         <div className="relative md:col-span-5">
                             <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -269,22 +269,22 @@ export default function AdminKampusIndex({ adminKampus, universities, stats, fil
                         <Table>
                             <TableHeader>
                                 <TableRow className="border-b border-slate-100 bg-slate-50/75 dark:border-slate-800 dark:bg-slate-900/50">
-                                    <TableHead className="w-[300px] text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                    <TableHead className="w-[300px] text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                         {t.adminCampusAdmins.colAdmin}
                                     </TableHead>
-                                    <TableHead className="w-[280px] text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                    <TableHead className="w-[280px] text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                         {t.adminCampusAdmins.colUniversity}
                                     </TableHead>
-                                    <TableHead className="w-[160px] text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                    <TableHead className="w-[160px] text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                         {t.adminCampusAdmins.colContact}
                                     </TableHead>
-                                    <TableHead className="w-[120px] text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                    <TableHead className="w-[120px] text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                         {t.adminCampusAdmins.colStatus}
                                     </TableHead>
-                                    <TableHead className="w-[180px] text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                    <TableHead className="w-[180px] text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                         {t.adminCampusAdmins.lastLogin}
                                     </TableHead>
-                                    <TableHead className="w-[120px] text-right text-xs font-semibold tracking-wider text-slate-500 uppercase">
+                                    <TableHead className="w-[120px] text-right text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                         {t.adminCampusAdmins.actions}
                                     </TableHead>
                                 </TableRow>
@@ -437,15 +437,15 @@ export default function AdminKampusIndex({ adminKampus, universities, stats, fil
 
             {/* Toggle Status Confirmation Dialog */}
             <AlertDialog open={!!toggleUser} onOpenChange={(open) => !open && setToggleUser(null)}>
-                <AlertDialogContent>
+                <AlertDialogContent className="dark:border-slate-800 dark:bg-slate-900">
                     <AlertDialogHeader>
-                        <AlertDialogTitle>{t.adminCampusAdmins.confirmToggleTitle}</AlertDialogTitle>
-                        <AlertDialogDescription>
+                        <AlertDialogTitle className="dark:text-slate-100">{t.adminCampusAdmins.confirmToggleTitle}</AlertDialogTitle>
+                        <AlertDialogDescription className="dark:text-slate-400">
                             {t.adminCampusAdmins.confirmToggleDesc}
                             {toggleUser && (
                                 <div className="mt-3 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-800 dark:bg-slate-900">
                                     <div className="font-semibold text-slate-900 dark:text-slate-100">{toggleUser.name}</div>
-                                    <div className="font-mono text-slate-500">{toggleUser.email}</div>
+                                    <div className="font-mono text-slate-500 dark:text-slate-400">{toggleUser.email}</div>
                                     {toggleUser.university && (
                                         <div className="mt-1 text-slate-600 dark:text-slate-400">{toggleUser.university.name}</div>
                                     )}
@@ -454,7 +454,7 @@ export default function AdminKampusIndex({ adminKampus, universities, stats, fil
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>{t.common.cancel}</AlertDialogCancel>
+                        <AlertDialogCancel className="dark:border-slate-700 dark:text-slate-300">{t.common.cancel}</AlertDialogCancel>
                         <AlertDialogAction
                             onClick={handleToggleConfirm}
                             className={
