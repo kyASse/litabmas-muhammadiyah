@@ -381,10 +381,20 @@ export default function UsersIndex({
 
                         {/* Action Buttons */}
                         <div className="flex items-center gap-2">
-                            <Button type="submit" variant="default" className="bg-blue-900 font-sans text-sm text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500">
+                            <Button
+                                type="submit"
+                                variant="default"
+                                className="bg-blue-900 font-sans text-sm text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                            >
                                 {t.adminUsers.applyFilter}
                             </Button>
-                            <Button type="button" variant="outline" onClick={handleResetFilters} title={t.common.reset} className="font-sans text-sm dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleResetFilters}
+                                title={t.common.reset}
+                                className="font-sans text-sm dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                            >
                                 <RotateCcw className="h-4 w-4" />
                             </Button>
                         </div>
@@ -408,7 +418,9 @@ export default function UsersIndex({
                         <span>{t.adminUsers.tabAll}</span>
                         <span
                             className={`inline-flex items-center rounded-full px-2 py-0.5 font-mono text-xs ${
-                                isActive === 'all' || !isActive ? 'bg-blue-100 font-semibold text-blue-900 dark:bg-blue-950/50 dark:text-blue-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                                isActive === 'all' || !isActive
+                                    ? 'bg-blue-100 font-semibold text-blue-900 dark:bg-blue-950/50 dark:text-blue-300'
+                                    : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                             }`}
                         >
                             {stats?.total_users ?? 0}
@@ -534,7 +546,9 @@ export default function UsersIndex({
                                                             </span>
                                                         </div>
                                                     ) : (
-                                                        <span className="font-sans text-xs text-slate-400 italic dark:text-slate-500">{t.adminUsers.globalTenant}</span>
+                                                        <span className="font-sans text-xs text-slate-400 italic dark:text-slate-500">
+                                                            {t.adminUsers.globalTenant}
+                                                        </span>
                                                     )}
                                                 </TableCell>
 
@@ -623,7 +637,9 @@ export default function UsersIndex({
                                         size="sm"
                                         disabled={!link.url}
                                         className={`h-8 px-3 font-mono text-xs ${
-                                            link.active ? 'bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500' : 'dark:border-slate-700 dark:text-slate-300'
+                                            link.active
+                                                ? 'bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500'
+                                                : 'dark:border-slate-700 dark:text-slate-300'
                                         } ${!link.url ? 'pointer-events-none opacity-50' : ''}`}
                                     >
                                         <Link href={link.url || '#'} preserveScroll preserveState>
@@ -658,7 +674,9 @@ export default function UsersIndex({
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel onClick={() => setToggleUser(null)} className="dark:border-slate-700 dark:text-slate-300">{t.adminUsers.cancelButton}</AlertDialogCancel>
+                            <AlertDialogCancel onClick={() => setToggleUser(null)} className="dark:border-slate-700 dark:text-slate-300">
+                                {t.adminUsers.cancelButton}
+                            </AlertDialogCancel>
                             <AlertDialogAction
                                 onClick={handleToggleActiveConfirm}
                                 className={

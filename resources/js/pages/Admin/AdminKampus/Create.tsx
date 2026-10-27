@@ -175,7 +175,10 @@ export default function AdminKampusCreate({ universities }: Props) {
                             </div>
 
                             <div>
-                                <Label htmlFor="password_confirmation" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+                                <Label
+                                    htmlFor="password_confirmation"
+                                    className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300"
+                                >
                                     {t.adminCampusAdmins.confirmPasswordLabel} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
@@ -234,11 +237,20 @@ export default function AdminKampusCreate({ universities }: Props) {
                     {/* Form Action Buttons */}
                     <div className="flex items-center justify-end gap-3 pt-2">
                         <Link href={route('admin.admin-kampus.index')}>
-                            <Button type="button" variant="outline" disabled={processing} className="text-xs dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                disabled={processing}
+                                className="text-xs dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                            >
                                 {t.common.cancel}
                             </Button>
                         </Link>
-                        <Button type="submit" disabled={processing} className="bg-blue-900 px-6 text-xs font-medium text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500">
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="bg-blue-900 px-6 text-xs font-medium text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                        >
                             {processing ? t.common.loading : t.adminCampusAdmins.createTitle}
                         </Button>
                     </div>

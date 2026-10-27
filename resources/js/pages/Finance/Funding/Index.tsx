@@ -124,15 +124,27 @@ export default function FundingIndex({ fundings }: Props) {
                 {/* Ringkasan Finansial Halaman Ini */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.funding.totalTrancheAllocation}</span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                            {t.funding.totalTrancheAllocation}
+                        </span>
                         <div className="mt-2 flex items-baseline justify-between">
-                            <TabularFigure value={totalNominal} type="currency" size="xl" weight="bold" className="text-slate-900 dark:text-slate-100" />
-                            <span className="font-mono text-xs text-slate-500 dark:text-slate-400">{t.funding.records.replace('{count}', String(fundings.total))}</span>
+                            <TabularFigure
+                                value={totalNominal}
+                                type="currency"
+                                size="xl"
+                                weight="bold"
+                                className="text-slate-900 dark:text-slate-100"
+                            />
+                            <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
+                                {t.funding.records.replace('{count}', String(fundings.total))}
+                            </span>
                         </div>
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.funding.disbursedFundingLabel}</span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                            {t.funding.disbursedFundingLabel}
+                        </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
                                 value={disbursedNominal}
@@ -153,7 +165,9 @@ export default function FundingIndex({ fundings }: Props) {
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.funding.outstandingPendingLabel}</span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                            {t.funding.outstandingPendingLabel}
+                        </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
                                 value={Math.max(totalNominal - disbursedNominal, 0)}
@@ -245,7 +259,9 @@ export default function FundingIndex({ fundings }: Props) {
                                                     type="currency"
                                                     size="sm"
                                                     weight="bold"
-                                                    className={isDisbursed ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}
+                                                    className={
+                                                        isDisbursed ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'
+                                                    }
                                                 />
                                             </TableCell>
                                             <TableCell className="text-center">
@@ -343,7 +359,7 @@ export default function FundingIndex({ fundings }: Props) {
 
                 {/* Pagination */}
                 {fundings.last_page > 1 && (
-                    <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                         <p className="font-mono text-xs text-slate-500 dark:text-slate-400">
                             {t.funding.pageOfTranches
                                 .replace('{current}', String(fundings.current_page))

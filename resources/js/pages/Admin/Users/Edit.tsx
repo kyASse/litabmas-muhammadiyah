@@ -200,7 +200,10 @@ export default function UsersEdit({ user, universities, roles }: EditProps) {
 
                                 {/* Password Confirmation */}
                                 <div>
-                                    <Label htmlFor="password_confirmation" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    <Label
+                                        htmlFor="password_confirmation"
+                                        className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300"
+                                    >
                                         {t.adminUsers.passwordConfirmation}
                                     </Label>
                                     <Input
@@ -278,10 +281,19 @@ export default function UsersEdit({ user, universities, roles }: EditProps) {
 
                         {/* Submit / Cancel Actions */}
                         <div className="flex flex-col-reverse items-stretch justify-end gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center dark:border-slate-800">
-                            <Button asChild type="button" variant="outline" className="font-sans text-sm dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                            <Button
+                                asChild
+                                type="button"
+                                variant="outline"
+                                className="font-sans text-sm dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                            >
                                 <Link href={route('admin.users.show', user.id)}>{t.adminUsers.cancelButton}</Link>
                             </Button>
-                            <Button type="submit" disabled={processing} className="bg-blue-900 font-sans text-sm text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500">
+                            <Button
+                                type="submit"
+                                disabled={processing}
+                                className="bg-blue-900 font-sans text-sm text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                            >
                                 <Save className="mr-1.5 h-4 w-4" />
                                 {processing ? t.adminUsers.updating : t.adminUsers.saveChangesButton}
                             </Button>

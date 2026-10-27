@@ -149,13 +149,18 @@ export default function Schedule({ schedules = [], pendingReports = [], activeTa
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-lg dark:border-slate-800 dark:bg-slate-900">
                             <DialogHeader>
-                                <DialogTitle className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">{t.monev.createScheduleTitle}</DialogTitle>
+                                <DialogTitle className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">
+                                    {t.monev.createScheduleTitle}
+                                </DialogTitle>
                                 <DialogDescription className="text-xs text-muted-foreground">{t.monev.schedulePageSubtitle}</DialogDescription>
                             </DialogHeader>
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="nama_tahap" className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                    <Label
+                                        htmlFor="nama_tahap"
+                                        className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                                    >
                                         {t.monev.scheduleName} <span className="text-rose-600">*</span>
                                     </Label>
                                     <Input
@@ -171,7 +176,10 @@ export default function Schedule({ schedules = [], pendingReports = [], activeTa
 
                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="tanggal_mulai" className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                        <Label
+                                            htmlFor="tanggal_mulai"
+                                            className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                                        >
                                             {t.monev.startDate} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -186,7 +194,10 @@ export default function Schedule({ schedules = [], pendingReports = [], activeTa
                                     </div>
 
                                     <div className="space-y-1.5">
-                                        <Label htmlFor="tanggal_selesai" className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                        <Label
+                                            htmlFor="tanggal_selesai"
+                                            className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                                        >
                                             {t.monev.endDate} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Input
@@ -202,7 +213,10 @@ export default function Schedule({ schedules = [], pendingReports = [], activeTa
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="deskripsi" className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                    <Label
+                                        htmlFor="deskripsi"
+                                        className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                                    >
                                         {t.monev.description}
                                     </Label>
                                     <Textarea
@@ -217,10 +231,19 @@ export default function Schedule({ schedules = [], pendingReports = [], activeTa
                                 </div>
 
                                 <DialogFooter className="gap-2 border-t border-slate-200 pt-2 sm:gap-0 dark:border-slate-800">
-                                    <Button type="button" variant="outline" onClick={() => setDialogOpen(false)} className="dark:border-slate-700 dark:text-slate-300">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setDialogOpen(false)}
+                                        className="dark:border-slate-700 dark:text-slate-300"
+                                    >
                                         {t.common.cancel}
                                     </Button>
-                                    <Button type="submit" disabled={processing} className="bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500">
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                                    >
                                         {processing ? t.common.loading : t.common.save}
                                     </Button>
                                 </DialogFooter>
@@ -276,7 +299,10 @@ export default function Schedule({ schedules = [], pendingReports = [], activeTa
                                         schedules.map((schedule) => {
                                             const open = isWindowOpen(schedule);
                                             return (
-                                                <TableRow key={schedule.id} className="border-slate-100 hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/40">
+                                                <TableRow
+                                                    key={schedule.id}
+                                                    className="border-slate-100 hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/40"
+                                                >
                                                     <TableCell className="font-medium text-foreground">
                                                         <div className="flex items-center gap-2">
                                                             <Calendar className="h-4 w-4 shrink-0 text-blue-900 dark:text-blue-400" />
@@ -340,7 +366,10 @@ export default function Schedule({ schedules = [], pendingReports = [], activeTa
                                         </TableRow>
                                     ) : (
                                         pendingReports.map((report) => (
-                                            <TableRow key={report.id} className="border-slate-100 hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/40">
+                                            <TableRow
+                                                key={report.id}
+                                                className="border-slate-100 hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/40"
+                                            >
                                                 <TableCell>
                                                     <div className="font-medium text-foreground">
                                                         {report.proposal?.judul || report.proposal?.title || '-'}

@@ -211,7 +211,9 @@ export default function UsersShow({ user }: ShowProps) {
                                         <Phone className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
                                         <div>
                                             <p className="font-sans text-xs text-slate-500 dark:text-slate-400">{t.adminUsers.phone}</p>
-                                            <p className="font-mono text-sm text-slate-900 dark:text-slate-100">{user.phone || t.adminUsers.notSet}</p>
+                                            <p className="font-mono text-sm text-slate-900 dark:text-slate-100">
+                                                {user.phone || t.adminUsers.notSet}
+                                            </p>
                                         </div>
                                     </div>
 
@@ -219,7 +221,9 @@ export default function UsersShow({ user }: ShowProps) {
                                         <Briefcase className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
                                         <div>
                                             <p className="font-sans text-xs text-slate-500 dark:text-slate-400">{t.adminUsers.position}</p>
-                                            <p className="font-sans text-sm text-slate-900 dark:text-slate-100">{user.position || t.adminUsers.notSet}</p>
+                                            <p className="font-sans text-sm text-slate-900 dark:text-slate-100">
+                                                {user.position || t.adminUsers.notSet}
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -235,7 +239,9 @@ export default function UsersShow({ user }: ShowProps) {
                                     <div className="space-y-2 rounded-lg border border-slate-200 bg-slate-50/40 p-4 dark:border-slate-800 dark:bg-slate-950/40">
                                         <div className="flex items-center gap-2">
                                             <Building2 className="h-4 w-4 shrink-0 text-blue-900 dark:text-blue-400" />
-                                            <span className="font-sans text-sm font-semibold text-slate-800 dark:text-slate-200">{user.university.name}</span>
+                                            <span className="font-sans text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                                {user.university.name}
+                                            </span>
                                             {user.university.code && (
                                                 <span className="rounded bg-slate-200/80 px-1.5 py-0.5 font-mono text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                                                     {user.university.code}
@@ -264,7 +270,9 @@ export default function UsersShow({ user }: ShowProps) {
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                 <div className="rounded-lg border border-blue-100 bg-blue-50/40 p-4 dark:border-blue-900/40 dark:bg-blue-950/30">
                                     <div className="flex items-center justify-between">
-                                        <span className="font-sans text-xs font-medium text-blue-900 dark:text-blue-400">{t.adminUsers.proposalsAuthored}</span>
+                                        <span className="font-sans text-xs font-medium text-blue-900 dark:text-blue-400">
+                                            {t.adminUsers.proposalsAuthored}
+                                        </span>
                                         <FileText className="h-5 w-5 text-blue-800 dark:text-blue-300" />
                                     </div>
                                     <div className="mt-3">
@@ -275,7 +283,9 @@ export default function UsersShow({ user }: ShowProps) {
 
                                 <div className="rounded-lg border border-purple-100 bg-purple-50/40 p-4 dark:border-purple-900/40 dark:bg-purple-950/30">
                                     <div className="flex items-center justify-between">
-                                        <span className="font-sans text-xs font-medium text-purple-900 dark:text-purple-400">{t.adminUsers.reviewsAssigned}</span>
+                                        <span className="font-sans text-xs font-medium text-purple-900 dark:text-purple-400">
+                                            {t.adminUsers.reviewsAssigned}
+                                        </span>
                                         <CheckSquare className="h-5 w-5 text-purple-800 dark:text-purple-300" />
                                     </div>
                                     <div className="mt-3">
@@ -339,7 +349,9 @@ export default function UsersShow({ user }: ShowProps) {
                                     <Clock className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
                                     <div>
                                         <p className="font-sans text-xs text-slate-500 dark:text-slate-400">{t.adminUsers.lastLogin}</p>
-                                        <p className="font-mono text-xs text-slate-800 dark:text-slate-200">{user.last_login_at || t.adminUsers.neverLoggedIn}</p>
+                                        <p className="font-mono text-xs text-slate-800 dark:text-slate-200">
+                                            {user.last_login_at || t.adminUsers.neverLoggedIn}
+                                        </p>
                                     </div>
                                 </div>
 

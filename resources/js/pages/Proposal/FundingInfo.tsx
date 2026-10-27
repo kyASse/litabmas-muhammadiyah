@@ -151,7 +151,11 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
             <Head title={t.userFunding.pageTitle} />
 
             {/* Flash Messages */}
-            {flash?.success && <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">{flash.success}</div>}
+            {flash?.success && (
+                <div className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
+                    {flash.success}
+                </div>
+            )}
 
             {/* Page Header */}
             <div className="mb-6">
@@ -180,7 +184,9 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                         <CardTitle className="text-sm font-medium text-emerald-800 dark:text-emerald-300">{t.userFunding.disbursedFunding}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">{formatCurrency(fundingStats.total_disbursed)}</div>
+                        <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
+                            {formatCurrency(fundingStats.total_disbursed)}
+                        </div>
                         <p className="mt-2 text-xs text-emerald-700 dark:text-emerald-300">
                             {t.userFunding.percentOfTotal.replace(
                                 '{percent}',
@@ -246,13 +252,17 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                     </div>
                                     <div>
                                         <p className="text-xs font-medium text-slate-600 dark:text-slate-400">{t.userFunding.alreadyDisbursed}</p>
-                                        <p className="font-semibold text-emerald-600 dark:text-emerald-400">{formatCurrency(contract.total_disbursed)}</p>
+                                        <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+                                            {formatCurrency(contract.total_disbursed)}
+                                        </p>
                                     </div>
                                     <div className="w-24">
                                         <p className="text-xs font-medium text-slate-600 dark:text-slate-400">{t.userFunding.progress}</p>
                                         <div className="mt-1 flex items-center gap-2">
                                             <Progress value={contract.disbursement_percentage} className="h-2" />
-                                            <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">{contract.disbursement_percentage}%</span>
+                                            <span className="text-xs font-semibold text-slate-900 dark:text-slate-100">
+                                                {contract.disbursement_percentage}%
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -293,9 +303,16 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                                 </TableHeader>
                                                 <TableBody>
                                                     {contract.fundings.map((funding) => (
-                                                        <TableRow key={funding.id} className="border-slate-100 hover:bg-slate-50 dark:border-slate-800/60 dark:hover:bg-slate-800/40">
-                                                            <TableCell className="font-medium text-slate-900 dark:text-slate-100">{funding.funding_number}</TableCell>
-                                                            <TableCell className="text-right text-slate-700 dark:text-slate-300">{funding.percentage}%</TableCell>
+                                                        <TableRow
+                                                            key={funding.id}
+                                                            className="border-slate-100 hover:bg-slate-50 dark:border-slate-800/60 dark:hover:bg-slate-800/40"
+                                                        >
+                                                            <TableCell className="font-medium text-slate-900 dark:text-slate-100">
+                                                                {funding.funding_number}
+                                                            </TableCell>
+                                                            <TableCell className="text-right text-slate-700 dark:text-slate-300">
+                                                                {funding.percentage}%
+                                                            </TableCell>
                                                             <TableCell className="text-right text-slate-700 dark:text-slate-300">
                                                                 {formatCurrency(funding.amount)}
                                                             </TableCell>
@@ -310,8 +327,12 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                                                     </Badge>
                                                                 </div>
                                                             </TableCell>
-                                                            <TableCell className="text-sm text-slate-600 dark:text-slate-400">{funding.paid_at || '-'}</TableCell>
-                                                            <TableCell className="text-sm text-slate-600 dark:text-slate-400">{funding.reference_number || '-'}</TableCell>
+                                                            <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+                                                                {funding.paid_at || '-'}
+                                                            </TableCell>
+                                                            <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+                                                                {funding.reference_number || '-'}
+                                                            </TableCell>
                                                             <TableCell className="text-center">
                                                                 <TooltipProvider>
                                                                     <Tooltip>
@@ -354,7 +375,10 @@ export default function FundingInfo({ contracts, fundingStats, filters: initialF
                                                 {contract.fundings
                                                     .filter((f) => f.notes)
                                                     .map((funding) => (
-                                                        <div key={funding.id} className="rounded bg-blue-50 p-2 text-sm text-blue-900 dark:bg-blue-950/40 dark:text-blue-300">
+                                                        <div
+                                                            key={funding.id}
+                                                            className="rounded bg-blue-50 p-2 text-sm text-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
+                                                        >
                                                             <p className="font-medium">{funding.funding_number}:</p>
                                                             <p className="text-xs">{funding.notes}</p>
                                                         </div>

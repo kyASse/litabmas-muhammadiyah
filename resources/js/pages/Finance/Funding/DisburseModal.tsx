@@ -92,7 +92,9 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({ funding, open, onO
             <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto sm:max-w-2xl dark:border-slate-800 dark:bg-slate-900">
                 <DialogHeader>
                     <div className="flex items-center justify-between gap-3">
-                        <DialogTitle className="font-serif text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{t.funding.modalTitle}</DialogTitle>
+                        <DialogTitle className="font-serif text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                            {t.funding.modalTitle}
+                        </DialogTitle>
                         <StatusBadge status={isLocked ? 'Monev_Locked' : isTermin2 ? 'Disbursed_T2' : 'Disbursed_T1'} size="sm" />
                     </div>
                     <DialogDescription className="text-sm text-slate-600 dark:text-slate-400">{t.funding.modalSubtitle}</DialogDescription>
@@ -105,7 +107,9 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({ funding, open, onO
                             <span className="font-mono text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                 {t.contracts.contractNumber}
                             </span>
-                            <p className="font-mono text-sm font-semibold text-slate-800 dark:text-slate-200">{funding.contract?.nomor_kontrak || '-'}</p>
+                            <p className="font-mono text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                {funding.contract?.nomor_kontrak || '-'}
+                            </p>
                             <p className="line-clamp-2 text-sm font-medium text-slate-900 dark:text-slate-100">
                                 {funding.contract?.judul_kontrak || funding.contract?.proposal?.judul_penelitian}
                             </p>
@@ -132,7 +136,9 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({ funding, open, onO
                     </div>
 
                     <div className="flex items-center justify-between border-t border-slate-200/80 pt-2 dark:border-slate-800">
-                        <span className="text-xs font-medium tracking-wider text-slate-600 uppercase dark:text-slate-400">{t.funding.allocatedAmount}</span>
+                        <span className="text-xs font-medium tracking-wider text-slate-600 uppercase dark:text-slate-400">
+                            {t.funding.allocatedAmount}
+                        </span>
                         <TabularFigure
                             value={funding.nominal_dana}
                             type="currency"
@@ -171,10 +177,14 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({ funding, open, onO
                         <div className="flex items-center gap-2 text-sm font-bold tracking-wide text-rose-800 uppercase dark:text-rose-300">
                             <Lock className="h-4 w-4 shrink-0 text-rose-700 dark:text-rose-400" strokeWidth={2.5} />
                             <span>{t.funding.monevGatekeeperTitle}</span>
-                            <span className="ml-auto rounded bg-rose-200 px-2 py-0.5 font-mono text-xs text-rose-800 dark:bg-rose-900 dark:text-rose-200">{t.statuses.Monev_Locked}</span>
+                            <span className="ml-auto rounded bg-rose-200 px-2 py-0.5 font-mono text-xs text-rose-800 dark:bg-rose-900 dark:text-rose-200">
+                                {t.statuses.Monev_Locked}
+                            </span>
                         </div>
                         <p className="text-xs leading-relaxed text-rose-700 dark:text-rose-300">{t.funding.monevLockedNotice}</p>
-                        <p className="border-t border-rose-200/60 pt-1 font-mono text-xs text-rose-600 dark:border-rose-900/40 dark:text-rose-400">{t.funding.monevBackendBlockNotice}</p>
+                        <p className="border-t border-rose-200/60 pt-1 font-mono text-xs text-rose-600 dark:border-rose-900/40 dark:text-rose-400">
+                            {t.funding.monevBackendBlockNotice}
+                        </p>
                     </div>
                 ) : isTermin2 && isMonevApproved ? (
                     <div className="space-y-1 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/40 dark:text-emerald-200">
@@ -188,7 +198,10 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({ funding, open, onO
                 {/* Form Pencairan */}
                 <form onSubmit={handleSubmit} className="space-y-4 pt-2">
                     <div className="grid gap-2">
-                        <Label htmlFor="tanggal_pencairan" className="text-xs font-medium tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                        <Label
+                            htmlFor="tanggal_pencairan"
+                            className="text-xs font-medium tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                        >
                             {t.funding.disbursementDate} <span className="text-rose-500">*</span>
                         </Label>
                         <Input
@@ -200,7 +213,9 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({ funding, open, onO
                             className="bg-white font-mono text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                             required
                         />
-                        {errors.tanggal_pencairan && <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{errors.tanggal_pencairan}</p>}
+                        {errors.tanggal_pencairan && (
+                            <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{errors.tanggal_pencairan}</p>
+                        )}
                     </div>
 
                     <div className="grid gap-2">
@@ -267,15 +282,23 @@ export const DisburseModal: React.FC<DisburseModalProps> = ({ funding, open, onO
                         {errors.catatan_keuangan && <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{errors.catatan_keuangan}</p>}
                     </div>
 
-                    <DialogFooter className="gap-2 border-t border-slate-200 pt-3 dark:border-slate-800 sm:gap-0">
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={processing} className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <DialogFooter className="gap-2 border-t border-slate-200 pt-3 sm:gap-0 dark:border-slate-800">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            disabled={processing}
+                            className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                        >
                             {t.common.cancel}
                         </Button>
                         <Button
                             type="submit"
                             disabled={isLocked || processing || !data.bukti_transfer}
                             className={`font-semibold tracking-wide ${
-                                isLocked ? 'cursor-not-allowed bg-slate-400 hover:bg-slate-400 dark:bg-slate-700 dark:hover:bg-slate-700' : 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200'
+                                isLocked
+                                    ? 'cursor-not-allowed bg-slate-400 hover:bg-slate-400 dark:bg-slate-700 dark:hover:bg-slate-700'
+                                    : 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200'
                             }`}
                         >
                             {processing ? (

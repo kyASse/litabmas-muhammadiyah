@@ -112,22 +112,24 @@ export default function DesignSystemPreview() {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100">
+        <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900 dark:bg-slate-950 dark:text-slate-100 dark:selection:bg-blue-900 dark:selection:text-blue-100">
             <Head title={t.designSystem.pageTitle} />
 
             {/* Top Banner Navigation */}
-            <header className="sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
+            <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/95">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="flex h-16 items-center justify-between">
                         <div className="flex items-center space-x-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-900 dark:bg-blue-600 font-mono text-xs font-bold text-white">
+                            <div className="flex h-8 w-8 items-center justify-center rounded bg-blue-900 font-mono text-xs font-bold text-white dark:bg-blue-600">
                                 RPL
                             </div>
                             <div>
-                                <span className="block font-mono text-xs tracking-widest text-slate-500 dark:text-slate-400 uppercase">
+                                <span className="block font-mono text-xs tracking-widest text-slate-500 uppercase dark:text-slate-400">
                                     {t.designSystem.catalogSpecTag}
                                 </span>
-                                <span className="font-sans text-sm font-bold tracking-tight text-slate-900 dark:text-slate-100">{t.designSystem.previewGate}</span>
+                                <span className="font-sans text-sm font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                                    {t.designSystem.previewGate}
+                                </span>
                             </div>
                         </div>
 
@@ -161,7 +163,7 @@ export default function DesignSystemPreview() {
                     </div>
 
                     {/* Sub-bar Quick Jump Navigation */}
-                    <nav className="flex scrollbar-none space-x-1 overflow-x-auto border-t border-slate-100 dark:border-slate-800 py-2">
+                    <nav className="flex scrollbar-none space-x-1 overflow-x-auto border-t border-slate-100 py-2 dark:border-slate-800">
                         {navItems.map((item) => {
                             const Icon = item.icon;
                             const isActive = activeSection === item.id;
@@ -171,7 +173,9 @@ export default function DesignSystemPreview() {
                                     href={`#${item.id}`}
                                     onClick={() => setActiveSection(item.id)}
                                     className={`flex items-center space-x-1.5 rounded px-3 py-1 text-xs font-medium whitespace-nowrap transition-colors ${
-                                        isActive ? 'bg-blue-900 dark:bg-blue-600 text-white shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
+                                        isActive
+                                            ? 'bg-blue-900 text-white shadow-xs dark:bg-blue-600'
+                                            : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100'
                                     }`}
                                 >
                                     <Icon className="h-3.5 w-3.5 flex-shrink-0" />
@@ -196,7 +200,7 @@ export default function DesignSystemPreview() {
                     ]}
                     subtitle={t.designSystem.subtitle}
                     badge={
-                        <span className="inline-flex items-center rounded bg-blue-900 dark:bg-blue-600 px-2.5 py-1 font-sans text-xs font-bold tracking-wider text-white uppercase">
+                        <span className="inline-flex items-center rounded bg-blue-900 px-2.5 py-1 font-sans text-xs font-bold tracking-wider text-white uppercase dark:bg-blue-600">
                             {t.designSystem.badgeBaseline}
                         </span>
                     }
@@ -226,7 +230,7 @@ export default function DesignSystemPreview() {
 
                 {/* SECTION 1: Palet Warna Tokens */}
                 <section id="colors" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-2 dark:border-slate-800">
                         <div className="flex items-center space-x-2.5">
                             <div className="rounded border border-blue-200 bg-blue-50 p-1.5 text-blue-900 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
                                 <Palette className="h-4 w-4" />
@@ -240,7 +244,9 @@ export default function DesignSystemPreview() {
 
                     {/* Group 1: Cool Slate Surfaces */}
                     <div className="space-y-3">
-                        <h3 className="font-sans text-xs font-bold tracking-wider text-slate-700 dark:text-slate-300 uppercase">{t.designSystem.colorGroupSurfaces}</h3>
+                        <h3 className="font-sans text-xs font-bold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                            {t.designSystem.colorGroupSurfaces}
+                        </h3>
                         <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-5">
                             {[
                                 { token: 'surface-base', hex: '#F8FAFC', tailwind: 'bg-slate-50', role: t.designSystem.surfaceBaseRole },
@@ -249,17 +255,24 @@ export default function DesignSystemPreview() {
                                 { token: 'surface-muted', hex: '#E2E8F0', tailwind: 'bg-slate-200', role: t.designSystem.surfaceMutedRole },
                                 { token: 'surface-sidebar', hex: '#0F172A', tailwind: 'bg-slate-900', role: t.designSystem.surfaceSidebarRole },
                             ].map((swatch) => (
-                                <div key={swatch.token} className="space-y-2.5 rounded-lg border border-slate-200 bg-white p-3 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                                <div
+                                    key={swatch.token}
+                                    className="space-y-2.5 rounded-lg border border-slate-200 bg-white p-3 shadow-xs dark:border-slate-800 dark:bg-slate-900"
+                                >
                                     <div
-                                        className={`flex h-16 w-full items-center justify-center rounded border border-slate-200 dark:border-slate-700 font-mono text-xs text-slate-900 dark:text-slate-100 ${
+                                        className={`flex h-16 w-full items-center justify-center rounded border border-slate-200 font-mono text-xs text-slate-900 dark:border-slate-700 dark:text-slate-100 ${
                                             swatch.token === 'surface-sidebar' ? 'bg-slate-900 text-white' : swatch.tailwind
                                         }`}
                                     >
                                         {swatch.hex}
                                     </div>
                                     <div>
-                                        <span className="block truncate font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">{swatch.token}</span>
-                                        <span className="mt-0.5 line-clamp-2 block font-sans text-xs text-slate-500 dark:text-slate-400">{swatch.role}</span>
+                                        <span className="block truncate font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">
+                                            {swatch.token}
+                                        </span>
+                                        <span className="mt-0.5 line-clamp-2 block font-sans text-xs text-slate-500 dark:text-slate-400">
+                                            {swatch.role}
+                                        </span>
                                     </div>
                                 </div>
                             ))}
@@ -268,7 +281,9 @@ export default function DesignSystemPreview() {
 
                     {/* Group 2: Brand Identity */}
                     <div className="space-y-3">
-                        <h3 className="font-sans text-xs font-bold tracking-wider text-slate-700 dark:text-slate-300 uppercase">{t.designSystem.colorGroupBrand}</h3>
+                        <h3 className="font-sans text-xs font-bold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                            {t.designSystem.colorGroupBrand}
+                        </h3>
                         <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-6">
                             {[
                                 {
@@ -308,14 +323,19 @@ export default function DesignSystemPreview() {
                                     label: t.designSystem.brandAccentLightLabel,
                                 },
                             ].map((swatch) => (
-                                <div key={swatch.token} className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                                <div
+                                    key={swatch.token}
+                                    className="space-y-2 rounded-lg border border-slate-200 bg-white p-3 shadow-xs dark:border-slate-800 dark:bg-slate-900"
+                                >
                                     <div
                                         className={`flex h-14 w-full items-center justify-center rounded font-mono text-xs font-bold ${swatch.tailwind}`}
                                     >
                                         {swatch.hex}
                                     </div>
                                     <div>
-                                        <span className="block truncate font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">{swatch.token}</span>
+                                        <span className="block truncate font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">
+                                            {swatch.token}
+                                        </span>
                                         <span className="block truncate text-xs text-slate-500 dark:text-slate-400">{swatch.label}</span>
                                     </div>
                                 </div>
@@ -325,12 +345,15 @@ export default function DesignSystemPreview() {
 
                     {/* Group 3: Semantic System States */}
                     <div className="space-y-3">
-                        <h3 className="font-sans text-xs font-bold tracking-wider text-slate-700 dark:text-slate-300 uppercase">{t.designSystem.colorGroupSystem}</h3>
+                        <h3 className="font-sans text-xs font-bold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                            {t.designSystem.colorGroupSystem}
+                        </h3>
                         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-5">
                             {[
                                 {
                                     name: t.designSystem.semanticSuccessName,
-                                    classes: 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60',
+                                    classes:
+                                        'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60',
                                     hexText: '#059669',
                                     hexBg: '#ECFDF5',
                                 },
@@ -342,19 +365,22 @@ export default function DesignSystemPreview() {
                                 },
                                 {
                                     name: t.designSystem.semanticWarningName,
-                                    classes: 'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60',
+                                    classes:
+                                        'bg-amber-50 text-amber-800 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60',
                                     hexText: '#D97706',
                                     hexBg: '#FFFBEB',
                                 },
                                 {
                                     name: t.designSystem.semanticDangerName,
-                                    classes: 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60',
+                                    classes:
+                                        'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/60',
                                     hexText: '#E11D48',
                                     hexBg: '#FFF1F2',
                                 },
                                 {
                                     name: t.designSystem.semanticNeutralName,
-                                    classes: 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800/60 dark:text-slate-200 dark:border-slate-700',
+                                    classes:
+                                        'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800/60 dark:text-slate-200 dark:border-slate-700',
                                     hexText: '#475569',
                                     hexBg: '#F1F5F9',
                                 },
@@ -378,14 +404,12 @@ export default function DesignSystemPreview() {
 
                     {/* Group 4: Dark Mode Token Palette Showcase (Deep Academic Midnight) */}
                     <div className="space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                        <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h3 className="font-sans text-xs font-bold tracking-wider text-slate-700 dark:text-slate-300 uppercase">
+                                <h3 className="font-sans text-xs font-bold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                     {t.designSystem.darkThemeCatalogTitle}
                                 </h3>
-                                <p className="text-xs text-slate-500 dark:text-slate-400">
-                                    {t.designSystem.darkThemeCatalogSubtitle}
-                                </p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t.designSystem.darkThemeCatalogSubtitle}</p>
                             </div>
                             <span className="inline-flex items-center rounded border border-blue-200 bg-blue-50 px-2 py-0.5 font-mono text-xs text-blue-800 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
                                 {t.designSystem.wcagCompliantTag}
@@ -466,7 +490,7 @@ export default function DesignSystemPreview() {
                                         className={`flex h-14 w-full items-center justify-between rounded border px-3 font-mono text-xs font-semibold ${swatch.tailwind}`}
                                     >
                                         <span>{swatch.hex}</span>
-                                        <span className="text-[10px] uppercase font-bold tracking-wider">
+                                        <span className="text-[10px] font-bold tracking-wider uppercase">
                                             [{swatch.level} {swatch.contrast}]
                                         </span>
                                     </div>
@@ -475,9 +499,7 @@ export default function DesignSystemPreview() {
                                             <span className="block truncate font-mono text-xs font-semibold text-slate-900 dark:text-slate-100">
                                                 {swatch.token}
                                             </span>
-                                            <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400">
-                                                {swatch.contrast}
-                                            </span>
+                                            <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400">{swatch.contrast}</span>
                                         </div>
                                         <span className="mt-0.5 line-clamp-2 block font-sans text-xs text-slate-500 dark:text-slate-400">
                                             {swatch.role}
@@ -491,7 +513,7 @@ export default function DesignSystemPreview() {
 
                 {/* SECTION 2: Tipografi Ganda */}
                 <section id="typography" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-2 dark:border-slate-800">
                         <div className="flex items-center space-x-2.5">
                             <div className="rounded border border-blue-200 bg-blue-50 p-1.5 text-blue-900 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
                                 <Type className="h-4 w-4" />
@@ -504,8 +526,8 @@ export default function DesignSystemPreview() {
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                         {/* Serif Column: Scholarly */}
                         <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                                <span className="font-mono text-xs font-bold tracking-wider text-blue-900 dark:text-blue-400 uppercase">
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+                                <span className="font-mono text-xs font-bold tracking-wider text-blue-900 uppercase dark:text-blue-400">
                                     {t.designSystem.typoScholarly}
                                 </span>
                                 <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -514,14 +536,18 @@ export default function DesignSystemPreview() {
                             </div>
                             <div className="space-y-3">
                                 <div>
-                                    <span className="mb-1 block font-sans text-xs text-slate-400 dark:text-slate-500">{t.designSystem.typoScholarlyHeading}</span>
+                                    <span className="mb-1 block font-sans text-xs text-slate-400 dark:text-slate-500">
+                                        {t.designSystem.typoScholarlyHeading}
+                                    </span>
                                     <h3 className="font-serif text-2xl leading-snug font-semibold text-slate-900 dark:text-slate-100">
                                         {t.designSystem.typoScholarlySampleTitle}
                                     </h3>
                                 </div>
                                 <div>
-                                    <span className="mb-1 block font-sans text-xs text-slate-400 dark:text-slate-500">{t.designSystem.typoScholarlyAbstractLabel}</span>
-                                    <p className="border-l-2 border-blue-900 pl-3 font-serif text-sm leading-relaxed text-slate-800 dark:border-blue-500 dark:text-slate-200 italic">
+                                    <span className="mb-1 block font-sans text-xs text-slate-400 dark:text-slate-500">
+                                        {t.designSystem.typoScholarlyAbstractLabel}
+                                    </span>
+                                    <p className="border-l-2 border-blue-900 pl-3 font-serif text-sm leading-relaxed text-slate-800 italic dark:border-blue-500 dark:text-slate-200">
                                         {t.designSystem.typoScholarlySampleAbstract}
                                     </p>
                                 </div>
@@ -531,8 +557,8 @@ export default function DesignSystemPreview() {
 
                         {/* Sans Column: Enterprise */}
                         <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                                <span className="font-mono text-xs font-bold tracking-wider text-slate-700 dark:text-slate-300 uppercase">
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+                                <span className="font-mono text-xs font-bold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                     {t.designSystem.typoEnterprise}
                                 </span>
                                 <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -541,12 +567,18 @@ export default function DesignSystemPreview() {
                             </div>
                             <div className="space-y-3">
                                 <div>
-                                    <span className="mb-1 block font-sans text-xs text-slate-400 dark:text-slate-500">{t.designSystem.typoEnterpriseHeading}</span>
-                                    <h4 className="font-sans text-base font-bold text-slate-900 dark:text-slate-100">{t.designSystem.typoEnterpriseSampleHeading}</h4>
+                                    <span className="mb-1 block font-sans text-xs text-slate-400 dark:text-slate-500">
+                                        {t.designSystem.typoEnterpriseHeading}
+                                    </span>
+                                    <h4 className="font-sans text-base font-bold text-slate-900 dark:text-slate-100">
+                                        {t.designSystem.typoEnterpriseSampleHeading}
+                                    </h4>
                                 </div>
                                 <div>
-                                    <span className="mb-1 block font-sans text-xs text-slate-400 dark:text-slate-500">{t.designSystem.typoEnterpriseInputLabel}</span>
-                                    <label className="block font-sans text-xs font-semibold tracking-wider text-slate-700 dark:text-slate-300 uppercase">
+                                    <span className="mb-1 block font-sans text-xs text-slate-400 dark:text-slate-500">
+                                        {t.designSystem.typoEnterpriseInputLabel}
+                                    </span>
+                                    <label className="block font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.designSystem.typoEnterpriseInputLabel} <span className="text-rose-600 dark:text-rose-400">*</span>
                                     </label>
                                     <div className="mt-1 rounded border border-slate-300 bg-slate-50 px-3 py-1.5 font-sans text-xs text-slate-800 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-200">
@@ -567,8 +599,8 @@ export default function DesignSystemPreview() {
 
                         {/* Mono Column: Tabular & Financial */}
                         <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
-                                <span className="font-mono text-xs font-bold tracking-wider text-emerald-800 dark:text-emerald-400 uppercase">
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+                                <span className="font-mono text-xs font-bold tracking-wider text-emerald-800 uppercase dark:text-emerald-400">
                                     {t.designSystem.typoTabular}
                                 </span>
                                 <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -577,27 +609,29 @@ export default function DesignSystemPreview() {
                             </div>
                             <div className="space-y-3">
                                 <div>
-                                    <span className="mb-1 block font-sans text-xs text-slate-400 dark:text-slate-500">{t.designSystem.typoTabularHeading}</span>
-                                    <div className="font-mono text-2xl font-bold text-slate-900 dark:text-slate-100 tabular-nums">
+                                    <span className="mb-1 block font-sans text-xs text-slate-400 dark:text-slate-500">
+                                        {t.designSystem.typoTabularHeading}
+                                    </span>
+                                    <div className="font-mono text-2xl font-bold text-slate-900 tabular-nums dark:text-slate-100">
                                         {locale === 'en' ? 'IDR 75,000,000.00' : 'Rp75.000.000,00'}
                                     </div>
                                 </div>
                                 <div className="space-y-1.5 rounded border border-slate-200 bg-slate-50 p-3 font-mono text-xs dark:border-slate-800 dark:bg-slate-950/60">
                                     <div className="flex justify-between">
                                         <span className="text-slate-500 dark:text-slate-400">{t.designSystem.typoTabularTermin1}</span>
-                                        <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+                                        <span className="font-semibold text-slate-900 tabular-nums dark:text-slate-100">
                                             {locale === 'en' ? 'IDR 52,500,000.00' : 'Rp52.500.000,00'}
                                         </span>
                                     </div>
                                     <div className="flex justify-between">
                                         <span className="text-slate-500 dark:text-slate-400">{t.designSystem.typoTabularTermin2}</span>
-                                        <span className="font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+                                        <span className="font-semibold text-slate-900 tabular-nums dark:text-slate-100">
                                             {locale === 'en' ? 'IDR 22,500,000.00' : 'Rp22.500.000,00'}
                                         </span>
                                     </div>
-                                    <div className="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-1">
+                                    <div className="flex justify-between border-t border-slate-200 pt-1 dark:border-slate-800">
                                         <span className="text-slate-500 dark:text-slate-400">{t.designSystem.typoTabularPassing}</span>
-                                        <span className="font-bold text-emerald-700 dark:text-emerald-400 tabular-nums">87.50 / 100.00</span>
+                                        <span className="font-bold text-emerald-700 tabular-nums dark:text-emerald-400">87.50 / 100.00</span>
                                     </div>
                                 </div>
                                 <div className="pt-2 font-sans text-xs text-slate-500 dark:text-slate-400">{t.designSystem.typoTabularUsage}</div>
@@ -608,7 +642,7 @@ export default function DesignSystemPreview() {
 
                 {/* SECTION 3: StatusBadge (14 Status) */}
                 <section id="badges" className="space-y-6 pt-4">
-                    <div className="flex flex-col gap-3 border-b border-slate-200 dark:border-slate-800 pb-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-3 border-b border-slate-200 pb-2 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                         <div className="flex items-center space-x-2.5">
                             <div className="rounded border border-blue-200 bg-blue-50 p-1.5 text-blue-900 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
                                 <Tag className="h-4 w-4" />
@@ -633,7 +667,7 @@ export default function DesignSystemPreview() {
                                     onClick={() => setStatusFilter(f.id as any)}
                                     className={`rounded px-2.5 py-1 font-medium whitespace-nowrap transition-colors ${
                                         statusFilter === f.id
-                                            ? 'bg-blue-900 dark:bg-blue-600 text-white shadow-xs'
+                                            ? 'bg-blue-900 text-white shadow-xs dark:bg-blue-600'
                                             : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
                                     }`}
                                 >
@@ -646,7 +680,7 @@ export default function DesignSystemPreview() {
                     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-xs">
-                                <thead className="border-b border-slate-200 bg-slate-100 font-sans font-semibold tracking-wider text-slate-700 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300 uppercase">
+                                <thead className="border-b border-slate-200 bg-slate-100 font-sans font-semibold tracking-wider text-slate-700 uppercase dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300">
                                     <tr>
                                         <th className="px-4 py-3">{t.designSystem.statusColKey}</th>
                                         <th className="px-4 py-3">{t.designSystem.statusColSmall}</th>
@@ -655,7 +689,7 @@ export default function DesignSystemPreview() {
                                         <th className="px-4 py-3">{t.designSystem.statusColRule}</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-sans">
+                                <tbody className="divide-y divide-slate-200 font-sans dark:divide-slate-800">
                                     {filteredStatuses.map((item) => (
                                         <tr key={item.status} className="transition-colors hover:bg-slate-50/75 dark:hover:bg-slate-800/50">
                                             <td className="px-4 py-3 font-mono font-medium text-slate-900 dark:text-slate-100">{item.status}</td>
@@ -677,7 +711,7 @@ export default function DesignSystemPreview() {
 
                 {/* SECTION 4: PDFUploader */}
                 <section id="uploader" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-2 dark:border-slate-800">
                         <div className="flex items-center space-x-2.5">
                             <div className="rounded border border-blue-200 bg-blue-50 p-1.5 text-blue-900 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
                                 <UploadCloud className="h-4 w-4" />
@@ -693,8 +727,8 @@ export default function DesignSystemPreview() {
                     <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                         {/* Instance 1: Interactive Live Demo */}
                         <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                                <span className="font-sans text-xs font-bold tracking-wider text-blue-900 dark:text-blue-400 uppercase">
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-2 dark:border-slate-800">
+                                <span className="font-sans text-xs font-bold tracking-wider text-blue-900 uppercase dark:text-blue-400">
                                     {t.designSystem.uploaderInteractiveTitle}
                                 </span>
                                 <span className="rounded bg-emerald-50 px-2 py-0.5 font-mono text-xs text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">
@@ -725,8 +759,8 @@ export default function DesignSystemPreview() {
 
                         {/* Instance 2: Pre-filled State */}
                         <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                                <span className="font-sans text-xs font-bold tracking-wider text-slate-700 dark:text-slate-300 uppercase">
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-2 dark:border-slate-800">
+                                <span className="font-sans text-xs font-bold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                     {t.designSystem.uploaderPrefilledTitle}
                                 </span>
                                 <span className="rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300">
@@ -746,8 +780,8 @@ export default function DesignSystemPreview() {
 
                         {/* Instance 3: Disabled / Locked State */}
                         <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2">
-                                <span className="font-sans text-xs font-bold tracking-wider text-slate-700 dark:text-slate-300 uppercase">
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-2 dark:border-slate-800">
+                                <span className="font-sans text-xs font-bold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                     {t.designSystem.uploaderLockedTitle}
                                 </span>
                                 <span className="rounded bg-rose-50 px-2 py-0.5 font-mono text-xs text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">
@@ -769,7 +803,7 @@ export default function DesignSystemPreview() {
 
                 {/* SECTION 5: TabularFigure */}
                 <section id="figures" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-2 dark:border-slate-800">
                         <div className="flex items-center space-x-2.5">
                             <div className="rounded border border-blue-200 bg-blue-50 p-1.5 text-blue-900 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
                                 <Hash className="h-4 w-4" />
@@ -785,7 +819,7 @@ export default function DesignSystemPreview() {
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
                         {/* Card Currency */}
                         <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <span className="block font-sans text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                            <span className="block font-sans text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                 {t.designSystem.figureCurrencyLabel}
                             </span>
                             <div className="py-2">
@@ -796,7 +830,7 @@ export default function DesignSystemPreview() {
 
                         {/* Card Score */}
                         <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <span className="block font-sans text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                            <span className="block font-sans text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                 {t.designSystem.figureScoreLabel}
                             </span>
                             <div className="py-2">
@@ -807,7 +841,7 @@ export default function DesignSystemPreview() {
 
                         {/* Card Percentage */}
                         <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <span className="block font-sans text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                            <span className="block font-sans text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                 {t.designSystem.figurePercentageLabel}
                             </span>
                             <div className="py-2">
@@ -825,7 +859,7 @@ export default function DesignSystemPreview() {
 
                         {/* Card Integer */}
                         <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
-                            <span className="block font-sans text-xs font-semibold tracking-wider text-slate-500 dark:text-slate-400 uppercase">
+                            <span className="block font-sans text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                 {t.designSystem.figureIntegerLabel}
                             </span>
                             <div className="py-2">
@@ -846,7 +880,9 @@ export default function DesignSystemPreview() {
                     <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/60">
                             <div>
-                                <h4 className="font-sans text-xs font-bold tracking-wider text-slate-800 dark:text-slate-200 uppercase">{t.designSystem.matrixTitle}</h4>
+                                <h4 className="font-sans text-xs font-bold tracking-wider text-slate-800 uppercase dark:text-slate-200">
+                                    {t.designSystem.matrixTitle}
+                                </h4>
                                 <p className="text-xs text-slate-500 dark:text-slate-400">{t.designSystem.matrixSubtitle}</p>
                             </div>
                             <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono text-xs text-emerald-800 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-300">
@@ -854,7 +890,7 @@ export default function DesignSystemPreview() {
                             </span>
                         </div>
                         <table className="w-full text-left text-xs">
-                            <thead className="border-b border-slate-200 bg-slate-100 font-sans font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300 uppercase">
+                            <thead className="border-b border-slate-200 bg-slate-100 font-sans font-semibold text-slate-700 uppercase dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300">
                                 <tr>
                                     <th className="px-4 py-2.5">{t.designSystem.matrixColBudget}</th>
                                     <th className="px-4 py-2.5 text-center">{t.designSystem.matrixColShare}</th>
@@ -863,7 +899,7 @@ export default function DesignSystemPreview() {
                                     <th className="px-4 py-2.5 text-center">{t.designSystem.matrixColStatus}</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-sans">
+                            <tbody className="divide-y divide-slate-200 font-sans dark:divide-slate-800">
                                 {[
                                     {
                                         name: t.designSystem.matrixRow1,
@@ -917,7 +953,7 @@ export default function DesignSystemPreview() {
 
                 {/* SECTION 6: MetricCard Bento Grid */}
                 <section id="metrics" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-2 dark:border-slate-800">
                         <div className="flex items-center space-x-2.5">
                             <div className="rounded border border-blue-200 bg-blue-50 p-1.5 text-blue-900 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
                                 <LayoutDashboard className="h-4 w-4" />
@@ -980,7 +1016,7 @@ export default function DesignSystemPreview() {
 
                 {/* SECTION 7: SplitScreenViewer */}
                 <section id="splitscreen" className="space-y-6 pt-4">
-                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                    <div className="flex items-center justify-between border-b border-slate-200 pb-2 dark:border-slate-800">
                         <div className="flex items-center space-x-2.5">
                             <div className="rounded border border-blue-200 bg-blue-50 p-1.5 text-blue-900 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
                                 <Columns className="h-4 w-4" />
@@ -1002,22 +1038,28 @@ export default function DesignSystemPreview() {
                                 headerActions={
                                     <div className="mr-2 flex items-center space-x-2">
                                         <StatusBadge status="In_Review" size="sm" />
-                                        <span className="font-mono text-xs text-slate-500 dark:text-slate-400">{t.designSystem.reviewer1Assignment}</span>
+                                        <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
+                                            {t.designSystem.reviewer1Assignment}
+                                        </span>
                                     </div>
                                 }
                                 formContent={
                                     <div className="space-y-5">
                                         <div>
-                                            <h3 className="font-sans text-sm font-bold tracking-wide text-slate-900 dark:text-slate-100 uppercase">
+                                            <h3 className="font-sans text-sm font-bold tracking-wide text-slate-900 uppercase dark:text-slate-100">
                                                 {t.components.splitScreen.rubricTitle}
                                             </h3>
-                                            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{t.components.splitScreen.rubricSubtitle}</p>
+                                            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                                {t.components.splitScreen.rubricSubtitle}
+                                            </p>
                                         </div>
 
                                         {/* Kriteria 1 */}
                                         <div className="space-y-1.5 rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/60">
                                             <div className="flex items-center justify-between text-xs">
-                                                <label className="font-semibold text-slate-700 dark:text-slate-300">{t.components.splitScreen.criteriaUrgency}</label>
+                                                <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                                    {t.components.splitScreen.criteriaUrgency}
+                                                </label>
                                                 <TabularFigure value={scoreUrgensi} type="score" size="sm" weight="bold" />
                                             </div>
                                             <input
@@ -1041,7 +1083,9 @@ export default function DesignSystemPreview() {
                                         {/* Kriteria 2 */}
                                         <div className="space-y-1.5 rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/60">
                                             <div className="flex items-center justify-between text-xs">
-                                                <label className="font-semibold text-slate-700 dark:text-slate-300">{t.components.splitScreen.criteriaMethodology}</label>
+                                                <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                                    {t.components.splitScreen.criteriaMethodology}
+                                                </label>
                                                 <TabularFigure value={scoreMetode} type="score" size="sm" weight="bold" />
                                             </div>
                                             <input
@@ -1065,7 +1109,9 @@ export default function DesignSystemPreview() {
                                         {/* Kriteria 3 */}
                                         <div className="space-y-1.5 rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/60">
                                             <div className="flex items-center justify-between text-xs">
-                                                <label className="font-semibold text-slate-700 dark:text-slate-300">{t.components.splitScreen.criteriaFeasibility}</label>
+                                                <label className="font-semibold text-slate-700 dark:text-slate-300">
+                                                    {t.components.splitScreen.criteriaFeasibility}
+                                                </label>
                                                 <TabularFigure value={scoreKelayakan} type="score" size="sm" weight="bold" />
                                             </div>
                                             <input
@@ -1092,21 +1138,28 @@ export default function DesignSystemPreview() {
                                                 <span className="block font-sans text-xs font-semibold text-blue-900 dark:text-blue-300">
                                                     {t.components.splitScreen.aggregateScoreLabel}
                                                 </span>
-                                                <span className="font-sans text-[11px] text-slate-600 dark:text-slate-400">{t.designSystem.rubricPassingGrade}</span>
+                                                <span className="font-sans text-[11px] text-slate-600 dark:text-slate-400">
+                                                    {t.designSystem.rubricPassingGrade}
+                                                </span>
                                             </div>
                                             <TabularFigure
                                                 value={aggregateScore}
                                                 type="score"
                                                 size="2xl"
                                                 weight="bold"
-                                                className={aggregateScore >= 70 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}
+                                                className={
+                                                    aggregateScore >= 70
+                                                        ? 'text-emerald-700 dark:text-emerald-400'
+                                                        : 'text-rose-700 dark:text-rose-400'
+                                                }
                                             />
                                         </div>
 
                                         {/* Recommendation Select */}
                                         <div className="space-y-1">
-                                            <label className="block font-sans text-xs font-semibold tracking-wider text-slate-700 dark:text-slate-300 uppercase">
-                                                {t.components.splitScreen.recommendationLabel} <span className="text-rose-600 dark:text-rose-400">*</span>
+                                            <label className="block font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                                {t.components.splitScreen.recommendationLabel}{' '}
+                                                <span className="text-rose-600 dark:text-rose-400">*</span>
                                             </label>
                                             <select
                                                 value={recommendation}
@@ -1114,7 +1167,7 @@ export default function DesignSystemPreview() {
                                                     setRecommendation(e.target.value);
                                                     setFormSaved(false);
                                                 }}
-                                                className="w-full rounded border-slate-300 bg-white px-2.5 py-1.5 font-sans text-xs text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                                                className="w-full rounded border-slate-300 bg-white px-2.5 py-1.5 font-sans text-xs text-slate-900 focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                                             >
                                                 <option value="Lolos_Didanai">{t.designSystem.recFunded}</option>
                                                 <option value="Revisi">{t.designSystem.recRevision}</option>
@@ -1124,7 +1177,7 @@ export default function DesignSystemPreview() {
 
                                         {/* Reviewer Qualitative Feedback */}
                                         <div className="space-y-1">
-                                            <label className="block font-sans text-xs font-semibold tracking-wider text-slate-700 dark:text-slate-300 uppercase">
+                                            <label className="block font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                                 {t.components.splitScreen.reviewerNotesLabel}
                                             </label>
                                             <textarea
@@ -1134,7 +1187,7 @@ export default function DesignSystemPreview() {
                                                     setReviewerNotes(e.target.value);
                                                     setFormSaved(false);
                                                 }}
-                                                className="w-full rounded border-slate-300 bg-white p-2.5 font-sans text-xs text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                                                className="w-full rounded border-slate-300 bg-white p-2.5 font-sans text-xs text-slate-900 placeholder:text-slate-400 focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-blue-500 dark:focus:ring-blue-500"
                                                 placeholder={t.designSystem.reviewerNotesPlaceholder}
                                             />
                                         </div>
@@ -1148,7 +1201,10 @@ export default function DesignSystemPreview() {
                                                 onChange={(e) => setCoiAcknowledged(e.target.checked)}
                                                 className="mt-0.5 rounded border-slate-300 text-blue-900 focus:ring-blue-900 dark:border-slate-700 dark:bg-slate-800 dark:text-blue-600 dark:focus:ring-blue-600"
                                             />
-                                            <label htmlFor="coi_ack" className="cursor-pointer font-sans text-[11px] leading-tight text-slate-700 dark:text-slate-300">
+                                            <label
+                                                htmlFor="coi_ack"
+                                                className="cursor-pointer font-sans text-[11px] leading-tight text-slate-700 dark:text-slate-300"
+                                            >
                                                 {t.components.splitScreen.coiAgreement}
                                             </label>
                                         </div>
@@ -1181,7 +1237,7 @@ export default function DesignSystemPreview() {
                 </section>
 
                 {/* Footer Audit Information */}
-                <footer className="flex flex-col gap-4 border-t border-slate-200 dark:border-slate-800 pt-8 pb-12 font-sans text-xs text-slate-500 dark:text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+                <footer className="flex flex-col gap-4 border-t border-slate-200 pt-8 pb-12 font-sans text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800 dark:text-slate-400">
                     <div className="space-y-1">
                         <p className="font-semibold text-slate-700 dark:text-slate-300">{t.designSystem.footerTitle}</p>
                         <p>{t.designSystem.footerSubtitle}</p>

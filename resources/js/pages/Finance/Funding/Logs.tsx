@@ -149,10 +149,15 @@ export default function Logs({ logs }: Props) {
 
                                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                                     {logs.data.map((log) => (
-                                        <tr key={log.id} className="bg-white transition-colors hover:bg-slate-50/50 dark:bg-slate-900 dark:hover:bg-slate-800/50">
+                                        <tr
+                                            key={log.id}
+                                            className="bg-white transition-colors hover:bg-slate-50/50 dark:bg-slate-900 dark:hover:bg-slate-800/50"
+                                        >
                                             <td className="px-4 py-4 font-medium text-slate-900 dark:text-slate-100">{log.contract?.title ?? '-'}</td>
                                             <td className="px-4 py-4">{log.termin_number}</td>
-                                            <td className="px-4 py-4 font-mono text-slate-900 dark:text-slate-100">Rp {Number(log.amount).toLocaleString('id-ID')}</td>
+                                            <td className="px-4 py-4 font-mono text-slate-900 dark:text-slate-100">
+                                                Rp {Number(log.amount).toLocaleString('id-ID')}
+                                            </td>
                                             <td className="px-4 py-4">
                                                 <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset dark:bg-blue-950/40 dark:text-blue-300 dark:ring-blue-800/40">
                                                     {log.status}
@@ -168,7 +173,11 @@ export default function Logs({ logs }: Props) {
                                                 })}
                                             </td>
                                             <td className="px-4 py-4 text-right">
-                                                <Button asChild size="sm" className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
+                                                <Button
+                                                    asChild
+                                                    size="sm"
+                                                    className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+                                                >
                                                     <a href={getPrintUrl(log.id)} target="_blank" rel="noopener noreferrer">
                                                         Cetak PDF
                                                     </a>

@@ -136,7 +136,10 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
             <div className="py-6">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-6 flex items-center gap-4">
-                        <Link href={route('user.outputs.index')} className="text-slate-500 transition-colors hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
+                        <Link
+                            href={route('user.outputs.index')}
+                            className="text-slate-500 transition-colors hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                        >
                             <ChevronLeft className="h-5 w-5" />
                         </Link>
                         <div>
@@ -230,7 +233,7 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                         value={data.judul_luaran}
                                         onChange={(e) => setData('judul_luaran', e.target.value)}
                                         disabled={processing}
-                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 ${errors.judul_luaran ? 'border-rose-300' : 'border-slate-300'} `}
+                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.judul_luaran ? 'border-rose-300' : 'border-slate-300'} `}
                                         placeholder="Masukkan judul luaran penelitian"
                                         maxLength={255}
                                     />
@@ -250,13 +253,16 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                             min={1900}
                                             max={new Date().getFullYear() + 1}
                                             disabled={processing}
-                                            className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 ${errors.tahun_capaian ? 'border-rose-300' : 'border-slate-300'} `}
+                                            className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.tahun_capaian ? 'border-rose-300' : 'border-slate-300'} `}
                                         />
                                         {errors.tahun_capaian && <p className="mt-1 text-sm text-rose-600">{errors.tahun_capaian}</p>}
                                     </div>
 
                                     <div>
-                                        <label htmlFor="penulis_atau_pencipta" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        <label
+                                            htmlFor="penulis_atau_pencipta"
+                                            className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                                        >
                                             Penulis / Pencipta <span className="text-rose-500">*</span>
                                         </label>
                                         <input
@@ -265,7 +271,7 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                             value={data.penulis_atau_pencipta}
                                             onChange={(e) => setData('penulis_atau_pencipta', e.target.value)}
                                             disabled={processing}
-                                            className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 ${errors.penulis_atau_pencipta ? 'border-rose-300' : 'border-slate-300'} `}
+                                            className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.penulis_atau_pencipta ? 'border-rose-300' : 'border-slate-300'} `}
                                             placeholder="Nama penulis/pencipta (pisahkan dengan koma jika lebih dari satu)"
                                             maxLength={255}
                                         />
@@ -283,7 +289,7 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                         value={data.tautan_publikasi}
                                         onChange={(e) => setData('tautan_publikasi', e.target.value)}
                                         disabled={processing}
-                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 ${errors.tautan_publikasi ? 'border-rose-300' : 'border-slate-300'} `}
+                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.tautan_publikasi ? 'border-rose-300' : 'border-slate-300'} `}
                                         placeholder="https://example.com/publikasi"
                                         maxLength={255}
                                     />
@@ -356,7 +362,7 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                         onChange={(e) => setData('keterangan', e.target.value)}
                                         disabled={processing}
                                         rows={3}
-                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 ${errors.keterangan ? 'border-rose-300' : 'border-slate-300'} `}
+                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.keterangan ? 'border-rose-300' : 'border-slate-300'} `}
                                         placeholder="Catatan tambahan..."
                                     />
                                     {errors.keterangan && <p className="mt-1 text-sm text-rose-600">{errors.keterangan}</p>}

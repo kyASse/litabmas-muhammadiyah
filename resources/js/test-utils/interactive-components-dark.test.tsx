@@ -1,16 +1,15 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
 import { PDFUploader } from '@/components/ui/PDFUploader';
 import { SplitScreenViewer } from '@/components/ui/SplitScreenViewer';
 import { TranslationProvider } from '@/hooks/use-translation';
+import { render } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
 describe('Interactive Components Dark Mode', () => {
     it('renders PDFUploader with dark dropzone styling', () => {
         const { container } = render(
             <TranslationProvider>
                 <PDFUploader value={null} onChange={() => {}} />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
         const dropzone = container.querySelector('.border-dashed');
         expect(dropzone?.className).toContain('dark:border-slate-700');
@@ -21,7 +20,7 @@ describe('Interactive Components Dark Mode', () => {
         const { container } = render(
             <TranslationProvider>
                 <SplitScreenViewer pdfUrl="about:blank" documentTitle="Usulan Riset" formContent={<div>Form</div>} />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
         const outer = container.firstChild as HTMLElement;
         expect(outer.className).toContain('dark:bg-slate-950');

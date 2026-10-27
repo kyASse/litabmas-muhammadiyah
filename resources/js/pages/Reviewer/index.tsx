@@ -704,7 +704,10 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                     <div className="space-y-3 rounded-lg border border-border bg-card p-4">
                                         <div className="flex items-center justify-between border-b border-border pb-2 text-xs">
                                             <span className="font-semibold text-foreground">Status Seleksi Administrasi:</span>
-                                            <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300">
+                                            <Badge
+                                                variant="outline"
+                                                className="border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300"
+                                            >
                                                 Lolos Seleksi Administrasi
                                             </Badge>
                                         </div>
@@ -869,7 +872,9 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                                             <span className="text-destructive">*</span>
                                                                         </Label>
                                                                         {hasComment && (
-                                                                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">[VALID]</span>
+                                                                            <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                                                                                [VALID]
+                                                                            </span>
                                                                         )}
                                                                     </div>
                                                                     <Input
@@ -879,7 +884,9 @@ export default function ReviewerIndex({ tasks, assignments, progressReports, sel
                                                                         value={item.notes ?? ''}
                                                                         onChange={(e) => handleCriterionNoteChange(idx, e.target.value)}
                                                                         className={`h-9 border-border bg-background text-sm ${
-                                                                            !hasComment ? 'border-amber-400 bg-amber-50/20 dark:border-amber-800/60 dark:bg-amber-950/20' : ''
+                                                                            !hasComment
+                                                                                ? 'border-amber-400 bg-amber-50/20 dark:border-amber-800/60 dark:bg-amber-950/20'
+                                                                                : ''
                                                                         }`}
                                                                     />
                                                                     {!hasComment && (

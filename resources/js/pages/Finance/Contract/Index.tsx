@@ -226,7 +226,10 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <PageHeader title={t.contracts.pageTitle} subtitle={t.contracts.pageSubtitle} />
                     <div className="flex items-center gap-2">
-                        <Button onClick={() => setIssueModalOpen(true)} className="gap-2 bg-slate-900 font-medium text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
+                        <Button
+                            onClick={() => setIssueModalOpen(true)}
+                            className="gap-2 bg-slate-900 font-medium text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+                        >
                             <PlusCircle className="h-4 w-4" />
                             {t.contracts.issueContractBtn}
                         </Button>
@@ -236,7 +239,9 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                 {/* Ringkasan Finansial Kontrak */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.contracts.totalContracts}</span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                            {t.contracts.totalContracts}
+                        </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <span className="font-mono text-2xl font-bold text-slate-900 dark:text-slate-100">{summary.total_contracts}</span>
                             <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
@@ -246,7 +251,9 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.contracts.approvedContractValue}</span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                            {t.contracts.approvedContractValue}
+                        </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
                                 value={summary.contract_value}
@@ -260,7 +267,9 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.contracts.realizedFunding}</span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                            {t.contracts.realizedFunding}
+                        </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
                                 value={summary.disbursed_value}
@@ -274,7 +283,9 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.contracts.outstandingFunding}</span>
+                        <span className="block text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                            {t.contracts.outstandingFunding}
+                        </span>
                         <div className="mt-2 flex items-baseline justify-between">
                             <TabularFigure
                                 value={summary.outstanding_value}
@@ -330,12 +341,23 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                         </Select>
 
                         <div className="flex gap-2">
-                            <Button type="submit" variant="default" className="gap-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
+                            <Button
+                                type="submit"
+                                variant="default"
+                                className="gap-2 bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+                            >
                                 <Search className="h-4 w-4" />
                                 {t.common.filter}
                             </Button>
                             {hasActiveFilters && (
-                                <Button type="button" variant="outline" size="icon" onClick={clearFilters} aria-label="Reset filter" className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={clearFilters}
+                                    aria-label="Reset filter"
+                                    className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                >
                                     <FilterX className="h-4 w-4" />
                                 </Button>
                             )}
@@ -492,7 +514,7 @@ export default function ContractIndex({ contracts, filters, summary, universitie
 
                 {/* Pagination */}
                 {contracts.last_page > 1 && (
-                    <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-800">
                         <p className="font-mono text-xs text-slate-500 dark:text-slate-400">
                             {t.contracts.pageOf
                                 .replace('{current}', String(contracts.current_page))
@@ -558,7 +580,9 @@ export default function ContractIndex({ contracts, filters, summary, universitie
             <Dialog open={issueModalOpen} onOpenChange={setIssueModalOpen}>
                 <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto sm:max-w-2xl dark:border-slate-800 dark:bg-slate-900">
                     <DialogHeader>
-                        <DialogTitle className="font-serif text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{t.contracts.createTitle}</DialogTitle>
+                        <DialogTitle className="font-serif text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                            {t.contracts.createTitle}
+                        </DialogTitle>
                         <DialogDescription className="text-sm text-slate-600 dark:text-slate-400">{t.contracts.createSubtitle}</DialogDescription>
                     </DialogHeader>
 
@@ -589,7 +613,9 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                     </SelectContent>
                                 </Select>
                             )}
-                            {issueErrors.id_proposal && <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{issueErrors.id_proposal}</p>}
+                            {issueErrors.id_proposal && (
+                                <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{issueErrors.id_proposal}</p>
+                            )}
                         </div>
 
                         {/* Rincian Pagu & Usulan Pasca Pemilihan Proposal */}
@@ -597,18 +623,26 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                             <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-950/50">
                                 <div className="flex items-start justify-between gap-4 text-xs">
                                     <div>
-                                        <span className="block tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.contracts.scheme}</span>
+                                        <span className="block tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                                            {t.contracts.scheme}
+                                        </span>
                                         <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedProposal.skema_nama || '-'}</span>
                                     </div>
                                     <div>
-                                        <span className="block tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.contracts.leadResearcher}</span>
-                                        <span className="font-semibold text-slate-800 dark:text-slate-200">{selectedProposal.pengusul_nama || '-'}</span>
+                                        <span className="block tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                                            {t.contracts.leadResearcher}
+                                        </span>
+                                        <span className="font-semibold text-slate-800 dark:text-slate-200">
+                                            {selectedProposal.pengusul_nama || '-'}
+                                        </span>
                                     </div>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 border-t border-slate-200 pt-3 dark:border-slate-800">
                                     <div>
-                                        <span className="block text-xs tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.contracts.proposedBudget}</span>
+                                        <span className="block text-xs tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                                            {t.contracts.proposedBudget}
+                                        </span>
                                         <TabularFigure
                                             value={selectedProposal.biaya_diusulkan}
                                             type="currency"
@@ -636,7 +670,10 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                         {/* Input Nominal Dana Disetujui (Budget Cut Adjustment) */}
                         <div className="grid gap-2">
                             <div className="flex items-center justify-between">
-                                <Label htmlFor="dana_disetujui" className="text-xs font-medium tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                <Label
+                                    htmlFor="dana_disetujui"
+                                    className="text-xs font-medium tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                                >
                                     {t.contracts.approvedBudget} ({t.contracts.budgetCut}) <span className="text-rose-500">*</span>
                                 </Label>
                                 {selectedProposal && (
@@ -670,7 +707,9 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                 className="bg-white font-mono text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                 required
                             />
-                            {issueErrors.dana_disetujui && <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{issueErrors.dana_disetujui}</p>}
+                            {issueErrors.dana_disetujui && (
+                                <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{issueErrors.dana_disetujui}</p>
+                            )}
 
                             {/* Peringatan Pagu Skema Melebihi */}
                             {isPaguExceeded && (
@@ -685,7 +724,9 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                 <div className="space-y-2 rounded border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-800 dark:bg-slate-950/50">
                                     <div className="flex items-center justify-between">
                                         <span className="text-slate-600 dark:text-slate-400">{t.contracts.budgetCut}:</span>
-                                        <span className={`font-mono font-bold ${budgetCutAmount > 0 ? 'text-amber-700 dark:text-amber-400' : 'text-slate-800 dark:text-slate-200'}`}>
+                                        <span
+                                            className={`font-mono font-bold ${budgetCutAmount > 0 ? 'text-amber-700 dark:text-amber-400' : 'text-slate-800 dark:text-slate-200'}`}
+                                        >
                                             {budgetCutAmount > 0
                                                 ? t.contracts.budgetCutInfo
                                                       .replace('{amount}', budgetCutAmount.toLocaleString('id-ID'))
@@ -718,7 +759,10 @@ export default function ContractIndex({ contracts, filters, summary, universitie
 
                         {/* Tanggal Kontrak */}
                         <div className="grid gap-2">
-                            <Label htmlFor="tanggal_kontrak" className="text-xs font-medium tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                            <Label
+                                htmlFor="tanggal_kontrak"
+                                className="text-xs font-medium tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                            >
                                 {t.contracts.contractDate} <span className="text-rose-500">*</span>
                             </Label>
                             <Input
@@ -729,12 +773,17 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                 className="bg-white font-mono text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                 required
                             />
-                            {issueErrors.tanggal_kontrak && <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{issueErrors.tanggal_kontrak}</p>}
+                            {issueErrors.tanggal_kontrak && (
+                                <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{issueErrors.tanggal_kontrak}</p>
+                            )}
                         </div>
 
                         {/* Nomor Kontrak (Opsional / Otomatis) */}
                         <div className="grid gap-2">
-                            <Label htmlFor="nomor_kontrak" className="text-xs font-medium tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                            <Label
+                                htmlFor="nomor_kontrak"
+                                className="text-xs font-medium tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                            >
                                 {t.contracts.contractNumber} ({t.contracts.optional})
                             </Label>
                             <Input
@@ -745,11 +794,19 @@ export default function ContractIndex({ contracts, filters, summary, universitie
                                 placeholder={t.contracts.contractNumberAutoHelp}
                                 className="bg-white font-mono text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                             />
-                            {issueErrors.nomor_kontrak && <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{issueErrors.nomor_kontrak}</p>}
+                            {issueErrors.nomor_kontrak && (
+                                <p className="text-xs font-medium text-rose-600 dark:text-rose-400">{issueErrors.nomor_kontrak}</p>
+                            )}
                         </div>
 
-                        <DialogFooter className="gap-2 border-t border-slate-200 pt-3 dark:border-slate-800 sm:gap-0">
-                            <Button type="button" variant="outline" onClick={() => setIssueModalOpen(false)} disabled={issueProcessing} className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                        <DialogFooter className="gap-2 border-t border-slate-200 pt-3 sm:gap-0 dark:border-slate-800">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIssueModalOpen(false)}
+                                disabled={issueProcessing}
+                                className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                            >
                                 {t.common.cancel}
                             </Button>
                             <Button

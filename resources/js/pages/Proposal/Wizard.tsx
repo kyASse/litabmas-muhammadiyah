@@ -392,7 +392,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                 {currentStep === 1 && (
                     <Card className="border-slate-200 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                         <CardHeader className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/30">
-                            <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">{t.proposalWizard.step1.title}</CardTitle>
+                            <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">
+                                {t.proposalWizard.step1.title}
+                            </CardTitle>
                             <CardDescription className="text-slate-600 dark:text-slate-400">{t.proposalWizard.step1.subtitle}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6 pt-6">
@@ -426,7 +428,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {schemas.length > 0 ? (
-                                             schemas.map((s) => (
+                                            schemas.map((s) => (
                                                 <SelectItem key={s.id} value={String(s.id)}>
                                                     {s.nama_skema || s.name}
                                                 </SelectItem>
@@ -448,7 +450,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                         <div className="flex flex-wrap items-center justify-between gap-2">
                                             <div className="flex items-center space-x-2">
                                                 <Coins className="h-4 w-4 text-blue-900 dark:text-blue-400" />
-                                                <span className="font-medium text-slate-600 dark:text-slate-400">{t.proposalWizard.step1.schemaMaxBudget}</span>
+                                                <span className="font-medium text-slate-600 dark:text-slate-400">
+                                                    {t.proposalWizard.step1.schemaMaxBudget}
+                                                </span>
                                                 <TabularFigure
                                                     value={selectedSchema.biaya_maksimal ?? selectedSchema.max_funding}
                                                     type="currency"
@@ -458,8 +462,12 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                             {selectedSchema.tanggal_selesai && (
                                                 <div className="flex items-center space-x-2">
                                                     <Calendar className="h-4 w-4 text-blue-900 dark:text-blue-400" />
-                                                    <span className="font-medium text-slate-600 dark:text-slate-400">{t.proposalWizard.step1.schemaDeadline}</span>
-                                                    <span className="font-mono font-medium text-slate-900 dark:text-slate-100">{selectedSchema.tanggal_selesai}</span>
+                                                    <span className="font-medium text-slate-600 dark:text-slate-400">
+                                                        {t.proposalWizard.step1.schemaDeadline}
+                                                    </span>
+                                                    <span className="font-mono font-medium text-slate-900 dark:text-slate-100">
+                                                        {selectedSchema.tanggal_selesai}
+                                                    </span>
                                                 </div>
                                             )}
                                         </div>
@@ -500,7 +508,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                         }
                                     }}
                                     className={`font-serif text-base dark:bg-slate-950 dark:text-slate-100 ${
-                                        stepErrors.judul_penelitian || errors.judul_penelitian ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20' : 'border-slate-300 dark:border-slate-700'
+                                        stepErrors.judul_penelitian || errors.judul_penelitian
+                                            ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
+                                            : 'border-slate-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {(stepErrors.judul_penelitian || errors.judul_penelitian) && (
@@ -538,7 +548,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                         }
                                     }}
                                     className={`leading-relaxed dark:bg-slate-950 dark:text-slate-100 ${
-                                        stepErrors.abstrak || errors.abstrak ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20' : 'border-slate-300 dark:border-slate-700'
+                                        stepErrors.abstrak || errors.abstrak
+                                            ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
+                                            : 'border-slate-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {(stepErrors.abstrak || errors.abstrak) && (
@@ -573,8 +585,12 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                         <CardHeader className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/30">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">{t.proposalWizard.step2.title}</CardTitle>
-                                    <CardDescription className="text-slate-600 dark:text-slate-400">{t.proposalWizard.step2.subtitle}</CardDescription>
+                                    <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">
+                                        {t.proposalWizard.step2.title}
+                                    </CardTitle>
+                                    <CardDescription className="text-slate-600 dark:text-slate-400">
+                                        {t.proposalWizard.step2.subtitle}
+                                    </CardDescription>
                                 </div>
                                 <Button
                                     type="button"
@@ -637,7 +653,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
 
                                             return (
                                                 <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
-                                                    <td className="px-3.5 py-3 text-center font-mono text-slate-600 dark:text-slate-400">{index + 2}</td>
+                                                    <td className="px-3.5 py-3 text-center font-mono text-slate-600 dark:text-slate-400">
+                                                        {index + 2}
+                                                    </td>
                                                     <td className="px-3.5 py-3" colSpan={2}>
                                                         <Select
                                                             value={member.user_id ? String(member.user_id) : ''}
@@ -645,7 +663,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                         >
                                                             <SelectTrigger
                                                                 className={`h-8 text-xs dark:bg-slate-950 dark:text-slate-100 ${
-                                                                    userError ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20' : 'border-slate-300 dark:border-slate-700'
+                                                                    userError
+                                                                        ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
+                                                                        : 'border-slate-300 dark:border-slate-700'
                                                                 }`}
                                                             >
                                                                 <SelectValue placeholder={t.proposalWizard.step2.selectMemberPrompt} />
@@ -725,8 +745,12 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                         <CardHeader className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/30">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">{t.proposalWizard.step3.title}</CardTitle>
-                                    <CardDescription className="text-slate-600 dark:text-slate-400">{t.proposalWizard.step3.subtitle}</CardDescription>
+                                    <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">
+                                        {t.proposalWizard.step3.title}
+                                    </CardTitle>
+                                    <CardDescription className="text-slate-600 dark:text-slate-400">
+                                        {t.proposalWizard.step3.subtitle}
+                                    </CardDescription>
                                 </div>
                                 <Button
                                     type="button"
@@ -825,7 +849,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                             value={item.deskripsi}
                                                             onChange={(e) => handleUpdateRabItem(index, 'deskripsi', e.target.value)}
                                                             className={`h-8 text-xs dark:bg-slate-950 dark:text-slate-100 ${
-                                                                descError ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20' : 'border-slate-300 dark:border-slate-700'
+                                                                descError
+                                                                    ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
+                                                                    : 'border-slate-300 dark:border-slate-700'
                                                             }`}
                                                         />
                                                         {descError && <p className="mt-1 text-[11px] font-medium text-rose-600">{descError}</p>}
@@ -890,7 +916,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                     type="currency"
                                                     size="lg"
                                                     weight="bold"
-                                                    className={isPaguExceeded ? 'text-rose-700 dark:text-rose-400' : 'text-blue-950 dark:text-blue-300'}
+                                                    className={
+                                                        isPaguExceeded ? 'text-rose-700 dark:text-rose-400' : 'text-blue-950 dark:text-blue-300'
+                                                    }
                                                 />
                                             </td>
                                             <td />
@@ -906,7 +934,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                 {currentStep === 4 && (
                     <Card className="border-slate-200 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                         <CardHeader className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/30">
-                            <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">{t.proposalWizard.step4.title}</CardTitle>
+                            <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">
+                                {t.proposalWizard.step4.title}
+                            </CardTitle>
                             <CardDescription className="text-slate-600 dark:text-slate-400">{t.proposalWizard.step4.subtitle}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6 pt-6">
@@ -923,17 +953,25 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                         </p>
                                     </div>
                                     <div>
-                                        <span className="font-medium text-slate-500 dark:text-slate-400">{t.proposalWizard.step4.summaryTotalBudget}</span>
+                                        <span className="font-medium text-slate-500 dark:text-slate-400">
+                                            {t.proposalWizard.step4.summaryTotalBudget}
+                                        </span>
                                         <div>
                                             <TabularFigure value={grandTotal} type="currency" weight="bold" size="base" />
                                         </div>
                                     </div>
                                     <div className="md:col-span-2">
-                                        <span className="font-medium text-slate-500 dark:text-slate-400">{t.proposalWizard.step4.summaryTitleLabel}</span>
-                                        <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">{data.judul_penelitian || '-'}</p>
+                                        <span className="font-medium text-slate-500 dark:text-slate-400">
+                                            {t.proposalWizard.step4.summaryTitleLabel}
+                                        </span>
+                                        <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                            {data.judul_penelitian || '-'}
+                                        </p>
                                     </div>
                                     <div>
-                                        <span className="font-medium text-slate-500 dark:text-slate-400">{t.proposalWizard.step4.summaryTeamCount}</span>
+                                        <span className="font-medium text-slate-500 dark:text-slate-400">
+                                            {t.proposalWizard.step4.summaryTeamCount}
+                                        </span>
                                         <p className="font-mono font-semibold text-slate-900 dark:text-slate-100">
                                             {data.members.length + 1} {locale === 'en' ? 'Researchers' : 'Peneliti'}
                                         </p>
@@ -990,7 +1028,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                         >
                                             {t.proposalWizard.step4.integrityTitle}
                                         </Label>
-                                        <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">{t.proposalWizard.step4.integrityStatement}</p>
+                                        <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                                            {t.proposalWizard.step4.integrityStatement}
+                                        </p>
                                     </div>
                                 </div>
                                 {stepErrors.integrity && <p className="ml-7 text-xs font-medium text-rose-600">{stepErrors.integrity}</p>}
@@ -1013,7 +1053,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
             </div>
 
             {/* Sticky Bottom Navigation Bar */}
-            <div className="fixed right-0 bottom-0 left-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur-md dark:border-slate-800 dark:bg-slate-950/95 sm:px-8">
+            <div className="fixed right-0 bottom-0 left-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur-md sm:px-8 dark:border-slate-800 dark:bg-slate-950/95">
                 <div className="container mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 sm:flex-row">
                     {/* Left: Draft Saved Indicator */}
                     <div className="flex items-center space-x-2 font-mono text-xs text-slate-600 dark:text-slate-400">

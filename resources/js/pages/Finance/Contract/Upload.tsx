@@ -85,7 +85,9 @@ export default function Upload({ contractId }: Props) {
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="document" className="text-foreground">File PDF Kontrak</Label>
+                                <Label htmlFor="document" className="text-foreground">
+                                    File PDF Kontrak
+                                </Label>
                                 <Input
                                     id="document"
                                     type="file"
@@ -101,7 +103,11 @@ export default function Upload({ contractId }: Props) {
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2">
-                                <Button type="submit" disabled={form.processing} className="gap-2 bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
+                                <Button
+                                    type="submit"
+                                    disabled={form.processing}
+                                    className="gap-2 bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+                                >
                                     <UploadIcon className="h-4 w-4" />
                                     Unggah Arsip
                                 </Button>

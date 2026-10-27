@@ -266,7 +266,9 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500">
                                                     <FileText className="h-6 w-6" />
                                                 </div>
-                                                <h3 className="font-serif text-base font-semibold text-slate-800 dark:text-slate-100">{t.output.empty}</h3>
+                                                <h3 className="font-serif text-base font-semibold text-slate-800 dark:text-slate-100">
+                                                    {t.output.empty}
+                                                </h3>
                                                 <p className="text-xs text-slate-500 dark:text-slate-400">{t.output.emptySub}</p>
                                                 <Button
                                                     type="button"
@@ -295,7 +297,9 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                 {/* Proposal */}
                                                 <td className="px-6 py-4">
                                                     <div className="max-w-xs space-y-0.5">
-                                                        <span className="font-mono text-xs font-semibold text-slate-400 dark:text-slate-500">#{output.id_proposal}</span>
+                                                        <span className="font-mono text-xs font-semibold text-slate-400 dark:text-slate-500">
+                                                            #{output.id_proposal}
+                                                        </span>
                                                         <p className="line-clamp-2 font-serif text-sm font-medium text-slate-900 dark:text-slate-100">
                                                             {output.proposal?.judul ?? '-'}
                                                         </p>
@@ -340,8 +344,10 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                                 </p>
                                                                 <p className="text-xs text-slate-600 dark:text-slate-400">
                                                                     {journal.nama_jurnal} |{' '}
-                                                                    <span className="font-medium text-slate-800 dark:text-slate-200">{journal.indeksasi}</span> (
-                                                                    {journal.status_publikasi})
+                                                                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                                                                        {journal.indeksasi}
+                                                                    </span>{' '}
+                                                                    ({journal.status_publikasi})
                                                                 </p>
                                                                 {journal.doi_url && (
                                                                     <a
@@ -363,30 +369,39 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
 
                                                         {output.tipe_luaran === 'Book' && book && (
                                                             <>
-                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">{book.judul_buku}</p>
+                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                                                    {book.judul_buku}
+                                                                </p>
                                                                 <p className="text-xs text-slate-600 dark:text-slate-400">
                                                                     {book.penerbit} ({book.tahun_terbit})
                                                                     {book.jumlah_halaman ? ` • ${book.jumlah_halaman} hlm` : ''}
                                                                 </p>
                                                                 <p className="font-mono text-xs text-slate-700 dark:text-slate-300">
-                                                                    <span className="font-semibold text-slate-500 dark:text-slate-400">ISBN:</span> {book.isbn}
+                                                                    <span className="font-semibold text-slate-500 dark:text-slate-400">ISBN:</span>{' '}
+                                                                    {book.isbn}
                                                                 </p>
                                                             </>
                                                         )}
 
                                                         {output.tipe_luaran === 'Hki' && hki && (
                                                             <>
-                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">{hki.judul_ciptaan}</p>
-                                                                <p className="text-xs text-slate-600 dark:text-slate-400">{hki.jenis_hki.replace(/_/g, ' ')}</p>
+                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                                                    {hki.judul_ciptaan}
+                                                                </p>
+                                                                <p className="text-xs text-slate-600 dark:text-slate-400">
+                                                                    {hki.jenis_hki.replace(/_/g, ' ')}
+                                                                </p>
                                                                 <div className="flex flex-wrap gap-2 font-mono text-xs text-slate-700 dark:text-slate-300">
                                                                     {hki.nomor_pendaftaran && (
                                                                         <span>
-                                                                            <span className="text-slate-500 dark:text-slate-400">Reg:</span> {hki.nomor_pendaftaran}
+                                                                            <span className="text-slate-500 dark:text-slate-400">Reg:</span>{' '}
+                                                                            {hki.nomor_pendaftaran}
                                                                         </span>
                                                                     )}
                                                                     {hki.nomor_sertifikat && (
                                                                         <span>
-                                                                            <span className="text-slate-500 dark:text-slate-400">Sert:</span> {hki.nomor_sertifikat}
+                                                                            <span className="text-slate-500 dark:text-slate-400">Sert:</span>{' '}
+                                                                            {hki.nomor_sertifikat}
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -403,7 +418,9 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
                                                                         TKT {product.tingkat_kesiapan_teknologi}
                                                                     </span>
                                                                 </div>
-                                                                <p className="line-clamp-2 text-xs text-slate-600 dark:text-slate-400">{product.deskripsi_produk}</p>
+                                                                <p className="line-clamp-2 text-xs text-slate-600 dark:text-slate-400">
+                                                                    {product.deskripsi_produk}
+                                                                </p>
                                                             </>
                                                         )}
 
@@ -525,11 +542,17 @@ export default function Index({ outputs, proposals = [] }: IndexProps) {
             <AlertDialog open={Boolean(outputToDelete)} onOpenChange={(open) => !open && setOutputToDelete(null)}>
                 <AlertDialogContent className="bg-white dark:border-slate-800 dark:bg-slate-900">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">{t.output.delete}</AlertDialogTitle>
-                        <AlertDialogDescription className="text-sm text-slate-600 dark:text-slate-400">{t.output.deleteConfirm}</AlertDialogDescription>
+                        <AlertDialogTitle className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">
+                            {t.output.delete}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-sm text-slate-600 dark:text-slate-400">
+                            {t.output.deleteConfirm}
+                        </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel className="border-slate-300 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">{t.common.cancel}</AlertDialogCancel>
+                        <AlertDialogCancel className="border-slate-300 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                            {t.common.cancel}
+                        </AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} className="bg-rose-600 text-white hover:bg-rose-700">
                             {t.output.delete}
                         </AlertDialogAction>

@@ -254,7 +254,11 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                         variant={stageFilter === 'all' ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => handleStageTab('all')}
-                        className={stageFilter === 'all' ? 'bg-blue-900 text-white dark:bg-blue-600' : 'dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'}
+                        className={
+                            stageFilter === 'all'
+                                ? 'bg-blue-900 text-white dark:bg-blue-600'
+                                : 'dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'
+                        }
                     >
                         <Layers className="mr-1.5 h-4 w-4" />
                         {t.adminCriteria.tabAll}
@@ -263,7 +267,11 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                         variant={stageFilter === 'Administrasi' ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => handleStageTab('Administrasi')}
-                        className={stageFilter === 'Administrasi' ? 'bg-blue-900 text-white dark:bg-blue-600' : 'dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'}
+                        className={
+                            stageFilter === 'Administrasi'
+                                ? 'bg-blue-900 text-white dark:bg-blue-600'
+                                : 'dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'
+                        }
                     >
                         <ListChecks className="mr-1.5 h-4 w-4" />
                         {t.adminCriteria.tabAdmin}
@@ -272,7 +280,11 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                         variant={stageFilter === 'Substansi' ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => handleStageTab('Substansi')}
-                        className={stageFilter === 'Substansi' ? 'bg-blue-900 text-white dark:bg-blue-600' : 'dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'}
+                        className={
+                            stageFilter === 'Substansi'
+                                ? 'bg-blue-900 text-white dark:bg-blue-600'
+                                : 'dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'
+                        }
                     >
                         <ClipboardCheck className="mr-1.5 h-4 w-4" />
                         {t.adminCriteria.tabSubstantive}
@@ -335,14 +347,28 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                     <Table>
                         <TableHeader className="bg-slate-50 dark:bg-slate-800/60">
                             <TableRow className="border-slate-200 dark:border-slate-800">
-                                <TableHead className="w-[60px] text-center font-semibold text-slate-700 dark:text-slate-300">{t.adminCriteria.tableColNo}</TableHead>
+                                <TableHead className="w-[60px] text-center font-semibold text-slate-700 dark:text-slate-300">
+                                    {t.adminCriteria.tableColNo}
+                                </TableHead>
                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t.adminCriteria.tableColName}</TableHead>
-                                <TableHead className="w-[140px] font-semibold text-slate-700 dark:text-slate-300">{t.adminCriteria.tableColStage}</TableHead>
-                                <TableHead className="w-[180px] font-semibold text-slate-700 dark:text-slate-300">{t.adminCriteria.tableColType}</TableHead>
-                                <TableHead className="w-[110px] text-center font-semibold text-slate-700 dark:text-slate-300">{t.adminCriteria.tableColWeight}</TableHead>
-                                <TableHead className="w-[80px] text-center font-semibold text-slate-700 dark:text-slate-300">{t.adminCriteria.tableColOrder}</TableHead>
-                                <TableHead className="w-[120px] font-semibold text-slate-700 dark:text-slate-300">{t.adminCriteria.tableColStatus}</TableHead>
-                                <TableHead className="w-[110px] text-right font-semibold text-slate-700 dark:text-slate-300">{t.adminCriteria.tableColActions}</TableHead>
+                                <TableHead className="w-[140px] font-semibold text-slate-700 dark:text-slate-300">
+                                    {t.adminCriteria.tableColStage}
+                                </TableHead>
+                                <TableHead className="w-[180px] font-semibold text-slate-700 dark:text-slate-300">
+                                    {t.adminCriteria.tableColType}
+                                </TableHead>
+                                <TableHead className="w-[110px] text-center font-semibold text-slate-700 dark:text-slate-300">
+                                    {t.adminCriteria.tableColWeight}
+                                </TableHead>
+                                <TableHead className="w-[80px] text-center font-semibold text-slate-700 dark:text-slate-300">
+                                    {t.adminCriteria.tableColOrder}
+                                </TableHead>
+                                <TableHead className="w-[120px] font-semibold text-slate-700 dark:text-slate-300">
+                                    {t.adminCriteria.tableColStatus}
+                                </TableHead>
+                                <TableHead className="w-[110px] text-right font-semibold text-slate-700 dark:text-slate-300">
+                                    {t.adminCriteria.tableColActions}
+                                </TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -360,12 +386,19 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                                 criteriaList.map((item, index) => {
                                     const rowNumber = (criteria.current_page - 1) * criteria.per_page + index + 1;
                                     return (
-                                        <TableRow key={item.id} className="border-slate-100 hover:bg-slate-50/60 dark:border-slate-800/60 dark:hover:bg-slate-800/40">
-                                            <TableCell className="text-center font-mono text-xs text-slate-500 dark:text-slate-400">{rowNumber}</TableCell>
+                                        <TableRow
+                                            key={item.id}
+                                            className="border-slate-100 hover:bg-slate-50/60 dark:border-slate-800/60 dark:hover:bg-slate-800/40"
+                                        >
+                                            <TableCell className="text-center font-mono text-xs text-slate-500 dark:text-slate-400">
+                                                {rowNumber}
+                                            </TableCell>
                                             <TableCell>
                                                 <div className="space-y-0.5">
                                                     <p className="font-bold text-slate-900 dark:text-slate-100">{item.nama_kriteria}</p>
-                                                    {item.deskripsi && <p className="line-clamp-1 text-xs text-slate-500 dark:text-slate-400">{item.deskripsi}</p>}
+                                                    {item.deskripsi && (
+                                                        <p className="line-clamp-1 text-xs text-slate-500 dark:text-slate-400">{item.deskripsi}</p>
+                                                    )}
                                                 </div>
                                             </TableCell>
                                             <TableCell>
@@ -390,9 +423,13 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                                                 </span>
                                             </TableCell>
                                             <TableCell className="text-center">
-                                                <span className="font-mono text-sm font-semibold text-slate-700 dark:text-slate-300">{item.bobot}%</span>
+                                                <span className="font-mono text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                                    {item.bobot}%
+                                                </span>
                                             </TableCell>
-                                            <TableCell className="text-center font-mono text-xs text-slate-600 dark:text-slate-400">{item.urutan}</TableCell>
+                                            <TableCell className="text-center font-mono text-xs text-slate-600 dark:text-slate-400">
+                                                {item.urutan}
+                                            </TableCell>
                                             <TableCell>
                                                 <StatusBadge
                                                     status={item.is_active ? 'Draft' : 'Terminated'}
@@ -442,7 +479,11 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                                                 <Button
                                                     variant={link.active ? 'default' : 'outline'}
                                                     size="sm"
-                                                    className={link.active ? 'bg-blue-900 text-white dark:bg-blue-600' : 'dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'}
+                                                    className={
+                                                        link.active
+                                                            ? 'bg-blue-900 text-white dark:bg-blue-600'
+                                                            : 'dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800'
+                                                    }
                                                 >
                                                     <span dangerouslySetInnerHTML={{ __html: link.label }} />
                                                 </Button>
@@ -500,7 +541,9 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                                 className="h-10 border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                 required
                             />
-                            {createForm.errors.nama_kriteria && <p className="text-xs text-rose-600 dark:text-rose-400">{createForm.errors.nama_kriteria}</p>}
+                            {createForm.errors.nama_kriteria && (
+                                <p className="text-xs text-rose-600 dark:text-rose-400">{createForm.errors.nama_kriteria}</p>
+                            )}
                         </div>
 
                         {/* Tipe Jawaban & Bobot */}
@@ -582,10 +625,19 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                         </div>
 
                         <DialogFooter className="pt-3">
-                            <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)} className="dark:border-slate-700 dark:text-slate-300">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsCreateOpen(false)}
+                                className="dark:border-slate-700 dark:text-slate-300"
+                            >
                                 {t.adminCriteria.btnCancel}
                             </Button>
-                            <Button type="submit" disabled={createForm.processing} className="bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500">
+                            <Button
+                                type="submit"
+                                disabled={createForm.processing}
+                                className="bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                            >
                                 {createForm.processing ? t.common.loading : t.adminCriteria.btnSave}
                             </Button>
                         </DialogFooter>
@@ -630,7 +682,9 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                                 className="h-10 border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                 required
                             />
-                            {editForm.errors.nama_kriteria && <p className="text-xs text-rose-600 dark:text-rose-400">{editForm.errors.nama_kriteria}</p>}
+                            {editForm.errors.nama_kriteria && (
+                                <p className="text-xs text-rose-600 dark:text-rose-400">{editForm.errors.nama_kriteria}</p>
+                            )}
                         </div>
 
                         {/* Tipe Jawaban & Bobot */}
@@ -712,10 +766,19 @@ export default function CriteriaIndex({ criteria, filters }: Props) {
                         </div>
 
                         <DialogFooter className="pt-3">
-                            <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} className="dark:border-slate-700 dark:text-slate-300">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => setIsEditOpen(false)}
+                                className="dark:border-slate-700 dark:text-slate-300"
+                            >
                                 {t.adminCriteria.btnCancel}
                             </Button>
-                            <Button type="submit" disabled={editForm.processing} className="bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500">
+                            <Button
+                                type="submit"
+                                disabled={editForm.processing}
+                                className="bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                            >
                                 {editForm.processing ? t.common.loading : t.adminCriteria.btnSave}
                             </Button>
                         </DialogFooter>

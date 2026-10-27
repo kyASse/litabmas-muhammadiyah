@@ -63,12 +63,16 @@ function ProgressTimeline({ steps, timelineTitle }: { steps: ProgressReportItem[
                     <div key={milestone} className="flex flex-1 flex-col items-center">
                         <div
                             className={`h-4 w-4 rounded-full border-2 ${
-                                currentMax >= milestone ? 'border-primary bg-primary' : 'border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900'
+                                currentMax >= milestone
+                                    ? 'border-primary bg-primary'
+                                    : 'border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900'
                             }`}
                         />
                         <span className="mt-1 text-xs text-muted-foreground">{milestone}%</span>
                         {i < milestones.length - 1 && (
-                            <div className={`mt-2 h-0.5 w-full ${currentMax >= milestones[i + 1] ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-800'}`} />
+                            <div
+                                className={`mt-2 h-0.5 w-full ${currentMax >= milestones[i + 1] ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-800'}`}
+                            />
                         )}
                     </div>
                 ))}
@@ -166,7 +170,10 @@ export default function EvaluationShow({ report, allReports }: Props) {
                         {/* Riwayat laporan */}
                         <div className="mt-4 space-y-2">
                             {allReports.map((r) => (
-                                <div key={r.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs dark:bg-slate-900/60">
+                                <div
+                                    key={r.id}
+                                    className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs dark:bg-slate-900/60"
+                                >
                                     <span className="text-muted-foreground">{formatDate(r.report_date)}</span>
                                     <span className="font-semibold text-foreground">{r.report_type}</span>
                                     <span className="font-bold text-primary">{r.progress_percentage}%</span>

@@ -111,9 +111,11 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto bg-white p-6 shadow-xl dark:border-slate-800 dark:bg-slate-900 sm:rounded-xl">
+            <DialogContent className="max-h-[92vh] max-w-3xl overflow-y-auto bg-white p-6 shadow-xl sm:rounded-xl dark:border-slate-800 dark:bg-slate-900">
                 <DialogHeader className="border-b border-slate-200 pb-4 dark:border-slate-800">
-                    <DialogTitle className="font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{t.output.modalTitle}</DialogTitle>
+                    <DialogTitle className="font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                        {t.output.modalTitle}
+                    </DialogTitle>
                     <DialogDescription className="font-sans text-sm text-slate-600 dark:text-slate-400">{t.output.modalSubtitle}</DialogDescription>
                 </DialogHeader>
 
@@ -125,13 +127,17 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                         </Label>
                         {proposals.length > 0 ? (
                             <Select value={String(data.id_proposal)} onValueChange={(val) => setData('id_proposal', Number(val))}>
-                                <SelectTrigger id="id_proposal" className="w-full bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                <SelectTrigger
+                                    id="id_proposal"
+                                    className="w-full bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                >
                                     <SelectValue placeholder={t.output.selectProposalPlaceholder} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {proposals.map((prop) => (
                                         <SelectItem key={prop.id} value={String(prop.id)}>
-                                            <span className="font-medium text-slate-900 dark:text-slate-100">#{prop.id}</span> - {prop.judul || prop.judul_penelitian}
+                                            <span className="font-medium text-slate-900 dark:text-slate-100">#{prop.id}</span> -{' '}
+                                            {prop.judul || prop.judul_penelitian}
                                         </SelectItem>
                                     ))}
                                 </SelectContent>
@@ -168,7 +174,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                     <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">{t.output.mandatory}</span>
                                     <span className="text-xs text-slate-500 dark:text-slate-400">{t.output.mandatoryBadge}</span>
                                 </div>
-                                <FileCheck2 className={`h-5 w-5 ${data.target_status === 'Wajib' ? 'text-blue-900 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
+                                <FileCheck2
+                                    className={`h-5 w-5 ${data.target_status === 'Wajib' ? 'text-blue-900 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
+                                />
                             </button>
 
                             <button
@@ -184,7 +192,9 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                     <span className="block text-sm font-semibold text-slate-900 dark:text-slate-100">{t.output.additional}</span>
                                     <span className="text-xs text-slate-500 dark:text-slate-400">{t.output.additionalBadge}</span>
                                 </div>
-                                <FileCheck2 className={`h-5 w-5 ${data.target_status === 'Tambahan' ? 'text-blue-900 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`} />
+                                <FileCheck2
+                                    className={`h-5 w-5 ${data.target_status === 'Tambahan' ? 'text-blue-900 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'}`}
+                                />
                             </button>
                         </div>
                         <p className="text-xs text-slate-500 dark:text-slate-400">{t.output.targetHelper}</p>
@@ -278,7 +288,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             {t.output.indexation} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Select value={data.indeksasi} onValueChange={(val) => setData('indeksasi', val)}>
-                                            <SelectTrigger id="indeksasi" className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                            <SelectTrigger
+                                                id="indeksasi"
+                                                className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                            >
                                                 <SelectValue placeholder={t.output.indexationPlaceholder} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -299,7 +312,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             {t.output.pubStatus} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Select value={data.status_publikasi} onValueChange={(val) => setData('status_publikasi', val)}>
-                                            <SelectTrigger id="status_publikasi" className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                            <SelectTrigger
+                                                id="status_publikasi"
+                                                className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                            >
                                                 <SelectValue placeholder={t.output.pubStatusPlaceholder} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -427,7 +443,10 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                             {t.output.hkiType} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Select value={data.jenis_hki} onValueChange={(val) => setData('jenis_hki', val)}>
-                                            <SelectTrigger id="jenis_hki" className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                            <SelectTrigger
+                                                id="jenis_hki"
+                                                className="bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                            >
                                                 <SelectValue placeholder={t.output.hkiTypePlaceholder} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -503,14 +522,20 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label htmlFor="tingkat_kesiapan_teknologi" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                        <Label
+                                            htmlFor="tingkat_kesiapan_teknologi"
+                                            className="text-xs font-medium text-slate-700 dark:text-slate-300"
+                                        >
                                             {t.output.tkt} <span className="text-rose-600">*</span>
                                         </Label>
                                         <Select
                                             value={String(data.tingkat_kesiapan_teknologi)}
                                             onValueChange={(val) => setData('tingkat_kesiapan_teknologi', Number(val))}
                                         >
-                                            <SelectTrigger id="tingkat_kesiapan_teknologi" className="bg-white font-mono dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                            <SelectTrigger
+                                                id="tingkat_kesiapan_teknologi"
+                                                className="bg-white font-mono dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+                                            >
                                                 <SelectValue placeholder={t.output.tktPlaceholder} />
                                             </SelectTrigger>
                                             <SelectContent>
@@ -544,7 +569,7 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                     </div>
 
                     {/* Footer Actions */}
-                    <DialogFooter className="gap-2 border-t border-slate-200 pt-4 dark:border-slate-800 sm:gap-0">
+                    <DialogFooter className="gap-2 border-t border-slate-200 pt-4 sm:gap-0 dark:border-slate-800">
                         <Button
                             type="button"
                             variant="outline"
@@ -554,7 +579,11 @@ export const CreateModal: React.FC<CreateModalProps> = ({ open, onOpenChange, pr
                         >
                             {t.output.cancel}
                         </Button>
-                        <Button type="submit" disabled={processing || !data.file_dokumen} className="bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500">
+                        <Button
+                            type="submit"
+                            disabled={processing || !data.file_dokumen}
+                            className="bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                        >
                             {processing ? (
                                 <span className="flex items-center gap-1.5">
                                     <Loader2 className="h-4 w-4 animate-spin" />

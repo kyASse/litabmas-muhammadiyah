@@ -1,15 +1,14 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import { TranslationProvider } from '@/hooks/use-translation';
+import { render } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 
 describe('StatusBadge Dark Mode Tint Classes', () => {
     it('renders Draft with dark:bg-slate-800/80 and dark:text-slate-300', () => {
         const { container } = render(
             <TranslationProvider>
                 <StatusBadge status="Draft" />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
         const badge = container.firstChild as HTMLElement;
         expect(badge.className).toContain('dark:bg-slate-800/80');
@@ -20,7 +19,7 @@ describe('StatusBadge Dark Mode Tint Classes', () => {
         const { container } = render(
             <TranslationProvider>
                 <StatusBadge status="Lolos_Didanai" />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
         const badge = container.firstChild as HTMLElement;
         expect(badge.className).toContain('dark:bg-emerald-950/40');
@@ -32,7 +31,7 @@ describe('StatusBadge Dark Mode Tint Classes', () => {
         const { container } = render(
             <TranslationProvider>
                 <StatusBadge status="Ditolak" />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
         const badge = container.firstChild as HTMLElement;
         expect(badge.className).toContain('dark:bg-rose-950/40');
@@ -59,7 +58,7 @@ describe('StatusBadge Dark Mode Tint Classes', () => {
             const { container } = render(
                 <TranslationProvider>
                     <StatusBadge status={status} />
-                </TranslationProvider>
+                </TranslationProvider>,
             );
             const badge = container.firstChild as HTMLElement;
             expect(badge.className).toContain(bg);

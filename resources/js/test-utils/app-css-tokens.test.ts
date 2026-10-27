@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
+import { describe, expect, it } from 'vitest';
 
 describe('CSS Theme Token Architecture', () => {
     it('declares dynamic CSS variables in @theme instead of static hex values', () => {
@@ -9,11 +9,24 @@ describe('CSS Theme Token Architecture', () => {
 
         // Verify all 18 semantic tokens delegate to var(--...) in @theme
         const semanticTokens = [
-            'surface-base', 'surface-card', 'surface-elevated', 'surface-muted', 'surface-sidebar',
-            'border-subtle', 'border-strong', 'border-focus',
-            'text-primary', 'text-secondary', 'text-muted', 'text-inverse',
-            'brand-primary', 'brand-primary-hover', 'brand-primary-light',
-            'brand-accent', 'brand-accent-hover', 'brand-accent-light',
+            'surface-base',
+            'surface-card',
+            'surface-elevated',
+            'surface-muted',
+            'surface-sidebar',
+            'border-subtle',
+            'border-strong',
+            'border-focus',
+            'text-primary',
+            'text-secondary',
+            'text-muted',
+            'text-inverse',
+            'brand-primary',
+            'brand-primary-hover',
+            'brand-primary-light',
+            'brand-accent',
+            'brand-accent-hover',
+            'brand-accent-light',
         ];
         semanticTokens.forEach((token) => {
             expect(cssContent).toContain(`--color-${token}: var(--${token});`);

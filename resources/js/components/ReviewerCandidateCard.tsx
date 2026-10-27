@@ -36,7 +36,10 @@ export default function ReviewerCandidateCard({
                 <h4 className="mb-2 text-sm font-semibold text-foreground">Keahlian:</h4>
                 <div className="flex flex-wrap gap-2">
                     {skills.map((skill, index) => (
-                        <span key={index} className="rounded-lg border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-normal text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                        <span
+                            key={index}
+                            className="rounded-lg border border-slate-200 bg-slate-100 px-2 py-1 text-xs font-normal text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                        >
                             {skill}
                         </span>
                     ))}

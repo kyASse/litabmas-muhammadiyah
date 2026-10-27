@@ -115,7 +115,9 @@ export default function AdminKampusShow({ adminKampus }: Props) {
 
                 {/* Managed Research Metrics Cards */}
                 <div>
-                    <h2 className="mb-3 text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">{t.adminCampusAdmins.managedMetricsTitle}</h2>
+                    <h2 className="mb-3 text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                        {t.adminCampusAdmins.managedMetricsTitle}
+                    </h2>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <MetricCard
                             title={t.adminCampusAdmins.managedProposals}
@@ -194,7 +196,9 @@ export default function AdminKampusShow({ adminKampus }: Props) {
                                     <Clock className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     {t.adminCampusAdmins.lastLogin}
                                 </span>
-                                <span className="font-mono text-slate-700 dark:text-slate-300">{adminKampus.last_login_at || t.adminCampusAdmins.neverLoggedIn}</span>
+                                <span className="font-mono text-slate-700 dark:text-slate-300">
+                                    {adminKampus.last_login_at || t.adminCampusAdmins.neverLoggedIn}
+                                </span>
                             </div>
 
                             <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
@@ -223,8 +227,12 @@ export default function AdminKampusShow({ adminKampus }: Props) {
                                     <Building2 className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">{t.adminCampusAdmins.universityAffiliation}</h3>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">{adminKampus.university ? adminKampus.university.name : '-'}</p>
+                                    <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                                        {t.adminCampusAdmins.universityAffiliation}
+                                    </h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        {adminKampus.university ? adminKampus.university.name : '-'}
+                                    </p>
                                 </div>
                             </div>
 
@@ -232,13 +240,17 @@ export default function AdminKampusShow({ adminKampus }: Props) {
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
                                         <span className="text-slate-500 dark:text-slate-400">{t.adminCampusAdmins.colUniversity}</span>
-                                        <span className="text-right font-semibold text-slate-900 dark:text-slate-100">{adminKampus.university.name}</span>
+                                        <span className="text-right font-semibold text-slate-900 dark:text-slate-100">
+                                            {adminKampus.university.name}
+                                        </span>
                                     </div>
 
                                     {adminKampus.university.code && (
                                         <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
                                             <span className="text-slate-500 dark:text-slate-400">{t.adminCampusAdmins.code}</span>
-                                            <span className="font-mono font-medium text-slate-800 dark:text-slate-200">{adminKampus.university.code}</span>
+                                            <span className="font-mono font-medium text-slate-800 dark:text-slate-200">
+                                                {adminKampus.university.code}
+                                            </span>
                                         </div>
                                     )}
 
@@ -278,7 +290,9 @@ export default function AdminKampusShow({ adminKampus }: Props) {
                             <Power className="h-5 w-5 text-blue-900 dark:text-blue-400" />
                             {t.adminCampusAdmins.confirmToggleTitle}
                         </DialogTitle>
-                        <DialogDescription className="text-sm text-slate-600 dark:text-slate-400">{t.adminCampusAdmins.confirmToggleDesc}</DialogDescription>
+                        <DialogDescription className="text-sm text-slate-600 dark:text-slate-400">
+                            {t.adminCampusAdmins.confirmToggleDesc}
+                        </DialogDescription>
                     </DialogHeader>
 
                     <div className="space-y-1 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-800 dark:bg-slate-950/50">
@@ -290,7 +304,12 @@ export default function AdminKampusShow({ adminKampus }: Props) {
                     </div>
 
                     <DialogFooter className="gap-2 sm:gap-0">
-                        <Button variant="outline" onClick={() => setToggleDialogOpen(false)} disabled={processing} className="text-xs dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                        <Button
+                            variant="outline"
+                            onClick={() => setToggleDialogOpen(false)}
+                            disabled={processing}
+                            className="text-xs dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                        >
                             {t.common.cancel}
                         </Button>
                         <Button

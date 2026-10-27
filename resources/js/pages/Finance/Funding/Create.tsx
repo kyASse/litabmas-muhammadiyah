@@ -355,11 +355,19 @@ export default function Create({ contract, termins, sisa }: Props) {
                             {/* Submit */}
                             <div className="flex items-center justify-end gap-3 border-t border-slate-200 pt-5 dark:border-slate-800">
                                 <a href={route('finance.contracts.index')}>
-                                    <Button type="button" variant="outline" className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                    >
                                         Batal
                                     </Button>
                                 </a>
-                                <Button type="submit" disabled={processing || isOverLimit || !data.percentage} className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200">
+                                <Button
+                                    type="submit"
+                                    disabled={processing || isOverLimit || !data.percentage}
+                                    className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+                                >
                                     {processing ? 'Menyimpan...' : 'Simpan Termin'}
                                 </Button>
                             </div>

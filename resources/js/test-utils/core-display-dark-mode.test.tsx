@@ -1,18 +1,17 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
-import { TabularFigure } from '@/components/ui/TabularFigure';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { MetricCard } from '@/components/ui/MetricCard';
-import { DollarSign } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
+import { TabularFigure } from '@/components/ui/TabularFigure';
 import { TranslationProvider } from '@/hooks/use-translation';
+import { render } from '@testing-library/react';
+import { DollarSign } from 'lucide-react';
+import { describe, expect, it } from 'vitest';
 
 describe('Core Display Components Dark Mode', () => {
     it('renders TabularFigure with dark text color classes', () => {
         const { container } = render(
             <TranslationProvider>
                 <TabularFigure value={50000000} type="currency" />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
         const span = container.querySelector('span');
         expect(span?.className).toContain('dark:text-slate-100');
@@ -22,7 +21,7 @@ describe('Core Display Components Dark Mode', () => {
         const { container } = render(
             <TranslationProvider>
                 <PageHeader title="Judul Riset" subtitle="Deskripsi Skema" />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
         const header = container.firstChild as HTMLElement;
         expect(header.className).toContain('dark:border-slate-800');
@@ -34,7 +33,7 @@ describe('Core Display Components Dark Mode', () => {
         const { container } = render(
             <TranslationProvider>
                 <MetricCard title="Total Anggaran" value={150000000} icon={DollarSign} badgeText="Lolos" badgeVariant="success" />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
         const card = container.firstChild as HTMLElement;
         expect(card.className).toContain('dark:bg-slate-900');

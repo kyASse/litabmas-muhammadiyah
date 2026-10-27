@@ -1,9 +1,8 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { AppHeader } from '@/components/app-header';
+import { AppSidebarHeader } from '@/components/app-sidebar-header';
 import { TranslationProvider } from '@/hooks/use-translation';
+import { render } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock Inertia and Sidebar
 vi.mock('@inertiajs/react', () => ({
@@ -39,7 +38,7 @@ describe('Header ThemeToggle Integration', () => {
         const { getByRole, container } = render(
             <TranslationProvider>
                 <AppSidebarHeader breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }]} />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
 
         // Look for theme toggle button
@@ -54,7 +53,7 @@ describe('Header ThemeToggle Integration', () => {
         const { getByRole, container } = render(
             <TranslationProvider>
                 <AppHeader breadcrumbs={[{ title: 'Dashboard', href: '/dashboard' }]} />
-            </TranslationProvider>
+            </TranslationProvider>,
         );
 
         // Look for theme toggle button

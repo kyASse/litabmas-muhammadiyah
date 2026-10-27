@@ -270,7 +270,9 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         {/* Status Filter */}
                         <div className="space-y-1">
-                            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">{t.output.filterStatus}</Label>
+                            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                {t.output.filterStatus}
+                            </Label>
                             <Select
                                 value={statusFilter}
                                 onValueChange={(val) => {
@@ -291,7 +293,9 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
                         {/* Cluster Filter */}
                         <div className="space-y-1">
-                            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">{t.output.filterCluster}</Label>
+                            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                {t.output.filterCluster}
+                            </Label>
                             <Select
                                 value={clusterFilter}
                                 onValueChange={(val) => {
@@ -314,7 +318,9 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                         {/* University Filter (Super Admin) */}
                         {universities.length > 0 && (
                             <div className="space-y-1">
-                                <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">{t.output.filterUniversity}</Label>
+                                <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                    {t.output.filterUniversity}
+                                </Label>
                                 <Select
                                     value={universityFilter}
                                     onValueChange={(val) => {
@@ -339,7 +345,11 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
                         {/* Filter Buttons */}
                         <div className="flex items-end gap-2">
-                            <Button type="button" onClick={handleApplyFilters} className="flex-1 bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500">
+                            <Button
+                                type="button"
+                                onClick={handleApplyFilters}
+                                className="flex-1 bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                            >
                                 <Filter className="mr-1.5 h-3.5 w-3.5" />
                                 {t.common.filter}
                             </Button>
@@ -391,7 +401,9 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                         <td colSpan={7} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                                             <div className="mx-auto max-w-sm space-y-2">
                                                 <Layers className="mx-auto h-8 w-8 text-slate-400 dark:text-slate-600" />
-                                                <p className="font-serif text-sm font-semibold text-slate-800 dark:text-slate-200">{t.output.empty}</p>
+                                                <p className="font-serif text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                                    {t.output.empty}
+                                                </p>
                                             </div>
                                         </td>
                                     </tr>
@@ -427,7 +439,9 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
                                                 {/* Lecturer */}
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className="font-medium text-slate-800 dark:text-slate-200">{output.proposal?.pengusul?.name ?? '-'}</span>
+                                                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                                                        {output.proposal?.pengusul?.name ?? '-'}
+                                                    </span>
                                                 </td>
 
                                                 {/* Cluster Badge */}
@@ -468,7 +482,9 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                                                 </p>
                                                                 <p className="text-xs text-slate-600 dark:text-slate-400">
                                                                     {journal.nama_jurnal} |{' '}
-                                                                    <span className="font-medium text-slate-800 dark:text-slate-200">{journal.indeksasi}</span>
+                                                                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                                                                        {journal.indeksasi}
+                                                                    </span>
                                                                 </p>
                                                                 {journal.doi_url && (
                                                                     <a
@@ -490,29 +506,38 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
                                                         {output.tipe_luaran === 'Book' && book && (
                                                             <>
-                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">{book.judul_buku}</p>
+                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                                                    {book.judul_buku}
+                                                                </p>
                                                                 <p className="text-xs text-slate-600 dark:text-slate-400">
                                                                     {book.penerbit} ({book.tahun_terbit})
                                                                 </p>
                                                                 <p className="font-mono text-xs text-slate-700 dark:text-slate-300">
-                                                                    <span className="font-semibold text-slate-500 dark:text-slate-400">ISBN:</span> {book.isbn}
+                                                                    <span className="font-semibold text-slate-500 dark:text-slate-400">ISBN:</span>{' '}
+                                                                    {book.isbn}
                                                                 </p>
                                                             </>
                                                         )}
 
                                                         {output.tipe_luaran === 'Hki' && hki && (
                                                             <>
-                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">{hki.judul_ciptaan}</p>
-                                                                <p className="text-xs text-slate-600 dark:text-slate-400">{hki.jenis_hki.replace(/_/g, ' ')}</p>
+                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                                                    {hki.judul_ciptaan}
+                                                                </p>
+                                                                <p className="text-xs text-slate-600 dark:text-slate-400">
+                                                                    {hki.jenis_hki.replace(/_/g, ' ')}
+                                                                </p>
                                                                 <div className="flex flex-wrap gap-2 font-mono text-xs text-slate-700 dark:text-slate-300">
                                                                     {hki.nomor_pendaftaran && (
                                                                         <span>
-                                                                            <span className="text-slate-500 dark:text-slate-400">Reg:</span> {hki.nomor_pendaftaran}
+                                                                            <span className="text-slate-500 dark:text-slate-400">Reg:</span>{' '}
+                                                                            {hki.nomor_pendaftaran}
                                                                         </span>
                                                                     )}
                                                                     {hki.nomor_sertifikat && (
                                                                         <span>
-                                                                            <span className="text-slate-500 dark:text-slate-400">Sert:</span> {hki.nomor_sertifikat}
+                                                                            <span className="text-slate-500 dark:text-slate-400">Sert:</span>{' '}
+                                                                            {hki.nomor_sertifikat}
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -529,7 +554,9 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                                                         TKT {product.tingkat_kesiapan_teknologi}
                                                                     </span>
                                                                 </div>
-                                                                <p className="line-clamp-2 text-xs text-slate-600 dark:text-slate-400">{product.deskripsi_produk}</p>
+                                                                <p className="line-clamp-2 text-xs text-slate-600 dark:text-slate-400">
+                                                                    {product.deskripsi_produk}
+                                                                </p>
                                                             </>
                                                         )}
 
@@ -667,7 +694,9 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
             <Dialog open={Boolean(verifyingOutput)} onOpenChange={(open) => !open && setVerifyingOutput(null)}>
                 <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto bg-white p-6 shadow-xl sm:rounded-xl dark:border-slate-800 dark:bg-slate-900">
                     <DialogHeader className="border-b border-slate-200 pb-3 dark:border-slate-800">
-                        <DialogTitle className="font-serif text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">{t.output.verifyModalTitle}</DialogTitle>
+                        <DialogTitle className="font-serif text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                            {t.output.verifyModalTitle}
+                        </DialogTitle>
                         <DialogDescription className="text-xs text-slate-600 dark:text-slate-400">{t.output.verifyModalDesc}</DialogDescription>
                     </DialogHeader>
 
@@ -678,8 +707,9 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                 <p className="font-semibold text-slate-800 dark:text-slate-200">{verifyingOutput.proposal?.judul}</p>
                                 <p className="text-slate-600 dark:text-slate-400">
                                     {t.output.lecturer}:{' '}
-                                    <span className="font-medium text-slate-900 dark:text-slate-100">{verifyingOutput.proposal?.pengusul?.name}</span> •{' '}
-                                    {t.output.cluster}: <span className="font-semibold text-slate-900 dark:text-slate-100">{verifyingOutput.tipe_luaran}</span>
+                                    <span className="font-medium text-slate-900 dark:text-slate-100">{verifyingOutput.proposal?.pengusul?.name}</span>{' '}
+                                    • {t.output.cluster}:{' '}
+                                    <span className="font-semibold text-slate-900 dark:text-slate-100">{verifyingOutput.tipe_luaran}</span>
                                 </p>
                             </div>
 
@@ -702,7 +732,9 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                         }`}
                                     >
                                         <div>
-                                            <span className="block text-sm font-bold text-emerald-900 dark:text-emerald-300">{t.output.approveAction}</span>
+                                            <span className="block text-sm font-bold text-emerald-900 dark:text-emerald-300">
+                                                {t.output.approveAction}
+                                            </span>
                                             <span className="text-xs text-emerald-700 dark:text-emerald-400">{t.output.verified}</span>
                                         </div>
                                         <CheckCircle2
@@ -739,7 +771,10 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                 </div>
                             ) : (
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="catatan_verifikasi" className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                    <Label
+                                        htmlFor="catatan_verifikasi"
+                                        className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                                    >
                                         {t.output.rejectNotesLabel} <span className="text-rose-600">*</span>
                                     </Label>
                                     <Textarea
@@ -753,8 +788,12 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                         placeholder={t.output.rejectNotesPlaceholder}
                                         className="bg-white text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                     />
-                                    {formValidationError && <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">{formValidationError}</p>}
-                                    {errors.catatan_verifikasi && <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">{errors.catatan_verifikasi}</p>}
+                                    {formValidationError && (
+                                        <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">{formValidationError}</p>
+                                    )}
+                                    {errors.catatan_verifikasi && (
+                                        <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">{errors.catatan_verifikasi}</p>
+                                    )}
                                 </div>
                             )}
 
