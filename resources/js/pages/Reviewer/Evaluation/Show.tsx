@@ -63,12 +63,16 @@ function ProgressTimeline({ steps, timelineTitle }: { steps: ProgressReportItem[
                     <div key={milestone} className="flex flex-1 flex-col items-center">
                         <div
                             className={`h-4 w-4 rounded-full border-2 ${
-                                currentMax >= milestone ? 'border-primary bg-primary' : 'border-slate-300 bg-white'
+                                currentMax >= milestone
+                                    ? 'border-primary bg-primary'
+                                    : 'border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900'
                             }`}
                         />
                         <span className="mt-1 text-xs text-muted-foreground">{milestone}%</span>
                         {i < milestones.length - 1 && (
-                            <div className={`mt-2 h-0.5 w-full ${currentMax >= milestones[i + 1] ? 'bg-primary' : 'bg-slate-200'}`} />
+                            <div
+                                className={`mt-2 h-0.5 w-full ${currentMax >= milestones[i + 1] ? 'bg-primary' : 'bg-slate-200 dark:bg-slate-800'}`}
+                            />
                         )}
                     </div>
                 ))}
@@ -106,7 +110,7 @@ export default function EvaluationShow({ report, allReports }: Props) {
                 {/* Split Screen */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Kiri: Isi Laporan */}
-                    <div className="flex flex-col gap-4 rounded-lg border border-border p-6">
+                    <div className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6">
                         <h2 className="text-lg font-bold text-foreground">{t.reviewerEvaluation.reportContentTitle}</h2>
 
                         <div className="space-y-3 text-sm">
@@ -136,7 +140,7 @@ export default function EvaluationShow({ report, allReports }: Props) {
                         <div>
                             <h3 className="mb-2 text-sm font-semibold text-foreground">{t.reviewerEvaluation.activityDescriptionTitle}</h3>
                             <div
-                                className="prose prose-sm max-w-none rounded-lg bg-slate-50 p-4 text-muted-foreground"
+                                className="prose prose-sm max-w-none rounded-lg bg-slate-50 p-4 text-muted-foreground dark:bg-slate-900/60"
                                 dangerouslySetInnerHTML={{ __html: report.content ?? '-' }}
                             />
                         </div>
@@ -159,14 +163,17 @@ export default function EvaluationShow({ report, allReports }: Props) {
                     </div>
 
                     {/* Kanan: Timeline + Aksi */}
-                    <div className="flex flex-col gap-4 rounded-lg border border-border p-6">
+                    <div className="flex flex-col gap-4 rounded-lg border border-border bg-card p-6">
                         <h2 className="text-lg font-bold text-foreground">{t.reviewerEvaluation.progressHistoryTitle}</h2>
                         <ProgressTimeline steps={allReports} timelineTitle={t.reviewerEvaluation.timelineTitle} />
 
                         {/* Riwayat laporan */}
                         <div className="mt-4 space-y-2">
                             {allReports.map((r) => (
-                                <div key={r.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs">
+                                <div
+                                    key={r.id}
+                                    className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-xs dark:bg-slate-900/60"
+                                >
                                     <span className="text-muted-foreground">{formatDate(r.report_date)}</span>
                                     <span className="font-semibold text-foreground">{r.report_type}</span>
                                     <span className="font-bold text-primary">{r.progress_percentage}%</span>
@@ -184,7 +191,7 @@ export default function EvaluationShow({ report, allReports }: Props) {
                             </button>
                             <button
                                 onClick={() => router.get(route('reviewer.evaluations.index'))}
-                                className="w-full rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-slate-50"
+                                className="w-full rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-slate-50 dark:hover:bg-slate-800"
                             >
                                 {t.reviewerEvaluation.backToListBtn}
                             </button>

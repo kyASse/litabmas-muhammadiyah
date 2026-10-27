@@ -60,12 +60,28 @@ describe('DesignSystemPreview Localization', () => {
         expect(screen.getByText(en.designSystem.section6Title)).toBeDefined();
         expect(screen.getByText(en.designSystem.section7Title)).toBeDefined();
 
+        // Dark Mode Token Palette in English
+        expect(screen.getByText(en.designSystem.darkThemeCatalogTitle)).toBeDefined();
+        expect(screen.getByText(en.designSystem.darkThemeCatalogSubtitle)).toBeDefined();
+
         // SplitScreen rubric criteria in English
         expect(screen.getByText(en.components.splitScreen.criteriaUrgency)).toBeDefined();
         expect(screen.getByText(en.components.splitScreen.criteriaMethodology)).toBeDefined();
         expect(screen.getByText(en.components.splitScreen.criteriaFeasibility)).toBeDefined();
         expect(screen.getByText(en.components.splitScreen.coiAgreement)).toBeDefined();
         expect(screen.getByText(en.components.splitScreen.saveDraftButton)).toBeDefined();
+    });
+
+    it('renders ThemeToggle in the header for dark mode switching', () => {
+        render(
+            <TranslationProvider>
+                <DesignSystemPreview />
+            </TranslationProvider>,
+        );
+
+        // ThemeToggle buttons should exist in header
+        const themeButtons = screen.getAllByRole('button', { name: /switch to dark theme/i });
+        expect(themeButtons.length).toBeGreaterThan(0);
     });
 
     it('reactively switches the entire preview catalog to Indonesian when ID is clicked', () => {
@@ -92,6 +108,10 @@ describe('DesignSystemPreview Localization', () => {
         expect(screen.getByText(id.designSystem.section5Title)).toBeDefined();
         expect(screen.getByText(id.designSystem.section6Title)).toBeDefined();
         expect(screen.getByText(id.designSystem.section7Title)).toBeDefined();
+
+        // Dark Mode Token Palette in Indonesian
+        expect(screen.getByText(id.designSystem.darkThemeCatalogTitle)).toBeDefined();
+        expect(screen.getByText(id.designSystem.darkThemeCatalogSubtitle)).toBeDefined();
 
         // SplitScreen rubric criteria in Indonesian
         expect(screen.getByText(id.components.splitScreen.criteriaUrgency)).toBeDefined();

@@ -20,12 +20,21 @@ class UserController extends Controller
      */
     public function index(Request $request): Response
     {
-        // Only Super Admin can access
         $this->authorize('manage-users');
+
+        $currentUser = $request->user();
+        $isAdminKampus = $currentUser && $currentUser->isAdminKampus() && ! $currentUser->isSuperAdmin();
 
         // Base query for all system users
         $query = User::query()
             ->with(['role', 'roles', 'university']);
+
+        // Multi-tenancy isolation for Admin Kampus
+        if ($isAdminKampus) {
+            $query->where('university_id', $currentUser->university_id);
+        } elseif ($request->filled('university_id')) {
+            $query->where('university_id', $request->university_id);
+        }
 
         // Filter by Role if requested
         if ($request->filled('role')) {
@@ -37,22 +46,17 @@ class UserController extends Controller
         }
 
         // Apply filters if any
-        if ($request->has('search') && $request->search) {
+        if ($request->filled('search')) {
             $query->search($request->search);
         }
 
-        // Filter by University
-        if ($request->has('university_id') && $request->university_id) {
-            $query->where('university_id', $request->university_id);
-        }
-
         // Filter by Active Status
-        if ($request->has('is_active') && $request->is_active !== null) {
+        if ($request->has('is_active') && $request->is_active !== null && $request->is_active !== '') {
             $query->where('is_active', $request->boolean('is_active'));
         }
 
         // Filter by Reviewer Status
-        if ($request->has('is_reviewer') && $request->is_reviewer !== null) {
+        if ($request->has('is_reviewer') && $request->is_reviewer !== null && $request->is_reviewer !== '') {
             $query->where(function ($q) use ($request) {
                 $q->where('is_reviewer', $request->boolean('is_reviewer'))
                     ->orWhereHas('roles', function ($query) {
@@ -104,20 +108,33 @@ class UserController extends Controller
             });
 
         // Get all universities for filter dropdown (with cache)
-        $universities = Cache::remember('universities.active.list', 3600, function () {
-            return University::where('is_active', true)
-                ->orderBy('name')
-                ->get(['id', 'name', 'code']);
-        });
+        $universities = $isAdminKampus
+            ? University::where('id', $currentUser->university_id)->get(['id', 'name', 'code'])
+            : Cache::remember('universities.active.list', 3600, function () {
+                return University::where('is_active', true)
+                    ->orderBy('name')
+                    ->get(['id', 'name', 'code']);
+            });
+
+        $statsQuery = User::query();
+        if ($isAdminKampus) {
+            $statsQuery->where('university_id', $currentUser->university_id);
+        }
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'universities' => $universities,
             'stats' => [
-                'total_users' => User::count(),
-                'active_users' => User::where('is_active', true)->count(),
-                'reviewers_count' => User::where('is_reviewer', true)->orWhereHas('roles', fn ($q) => $q->where('name', Role::REVIEWER))->count(),
-                'researchers_count' => User::whereHas('role', fn ($q) => $q->where('name', Role::PENELITI))->orWhereHas('roles', fn ($q) => $q->where('name', Role::PENELITI))->count(),
+                'total_users' => (clone $statsQuery)->count(),
+                'active_users' => (clone $statsQuery)->where('is_active', true)->count(),
+                'reviewers_count' => (clone $statsQuery)->where(function ($q) {
+                    $q->where('is_reviewer', true)
+                        ->orWhereHas('roles', fn ($q) => $q->where('name', Role::REVIEWER));
+                })->count(),
+                'researchers_count' => (clone $statsQuery)->where(function ($q) {
+                    $q->whereHas('role', fn ($q) => $q->where('name', Role::PENELITI))
+                        ->orWhereHas('roles', fn ($q) => $q->where('name', Role::PENELITI));
+                })->count(),
             ],
             'filters' => $request->only(['search', 'university_id', 'is_active', 'is_reviewer', 'role']),
         ]);
@@ -159,6 +176,8 @@ class UserController extends Controller
     {
         $this->authorize('manage-users');
 
+        $currentUser = $request->user();
+
         // Validate request
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -171,6 +190,13 @@ class UserController extends Controller
             'role_ids.*' => 'required|exists:roles,id',
             'is_active' => 'required|boolean',
         ]);
+
+        // Multi-tenancy guard for Admin Kampus
+        if ($currentUser && $currentUser->isAdminKampus() && ! $currentUser->isSuperAdmin()) {
+            if ((int) $validated['university_id'] !== (int) $currentUser->university_id) {
+                abort(403, 'Akses ditolak: Tidak dapat membuat pengguna di luar institusi Anda.');
+            }
+        }
 
         // Get the first role as primary role for backwards compatibility
         $primaryRoleId = $validated['role_ids'][0];
@@ -210,6 +236,13 @@ class UserController extends Controller
     public function show(Request $request, User $user): Response
     {
         $this->authorize('manage-users');
+
+        $currentUser = $request->user();
+        if ($currentUser && $currentUser->isAdminKampus() && ! $currentUser->isSuperAdmin()) {
+            if ($user->university_id !== $currentUser->university_id) {
+                abort(403, 'Akses ditolak: Pengguna bukan dari institusi Anda.');
+            }
+        }
 
         // Load relationships
         $user->load(['role', 'roles', 'university', 'proposals', 'reviews']);
@@ -266,9 +299,18 @@ class UserController extends Controller
     {
         $this->authorize('manage-users');
 
+        $currentUser = $request->user();
+
         // Prevent unauthorized editing of Super Admin
-        if ($user->isSuperAdmin() && ! $request->user()->isSuperAdmin()) {
+        if ($user->isSuperAdmin() && ! $currentUser->isSuperAdmin()) {
             abort(403, 'Unauthorized to edit Super Administrator.');
+        }
+
+        // Multi-tenancy IDOR guard for Admin Kampus
+        if ($currentUser && $currentUser->isAdminKampus() && ! $currentUser->isSuperAdmin()) {
+            if ($user->university_id !== $currentUser->university_id) {
+                abort(403, 'Akses ditolak: Pengguna bukan dari institusi Anda.');
+            }
         }
 
         $user->load(['university', 'roles']);
@@ -320,9 +362,18 @@ class UserController extends Controller
     {
         $this->authorize('manage-users');
 
+        $currentUser = $request->user();
+
         // Prevent unauthorized editing of Super Admin
-        if ($user->isSuperAdmin() && ! $request->user()->isSuperAdmin()) {
+        if ($user->isSuperAdmin() && ! $currentUser->isSuperAdmin()) {
             abort(403, 'Unauthorized to edit Super Administrator.');
+        }
+
+        // Multi-tenancy IDOR guard for Admin Kampus
+        if ($currentUser && $currentUser->isAdminKampus() && ! $currentUser->isSuperAdmin()) {
+            if ($user->university_id !== $currentUser->university_id) {
+                abort(403, 'Akses ditolak: Pengguna bukan dari institusi Anda.');
+            }
         }
 
         // Validate request
@@ -337,6 +388,13 @@ class UserController extends Controller
             'role_ids.*' => 'required|exists:roles,id',
             'is_active' => 'boolean',
         ]);
+
+        // Prevent Admin Kampus from changing user university to another campus
+        if ($currentUser && $currentUser->isAdminKampus() && ! $currentUser->isSuperAdmin()) {
+            if ((int) $validated['university_id'] !== (int) $currentUser->university_id) {
+                abort(403, 'Akses ditolak: Tidak dapat memindahkan institusi pengguna.');
+            }
+        }
 
         // Get the first role as primary role for backwards compatibility
         $primaryRoleId = $validated['role_ids'][0];
@@ -383,13 +441,22 @@ class UserController extends Controller
     {
         $this->authorize('manage-users');
 
-        // Load role relationship
-        $user->load('role');
+        $currentUser = $request->user();
 
         // Prevent deleting Super Admin
         if ($user->isSuperAdmin()) {
             abort(403, 'Cannot delete Super Administrator.');
         }
+
+        // Multi-tenancy IDOR guard for Admin Kampus
+        if ($currentUser && $currentUser->isAdminKampus() && ! $currentUser->isSuperAdmin()) {
+            if ($user->university_id !== $currentUser->university_id) {
+                abort(403, 'Akses ditolak: Pengguna bukan dari institusi Anda.');
+            }
+        }
+
+        // Load role relationship
+        $user->load('role');
 
         // Check if User has proposals
         if ($user->proposals()->count() > 0) {
@@ -410,13 +477,22 @@ class UserController extends Controller
     {
         $this->authorize('manage-users');
 
-        // Load role relationship
-        $user->load('role');
+        $currentUser = $request->user();
 
         // Prevent deactivating Super Admin
         if ($user->isSuperAdmin()) {
             abort(403, 'Cannot deactivate Super Administrator.');
         }
+
+        // Multi-tenancy IDOR guard for Admin Kampus
+        if ($currentUser && $currentUser->isAdminKampus() && ! $currentUser->isSuperAdmin()) {
+            if ($user->university_id !== $currentUser->university_id) {
+                abort(403, 'Akses ditolak: Pengguna bukan dari institusi Anda.');
+            }
+        }
+
+        // Load role relationship
+        $user->load('role');
 
         // Toggle active status
         $user->update([

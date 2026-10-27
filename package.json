@@ -10,6 +10,7 @@
         "lint": "eslint resources/ --ext .js,.jsx,.ts,.tsx --fix",
         "types": "tsc --noEmit",
         "test": "vitest",
+        "test:run": "vitest run",
         "test:ui": "vitest --ui",
         "test:coverage": "vitest --coverage",
         "review:prs": "node .agents/scripts/pr-reviewer.js"

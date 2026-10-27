@@ -115,31 +115,33 @@ export default function AdminKampusShow({ adminKampus }: Props) {
 
                 {/* Managed Research Metrics Cards */}
                 <div>
-                    <h2 className="mb-3 text-xs font-semibold tracking-wider text-slate-500 uppercase">{t.adminCampusAdmins.managedMetricsTitle}</h2>
+                    <h2 className="mb-3 text-xs font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                        {t.adminCampusAdmins.managedMetricsTitle}
+                    </h2>
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                         <MetricCard
                             title={t.adminCampusAdmins.managedProposals}
                             value={adminKampus.managed_proposals_count}
                             type="integer"
                             icon={FileText}
-                            iconBgClass="bg-blue-50"
-                            iconColorClass="text-blue-900"
+                            iconBgClass="bg-blue-50 dark:bg-blue-950/40"
+                            iconColorClass="text-blue-900 dark:text-blue-400"
                         />
                         <MetricCard
                             title={t.adminCampusAdmins.managedReviewers}
                             value={adminKampus.managed_reviewers_count}
                             type="integer"
                             icon={ShieldCheck}
-                            iconBgClass="bg-emerald-50"
-                            iconColorClass="text-emerald-700"
+                            iconBgClass="bg-emerald-50 dark:bg-emerald-950/40"
+                            iconColorClass="text-emerald-700 dark:text-emerald-400"
                         />
                         <MetricCard
                             title={t.adminCampusAdmins.managedUsers}
                             value={adminKampus.managed_users_count}
                             type="integer"
                             icon={Users}
-                            iconBgClass="bg-indigo-50"
-                            iconColorClass="text-indigo-700"
+                            iconBgClass="bg-indigo-50 dark:bg-indigo-950/40"
+                            iconColorClass="text-indigo-700 dark:text-indigo-400"
                         />
                     </div>
                 </div>
@@ -147,17 +149,17 @@ export default function AdminKampusShow({ adminKampus }: Props) {
                 {/* Main Information Grid */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                     {/* Administrator Profile Card */}
-                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
-                        <div className="flex items-center gap-4 border-b border-slate-100 pb-5">
-                            <Avatar className="h-16 w-16 border-2 border-slate-200">
+                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                        <div className="flex items-center gap-4 border-b border-slate-100 pb-5 dark:border-slate-800">
+                            <Avatar className="h-16 w-16 border-2 border-slate-200 dark:border-slate-700">
                                 <AvatarImage src={adminKampus.avatar_url || ''} alt={adminKampus.name} />
-                                <AvatarFallback className="bg-blue-50 text-lg font-bold text-blue-900">
+                                <AvatarFallback className="bg-blue-50 text-lg font-bold text-blue-900 dark:bg-blue-950 dark:text-blue-400">
                                     {adminKampus.name.slice(0, 2).toUpperCase()}
                                 </AvatarFallback>
                             </Avatar>
                             <div>
-                                <h3 className="text-lg font-semibold text-slate-900">{adminKampus.name}</h3>
-                                <p className="font-mono text-xs text-slate-500">{adminKampus.email}</p>
+                                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{adminKampus.name}</h3>
+                                <p className="font-mono text-xs text-slate-500 dark:text-slate-400">{adminKampus.email}</p>
                                 <div className="mt-2">
                                     <StatusBadge status={adminKampus.is_active ? 'Active' : 'Ditolak'} />
                                 </div>
@@ -165,90 +167,100 @@ export default function AdminKampusShow({ adminKampus }: Props) {
                         </div>
 
                         <div className="mt-5 space-y-3">
-                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
-                                <span className="flex items-center gap-2 text-slate-500">
-                                    <Mail className="h-4 w-4 text-slate-400" />
+                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
+                                <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                    <Mail className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     {t.adminCampusAdmins.emailLabel}
                                 </span>
-                                <span className="font-mono text-slate-900">{adminKampus.email}</span>
+                                <span className="font-mono text-slate-900 dark:text-slate-100">{adminKampus.email}</span>
                             </div>
 
-                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
-                                <span className="flex items-center gap-2 text-slate-500">
-                                    <Phone className="h-4 w-4 text-slate-400" />
+                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
+                                <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                    <Phone className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     {t.adminCampusAdmins.phoneLabel}
                                 </span>
-                                <span className="font-mono text-slate-900">{adminKampus.phone || '-'}</span>
+                                <span className="font-mono text-slate-900 dark:text-slate-100">{adminKampus.phone || '-'}</span>
                             </div>
 
-                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
-                                <span className="flex items-center gap-2 text-slate-500">
-                                    <Briefcase className="h-4 w-4 text-slate-400" />
+                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
+                                <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                    <Briefcase className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     {t.adminCampusAdmins.positionLabel}
                                 </span>
-                                <span className="font-medium text-slate-900">{adminKampus.position || '-'}</span>
+                                <span className="font-medium text-slate-900 dark:text-slate-100">{adminKampus.position || '-'}</span>
                             </div>
 
-                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
-                                <span className="flex items-center gap-2 text-slate-500">
-                                    <Clock className="h-4 w-4 text-slate-400" />
+                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
+                                <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                    <Clock className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     {t.adminCampusAdmins.lastLogin}
                                 </span>
-                                <span className="font-mono text-slate-700">{adminKampus.last_login_at || t.adminCampusAdmins.neverLoggedIn}</span>
+                                <span className="font-mono text-slate-700 dark:text-slate-300">
+                                    {adminKampus.last_login_at || t.adminCampusAdmins.neverLoggedIn}
+                                </span>
                             </div>
 
-                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
-                                <span className="flex items-center gap-2 text-slate-500">
-                                    <Calendar className="h-4 w-4 text-slate-400" />
+                            <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
+                                <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                    <Calendar className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     {t.adminCampusAdmins.createdAt}
                                 </span>
-                                <span className="font-mono text-slate-700">{adminKampus.created_at}</span>
+                                <span className="font-mono text-slate-700 dark:text-slate-300">{adminKampus.created_at}</span>
                             </div>
 
                             <div className="flex items-center justify-between py-2 text-xs">
-                                <span className="flex items-center gap-2 text-slate-500">
-                                    <Calendar className="h-4 w-4 text-slate-400" />
+                                <span className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                                    <Calendar className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                                     {t.adminCampusAdmins.updatedAt}
                                 </span>
-                                <span className="font-mono text-slate-700">{adminKampus.updated_at}</span>
+                                <span className="font-mono text-slate-700 dark:text-slate-300">{adminKampus.updated_at}</span>
                             </div>
                         </div>
                     </div>
 
                     {/* University Affiliation Card */}
-                    <div className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
+                    <div className="flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                         <div>
-                            <div className="mb-4 flex items-center gap-3 border-b border-slate-100 pb-4">
-                                <div className="rounded-lg border border-blue-100 bg-blue-50 p-2.5 text-blue-900">
+                            <div className="mb-4 flex items-center gap-3 border-b border-slate-100 pb-4 dark:border-slate-800">
+                                <div className="rounded-lg border border-blue-100 bg-blue-50 p-2.5 text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-400">
                                     <Building2 className="h-5 w-5" />
                                 </div>
                                 <div>
-                                    <h3 className="text-base font-semibold text-slate-900">{t.adminCampusAdmins.universityAffiliation}</h3>
-                                    <p className="text-xs text-slate-500">{adminKampus.university ? adminKampus.university.name : '-'}</p>
+                                    <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+                                        {t.adminCampusAdmins.universityAffiliation}
+                                    </h3>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                        {adminKampus.university ? adminKampus.university.name : '-'}
+                                    </p>
                                 </div>
                             </div>
 
                             {adminKampus.university ? (
                                 <div className="space-y-3">
-                                    <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
-                                        <span className="text-slate-500">{t.adminCampusAdmins.colUniversity}</span>
-                                        <span className="text-right font-semibold text-slate-900">{adminKampus.university.name}</span>
+                                    <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
+                                        <span className="text-slate-500 dark:text-slate-400">{t.adminCampusAdmins.colUniversity}</span>
+                                        <span className="text-right font-semibold text-slate-900 dark:text-slate-100">
+                                            {adminKampus.university.name}
+                                        </span>
                                     </div>
 
                                     {adminKampus.university.code && (
-                                        <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
-                                            <span className="text-slate-500">{t.adminCampusAdmins.code}</span>
-                                            <span className="font-mono font-medium text-slate-800">{adminKampus.university.code}</span>
+                                        <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
+                                            <span className="text-slate-500 dark:text-slate-400">{t.adminCampusAdmins.code}</span>
+                                            <span className="font-mono font-medium text-slate-800 dark:text-slate-200">
+                                                {adminKampus.university.code}
+                                            </span>
                                         </div>
                                     )}
 
                                     {(adminKampus.university.city || adminKampus.university.province) && (
-                                        <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs">
-                                            <span className="flex items-center gap-1.5 text-slate-500">
-                                                <MapPin className="h-3.5 w-3.5 text-slate-400" />
+                                        <div className="flex items-center justify-between border-b border-slate-100 py-2 text-xs dark:border-slate-800">
+                                            <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                                                <MapPin className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
                                                 {t.adminCampusAdmins.cityProvince}
                                             </span>
-                                            <span className="text-right font-medium text-slate-800">
+                                            <span className="text-right font-medium text-slate-800 dark:text-slate-200">
                                                 {[adminKampus.university.city, adminKampus.university.province].filter(Boolean).join(', ')}
                                             </span>
                                         </div>
@@ -259,9 +271,9 @@ export default function AdminKampusShow({ adminKampus }: Props) {
                             )}
                         </div>
 
-                        <div className="mt-6 rounded-md border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600">
-                            <div className="mb-1 flex items-center gap-2 font-medium text-slate-900">
-                                <ShieldCheck className="h-4 w-4 text-blue-900" />
+                        <div className="mt-6 rounded-md border border-slate-200 bg-slate-50 p-4 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300">
+                            <div className="mb-1 flex items-center gap-2 font-medium text-slate-900 dark:text-slate-100">
+                                <ShieldCheck className="h-4 w-4 text-blue-900 dark:text-blue-400" />
                                 <span>{t.adminCampusAdmins.tabActive}</span>
                             </div>
                             <p className="leading-relaxed">{t.adminCampusAdmins.description}</p>
@@ -272,31 +284,38 @@ export default function AdminKampusShow({ adminKampus }: Props) {
 
             {/* Modal: Toggle Active */}
             <Dialog open={toggleDialogOpen} onOpenChange={setToggleDialogOpen}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="sm:max-w-md dark:border-slate-800 dark:bg-slate-900">
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-slate-900">
-                            <Power className="h-5 w-5 text-blue-900" />
+                        <DialogTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
+                            <Power className="h-5 w-5 text-blue-900 dark:text-blue-400" />
                             {t.adminCampusAdmins.confirmToggleTitle}
                         </DialogTitle>
-                        <DialogDescription className="text-sm text-slate-600">{t.adminCampusAdmins.confirmToggleDesc}</DialogDescription>
+                        <DialogDescription className="text-sm text-slate-600 dark:text-slate-400">
+                            {t.adminCampusAdmins.confirmToggleDesc}
+                        </DialogDescription>
                     </DialogHeader>
 
-                    <div className="space-y-1 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
-                        <div className="font-semibold text-slate-900">{adminKampus.name}</div>
-                        <div className="font-mono text-slate-600">{adminKampus.email}</div>
+                    <div className="space-y-1 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-800 dark:bg-slate-950/50">
+                        <div className="font-semibold text-slate-900 dark:text-slate-100">{adminKampus.name}</div>
+                        <div className="font-mono text-slate-600 dark:text-slate-400">{adminKampus.email}</div>
                         <div className="pt-1">
                             <StatusBadge status={adminKampus.is_active ? 'Active' : 'Ditolak'} />
                         </div>
                     </div>
 
                     <DialogFooter className="gap-2 sm:gap-0">
-                        <Button variant="outline" onClick={() => setToggleDialogOpen(false)} disabled={processing} className="text-xs">
+                        <Button
+                            variant="outline"
+                            onClick={() => setToggleDialogOpen(false)}
+                            disabled={processing}
+                            className="text-xs dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                        >
                             {t.common.cancel}
                         </Button>
                         <Button
                             onClick={handleToggleActive}
                             disabled={processing}
-                            className="bg-blue-900 text-xs font-medium text-white hover:bg-blue-800"
+                            className="bg-blue-900 text-xs font-medium text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
                         >
                             {processing ? t.common.loading : t.adminCampusAdmins.toggleStatus}
                         </Button>

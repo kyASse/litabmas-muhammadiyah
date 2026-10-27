@@ -26,21 +26,21 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   actions,
 }) => {
   return (
-    <div className="mb-6 pb-5 border-b border-slate-200">
+    <div className="mb-6 pb-5 border-b border-slate-200 dark:border-slate-800">
       {breadcrumbs.length > 0 && (
-        <nav className="flex items-center space-x-1.5 text-xs text-slate-500 mb-2 font-sans">
+        <nav className="flex items-center space-x-1.5 text-xs text-slate-500 dark:text-slate-400 mb-2 font-sans">
           {breadcrumbs.map((crumb, idx) => (
             <React.Fragment key={idx}>
-              {idx > 0 && <ChevronRight className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />}
+              {idx > 0 && <ChevronRight className="w-3.5 h-3.5 text-slate-400 dark:text-slate-600 flex-shrink-0" />}
               {crumb.href ? (
                 <Link
                   href={crumb.href}
-                  className="hover:text-blue-900 transition-colors truncate max-w-xs"
+                  className="hover:text-blue-900 dark:hover:text-blue-400 transition-colors truncate max-w-xs"
                 >
                   {crumb.label || crumb.title}
                 </Link>
               ) : (
-                <span className="text-slate-800 font-medium truncate max-w-sm">
+                <span className="text-slate-800 dark:text-slate-200 font-medium truncate max-w-sm">
                   {crumb.label || crumb.title}
                 </span>
               )}
@@ -53,7 +53,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
         <div className="space-y-1">
           <div className="flex items-center space-x-3">
             <h1
-              className={`text-slate-900 tracking-tight ${
+              className={`text-slate-900 dark:text-slate-100 tracking-tight ${
                 isEditorialSerif
                   ? 'font-serif text-2xl sm:text-3xl font-semibold'
                   : 'font-sans text-xl sm:text-2xl font-bold'
@@ -64,7 +64,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
             {badge}
           </div>
           {subtitle && (
-            <p className="text-sm text-slate-600 font-sans max-w-3xl">
+            <p className="text-sm text-slate-600 dark:text-slate-400 font-sans max-w-3xl">
               {subtitle}
             </p>
           )}

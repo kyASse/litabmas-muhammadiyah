@@ -252,7 +252,10 @@ export default function FormReview({ proposal, existingReview }: Props) {
                             <CardHeader>
                                 <div className="flex items-center justify-between">
                                     <CardTitle className="text-base">Status Seleksi Administrasi</CardTitle>
-                                    <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-800">
+                                    <Badge
+                                        variant="outline"
+                                        className="border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300"
+                                    >
                                         {proposal.status_proposal || 'Lolos_Administrasi'}
                                     </Badge>
                                 </div>
@@ -271,19 +274,19 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                     <div className="divide-y divide-border rounded border border-border text-sm">
                                         <div className="flex items-center justify-between p-3">
                                             <span>1. Surat Pengantar LPPM & Format Proposal</span>
-                                            <span className="flex items-center gap-1 font-semibold text-emerald-700">
+                                            <span className="flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
                                                 <CheckCircle2 className="h-4 w-4" /> Lolos (Ya)
                                             </span>
                                         </div>
                                         <div className="flex items-center justify-between p-3">
                                             <span>2. Rincian Anggaran Biaya (RAB) sesuai Pagu</span>
-                                            <span className="flex items-center gap-1 font-semibold text-emerald-700">
+                                            <span className="flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
                                                 <CheckCircle2 className="h-4 w-4" /> Lolos (Ya)
                                             </span>
                                         </div>
                                         <div className="flex items-center justify-between p-3">
                                             <span>3. Surat Pernyataan Bebas Plagiarisme</span>
-                                            <span className="flex items-center gap-1 font-semibold text-emerald-700">
+                                            <span className="flex items-center gap-1 font-semibold text-emerald-700 dark:text-emerald-400">
                                                 <CheckCircle2 className="h-4 w-4" /> Lolos (Ya)
                                             </span>
                                         </div>
@@ -385,17 +388,25 @@ export default function FormReview({ proposal, existingReview }: Props) {
                                                             <Label className="text-xs font-semibold">
                                                                 Catatan / Justifikasi Kualitatif <span className="text-destructive">*</span>
                                                             </Label>
-                                                            {hasComment && <span className="text-[10px] font-bold text-emerald-600">[VALID]</span>}
+                                                            {hasComment && (
+                                                                <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                                                                    [VALID]
+                                                                </span>
+                                                            )}
                                                         </div>
                                                         <Textarea
                                                             rows={2}
                                                             value={komponen.komentar || ''}
                                                             onChange={(e) => handleCommentChange(index, e.target.value)}
                                                             placeholder="Berikan alasan kualitatif untuk penilaian butir ini..."
-                                                            className={!hasComment ? 'border-amber-400 bg-amber-50/20' : ''}
+                                                            className={
+                                                                !hasComment
+                                                                    ? 'border-amber-400 bg-amber-50/20 dark:border-amber-800/60 dark:bg-amber-950/20'
+                                                                    : ''
+                                                            }
                                                         />
                                                         {!hasComment && (
-                                                            <p className="text-[10px] text-amber-600">
+                                                            <p className="text-[10px] text-amber-600 dark:text-amber-400">
                                                                 Komentar kualitatif per butir kriteria wajib diisi.
                                                             </p>
                                                         )}

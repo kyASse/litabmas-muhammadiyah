@@ -151,7 +151,7 @@ export default function Create({ contract, termins, sisa }: Props) {
 
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <Card className="border-sidebar-border/70 dark:border-sidebar-border">
+                    <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                         <CardContent className="flex items-center gap-4 p-5">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sky-100 text-sky-700 dark:bg-sky-950/40 dark:text-sky-400">
                                 <Wallet className="h-6 w-6" />
@@ -163,7 +163,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-sidebar-border/70 dark:border-sidebar-border">
+                    <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                         <CardContent className="flex items-center gap-4 p-5">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400">
                                 <CheckCircle2 className="h-6 w-6" />
@@ -175,7 +175,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                         </CardContent>
                     </Card>
 
-                    <Card className="border-sidebar-border/70 dark:border-sidebar-border">
+                    <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                         <CardContent className="flex items-center gap-4 p-5">
                             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400">
                                 <TrendingDown className="h-6 w-6" />
@@ -189,14 +189,14 @@ export default function Create({ contract, termins, sisa }: Props) {
                 </div>
 
                 {/* Progress Bars */}
-                <Card className="border-sidebar-border/70 dark:border-sidebar-border">
+                <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                     <CardContent className="space-y-4 p-5">
                         <div>
                             <div className="mb-1.5 flex items-center justify-between text-sm">
                                 <span className="font-medium text-foreground">Alokasi Termin</span>
                                 <span className="font-semibold text-foreground">{alokasiPercentage.toFixed(1)}%</span>
                             </div>
-                            <Progress value={alokasiPercentage} className="h-2.5" />
+                            <Progress value={alokasiPercentage} className="h-2.5 bg-slate-100 dark:bg-slate-800" />
                             <p className="mt-1 text-xs text-muted-foreground">
                                 Sisa persentase yang dapat dialokasikan: <strong>{sisa.sisa_persentase}%</strong>
                             </p>
@@ -206,14 +206,14 @@ export default function Create({ contract, termins, sisa }: Props) {
                                 <span className="font-medium text-foreground">Serapan Finansial</span>
                                 <span className="font-semibold text-foreground">{serapanPercentage}%</span>
                             </div>
-                            <Progress value={serapanPercentage} className="h-2.5" />
+                            <Progress value={serapanPercentage} className="h-2.5 bg-slate-100 dark:bg-slate-800" />
                         </div>
                     </CardContent>
                 </Card>
 
                 {/* Existing Termins Table */}
                 {termins.length > 0 && (
-                    <Card className="border-sidebar-border/70 dark:border-sidebar-border">
+                    <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                         <CardHeader className="pb-3">
                             <CardTitle className="text-base font-semibold">Termin yang Sudah Ada</CardTitle>
                         </CardHeader>
@@ -230,7 +230,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                 </TableHeader>
                                 <TableBody>
                                     {termins.map((termin) => (
-                                        <TableRow key={termin.id}>
+                                        <TableRow key={termin.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                             <TableCell className="pl-6 font-medium">{termin.termin_number}</TableCell>
                                             <TableCell>{termin.percentage}%</TableCell>
                                             <TableCell>{formatRp(termin.amount)}</TableCell>
@@ -249,7 +249,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                 )}
 
                 {/* Create Form */}
-                <Card className="border-sidebar-border/70 dark:border-sidebar-border">
+                <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900">
                     <CardHeader className="pb-3">
                         <CardTitle className="flex items-center gap-2 text-base font-semibold">
                             <Plus className="h-5 w-5" />
@@ -276,7 +276,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                             value={data.percentage}
                                             onChange={(e) => setData('percentage', e.target.value)}
                                             placeholder="Contoh: 30"
-                                            className={`pr-8 ${errors.percentage ? 'border-destructive' : ''}`}
+                                            className={`pr-8 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.percentage ? 'border-destructive' : ''}`}
                                         />
                                         <span className="absolute top-1/2 right-3 -translate-y-1/2 text-sm text-muted-foreground">%</span>
                                     </div>
@@ -288,7 +288,7 @@ export default function Create({ contract, termins, sisa }: Props) {
 
                                 <div className="space-y-2">
                                     <Label>Nominal Otomatis (Kalkulasi)</Label>
-                                    <div className="flex h-9 items-center rounded-md border border-input bg-muted/50 px-3 text-sm font-semibold text-foreground dark:bg-neutral-900">
+                                    <div className="flex h-9 items-center rounded-md border border-input bg-muted/50 px-3 text-sm font-semibold text-foreground dark:border-slate-700 dark:bg-slate-950">
                                         {data.percentage ? formatRp(calculatedAmount) : 'Rp 0'}
                                     </div>
                                     <p className="text-xs text-muted-foreground">
@@ -306,7 +306,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                         type="date"
                                         value={data.funding_date}
                                         onChange={(e) => setData('funding_date', e.target.value)}
-                                        className={errors.funding_date ? 'border-destructive' : ''}
+                                        className={`dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.funding_date ? 'border-destructive' : ''}`}
                                     />
                                     {errors.funding_date && <p className="text-sm text-destructive">{errors.funding_date}</p>}
                                 </div>
@@ -318,7 +318,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                         type="date"
                                         value={data.due_date}
                                         onChange={(e) => setData('due_date', e.target.value)}
-                                        className={errors.due_date ? 'border-destructive' : ''}
+                                        className={`dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.due_date ? 'border-destructive' : ''}`}
                                     />
                                     {errors.due_date && <p className="text-sm text-destructive">{errors.due_date}</p>}
                                 </div>
@@ -333,7 +333,7 @@ export default function Create({ contract, termins, sisa }: Props) {
                                     value={data.description}
                                     onChange={(e) => setData('description', e.target.value)}
                                     placeholder="Contoh: Pencairan Tahap 1 — Awal Penelitian"
-                                    className={errors.description ? 'border-destructive' : ''}
+                                    className={`dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.description ? 'border-destructive' : ''}`}
                                 />
                                 {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
                             </div>
@@ -347,19 +347,27 @@ export default function Create({ contract, termins, sisa }: Props) {
                                     onChange={(e) => setData('notes', e.target.value)}
                                     placeholder="Tambahkan catatan terkait termin ini..."
                                     rows={3}
-                                    className={errors.notes ? 'border-destructive' : ''}
+                                    className={`dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.notes ? 'border-destructive' : ''}`}
                                 />
                                 {errors.notes && <p className="text-sm text-destructive">{errors.notes}</p>}
                             </div>
 
                             {/* Submit */}
-                            <div className="flex items-center justify-end gap-3 border-t border-sidebar-border/70 pt-5 dark:border-sidebar-border">
+                            <div className="flex items-center justify-end gap-3 border-t border-slate-200 pt-5 dark:border-slate-800">
                                 <a href={route('finance.contracts.index')}>
-                                    <Button type="button" variant="outline">
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                                    >
                                         Batal
                                     </Button>
                                 </a>
-                                <Button type="submit" disabled={processing || isOverLimit || !data.percentage}>
+                                <Button
+                                    type="submit"
+                                    disabled={processing || isOverLimit || !data.percentage}
+                                    className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+                                >
                                     {processing ? 'Menyimpan...' : 'Simpan Termin'}
                                 </Button>
                             </div>

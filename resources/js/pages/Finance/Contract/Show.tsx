@@ -115,10 +115,10 @@ function formatDate(dateStr?: string | null): string {
 function DetailRow({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: React.ReactNode }) {
     return (
         <div className="flex items-start gap-3">
-            <Icon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+            <Icon className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
             <div className="min-w-0 flex-1">
-                <p className="font-mono text-xs font-medium tracking-wider text-slate-500 uppercase">{label}</p>
-                <div className="mt-0.5 text-sm font-medium text-slate-900">{value}</div>
+                <p className="font-mono text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">{label}</p>
+                <div className="mt-0.5 text-sm font-medium text-slate-900 dark:text-slate-100">{value}</div>
             </div>
         </div>
     );
@@ -220,7 +220,7 @@ export default function ContractShow({ contract }: Props) {
             <div className="flex h-full flex-1 flex-col gap-6 p-6">
                 {/* Header Navigasi & Aksi */}
                 <div className="flex items-center justify-between">
-                    <Button variant="ghost" size="sm" asChild className="gap-2">
+                    <Button variant="ghost" size="sm" asChild className="gap-2 dark:text-slate-300 dark:hover:bg-slate-800">
                         <Link href={route('finance.contracts.index')}>
                             <ArrowLeft className="h-4 w-4" />
                             {t.contracts.backToList}
@@ -232,9 +232,9 @@ export default function ContractShow({ contract }: Props) {
                                 href={`/storage/${contract.file_dokumen_kontrak}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+                                className="inline-flex items-center gap-1.5 rounded border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                             >
-                                <Download className="h-3.5 w-3.5 text-slate-500" />
+                                <Download className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
                                 {t.contracts.downloadContractPdf}
                             </a>
                         )}
@@ -243,57 +243,71 @@ export default function ContractShow({ contract }: Props) {
                 </div>
 
                 {/* Header Judul Kontrak */}
-                <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-2 font-mono text-xs text-slate-500">
-                            <Hash className="h-3.5 w-3.5 text-slate-400" />
-                            <span className="font-semibold text-slate-700">{contractNumber}</span>
+                        <div className="flex items-center gap-2 font-mono text-xs text-slate-500 dark:text-slate-400">
+                            <Hash className="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+                            <span className="font-semibold text-slate-700 dark:text-slate-300">{contractNumber}</span>
                             <span>•</span>
                             <span>
                                 {t.contracts.contractDate}: {formatDate(contract.tanggal_kontrak || contract.start_date)}
                             </span>
                         </div>
-                        <h1 className="font-serif text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">{contractTitle}</h1>
-                        <p className="text-xs text-slate-500">
-                            {t.contracts.institution}: <strong className="text-slate-700">{contract.university?.name || '-'}</strong>
+                        <h1 className="font-serif text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-slate-100">
+                            {contractTitle}
+                        </h1>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {t.contracts.institution}:{' '}
+                            <strong className="text-slate-700 dark:text-slate-200">{contract.university?.name || '-'}</strong>
                             {contract.creator && ` | ${t.contracts.issuedBy}: ${contract.creator.name}`}
                         </p>
                     </div>
                 </div>
 
                 {/* Linier Progress Pencairan Termin 70:30 (Monev Gatekeeper Lock) */}
-                <div className="space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h2 className="font-serif text-base font-bold text-slate-900">{t.contracts.fundingFlowTitle}</h2>
-                            <p className="text-xs text-slate-500">{t.contracts.fundingFlowSubtitle}</p>
+                            <h2 className="font-serif text-base font-bold text-slate-900 dark:text-slate-100">{t.contracts.fundingFlowTitle}</h2>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">{t.contracts.fundingFlowSubtitle}</p>
                         </div>
                         <div className="text-right">
-                            <span className="block font-mono text-xs tracking-wider text-slate-500 uppercase">{t.contracts.realizationProgress}</span>
+                            <span className="block font-mono text-xs tracking-wider text-slate-500 uppercase dark:text-slate-400">
+                                {t.contracts.realizationProgress}
+                            </span>
                             <div className="flex items-baseline gap-2">
-                                <TabularFigure value={totalDisbursed} type="currency" size="lg" weight="bold" className="text-emerald-700" />
-                                <span className="font-mono text-xs text-slate-500">
-                                    {t.contracts.of} <TabularFigure value={contractValue} type="currency" size="sm" className="text-slate-700" /> (
+                                <TabularFigure
+                                    value={totalDisbursed}
+                                    type="currency"
+                                    size="lg"
+                                    weight="bold"
+                                    className="text-emerald-700 dark:text-emerald-400"
+                                />
+                                <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
+                                    {t.contracts.of}{' '}
+                                    <TabularFigure value={contractValue} type="currency" size="sm" className="text-slate-700 dark:text-slate-300" /> (
                                     {progressPercent}%)
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <Progress value={progressPercent} className="h-2.5 bg-slate-100" />
+                    <Progress value={progressPercent} className="h-2.5 bg-slate-100 dark:bg-slate-800" />
 
                     {/* Dua Kartu Termin Linier */}
                     <div className="grid grid-cols-1 gap-5 pt-2 md:grid-cols-2">
                         {/* TERMIN 1 (70%) */}
                         <div
                             className={`rounded-lg border p-5 transition-colors ${
-                                isT1Disbursed ? 'border-emerald-200 bg-emerald-50/40' : 'border-slate-200 bg-white'
+                                isT1Disbursed
+                                    ? 'border-emerald-200 bg-emerald-50/40 dark:border-emerald-900/40 dark:bg-emerald-950/20'
+                                    : 'border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950/40'
                             }`}
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <span className="rounded bg-teal-100 px-2 py-0.5 font-mono text-xs font-bold text-teal-800">
+                                        <span className="rounded bg-teal-100 px-2 py-0.5 font-mono text-xs font-bold text-teal-800 dark:bg-teal-900/50 dark:text-teal-300">
                                             {t.funding.tranche1RatioBadge}
                                         </span>
                                         {isT1Disbursed ? (
@@ -302,24 +316,28 @@ export default function ContractShow({ contract }: Props) {
                                             <StatusBadge status="Waiting_Disbursement" size="sm" />
                                         )}
                                     </div>
-                                    <h3 className="pt-1 font-serif text-base font-bold text-slate-900">{t.contracts.tranche1CardTitle}</h3>
-                                    <p className="text-xs text-slate-600">{t.contracts.tranche1CardDesc}</p>
+                                    <h3 className="pt-1 font-serif text-base font-bold text-slate-900 dark:text-slate-100">
+                                        {t.contracts.tranche1CardTitle}
+                                    </h3>
+                                    <p className="text-xs text-slate-600 dark:text-slate-400">{t.contracts.tranche1CardDesc}</p>
                                 </div>
                                 <TabularFigure
                                     value={termin1.nominal_dana}
                                     type="currency"
                                     size="xl"
                                     weight="bold"
-                                    className={isT1Disbursed ? 'text-emerald-700' : 'text-slate-900'}
+                                    className={isT1Disbursed ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}
                                 />
                             </div>
 
-                            <div className="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-3 text-xs">
-                                <div className="text-slate-500">
+                            <div className="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-3 text-xs dark:border-slate-800">
+                                <div className="text-slate-500 dark:text-slate-400">
                                     {isT1Disbursed ? (
                                         <span>
                                             {t.contracts.disbursedAtLabel}{' '}
-                                            <strong className="font-mono text-slate-700">{formatDate(termin1.tanggal_pencairan)}</strong>
+                                            <strong className="font-mono text-slate-700 dark:text-slate-300">
+                                                {formatDate(termin1.tanggal_pencairan)}
+                                            </strong>
                                         </span>
                                     ) : (
                                         <span>{t.contracts.statusReadyToDisburse}</span>
@@ -331,7 +349,7 @@ export default function ContractShow({ contract }: Props) {
                                             href={`/storage/${termin1.bukti_transfer_path}`}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="inline-flex items-center gap-1 font-medium text-sky-700 hover:underline"
+                                            className="inline-flex items-center gap-1 font-medium text-sky-700 hover:underline dark:text-sky-400"
                                         >
                                             <Download className="h-3.5 w-3.5" />
                                             {t.contracts.proofOfTransfer}
@@ -340,7 +358,7 @@ export default function ContractShow({ contract }: Props) {
                                         <Button
                                             size="sm"
                                             onClick={() => openDisburse(termin1)}
-                                            className="h-7 gap-1 bg-slate-900 text-xs text-white hover:bg-slate-800"
+                                            className="h-7 gap-1 bg-slate-900 text-xs text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
                                         >
                                             <FileCheck className="h-3.5 w-3.5" />
                                             {t.contracts.disburseTranche1Btn}
@@ -354,16 +372,16 @@ export default function ContractShow({ contract }: Props) {
                         <div
                             className={`rounded-lg border p-5 transition-colors ${
                                 isT2Disbursed
-                                    ? 'border-emerald-200 bg-emerald-50/40'
+                                    ? 'border-emerald-200 bg-emerald-50/40 dark:border-emerald-900/40 dark:bg-emerald-950/20'
                                     : !isMonevApproved
-                                      ? 'border-rose-200 bg-rose-50/30'
-                                      : 'border-amber-200 bg-amber-50/30'
+                                      ? 'border-rose-200 bg-rose-50/30 dark:border-rose-900/40 dark:bg-rose-950/20'
+                                      : 'border-amber-200 bg-amber-50/30 dark:border-amber-900/40 dark:bg-amber-950/20'
                             }`}
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <span className="rounded bg-amber-100 px-2 py-0.5 font-mono text-xs font-bold text-amber-800">
+                                        <span className="rounded bg-amber-100 px-2 py-0.5 font-mono text-xs font-bold text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
                                             {t.funding.tranche2RatioBadge}
                                         </span>
                                         {isT2Disbursed ? (
@@ -374,40 +392,48 @@ export default function ContractShow({ contract }: Props) {
                                             <StatusBadge status="Monev_Approved" size="sm" />
                                         )}
                                     </div>
-                                    <h3 className="pt-1 font-serif text-base font-bold text-slate-900">{t.contracts.tranche2CardTitle}</h3>
-                                    <p className="text-xs text-slate-600">{t.contracts.tranche2CardDesc}</p>
+                                    <h3 className="pt-1 font-serif text-base font-bold text-slate-900 dark:text-slate-100">
+                                        {t.contracts.tranche2CardTitle}
+                                    </h3>
+                                    <p className="text-xs text-slate-600 dark:text-slate-400">{t.contracts.tranche2CardDesc}</p>
                                 </div>
                                 <TabularFigure
                                     value={termin2.nominal_dana}
                                     type="currency"
                                     size="xl"
                                     weight="bold"
-                                    className={isT2Disbursed ? 'text-emerald-700' : 'text-slate-900'}
+                                    className={isT2Disbursed ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'}
                                 />
                             </div>
 
                             {/* Warning Banner if Monev Locked */}
                             {!isT2Disbursed && !isMonevApproved && (
-                                <div className="mt-3 space-y-1 rounded border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-800">
+                                <div className="mt-3 space-y-1 rounded border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
                                     <div className="flex items-center gap-1.5 font-bold tracking-wider uppercase">
-                                        <Lock className="h-3.5 w-3.5 shrink-0 text-rose-700" />
+                                        <Lock className="h-3.5 w-3.5 shrink-0 text-rose-700 dark:text-rose-400" />
                                         <span>{t.contracts.monevLockBannerTitle}</span>
                                     </div>
-                                    <p className="text-[11px] leading-relaxed text-rose-700">{t.contracts.monevLockBannerDesc}</p>
+                                    <p className="text-[11px] leading-relaxed text-rose-700 dark:text-rose-400">{t.contracts.monevLockBannerDesc}</p>
                                 </div>
                             )}
 
-                            <div className="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-3 text-xs">
-                                <div className="text-slate-500">
+                            <div className="mt-4 flex items-center justify-between border-t border-slate-200/70 pt-3 text-xs dark:border-slate-800">
+                                <div className="text-slate-500 dark:text-slate-400">
                                     {isT2Disbursed ? (
                                         <span>
                                             {t.contracts.disbursedAtLabel}{' '}
-                                            <strong className="font-mono text-slate-700">{formatDate(termin2.tanggal_pencairan)}</strong>
+                                            <strong className="font-mono text-slate-700 dark:text-slate-300">
+                                                {formatDate(termin2.tanggal_pencairan)}
+                                            </strong>
                                         </span>
                                     ) : !isMonevApproved ? (
-                                        <span className="font-mono text-[11px] text-rose-700">{t.contracts.monevLockStatusBlocked}</span>
+                                        <span className="font-mono text-[11px] text-rose-700 dark:text-rose-400">
+                                            {t.contracts.monevLockStatusBlocked}
+                                        </span>
                                     ) : (
-                                        <span className="font-mono text-[11px] text-emerald-700">{t.contracts.monevLockStatusReady}</span>
+                                        <span className="font-mono text-[11px] text-emerald-700 dark:text-emerald-400">
+                                            {t.contracts.monevLockStatusReady}
+                                        </span>
                                     )}
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -416,7 +442,7 @@ export default function ContractShow({ contract }: Props) {
                                             href={`/storage/${termin2.bukti_transfer_path}`}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="inline-flex items-center gap-1 font-medium text-sky-700 hover:underline"
+                                            className="inline-flex items-center gap-1 font-medium text-sky-700 hover:underline dark:text-sky-400"
                                         >
                                             <Download className="h-3.5 w-3.5" />
                                             {t.contracts.proofOfTransfer}
@@ -428,8 +454,8 @@ export default function ContractShow({ contract }: Props) {
                                             onClick={() => openDisburse(termin2)}
                                             className={`h-7 gap-1 text-xs ${
                                                 isMonevApproved
-                                                    ? 'bg-slate-900 text-white hover:bg-slate-800'
-                                                    : 'border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
+                                                    ? 'bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200'
+                                                    : 'border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:border-rose-900/50 dark:bg-rose-950/40 dark:text-rose-400 dark:hover:bg-rose-900/50'
                                             }`}
                                         >
                                             {isMonevApproved ? (
@@ -454,13 +480,15 @@ export default function ContractShow({ contract }: Props) {
                 {/* Detail Usulan Penelitian & Anggaran Realisasi (Budget Cut Adjustment) */}
                 <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                     <div className="space-y-6 lg:col-span-2">
-                        <Card>
+                        <Card className="dark:border-slate-800 dark:bg-slate-900">
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 font-serif text-base font-bold text-slate-900">
-                                    <FileText className="h-4 w-4 text-slate-500" />
+                                <CardTitle className="flex items-center gap-2 font-serif text-base font-bold text-slate-900 dark:text-slate-100">
+                                    <FileText className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                                     {t.contracts.proposalGrantInfoTitle}
                                 </CardTitle>
-                                <CardDescription className="text-xs text-slate-500">{t.contracts.proposalGrantInfoDesc}</CardDescription>
+                                <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+                                    {t.contracts.proposalGrantInfoDesc}
+                                </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <DetailRow
@@ -468,7 +496,7 @@ export default function ContractShow({ contract }: Props) {
                                     label={t.contracts.proposalTitle}
                                     value={contract.proposal?.judul_penelitian || contractTitle}
                                 />
-                                <div className="grid grid-cols-1 gap-4 border-t border-slate-100 pt-2 sm:grid-cols-2">
+                                <div className="grid grid-cols-1 gap-4 border-t border-slate-100 pt-2 sm:grid-cols-2 dark:border-slate-800">
                                     <DetailRow
                                         icon={Layers}
                                         label={t.contracts.scheme}
@@ -477,51 +505,60 @@ export default function ContractShow({ contract }: Props) {
                                     <DetailRow icon={User} label={t.contracts.leadResearcher} value={contract.proposal?.pengusul?.name || '-'} />
                                 </div>
 
-                                <Separator />
+                                <Separator className="dark:bg-slate-800" />
 
                                 {/* Tabular Anggaran & Budget Cut */}
-                                <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/60 p-4">
-                                    <p className="font-mono text-xs font-medium tracking-wider text-slate-500 uppercase">
+                                <div className="space-y-3 rounded-lg border border-slate-200 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-950/50">
+                                    <p className="font-mono text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                         {t.contracts.budgetComparisonTitle}
                                     </p>
                                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                                         <div>
-                                            <span className="block text-xs text-slate-500">{t.contracts.schemeMaxBudget}</span>
+                                            <span className="block text-xs text-slate-500 dark:text-slate-400">{t.contracts.schemeMaxBudget}</span>
                                             <TabularFigure
                                                 value={maxBudget}
                                                 type="currency"
                                                 size="base"
                                                 weight="semibold"
-                                                className="text-slate-700"
+                                                className="text-slate-700 dark:text-slate-300"
                                             />
                                         </div>
                                         <div>
-                                            <span className="block text-xs text-slate-500">{t.contracts.proposedBudgetLabel}</span>
+                                            <span className="block text-xs text-slate-500 dark:text-slate-400">
+                                                {t.contracts.proposedBudgetLabel}
+                                            </span>
                                             <TabularFigure
                                                 value={proposedBudget}
                                                 type="currency"
                                                 size="base"
                                                 weight="semibold"
-                                                className="text-slate-700"
+                                                className="text-slate-700 dark:text-slate-300"
                                             />
                                         </div>
                                         <div>
-                                            <span className="block text-xs text-slate-500">{t.contracts.approvedContractBudget}</span>
+                                            <span className="block text-xs text-slate-500 dark:text-slate-400">
+                                                {t.contracts.approvedContractBudget}
+                                            </span>
                                             <TabularFigure
                                                 value={contractValue}
                                                 type="currency"
                                                 size="base"
                                                 weight="bold"
-                                                className="font-semibold text-emerald-700"
+                                                className="font-semibold text-emerald-700 dark:text-emerald-400"
                                             />
                                         </div>
                                     </div>
                                     {budgetCut > 0 && (
-                                        <div className="flex items-center justify-between border-t border-slate-200/80 pt-2 text-xs text-amber-800">
+                                        <div className="flex items-center justify-between border-t border-slate-200/80 pt-2 text-xs text-amber-800 dark:border-slate-800 dark:text-amber-400">
                                             <span>{t.contracts.budgetCutAdjustment}</span>
                                             <span className="font-mono font-bold">
                                                 {t.contracts.cutAmount}{' '}
-                                                <TabularFigure value={budgetCut} type="currency" size="sm" className="text-amber-800" />
+                                                <TabularFigure
+                                                    value={budgetCut}
+                                                    type="currency"
+                                                    size="sm"
+                                                    className="text-amber-800 dark:text-amber-400"
+                                                />
                                             </span>
                                         </div>
                                     )}
@@ -529,12 +566,12 @@ export default function ContractShow({ contract }: Props) {
 
                                 {contract.terms && (
                                     <>
-                                        <Separator />
+                                        <Separator className="dark:bg-slate-800" />
                                         <div>
-                                            <p className="mb-1 font-mono text-xs font-medium tracking-wider text-slate-500 uppercase">
+                                            <p className="mb-1 font-mono text-xs font-medium tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                                 {t.contracts.specialTerms}
                                             </p>
-                                            <div className="rounded border bg-slate-50/50 p-3 text-xs leading-relaxed whitespace-pre-wrap text-slate-700">
+                                            <div className="rounded border bg-slate-50/50 p-3 text-xs leading-relaxed whitespace-pre-wrap text-slate-700 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-300">
                                                 {contract.terms}
                                             </div>
                                         </div>
@@ -546,25 +583,29 @@ export default function ContractShow({ contract }: Props) {
 
                     <div className="space-y-6">
                         {/* Status Kontrak & Aksi */}
-                        <Card>
+                        <Card className="dark:border-slate-800 dark:bg-slate-900">
                             <CardHeader>
-                                <CardTitle className="font-serif text-base font-bold text-slate-900">{t.contracts.contractAuthority}</CardTitle>
-                                <CardDescription className="text-xs text-slate-500">{t.contracts.contractAuthorityDesc}</CardDescription>
+                                <CardTitle className="font-serif text-base font-bold text-slate-900 dark:text-slate-100">
+                                    {t.contracts.contractAuthority}
+                                </CardTitle>
+                                <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+                                    {t.contracts.contractAuthorityDesc}
+                                </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <span className="block font-mono text-xs tracking-wider text-slate-500 uppercase">
+                                    <span className="block font-mono text-xs tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                         {t.contracts.currentStatus}
                                     </span>
                                     <StatusBadge status={badgeInfo.type} size="md" />
                                 </div>
 
                                 {currentStatus === 'draft' && (
-                                    <div className="flex flex-col gap-2 border-t border-slate-100 pt-3">
+                                    <div className="flex flex-col gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
                                         <Button
                                             onClick={() => setPendingStatus('active')}
                                             disabled={processing}
-                                            className="w-full gap-1.5 bg-slate-900 text-xs font-medium text-white hover:bg-slate-800"
+                                            className="w-full gap-1.5 bg-slate-900 text-xs font-medium text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
                                         >
                                             <CheckCircle2 className="h-3.5 w-3.5" />
                                             {t.contracts.activateContractBtn}
@@ -573,14 +614,14 @@ export default function ContractShow({ contract }: Props) {
                                 )}
 
                                 {currentStatus === 'active' && (
-                                    <div className="flex flex-col gap-2 border-t border-slate-100 pt-3">
+                                    <div className="flex flex-col gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
                                         <Button
                                             variant="outline"
                                             onClick={() => setPendingStatus('selesai')}
                                             disabled={processing}
-                                            className="w-full gap-1.5 text-xs font-medium"
+                                            className="w-full gap-1.5 text-xs font-medium dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                                         >
-                                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                                             {t.contracts.markCompletedBtn}
                                         </Button>
                                     </div>
@@ -589,23 +630,25 @@ export default function ContractShow({ contract }: Props) {
                         </Card>
 
                         {/* Audit Trail Card */}
-                        <Card>
+                        <Card className="dark:border-slate-800 dark:bg-slate-900">
                             <CardHeader>
-                                <CardTitle className="font-serif text-base font-bold text-slate-900">{t.contracts.auditTrailTitle}</CardTitle>
+                                <CardTitle className="font-serif text-base font-bold text-slate-900 dark:text-slate-100">
+                                    {t.contracts.auditTrailTitle}
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3 text-xs">
                                 <div>
-                                    <span className="block font-mono text-[11px] tracking-wider text-slate-500 uppercase">
+                                    <span className="block font-mono text-[11px] tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                         {t.contracts.issuedBy}
                                     </span>
-                                    <p className="font-medium text-slate-800">{contract.creator?.name || 'Administrator'}</p>
-                                    <p className="font-mono text-[11px] text-slate-400">{contract.created_at}</p>
+                                    <p className="font-medium text-slate-800 dark:text-slate-200">{contract.creator?.name || 'Administrator'}</p>
+                                    <p className="font-mono text-[11px] text-slate-400 dark:text-slate-500">{contract.created_at}</p>
                                 </div>
-                                <div className="border-t border-slate-100 pt-2">
-                                    <span className="block font-mono text-[11px] tracking-wider text-slate-500 uppercase">
+                                <div className="border-t border-slate-100 pt-2 dark:border-slate-800">
+                                    <span className="block font-mono text-[11px] tracking-wider text-slate-500 uppercase dark:text-slate-400">
                                         {t.contracts.lastUpdate}
                                     </span>
-                                    <p className="font-mono text-[11px] text-slate-600">{contract.updated_at}</p>
+                                    <p className="font-mono text-[11px] text-slate-600 dark:text-slate-400">{contract.updated_at}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -623,21 +666,25 @@ export default function ContractShow({ contract }: Props) {
                     if (!open) setPendingStatus(null);
                 }}
             >
-                <AlertDialogContent>
+                <AlertDialogContent className="dark:border-slate-800 dark:bg-slate-900">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="font-serif font-bold text-slate-900">{t.contracts.confirmStatusTitle}</AlertDialogTitle>
-                        <AlertDialogDescription className="text-xs text-slate-600">
+                        <AlertDialogTitle className="font-serif font-bold text-slate-900 dark:text-slate-100">
+                            {t.contracts.confirmStatusTitle}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription className="text-xs text-slate-600 dark:text-slate-400">
                             {t.contracts.confirmStatusDesc
                                 .replace('{number}', contractNumber)
                                 .replace('{status}', pendingStatus?.toUpperCase() || '')}
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel disabled={processing}>{t.common.cancel}</AlertDialogCancel>
+                        <AlertDialogCancel disabled={processing} className="dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800">
+                            {t.common.cancel}
+                        </AlertDialogCancel>
                         <AlertDialogAction
                             disabled={processing}
                             onClick={() => pendingStatus && handleUpdateStatus(pendingStatus)}
-                            className="bg-slate-900 text-white hover:bg-slate-800"
+                            className="bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
                         >
                             {processing ? t.contracts.updatingStatus : t.contracts.confirmUpdateBtn}
                         </AlertDialogAction>

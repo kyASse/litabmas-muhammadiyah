@@ -8,6 +8,8 @@
  * @filepath /resources/js/components/Charts/BarChart.tsx
  */
 
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
 import Chart from 'react-apexcharts';
 
 interface BarChartProps {
@@ -15,6 +17,15 @@ interface BarChartProps {
 }
 
 export default function BarChart({ data }: BarChartProps) {
+    const { resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const isDarkMode = mounted && resolvedTheme === 'dark';
+
     const options = {
         chart: {
             id: 'funding-bar-chart',
@@ -24,17 +35,40 @@ export default function BarChart({ data }: BarChartProps) {
             fontFamily: 'inherit',
             background: 'transparent',
         },
+        theme: {
+            mode: (isDarkMode ? 'dark' : 'light') as 'dark' | 'light',
+        },
         xaxis: {
             categories: data.map((item) => item.year.toString()),
             title: {
                 text: 'Tahun',
+                style: {
+                    color: isDarkMode ? '#94a3b8' : '#64748b',
+                },
+            },
+            labels: {
+                style: {
+                    colors: isDarkMode ? '#94a3b8' : '#64748b',
+                },
+            },
+            axisBorder: {
+                color: isDarkMode ? '#334155' : '#cbd5e1',
+            },
+            axisTicks: {
+                color: isDarkMode ? '#334155' : '#cbd5e1',
             },
         },
         yaxis: {
             title: {
                 text: 'Total Pendanaan (Rp)',
+                style: {
+                    color: isDarkMode ? '#94a3b8' : '#64748b',
+                },
             },
             labels: {
+                style: {
+                    colors: isDarkMode ? '#94a3b8' : '#64748b',
+                },
                 formatter: (value: number) => {
                     return new Intl.NumberFormat('id-ID', {
                         style: 'currency',
@@ -44,7 +78,10 @@ export default function BarChart({ data }: BarChartProps) {
                 },
             },
         },
-        colors: ['#3b82f6'],
+        colors: [isDarkMode ? '#60a5fa' : '#3b82f6'],
+        grid: {
+            borderColor: isDarkMode ? '#1e293b' : '#f1f5f9',
+        },
         plotOptions: {
             bar: {
                 borderRadius: 4,
@@ -64,6 +101,7 @@ export default function BarChart({ data }: BarChartProps) {
             opacity: 1,
         },
         tooltip: {
+            theme: (isDarkMode ? 'dark' : 'light') as 'dark' | 'light',
             y: {
                 formatter: function (val: number) {
                     return new Intl.NumberFormat('id-ID', {

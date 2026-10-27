@@ -48,12 +48,19 @@ class DashboardController extends Controller
         }
         $totalAbsorbedFunding = $contractQuery->sum($danaCol);
 
+        $pendingResearchersQuery = User::where('is_active', false);
+        if ($isAdminKampus) {
+            $pendingResearchersQuery->where('university_id', $universityId);
+        }
+        $pendingResearchersCount = $pendingResearchersQuery->count();
+
         $stats = [
             'total_proposals' => $totalProposals,
             'approved_proposals' => $approvedProposals,
             'rejected_proposals' => $rejectedProposals,
             'success_rate' => $successRate,
             'total_absorbed_funding' => (float) $totalAbsorbedFunding,
+            'pending_researchers_count' => $pendingResearchersCount,
         ];
 
         // 3. Yearly funding aggregation

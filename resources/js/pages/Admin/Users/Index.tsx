@@ -16,10 +16,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ROLE_NAMES } from '@/constants/roles';
 import { useTranslation } from '@/hooks/use-translation';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Building2, Edit, Eye, GraduationCap, Power, RotateCcw, Search, ShieldCheck, UserCheck, UserPlus, Users } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -96,6 +97,17 @@ export default function UsersIndex({
     filters = {},
 }: IndexProps) {
     const { t, format } = useTranslation();
+    const { auth } = usePage<SharedData>().props;
+    const currentUser = auth?.user;
+
+    const hasRole = (roleName: string) => {
+        if (!currentUser) return false;
+        if (currentUser.role?.name === roleName) return true;
+        if (currentUser.roles?.some((r) => r.name === roleName)) return true;
+        return false;
+    };
+
+    const isAdminKampus = hasRole(ROLE_NAMES.ADMIN_KAMPUS) && !hasRole(ROLE_NAMES.SUPER_ADMIN);
 
     const userList: UserItem[] = Array.isArray(users) ? users : users?.data || [];
     const isPaginated = !Array.isArray(users) && Boolean(users?.links);
@@ -106,6 +118,12 @@ export default function UsersIndex({
     const [role, setRole] = useState(filters.role || 'all');
     const [isActive, setIsActive] = useState(filters.is_active || 'all');
     const [toggleUser, setToggleUser] = useState<UserItem | null>(null);
+
+    React.useEffect(() => {
+        setIsActive(filters.is_active || 'all');
+    }, [filters.is_active]);
+
+    const pendingCount = Math.max(0, (stats?.total_users ?? 0) - (stats?.active_users ?? 0));
 
     const breadcrumbs: BreadcrumbItem[] = [
         { title: t.navigation.dashboard, href: '/dashboard' },
@@ -158,21 +176,21 @@ export default function UsersIndex({
     const getRoleBadgeClasses = (roleName: string): string => {
         const normalized = roleName.toLowerCase().trim();
         if (normalized.includes('super admin')) {
-            return 'bg-rose-50 text-rose-700 border-rose-200';
+            return 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800/50';
         }
         if (normalized.includes('admin kampus')) {
-            return 'bg-indigo-50 text-indigo-700 border-indigo-200';
+            return 'bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800/50';
         }
         if (normalized.includes('admin keuangan')) {
-            return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+            return 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/50';
         }
         if (normalized.includes('reviewer')) {
-            return 'bg-purple-50 text-purple-700 border-purple-200';
+            return 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800/50';
         }
         if (normalized.includes('peneliti')) {
-            return 'bg-blue-50 text-blue-700 border-blue-200';
+            return 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800/50';
         }
-        return 'bg-slate-100 text-slate-700 border-slate-300';
+        return 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
     };
 
     const renderRoles = (user: UserItem) => {
@@ -196,13 +214,13 @@ export default function UsersIndex({
                         );
                     })
                 ) : (
-                    <span className="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-sans text-xs text-slate-600">
+                    <span className="inline-flex items-center rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 font-sans text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-400">
                         {t.adminUsers.generalUser}
                     </span>
                 )}
 
                 {user.is_reviewer && !hasReviewerRole && (
-                    <span className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-2 py-0.5 font-sans text-xs font-medium text-purple-700">
+                    <span className="inline-flex items-center rounded-md border border-purple-200 bg-purple-50 px-2 py-0.5 font-sans text-xs font-medium text-purple-700 dark:border-purple-800/50 dark:bg-purple-950/40 dark:text-purple-300">
                         <ShieldCheck className="mr-1 h-3 w-3" />
                         {t.adminUsers.roleReviewer}
                     </span>
@@ -238,15 +256,15 @@ export default function UsersIndex({
                         title={t.adminUsers.totalUsers}
                         value={stats?.total_users ?? 0}
                         icon={Users}
-                        iconBgClass="bg-blue-50"
-                        iconColorClass="text-blue-900"
+                        iconBgClass="bg-blue-50 dark:bg-blue-950/40"
+                        iconColorClass="text-blue-900 dark:text-blue-400"
                     />
                     <MetricCard
                         title={t.adminUsers.activeUsers}
                         value={stats?.active_users ?? 0}
                         icon={UserCheck}
-                        iconBgClass="bg-emerald-50"
-                        iconColorClass="text-emerald-700"
+                        iconBgClass="bg-emerald-50 dark:bg-emerald-950/40"
+                        iconColorClass="text-emerald-700 dark:text-emerald-400"
                         badgeText={stats?.total_users ? `${Math.round(((stats.active_users ?? 0) / stats.total_users) * 100)}%` : undefined}
                         badgeVariant="success"
                     />
@@ -254,55 +272,69 @@ export default function UsersIndex({
                         title={t.adminUsers.reviewersCount}
                         value={stats?.reviewers_count ?? 0}
                         icon={ShieldCheck}
-                        iconBgClass="bg-purple-50"
-                        iconColorClass="text-purple-700"
+                        iconBgClass="bg-purple-50 dark:bg-purple-950/40"
+                        iconColorClass="text-purple-700 dark:text-purple-400"
                     />
                     <MetricCard
                         title={t.adminUsers.researchersCount}
                         value={stats?.researchers_count ?? 0}
                         icon={GraduationCap}
-                        iconBgClass="bg-amber-50"
-                        iconColorClass="text-amber-700"
+                        iconBgClass="bg-amber-50 dark:bg-amber-950/40"
+                        iconColorClass="text-amber-700 dark:text-amber-400"
                     />
                 </div>
 
                 {/* Filter Bar */}
-                <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs">
+                <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3 lg:flex-row lg:items-center">
                         {/* Search Input */}
                         <div className="relative flex-1">
-                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                            <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                             <Input
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder={t.adminUsers.searchPlaceholder}
-                                className="pl-9 font-sans text-sm"
+                                className="pl-9 font-sans text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                             />
                         </div>
 
-                        {/* University Filter */}
-                        <div className="w-full lg:w-60">
-                            <Select
-                                value={universityId}
-                                onValueChange={(val) => {
-                                    setUniversityId(val);
-                                    applyFilters({ university_id: val });
-                                }}
+                        {/* University Filter / Institution Badge */}
+                        {isAdminKampus ? (
+                            <div
+                                className="flex h-9 w-full items-center gap-2 rounded-md border border-slate-200 bg-slate-50 px-3 py-1 lg:w-auto dark:border-slate-800 dark:bg-slate-800/60"
+                                title={currentUser?.university?.name || universities[0]?.name || ''}
                             >
-                                <SelectTrigger className="w-full font-sans text-sm">
-                                    <SelectValue placeholder={t.adminUsers.filterUniversity} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">{t.adminUsers.filterUniversity}</SelectItem>
-                                    {universities.map((u) => (
-                                        <SelectItem key={u.id} value={String(u.id)}>
-                                            {u.code ? `[${u.code}] ${u.name}` : u.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                                <Building2 className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
+                                <span className="max-w-[280px] truncate font-sans text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    {format(t.adminUsers.ownInstitutionOnly, {
+                                        name: currentUser?.university?.short_name || currentUser?.university?.name || universities[0]?.name || '-',
+                                    })}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="w-full lg:w-60">
+                                <Select
+                                    value={universityId}
+                                    onValueChange={(val) => {
+                                        setUniversityId(val);
+                                        applyFilters({ university_id: val });
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full font-sans text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                                        <SelectValue placeholder={t.adminUsers.filterUniversity} />
+                                    </SelectTrigger>
+                                    <SelectContent className="dark:border-slate-800 dark:bg-slate-900">
+                                        <SelectItem value="all">{t.adminUsers.filterUniversity}</SelectItem>
+                                        {universities.map((u) => (
+                                            <SelectItem key={u.id} value={String(u.id)}>
+                                                {u.code ? `[${u.code}] ${u.name}` : u.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
 
                         {/* Role Filter */}
                         <div className="w-full lg:w-48">
@@ -313,10 +345,10 @@ export default function UsersIndex({
                                     applyFilters({ role: val });
                                 }}
                             >
-                                <SelectTrigger className="w-full font-sans text-sm">
+                                <SelectTrigger className="w-full font-sans text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                     <SelectValue placeholder={t.adminUsers.filterRole} />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="dark:border-slate-800 dark:bg-slate-900">
                                     <SelectItem value="all">{t.adminUsers.roleAll}</SelectItem>
                                     <SelectItem value="Peneliti">{t.adminUsers.rolePeneliti}</SelectItem>
                                     <SelectItem value="Reviewer">{t.adminUsers.roleReviewer}</SelectItem>
@@ -336,10 +368,10 @@ export default function UsersIndex({
                                     applyFilters({ is_active: val });
                                 }}
                             >
-                                <SelectTrigger className="w-full font-sans text-sm">
+                                <SelectTrigger className="w-full font-sans text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                     <SelectValue placeholder={t.adminUsers.filterStatus} />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="dark:border-slate-800 dark:bg-slate-900">
                                     <SelectItem value="all">{t.adminUsers.filterStatus}</SelectItem>
                                     <SelectItem value="1">{t.adminUsers.statusActive}</SelectItem>
                                     <SelectItem value="0">{t.adminUsers.statusInactive}</SelectItem>
@@ -349,24 +381,86 @@ export default function UsersIndex({
 
                         {/* Action Buttons */}
                         <div className="flex items-center gap-2">
-                            <Button type="submit" variant="default" className="bg-blue-900 font-sans text-sm text-white hover:bg-blue-800">
+                            <Button
+                                type="submit"
+                                variant="default"
+                                className="bg-blue-900 font-sans text-sm text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                            >
                                 {t.adminUsers.applyFilter}
                             </Button>
-                            <Button type="button" variant="outline" onClick={handleResetFilters} title={t.common.reset} className="font-sans text-sm">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleResetFilters}
+                                title={t.common.reset}
+                                className="font-sans text-sm dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                            >
                                 <RotateCcw className="h-4 w-4" />
                             </Button>
                         </div>
                     </form>
                 </div>
 
+                {/* Quick-switch Tabs */}
+                <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setIsActive('all');
+                            applyFilters({ is_active: 'all' });
+                        }}
+                        className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-sans text-sm font-medium transition-colors ${
+                            isActive === 'all' || !isActive
+                                ? 'border-blue-900 font-semibold text-blue-900 dark:border-blue-500 dark:text-blue-400'
+                                : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-300'
+                        }`}
+                    >
+                        <span>{t.adminUsers.tabAll}</span>
+                        <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 font-mono text-xs ${
+                                isActive === 'all' || !isActive
+                                    ? 'bg-blue-100 font-semibold text-blue-900 dark:bg-blue-950/50 dark:text-blue-300'
+                                    : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                            }`}
+                        >
+                            {stats?.total_users ?? 0}
+                        </span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            setIsActive('0');
+                            applyFilters({ is_active: '0' });
+                        }}
+                        className={`flex items-center gap-2 border-b-2 px-4 py-2.5 font-sans text-sm font-medium transition-colors ${
+                            isActive === '0'
+                                ? 'border-amber-600 font-semibold text-amber-900 dark:border-amber-500 dark:text-amber-400'
+                                : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-300'
+                        }`}
+                    >
+                        <span>{t.adminUsers.tabPending}</span>
+                        <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 font-mono text-xs font-semibold ${
+                                isActive === '0'
+                                    ? 'bg-amber-100 text-amber-900 dark:bg-amber-950/50 dark:text-amber-300'
+                                    : pendingCount > 0
+                                      ? 'border border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800/50 dark:bg-amber-950/40 dark:text-amber-300'
+                                      : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                            }`}
+                        >
+                            {pendingCount}
+                        </span>
+                    </button>
+                </div>
+
                 {/* Users Table Card */}
-                <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs">
-                    <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
+                <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                    <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4 dark:border-slate-800">
                         <div className="flex items-center gap-2">
-                            <Users className="h-5 w-5 text-blue-900" />
-                            <h2 className="font-sans text-base font-bold text-slate-900">{t.adminUsers.userList}</h2>
+                            <Users className="h-5 w-5 text-blue-900 dark:text-blue-400" />
+                            <h2 className="font-sans text-base font-bold text-slate-900 dark:text-slate-100">{t.adminUsers.userList}</h2>
                         </div>
-                        <span className="font-mono text-xs text-slate-500">
+                        <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
                             {format(t.adminUsers.showingUsers, {
                                 count: userList.length,
                                 total: paginatedMeta?.total ?? userList.length,
@@ -377,20 +471,20 @@ export default function UsersIndex({
                     <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-b border-slate-200 bg-slate-100 font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase dark:border-slate-800 dark:bg-slate-800/50">
-                                    <TableHead className="py-3.5 pl-6 font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                <TableRow className="border-b border-slate-200 bg-slate-100 font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase dark:border-slate-800 dark:bg-slate-800/60">
+                                    <TableHead className="py-3.5 pl-6 font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminUsers.colName}
                                     </TableHead>
-                                    <TableHead className="py-3.5 font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    <TableHead className="py-3.5 font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminUsers.colUniversity}
                                     </TableHead>
-                                    <TableHead className="py-3.5 font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    <TableHead className="py-3.5 font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminUsers.colRoles}
                                     </TableHead>
-                                    <TableHead className="py-3.5 text-center font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    <TableHead className="py-3.5 text-center font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminUsers.colStatus}
                                     </TableHead>
-                                    <TableHead className="py-3.5 pr-6 text-right font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    <TableHead className="py-3.5 pr-6 text-right font-sans text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                         {t.adminUsers.colActions}
                                     </TableHead>
                                 </TableRow>
@@ -398,7 +492,7 @@ export default function UsersIndex({
                             <TableBody>
                                 {userList.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} className="py-12 text-center font-sans text-sm text-slate-500">
+                                        <TableCell colSpan={5} className="py-12 text-center font-sans text-sm text-slate-500 dark:text-slate-400">
                                             {t.adminUsers.noUsers}
                                         </TableCell>
                                     </TableRow>
@@ -413,24 +507,31 @@ export default function UsersIndex({
                                                 .toUpperCase() || 'U';
 
                                         return (
-                                            <TableRow key={user.id} className="transition-colors hover:bg-slate-50/50">
+                                            <TableRow
+                                                key={user.id}
+                                                className={`transition-colors ${
+                                                    !user.is_active
+                                                        ? 'bg-amber-50/40 hover:bg-amber-50/70 dark:bg-amber-950/20 dark:hover:bg-amber-950/30'
+                                                        : 'hover:bg-slate-50/50 dark:hover:bg-slate-800/40'
+                                                }`}
+                                            >
                                                 {/* User & Email */}
                                                 <TableCell className="py-3 pl-6">
                                                     <div className="flex items-center gap-3">
-                                                        <Avatar className="h-9 w-9 border border-slate-200">
+                                                        <Avatar className="h-9 w-9 border border-slate-200 dark:border-slate-700">
                                                             {user.avatar_url && <AvatarImage src={user.avatar_url} alt={user.name} />}
-                                                            <AvatarFallback className="bg-slate-100 font-sans text-xs font-medium text-slate-700">
+                                                            <AvatarFallback className="bg-slate-100 font-sans text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                                                                 {initials}
                                                             </AvatarFallback>
                                                         </Avatar>
                                                         <div className="flex flex-col">
                                                             <Link
                                                                 href={route('admin.users.show', user.id)}
-                                                                className="font-sans text-sm font-medium text-slate-900 transition-colors hover:text-blue-900"
+                                                                className="font-sans text-sm font-medium text-slate-900 transition-colors hover:text-blue-900 dark:text-slate-100 dark:hover:text-blue-400"
                                                             >
                                                                 {user.name}
                                                             </Link>
-                                                            <span className="font-mono text-xs text-slate-500">{user.email}</span>
+                                                            <span className="font-mono text-xs text-slate-500 dark:text-slate-400">{user.email}</span>
                                                         </div>
                                                     </div>
                                                 </TableCell>
@@ -438,14 +539,16 @@ export default function UsersIndex({
                                                 {/* Institution */}
                                                 <TableCell className="py-3">
                                                     {user.university ? (
-                                                        <div className="flex items-center gap-1.5 font-sans text-xs text-slate-700">
-                                                            <Building2 className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+                                                        <div className="flex items-center gap-1.5 font-sans text-xs text-slate-700 dark:text-slate-300">
+                                                            <Building2 className="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
                                                             <span className="max-w-[220px] truncate" title={user.university.name}>
                                                                 {user.university.short_name || user.university.name}
                                                             </span>
                                                         </div>
                                                     ) : (
-                                                        <span className="font-sans text-xs text-slate-400 italic">{t.adminUsers.globalTenant}</span>
+                                                        <span className="font-sans text-xs text-slate-400 italic dark:text-slate-500">
+                                                            {t.adminUsers.globalTenant}
+                                                        </span>
                                                     )}
                                                 </TableCell>
 
@@ -464,7 +567,7 @@ export default function UsersIndex({
                                                             asChild
                                                             variant="ghost"
                                                             size="sm"
-                                                            className="h-8 px-2 text-slate-600 hover:text-slate-900"
+                                                            className="h-8 px-2 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
                                                             title={t.adminUsers.viewDetails}
                                                         >
                                                             <Link href={route('admin.users.show', user.id)}>
@@ -476,7 +579,7 @@ export default function UsersIndex({
                                                             asChild
                                                             variant="ghost"
                                                             size="sm"
-                                                            className="h-8 px-2 text-slate-600 hover:text-blue-900"
+                                                            className="h-8 px-2 text-slate-600 hover:text-blue-900 dark:text-slate-400 dark:hover:text-blue-400"
                                                             title={t.adminUsers.editUser}
                                                         >
                                                             <Link href={route('admin.users.edit', user.id)}>
@@ -484,19 +587,28 @@ export default function UsersIndex({
                                                             </Link>
                                                         </Button>
 
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => setToggleUser(user)}
-                                                            className={`h-8 px-2 ${
-                                                                user.is_active
-                                                                    ? 'text-slate-500 hover:bg-rose-50 hover:text-rose-700'
-                                                                    : 'text-slate-500 hover:bg-emerald-50 hover:text-emerald-700'
-                                                            }`}
-                                                            title={user.is_active ? t.adminUsers.deactivate : t.adminUsers.activate}
-                                                        >
-                                                            <Power className="h-4 w-4" />
-                                                        </Button>
+                                                        {!user.is_active ? (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => setToggleUser(user)}
+                                                                className="h-8 border-emerald-300 bg-emerald-50 px-2.5 font-sans text-xs font-medium text-emerald-800 hover:bg-emerald-100 hover:text-emerald-900 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/50"
+                                                                title={t.adminUsers.activateAction}
+                                                            >
+                                                                <UserCheck className="mr-1.5 h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
+                                                                {t.adminUsers.activateAction}
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => setToggleUser(user)}
+                                                                className="h-8 px-2 text-slate-500 hover:bg-rose-50 hover:text-rose-700 dark:text-slate-400 dark:hover:bg-rose-950/30 dark:hover:text-rose-400"
+                                                                title={t.adminUsers.deactivate}
+                                                            >
+                                                                <Power className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -509,8 +621,8 @@ export default function UsersIndex({
 
                     {/* Pagination */}
                     {isPaginated && paginatedMeta?.links && paginatedMeta.links.length > 3 && (
-                        <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200 px-6 py-4 sm:flex-row">
-                            <p className="font-mono text-xs text-slate-500">
+                        <div className="flex flex-col items-center justify-between gap-3 border-t border-slate-200 px-6 py-4 sm:flex-row dark:border-slate-800">
+                            <p className="font-mono text-xs text-slate-500 dark:text-slate-400">
                                 {format(t.adminUsers.showingUsers, {
                                     count: userList.length,
                                     total: paginatedMeta.total,
@@ -525,7 +637,9 @@ export default function UsersIndex({
                                         size="sm"
                                         disabled={!link.url}
                                         className={`h-8 px-3 font-mono text-xs ${
-                                            link.active ? 'bg-blue-900 text-white hover:bg-blue-800' : ''
+                                            link.active
+                                                ? 'bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500'
+                                                : 'dark:border-slate-700 dark:text-slate-300'
                                         } ${!link.url ? 'pointer-events-none opacity-50' : ''}`}
                                     >
                                         <Link href={link.url || '#'} preserveScroll preserveState>
@@ -542,12 +656,12 @@ export default function UsersIndex({
             {/* Toggle Active Confirmation Dialog */}
             {toggleUser && (
                 <AlertDialog open={Boolean(toggleUser)} onOpenChange={(open) => !open && setToggleUser(null)}>
-                    <AlertDialogContent className="font-sans">
+                    <AlertDialogContent className="font-sans dark:border-slate-800 dark:bg-slate-900">
                         <AlertDialogHeader>
-                            <AlertDialogTitle>
+                            <AlertDialogTitle className="dark:text-slate-100">
                                 {toggleUser.is_active ? t.adminUsers.confirmDeactivateTitle : t.adminUsers.confirmActivateTitle}
                             </AlertDialogTitle>
-                            <AlertDialogDescription>
+                            <AlertDialogDescription className="dark:text-slate-400">
                                 {toggleUser.is_active
                                     ? format(t.adminUsers.confirmDeactivateDesc, {
                                           name: toggleUser.name,
@@ -560,7 +674,9 @@ export default function UsersIndex({
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel onClick={() => setToggleUser(null)}>{t.adminUsers.cancelButton}</AlertDialogCancel>
+                            <AlertDialogCancel onClick={() => setToggleUser(null)} className="dark:border-slate-700 dark:text-slate-300">
+                                {t.adminUsers.cancelButton}
+                            </AlertDialogCancel>
                             <AlertDialogAction
                                 onClick={handleToggleActiveConfirm}
                                 className={

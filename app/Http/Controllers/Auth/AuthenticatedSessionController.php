@@ -69,7 +69,7 @@ class AuthenticatedSessionController extends Controller
         // Update last login
         $user->update(['last_login_at' => now()]);
 
-        return redirect()->route('dashboard')->with('success', 'Login successful! Welcome back to Jurnal MU.');
+        return redirect()->route('dashboard')->with('success', 'Login successful! Welcome to E-Jarlit Kota Yogyakarta.');
     }
 
     /**

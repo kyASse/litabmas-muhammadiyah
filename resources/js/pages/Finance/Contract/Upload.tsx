@@ -65,7 +65,7 @@ export default function Upload({ contractId }: Props) {
                 </div>
 
                 {flash?.success && (
-                    <Alert className="border-green-200 bg-green-50">
+                    <Alert className="border-green-200 bg-green-50 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-300">
                         <AlertTitle>Berhasil</AlertTitle>
                         <AlertDescription>{flash.success}</AlertDescription>
                     </Alert>
@@ -78,18 +78,21 @@ export default function Upload({ contractId }: Props) {
                     </Alert>
                 )}
 
-                <Card>
+                <Card className="dark:border-slate-800 dark:bg-slate-900">
                     <CardHeader>
-                        <CardTitle>Form Unggah Dokumen</CardTitle>
+                        <CardTitle className="text-foreground">Form Unggah Dokumen</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="grid gap-2">
-                                <Label htmlFor="document">File PDF Kontrak</Label>
+                                <Label htmlFor="document" className="text-foreground">
+                                    File PDF Kontrak
+                                </Label>
                                 <Input
                                     id="document"
                                     type="file"
                                     accept="application/pdf"
+                                    className="dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                     onChange={(event) => {
                                         const file = event.target.files?.[0] ?? null;
                                         form.setData('document', file);
@@ -100,7 +103,11 @@ export default function Upload({ contractId }: Props) {
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2">
-                                <Button type="submit" disabled={form.processing} className="gap-2">
+                                <Button
+                                    type="submit"
+                                    disabled={form.processing}
+                                    className="gap-2 bg-slate-900 text-white hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+                                >
                                     <UploadIcon className="h-4 w-4" />
                                     Unggah Arsip
                                 </Button>

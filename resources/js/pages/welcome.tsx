@@ -365,7 +365,7 @@ export default function Welcome() {
                 <footer className="border-t border-slate-200 bg-slate-50 py-12 dark:border-slate-800 dark:bg-slate-950">
                     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                         <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
-                            <div className="flex items-start gap-3">
+                            <div className="flex items-center gap-3">
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white p-1 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
                                     <img src={logoUrl} alt={t.common.appName} className="h-8 w-8 object-contain" />
                                 </div>

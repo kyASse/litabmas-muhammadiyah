@@ -136,24 +136,27 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
             <div className="py-6">
                 <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-6 flex items-center gap-4">
-                        <Link href={route('user.outputs.index')} className="text-gray-500 transition-colors hover:text-gray-700">
+                        <Link
+                            href={route('user.outputs.index')}
+                            className="text-slate-500 transition-colors hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                        >
                             <ChevronLeft className="h-5 w-5" />
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Edit Luaran Penelitian</h1>
-                            <p className="text-gray-500">Perbarui data luaran penelitian Anda</p>
+                            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Edit Luaran Penelitian</h1>
+                            <p className="text-slate-500 dark:text-slate-400">Perbarui data luaran penelitian Anda</p>
                         </div>
                     </div>
 
                     {outputs.file_sertifikat_atau_cover && (
-                        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
-                            <p className="text-sm text-blue-800">
+                        <div className="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/50 dark:bg-blue-950/30">
+                            <p className="text-sm text-blue-800 dark:text-blue-300">
                                 <strong>File saat ini:</strong>{' '}
                                 <a
                                     href={route('storage.serve', outputs.file_sertifikat_atau_cover)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="underline hover:text-blue-600"
+                                    className="underline hover:text-blue-600 dark:hover:text-blue-200"
                                 >
                                     Lihat file
                                 </a>
@@ -162,13 +165,13 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
-                        <div className="rounded-lg bg-white p-6 shadow-sm">
-                            <h2 className="mb-4 text-lg font-semibold text-gray-900">Informasi Umum</h2>
+                        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                            <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">Informasi Umum</h2>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label htmlFor="contract_id" className="block text-sm font-medium text-gray-700">
-                                        Kontrak Penelitian <span className="text-red-500">*</span>
+                                    <label htmlFor="contract_id" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        Kontrak Penelitian <span className="text-rose-500">*</span>
                                     </label>
                                     <Select
                                         value={data.contract_id ? String(data.contract_id) : ''}
@@ -177,7 +180,7 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                     >
                                         <SelectTrigger
                                             id="contract_id"
-                                            className={` ${errors.contract_id ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''} `}
+                                            className={`dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.contract_id ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500' : ''} `}
                                         >
                                             <SelectValue placeholder="Pilih Kontrak" />
                                         </SelectTrigger>
@@ -192,17 +195,17 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.contract_id && <p className="mt-1 text-sm text-red-600">{errors.contract_id}</p>}
+                                    {errors.contract_id && <p className="mt-1 text-sm text-rose-600">{errors.contract_id}</p>}
                                 </div>
 
                                 <div>
-                                    <label htmlFor="jenis_luaran" className="block text-sm font-medium text-gray-700">
-                                        Jenis Luaran <span className="text-red-500">*</span>
+                                    <label htmlFor="jenis_luaran" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        Jenis Luaran <span className="text-rose-500">*</span>
                                     </label>
                                     <Select value={data.jenis_luaran} onValueChange={handleOutputTypeChange} disabled={processing}>
                                         <SelectTrigger
                                             id="jenis_luaran"
-                                            className={` ${errors.jenis_luaran ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''} `}
+                                            className={`dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.jenis_luaran ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500' : ''} `}
                                         >
                                             <SelectValue placeholder="Pilih Jenis Luaran" />
                                         </SelectTrigger>
@@ -217,12 +220,12 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.jenis_luaran && <p className="mt-1 text-sm text-red-600">{errors.jenis_luaran}</p>}
+                                    {errors.jenis_luaran && <p className="mt-1 text-sm text-rose-600">{errors.jenis_luaran}</p>}
                                 </div>
 
                                 <div>
-                                    <label htmlFor="judul_luaran" className="block text-sm font-medium text-gray-700">
-                                        Judul Luaran <span className="text-red-500">*</span>
+                                    <label htmlFor="judul_luaran" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        Judul Luaran <span className="text-rose-500">*</span>
                                     </label>
                                     <input
                                         type="text"
@@ -230,17 +233,17 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                         value={data.judul_luaran}
                                         onChange={(e) => setData('judul_luaran', e.target.value)}
                                         disabled={processing}
-                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 ${errors.judul_luaran ? 'border-red-300' : 'border-gray-300'} `}
+                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.judul_luaran ? 'border-rose-300' : 'border-slate-300'} `}
                                         placeholder="Masukkan judul luaran penelitian"
                                         maxLength={255}
                                     />
-                                    {errors.judul_luaran && <p className="mt-1 text-sm text-red-600">{errors.judul_luaran}</p>}
+                                    {errors.judul_luaran && <p className="mt-1 text-sm text-rose-600">{errors.judul_luaran}</p>}
                                 </div>
 
                                 <div className="grid gap-4 md:grid-cols-2">
                                     <div>
-                                        <label htmlFor="tahun_capaian" className="block text-sm font-medium text-gray-700">
-                                            Tahun Capaian <span className="text-red-500">*</span>
+                                        <label htmlFor="tahun_capaian" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                            Tahun Capaian <span className="text-rose-500">*</span>
                                         </label>
                                         <input
                                             type="number"
@@ -250,14 +253,17 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                             min={1900}
                                             max={new Date().getFullYear() + 1}
                                             disabled={processing}
-                                            className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 ${errors.tahun_capaian ? 'border-red-300' : 'border-gray-300'} `}
+                                            className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.tahun_capaian ? 'border-rose-300' : 'border-slate-300'} `}
                                         />
-                                        {errors.tahun_capaian && <p className="mt-1 text-sm text-red-600">{errors.tahun_capaian}</p>}
+                                        {errors.tahun_capaian && <p className="mt-1 text-sm text-rose-600">{errors.tahun_capaian}</p>}
                                     </div>
 
                                     <div>
-                                        <label htmlFor="penulis_atau_pencipta" className="block text-sm font-medium text-gray-700">
-                                            Penulis / Pencipta <span className="text-red-500">*</span>
+                                        <label
+                                            htmlFor="penulis_atau_pencipta"
+                                            className="block text-sm font-medium text-slate-700 dark:text-slate-300"
+                                        >
+                                            Penulis / Pencipta <span className="text-rose-500">*</span>
                                         </label>
                                         <input
                                             type="text"
@@ -265,16 +271,16 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                             value={data.penulis_atau_pencipta}
                                             onChange={(e) => setData('penulis_atau_pencipta', e.target.value)}
                                             disabled={processing}
-                                            className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 ${errors.penulis_atau_pencipta ? 'border-red-300' : 'border-gray-300'} `}
+                                            className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.penulis_atau_pencipta ? 'border-rose-300' : 'border-slate-300'} `}
                                             placeholder="Nama penulis/pencipta (pisahkan dengan koma jika lebih dari satu)"
                                             maxLength={255}
                                         />
-                                        {errors.penulis_atau_pencipta && <p className="mt-1 text-sm text-red-600">{errors.penulis_atau_pencipta}</p>}
+                                        {errors.penulis_atau_pencipta && <p className="mt-1 text-sm text-rose-600">{errors.penulis_atau_pencipta}</p>}
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label htmlFor="tautan_publikasi" className="block text-sm font-medium text-gray-700">
+                                    <label htmlFor="tautan_publikasi" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                                         Tautan Publikasi
                                     </label>
                                     <input
@@ -283,18 +289,18 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                         value={data.tautan_publikasi}
                                         onChange={(e) => setData('tautan_publikasi', e.target.value)}
                                         disabled={processing}
-                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 ${errors.tautan_publikasi ? 'border-red-300' : 'border-gray-300'} `}
+                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.tautan_publikasi ? 'border-rose-300' : 'border-slate-300'} `}
                                         placeholder="https://example.com/publikasi"
                                         maxLength={255}
                                     />
-                                    {errors.tautan_publikasi && <p className="mt-1 text-sm text-red-600">{errors.tautan_publikasi}</p>}
+                                    {errors.tautan_publikasi && <p className="mt-1 text-sm text-rose-600">{errors.tautan_publikasi}</p>}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="rounded-lg bg-white p-6 shadow-sm">
-                            <label className="block text-sm font-medium text-gray-700">
-                                File Sertifikat / Cover <span className="text-gray-500">(opsional)</span>
+                        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                File Sertifikat / Cover <span className="text-slate-500 dark:text-slate-400">(opsional)</span>
                             </label>
                             <input
                                 type="file"
@@ -302,10 +308,10 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                 onChange={handleFileChange}
                                 disabled={processing}
                                 accept=".pdf,.jpg,.jpeg,.png"
-                                className={`mt-1 block w-full text-sm ${errors.file_sertifikat_atau_cover ? 'text-red-600' : 'text-gray-700'} `}
+                                className={`mt-1 block w-full text-sm dark:text-slate-300 ${errors.file_sertifikat_atau_cover ? 'text-rose-600' : 'text-slate-700'} `}
                             />
-                            {errors.file_sertifikat_atau_cover && <p className="mt-1 text-sm text-red-600">{errors.file_sertifikat_atau_cover}</p>}
-                            <p className="mt-1 text-xs text-gray-500">Format: PDF, JPG, PNG. Maksimal 10MB.</p>
+                            {errors.file_sertifikat_atau_cover && <p className="mt-1 text-sm text-rose-600">{errors.file_sertifikat_atau_cover}</p>}
+                            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Format: PDF, JPG, PNG. Maksimal 10MB.</p>
                         </div>
 
                         <OutputFormFields
@@ -316,13 +322,13 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                             disabled={processing}
                         />
 
-                        <div className="rounded-lg bg-white p-6 shadow-sm">
-                            <h2 className="mb-4 text-lg font-semibold text-gray-900">Status & Keterangan</h2>
+                        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                            <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-100">Status & Keterangan</h2>
 
                             <div className="space-y-4">
                                 <div>
-                                    <label htmlFor="status_verifikasi" className="block text-sm font-medium text-gray-700">
-                                        Status Verifikasi <span className="text-red-500">*</span>
+                                    <label htmlFor="status_verifikasi" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                        Status Verifikasi <span className="text-rose-500">*</span>
                                     </label>
                                     <Select
                                         value={data.status_verifikasi}
@@ -331,7 +337,7 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                     >
                                         <SelectTrigger
                                             id="status_verifikasi"
-                                            className={` ${errors.status_verifikasi ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : ''} `}
+                                            className={`dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.status_verifikasi ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500' : ''} `}
                                         >
                                             <SelectValue placeholder="Pilih Status" />
                                         </SelectTrigger>
@@ -343,11 +349,11 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                             ))}
                                         </SelectContent>
                                     </Select>
-                                    {errors.status_verifikasi && <p className="mt-1 text-sm text-red-600">{errors.status_verifikasi}</p>}
+                                    {errors.status_verifikasi && <p className="mt-1 text-sm text-rose-600">{errors.status_verifikasi}</p>}
                                 </div>
 
                                 <div>
-                                    <label htmlFor="keterangan" className="block text-sm font-medium text-gray-700">
+                                    <label htmlFor="keterangan" className="block text-sm font-medium text-slate-700 dark:text-slate-300">
                                         Keterangan
                                     </label>
                                     <textarea
@@ -356,10 +362,10 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                         onChange={(e) => setData('keterangan', e.target.value)}
                                         disabled={processing}
                                         rows={3}
-                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 ${errors.keterangan ? 'border-red-300' : 'border-gray-300'} `}
+                                        className={`mt-1 block w-full rounded-md border px-3 py-2 text-sm shadow-xs focus:border-blue-600 focus:ring-1 focus:ring-blue-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 ${errors.keterangan ? 'border-rose-300' : 'border-slate-300'} `}
                                         placeholder="Catatan tambahan..."
                                     />
-                                    {errors.keterangan && <p className="mt-1 text-sm text-red-600">{errors.keterangan}</p>}
+                                    {errors.keterangan && <p className="mt-1 text-sm text-rose-600">{errors.keterangan}</p>}
                                 </div>
                             </div>
                         </div>
@@ -369,14 +375,14 @@ export default function Edit({ outputs, contracts, kategoriOptions, statusOption
                                 type="button"
                                 onClick={handleCancel}
                                 disabled={processing}
-                                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                                className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 focus:ring-2 focus:ring-blue-600 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
                             >
                                 Batal
                             </button>
                             <button
                                 type="submit"
                                 disabled={processing}
-                                className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none disabled:opacity-50"
+                                className="rounded-md border border-transparent bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 focus:ring-2 focus:ring-blue-600 focus:outline-none disabled:opacity-50 dark:bg-blue-600 dark:hover:bg-blue-500"
                             >
                                 {processing ? 'Menyimpan...' : 'Simpan Perubahan'}
                             </button>

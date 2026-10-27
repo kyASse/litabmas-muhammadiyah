@@ -337,7 +337,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                 <PageHeader title={t.proposalWizard.pageTitle} subtitle={t.proposalWizard.pageSubtitle} isEditorialSerif={false} />
 
                 {/* 4-Step Stepper */}
-                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         {stepsList.map((step) => {
                             const isCurrent = currentStep === step.num;
@@ -351,19 +351,19 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                     onClick={() => isPast && setCurrentStep(step.num)}
                                     className={`flex items-start space-x-3 rounded-lg p-3 text-left transition-all ${
                                         isCurrent
-                                            ? 'border-2 border-blue-900 bg-blue-50/50 shadow-2xs'
+                                            ? 'border-2 border-blue-900 bg-blue-50/50 shadow-2xs dark:border-blue-600 dark:bg-blue-950/40'
                                             : isPast
-                                              ? 'cursor-pointer border border-slate-200 bg-slate-50/70 hover:bg-slate-100/70'
-                                              : 'cursor-not-allowed border border-dashed border-slate-200 bg-white opacity-60'
+                                              ? 'cursor-pointer border border-slate-200 bg-slate-50/70 hover:bg-slate-100/70 dark:border-slate-800 dark:bg-slate-800/40 dark:hover:bg-slate-800/70'
+                                              : 'cursor-not-allowed border border-dashed border-slate-200 bg-white opacity-60 dark:border-slate-800 dark:bg-slate-900/60'
                                     }`}
                                 >
                                     <div
                                         className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold transition-colors ${
                                             isPast
-                                                ? 'bg-emerald-600 text-white'
+                                                ? 'bg-emerald-600 text-white dark:bg-emerald-600'
                                                 : isCurrent
-                                                  ? 'bg-blue-900 text-white'
-                                                  : 'border border-slate-300 bg-white text-slate-500'
+                                                  ? 'bg-blue-900 text-white dark:bg-blue-600'
+                                                  : 'border border-slate-300 bg-white text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400'
                                         }`}
                                     >
                                         {isPast ? <Check className="h-4 w-4" /> : step.num}
@@ -372,15 +372,15 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                         <p
                                             className={`font-sans text-xs tracking-wider uppercase ${
                                                 isCurrent
-                                                    ? 'font-bold text-blue-950'
+                                                    ? 'font-bold text-blue-950 dark:text-blue-300'
                                                     : isPast
-                                                      ? 'font-semibold text-slate-800'
-                                                      : 'font-medium text-slate-500'
+                                                      ? 'font-semibold text-slate-800 dark:text-slate-200'
+                                                      : 'font-medium text-slate-500 dark:text-slate-400'
                                             }`}
                                         >
                                             {step.title}
                                         </p>
-                                        <p className="mt-0.5 truncate text-[11px] text-slate-500">{step.description}</p>
+                                        <p className="mt-0.5 truncate text-[11px] text-slate-500 dark:text-slate-400">{step.description}</p>
                                     </div>
                                 </button>
                             );
@@ -390,15 +390,17 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
 
                 {/* Step 1: Identitas Usulan & Skema Riset */}
                 {currentStep === 1 && (
-                    <Card className="border-slate-200 shadow-sm">
-                        <CardHeader className="border-b border-slate-100 bg-slate-50/50">
-                            <CardTitle className="font-serif text-xl font-semibold text-slate-900">{t.proposalWizard.step1.title}</CardTitle>
-                            <CardDescription className="text-slate-600">{t.proposalWizard.step1.subtitle}</CardDescription>
+                    <Card className="border-slate-200 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <CardHeader className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/30">
+                            <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">
+                                {t.proposalWizard.step1.title}
+                            </CardTitle>
+                            <CardDescription className="text-slate-600 dark:text-slate-400">{t.proposalWizard.step1.subtitle}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6 pt-6">
                             {/* Skema Pendanaan */}
                             <div className="space-y-2">
-                                <Label htmlFor="id_skema_pendanaan" className="font-semibold text-slate-800">
+                                <Label htmlFor="id_skema_pendanaan" className="font-semibold text-slate-800 dark:text-slate-200">
                                     {t.proposalWizard.step1.schemaLabel} <span className="text-rose-600">*</span>
                                 </Label>
                                 <Select
@@ -418,8 +420,8 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                         id="id_skema_pendanaan"
                                         className={
                                             stepErrors.id_skema_pendanaan || errors.id_skema_pendanaan
-                                                ? 'border-rose-500 bg-rose-50/20'
-                                                : 'border-slate-300'
+                                                ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
+                                                : 'border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100'
                                         }
                                     >
                                         <SelectValue placeholder={t.proposalWizard.step1.schemaPlaceholder} />
@@ -444,11 +446,13 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
 
                                 {/* Selected Schema Overview Banner */}
                                 {selectedSchema && (
-                                    <div className="mt-2.5 rounded-lg border border-blue-200 bg-blue-50/60 p-3.5 text-xs text-slate-700">
+                                    <div className="mt-2.5 rounded-lg border border-blue-200 bg-blue-50/60 p-3.5 text-xs text-slate-700 dark:border-blue-900/50 dark:bg-blue-950/30 dark:text-slate-300">
                                         <div className="flex flex-wrap items-center justify-between gap-2">
                                             <div className="flex items-center space-x-2">
-                                                <Coins className="h-4 w-4 text-blue-900" />
-                                                <span className="font-medium text-slate-600">{t.proposalWizard.step1.schemaMaxBudget}</span>
+                                                <Coins className="h-4 w-4 text-blue-900 dark:text-blue-400" />
+                                                <span className="font-medium text-slate-600 dark:text-slate-400">
+                                                    {t.proposalWizard.step1.schemaMaxBudget}
+                                                </span>
                                                 <TabularFigure
                                                     value={selectedSchema.biaya_maksimal ?? selectedSchema.max_funding}
                                                     type="currency"
@@ -457,14 +461,18 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                             </div>
                                             {selectedSchema.tanggal_selesai && (
                                                 <div className="flex items-center space-x-2">
-                                                    <Calendar className="h-4 w-4 text-blue-900" />
-                                                    <span className="font-medium text-slate-600">{t.proposalWizard.step1.schemaDeadline}</span>
-                                                    <span className="font-mono font-medium text-slate-900">{selectedSchema.tanggal_selesai}</span>
+                                                    <Calendar className="h-4 w-4 text-blue-900 dark:text-blue-400" />
+                                                    <span className="font-medium text-slate-600 dark:text-slate-400">
+                                                        {t.proposalWizard.step1.schemaDeadline}
+                                                    </span>
+                                                    <span className="font-mono font-medium text-slate-900 dark:text-slate-100">
+                                                        {selectedSchema.tanggal_selesai}
+                                                    </span>
                                                 </div>
                                             )}
                                         </div>
                                         {(selectedSchema.deskripsi || selectedSchema.description) && (
-                                            <p className="mt-2 border-t border-blue-100 pt-2 text-slate-600">
+                                            <p className="mt-2 border-t border-blue-100 pt-2 text-slate-600 dark:border-blue-900/50 dark:text-slate-400">
                                                 {selectedSchema.deskripsi || selectedSchema.description}
                                             </p>
                                         )}
@@ -475,10 +483,10 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                             {/* Judul Penelitian */}
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="judul_penelitian" className="font-semibold text-slate-800">
+                                    <Label htmlFor="judul_penelitian" className="font-semibold text-slate-800 dark:text-slate-200">
                                         {t.proposalWizard.step1.researchTitleLabel} <span className="text-rose-600">*</span>
                                     </Label>
-                                    <span className="font-mono text-xs text-slate-500">
+                                    <span className="font-mono text-xs text-slate-500 dark:text-slate-400">
                                         {format(t.proposalWizard.step1.titleCharCount, {
                                             count: data.judul_penelitian.length,
                                         })}
@@ -499,8 +507,10 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                             });
                                         }
                                     }}
-                                    className={`font-serif text-base ${
-                                        stepErrors.judul_penelitian || errors.judul_penelitian ? 'border-rose-500 bg-rose-50/20' : 'border-slate-300'
+                                    className={`font-serif text-base dark:bg-slate-950 dark:text-slate-100 ${
+                                        stepErrors.judul_penelitian || errors.judul_penelitian
+                                            ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
+                                            : 'border-slate-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {(stepErrors.judul_penelitian || errors.judul_penelitian) && (
@@ -511,11 +521,11 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                             {/* Abstrak */}
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="abstrak" className="font-semibold text-slate-800">
+                                    <Label htmlFor="abstrak" className="font-semibold text-slate-800 dark:text-slate-200">
                                         {t.proposalWizard.step1.abstractLabel} <span className="text-rose-600">*</span>
                                     </Label>
                                     <span
-                                        className={`font-mono text-xs ${data.abstrak.length < 100 ? 'font-bold text-amber-600' : 'text-slate-500'}`}
+                                        className={`font-mono text-xs ${data.abstrak.length < 100 ? 'font-bold text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'}`}
                                     >
                                         {format(t.proposalWizard.step1.abstractCharCount, {
                                             count: data.abstrak.length,
@@ -537,8 +547,10 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                             });
                                         }
                                     }}
-                                    className={`leading-relaxed ${
-                                        stepErrors.abstrak || errors.abstrak ? 'border-rose-500 bg-rose-50/20' : 'border-slate-300'
+                                    className={`leading-relaxed dark:bg-slate-950 dark:text-slate-100 ${
+                                        stepErrors.abstrak || errors.abstrak
+                                            ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
+                                            : 'border-slate-300 dark:border-slate-700'
                                     }`}
                                 />
                                 {(stepErrors.abstrak || errors.abstrak) && (
@@ -549,10 +561,10 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                             {/* Latar Belakang Narrative */}
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between">
-                                    <Label htmlFor="latar_belakang" className="font-semibold text-slate-800">
+                                    <Label htmlFor="latar_belakang" className="font-semibold text-slate-800 dark:text-slate-200">
                                         {t.proposalWizard.step1.backgroundLabel}
                                     </Label>
-                                    <span className="text-xs text-slate-500">{t.proposalWizard.step1.backgroundHelp}</span>
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">{t.proposalWizard.step1.backgroundHelp}</span>
                                 </div>
                                 <Textarea
                                     id="latar_belakang"
@@ -560,7 +572,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                     placeholder={t.proposalWizard.step1.backgroundPlaceholder}
                                     value={data.latar_belakang}
                                     onChange={(e) => setData('latar_belakang', e.target.value)}
-                                    className="border-slate-300"
+                                    className="border-slate-300 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                 />
                             </div>
                         </CardContent>
@@ -569,18 +581,22 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
 
                 {/* Step 2: Tim Dosen Peneliti */}
                 {currentStep === 2 && (
-                    <Card className="border-slate-200 shadow-sm">
-                        <CardHeader className="border-b border-slate-100 bg-slate-50/50">
+                    <Card className="border-slate-200 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <CardHeader className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/30">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <CardTitle className="font-serif text-xl font-semibold text-slate-900">{t.proposalWizard.step2.title}</CardTitle>
-                                    <CardDescription className="text-slate-600">{t.proposalWizard.step2.subtitle}</CardDescription>
+                                    <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">
+                                        {t.proposalWizard.step2.title}
+                                    </CardTitle>
+                                    <CardDescription className="text-slate-600 dark:text-slate-400">
+                                        {t.proposalWizard.step2.subtitle}
+                                    </CardDescription>
                                 </div>
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={handleAddMember}
-                                    className="border-blue-900 font-sans text-xs font-semibold text-blue-900 hover:bg-blue-50"
+                                    className="border-blue-900 font-sans text-xs font-semibold text-blue-900 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-950/40"
                                 >
                                     <Plus className="mr-1.5 h-3.5 w-3.5" />
                                     {t.proposalWizard.step2.addMemberBtn}
@@ -589,15 +605,15 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                         </CardHeader>
                         <CardContent className="space-y-4 pt-6">
                             {/* CoI Guard notice banner */}
-                            <div className="flex items-start space-x-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
-                                <ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-700" />
+                            <div className="flex items-start space-x-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-400">
+                                <ShieldCheck className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-700 dark:text-emerald-400" />
                                 <p>{t.proposalWizard.step2.coiNotice}</p>
                             </div>
 
                             {/* Members Table */}
-                            <div className="overflow-x-auto rounded-lg border border-slate-200">
+                            <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
                                 <table className="w-full text-left text-xs">
-                                    <thead className="bg-slate-100/70 font-mono tracking-wider text-slate-700 uppercase">
+                                    <thead className="bg-slate-100/70 font-mono tracking-wider text-slate-700 uppercase dark:bg-slate-800/70 dark:text-slate-300">
                                         <tr>
                                             <th className="w-12 px-3.5 py-2.5 text-center">{t.proposalWizard.step2.tableNo}</th>
                                             <th className="px-3.5 py-2.5">{t.proposalWizard.step2.tableName}</th>
@@ -607,27 +623,27 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                             <th className="w-20 px-3.5 py-2.5 text-center">{t.proposalWizard.step2.tableActions}</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-200 bg-white">
+                                    <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
                                         {/* Fixed Principal Investigator (Lead) Row */}
-                                        <tr className="bg-blue-50/30">
-                                            <td className="px-3.5 py-3 text-center font-mono font-bold text-slate-700">1</td>
+                                        <tr className="bg-blue-50/30 dark:bg-blue-950/20">
+                                            <td className="px-3.5 py-3 text-center font-mono font-bold text-slate-700 dark:text-slate-300">1</td>
                                             <td className="px-3.5 py-3">
-                                                <div className="flex items-center gap-1.5 font-semibold text-slate-900">
-                                                    <UserCheck className="h-3.5 w-3.5 text-blue-900" />
+                                                <div className="flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-100">
+                                                    <UserCheck className="h-3.5 w-3.5 text-blue-900 dark:text-blue-400" />
                                                     <span>{currentUser?.name || 'Ketua Pengusul'}</span>
                                                 </div>
-                                                <span className="font-mono text-[11px] text-slate-500">{currentUser?.email}</span>
+                                                <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">{currentUser?.email}</span>
                                             </td>
-                                            <td className="px-3.5 py-3 font-mono text-slate-600">
+                                            <td className="px-3.5 py-3 font-mono text-slate-600 dark:text-slate-400">
                                                 {(currentUser as any)?.nidn || (currentUser as any)?.study_program || '-'}
                                             </td>
-                                            <td className="px-3.5 py-3 font-medium text-slate-800">
-                                                <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-blue-900">
+                                            <td className="px-3.5 py-3 font-medium text-slate-800 dark:text-slate-200">
+                                                <span className="inline-flex items-center rounded bg-blue-100 px-2 py-0.5 font-mono text-[11px] font-semibold text-blue-900 dark:bg-blue-950 dark:text-blue-300">
                                                     {t.proposalWizard.step2.leaderFixedBadge}
                                                 </span>
                                             </td>
-                                            <td className="px-3.5 py-3 text-center font-mono text-slate-700">20</td>
-                                            <td className="px-3.5 py-3 text-center font-mono text-[11px] text-slate-400">-</td>
+                                            <td className="px-3.5 py-3 text-center font-mono text-slate-700 dark:text-slate-300">20</td>
+                                            <td className="px-3.5 py-3 text-center font-mono text-[11px] text-slate-400 dark:text-slate-500">-</td>
                                         </tr>
 
                                         {/* Co-Researchers Dynamic Rows */}
@@ -636,16 +652,20 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                             const hoursError = stepErrors[`member_${index}_hours`];
 
                                             return (
-                                                <tr key={index} className="hover:bg-slate-50/50">
-                                                    <td className="px-3.5 py-3 text-center font-mono text-slate-600">{index + 2}</td>
+                                                <tr key={index} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                                                    <td className="px-3.5 py-3 text-center font-mono text-slate-600 dark:text-slate-400">
+                                                        {index + 2}
+                                                    </td>
                                                     <td className="px-3.5 py-3" colSpan={2}>
                                                         <Select
                                                             value={member.user_id ? String(member.user_id) : ''}
                                                             onValueChange={(val) => handleUpdateMember(index, 'user_id', Number(val))}
                                                         >
                                                             <SelectTrigger
-                                                                className={`h-8 text-xs ${
-                                                                    userError ? 'border-rose-500 bg-rose-50/20' : 'border-slate-300'
+                                                                className={`h-8 text-xs dark:bg-slate-950 dark:text-slate-100 ${
+                                                                    userError
+                                                                        ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
+                                                                        : 'border-slate-300 dark:border-slate-700'
                                                                 }`}
                                                             >
                                                                 <SelectValue placeholder={t.proposalWizard.step2.selectMemberPrompt} />
@@ -671,7 +691,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                     </td>
                                                     <td className="px-3.5 py-3">
                                                         <Select value={member.peran} onValueChange={(val) => handleUpdateMember(index, 'peran', val)}>
-                                                            <SelectTrigger className="h-8 border-slate-300 text-xs">
+                                                            <SelectTrigger className="h-8 border-slate-300 text-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -694,8 +714,8 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                             max={60}
                                                             value={member.alokasi_jam_per_minggu}
                                                             onChange={(e) => handleUpdateMember(index, 'alokasi_jam_per_minggu', e.target.value)}
-                                                            className={`mx-auto h-8 w-20 text-center font-mono text-xs ${
-                                                                hoursError ? 'border-rose-500' : 'border-slate-300'
+                                                            className={`mx-auto h-8 w-20 text-center font-mono text-xs dark:bg-slate-950 dark:text-slate-100 ${
+                                                                hoursError ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700'
                                                             }`}
                                                         />
                                                     </td>
@@ -703,7 +723,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                         <button
                                                             type="button"
                                                             onClick={() => handleRemoveMember(index)}
-                                                            className="text-slate-400 transition-colors hover:text-rose-600"
+                                                            className="text-slate-400 transition-colors hover:text-rose-600 dark:text-slate-500 dark:hover:text-rose-400"
                                                             title={t.proposalWizard.step2.removeMemberTooltip}
                                                         >
                                                             <Trash2 className="mx-auto h-4 w-4" />
@@ -721,18 +741,22 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
 
                 {/* Step 3: Rencana Anggaran Biaya (RAB) Tabular */}
                 {currentStep === 3 && (
-                    <Card className="border-slate-200 shadow-sm">
-                        <CardHeader className="border-b border-slate-100 bg-slate-50/50">
+                    <Card className="border-slate-200 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <CardHeader className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/30">
                             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <CardTitle className="font-serif text-xl font-semibold text-slate-900">{t.proposalWizard.step3.title}</CardTitle>
-                                    <CardDescription className="text-slate-600">{t.proposalWizard.step3.subtitle}</CardDescription>
+                                    <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">
+                                        {t.proposalWizard.step3.title}
+                                    </CardTitle>
+                                    <CardDescription className="text-slate-600 dark:text-slate-400">
+                                        {t.proposalWizard.step3.subtitle}
+                                    </CardDescription>
                                 </div>
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={handleAddRabItem}
-                                    className="border-blue-900 font-sans text-xs font-semibold text-blue-900 hover:bg-blue-50"
+                                    className="border-blue-900 font-sans text-xs font-semibold text-blue-900 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-950/40"
                                 >
                                     <Plus className="mr-1.5 h-3.5 w-3.5" />
                                     {t.proposalWizard.step3.addItemBtn}
@@ -742,8 +766,8 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                         <CardContent className="space-y-4 pt-6">
                             {/* Pagu validation banner */}
                             {isPaguExceeded ? (
-                                <div className="flex items-start space-x-2.5 rounded-lg border border-rose-300 bg-rose-50 p-3.5 text-xs text-rose-800">
-                                    <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-rose-600" />
+                                <div className="flex items-start space-x-2.5 rounded-lg border border-rose-300 bg-rose-50 p-3.5 text-xs text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
+                                    <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-rose-600 dark:text-rose-400" />
                                     <div>
                                         <p className="font-bold">
                                             {format(t.proposalWizard.step3.paguExceededWarning, {
@@ -752,7 +776,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                 ),
                                             })}
                                         </p>
-                                        <p className="mt-0.5 text-rose-700">
+                                        <p className="mt-0.5 text-rose-700 dark:text-rose-300">
                                             {t.proposalWizard.step3.schemaPaguLabel}{' '}
                                             <TabularFigure value={schemaMaxBudget} type="currency" weight="bold" />
                                         </p>
@@ -761,10 +785,10 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                             ) : (
                                 selectedSchema &&
                                 schemaMaxBudget > 0 && (
-                                    <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 text-xs text-emerald-800">
+                                    <div className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50/50 p-3 text-xs text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-300">
                                         <span className="font-mono font-medium">{t.proposalWizard.step3.paguValidNotice}</span>
                                         <div className="flex items-center space-x-2">
-                                            <span className="text-slate-600">{t.proposalWizard.step3.schemaPaguLabel}</span>
+                                            <span className="text-slate-600 dark:text-slate-400">{t.proposalWizard.step3.schemaPaguLabel}</span>
                                             <TabularFigure value={schemaMaxBudget} type="currency" weight="bold" />
                                         </div>
                                     </div>
@@ -772,9 +796,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                             )}
 
                             {/* RAB Items Table */}
-                            <div className="overflow-x-auto rounded-lg border border-slate-200">
+                            <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-800">
                                 <table className="w-full text-left text-xs">
-                                    <thead className="bg-slate-100/70 font-mono tracking-wider text-slate-700 uppercase">
+                                    <thead className="bg-slate-100/70 font-mono tracking-wider text-slate-700 uppercase dark:bg-slate-800/70 dark:text-slate-300">
                                         <tr>
                                             <th className="w-48 px-3.5 py-2.5">{t.proposalWizard.step3.colCategory}</th>
                                             <th className="px-3.5 py-2.5">{t.proposalWizard.step3.colDescription}</th>
@@ -784,21 +808,21 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                             <th className="w-16 px-3.5 py-2.5 text-center">{t.proposalWizard.step3.colAction}</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-slate-200 bg-white">
+                                    <tbody className="divide-y divide-slate-200 bg-white dark:divide-slate-800 dark:bg-slate-900">
                                         {rabItems.map((item, index) => {
                                             const lineTotal = (item.volume || 0) * (item.biaya_satuan || 0);
                                             const descError = stepErrors[`rab_${index}_desc`];
                                             const costError = stepErrors[`rab_${index}_cost`];
 
                                             return (
-                                                <tr key={item.id} className="hover:bg-slate-50/50">
+                                                <tr key={item.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
                                                     {/* Kategori */}
                                                     <td className="px-3.5 py-2.5 align-top">
                                                         <Select
                                                             value={item.kategori}
                                                             onValueChange={(val) => handleUpdateRabItem(index, 'kategori', val)}
                                                         >
-                                                            <SelectTrigger className="h-8 border-slate-300 text-xs">
+                                                            <SelectTrigger className="h-8 border-slate-300 text-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
                                                                 <SelectValue />
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -824,8 +848,10 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                             placeholder={t.proposalWizard.step3.descPlaceholder}
                                                             value={item.deskripsi}
                                                             onChange={(e) => handleUpdateRabItem(index, 'deskripsi', e.target.value)}
-                                                            className={`h-8 text-xs ${
-                                                                descError ? 'border-rose-500 bg-rose-50/20' : 'border-slate-300'
+                                                            className={`h-8 text-xs dark:bg-slate-950 dark:text-slate-100 ${
+                                                                descError
+                                                                    ? 'border-rose-500 bg-rose-50/20 dark:bg-rose-950/20'
+                                                                    : 'border-slate-300 dark:border-slate-700'
                                                             }`}
                                                         />
                                                         {descError && <p className="mt-1 text-[11px] font-medium text-rose-600">{descError}</p>}
@@ -838,7 +864,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                             min={1}
                                                             value={item.volume}
                                                             onChange={(e) => handleUpdateRabItem(index, 'volume', e.target.value)}
-                                                            className="mx-auto h-8 w-20 border-slate-300 text-center font-mono text-xs"
+                                                            className="mx-auto h-8 w-20 border-slate-300 text-center font-mono text-xs dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                                         />
                                                     </td>
 
@@ -850,8 +876,8 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                             step={1000}
                                                             value={item.biaya_satuan}
                                                             onChange={(e) => handleUpdateRabItem(index, 'biaya_satuan', e.target.value)}
-                                                            className={`ml-auto h-8 w-36 text-right font-mono text-xs ${
-                                                                costError ? 'border-rose-500' : 'border-slate-300'
+                                                            className={`ml-auto h-8 w-36 text-right font-mono text-xs dark:bg-slate-950 dark:text-slate-100 ${
+                                                                costError ? 'border-rose-500' : 'border-slate-300 dark:border-slate-700'
                                                             }`}
                                                         />
                                                         {costError && <p className="mt-1 text-[11px] font-medium text-rose-600">{costError}</p>}
@@ -868,7 +894,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                             type="button"
                                                             disabled={rabItems.length <= 1}
                                                             onClick={() => handleRemoveRabItem(index)}
-                                                            className="text-slate-400 transition-colors hover:text-rose-600 disabled:opacity-30 disabled:hover:text-slate-400"
+                                                            className="text-slate-400 transition-colors hover:text-rose-600 disabled:opacity-30 disabled:hover:text-slate-400 dark:text-slate-500 dark:hover:text-rose-400"
                                                             title={t.proposalWizard.step3.removeItem}
                                                         >
                                                             <Trash2 className="mx-auto h-4 w-4" />
@@ -879,9 +905,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                         })}
                                     </tbody>
                                     {/* Grand Total Footer */}
-                                    <tfoot className="border-t-2 border-slate-300 bg-slate-50 font-sans">
+                                    <tfoot className="border-t-2 border-slate-300 bg-slate-50 font-sans dark:border-slate-700 dark:bg-slate-800/50">
                                         <tr>
-                                            <td colSpan={4} className="px-3.5 py-3 text-right font-bold text-slate-800">
+                                            <td colSpan={4} className="px-3.5 py-3 text-right font-bold text-slate-800 dark:text-slate-200">
                                                 {t.proposalWizard.step3.grandTotalLabel}
                                             </td>
                                             <td className="px-3.5 py-3 text-right">
@@ -890,7 +916,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                     type="currency"
                                                     size="lg"
                                                     weight="bold"
-                                                    className={isPaguExceeded ? 'text-rose-700' : 'text-blue-950'}
+                                                    className={
+                                                        isPaguExceeded ? 'text-rose-700 dark:text-rose-400' : 'text-blue-950 dark:text-blue-300'
+                                                    }
                                                 />
                                             </td>
                                             <td />
@@ -904,37 +932,47 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
 
                 {/* Step 4: Berkas Proposal & Final Submission */}
                 {currentStep === 4 && (
-                    <Card className="border-slate-200 shadow-sm">
-                        <CardHeader className="border-b border-slate-100 bg-slate-50/50">
-                            <CardTitle className="font-serif text-xl font-semibold text-slate-900">{t.proposalWizard.step4.title}</CardTitle>
-                            <CardDescription className="text-slate-600">{t.proposalWizard.step4.subtitle}</CardDescription>
+                    <Card className="border-slate-200 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                        <CardHeader className="border-b border-slate-100 bg-slate-50/50 dark:border-slate-800 dark:bg-slate-800/30">
+                            <CardTitle className="font-serif text-xl font-semibold text-slate-900 dark:text-slate-100">
+                                {t.proposalWizard.step4.title}
+                            </CardTitle>
+                            <CardDescription className="text-slate-600 dark:text-slate-400">{t.proposalWizard.step4.subtitle}</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-6 pt-6">
                             {/* Proposal Summary Card */}
-                            <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4">
-                                <h4 className="font-mono text-xs font-bold tracking-wider text-slate-700 uppercase">
+                            <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50/70 p-4 dark:border-slate-800 dark:bg-slate-800/40">
+                                <h4 className="font-mono text-xs font-bold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                     {t.proposalWizard.step4.summaryTitle}
                                 </h4>
                                 <div className="grid grid-cols-1 gap-4 text-xs md:grid-cols-2">
                                     <div>
-                                        <span className="font-medium text-slate-500">{t.proposalWizard.step4.summaryScheme}</span>
-                                        <p className="font-semibold text-slate-900">
+                                        <span className="font-medium text-slate-500 dark:text-slate-400">{t.proposalWizard.step4.summaryScheme}</span>
+                                        <p className="font-semibold text-slate-900 dark:text-slate-100">
                                             {selectedSchema ? selectedSchema.nama_skema || selectedSchema.name : '-'}
                                         </p>
                                     </div>
                                     <div>
-                                        <span className="font-medium text-slate-500">{t.proposalWizard.step4.summaryTotalBudget}</span>
+                                        <span className="font-medium text-slate-500 dark:text-slate-400">
+                                            {t.proposalWizard.step4.summaryTotalBudget}
+                                        </span>
                                         <div>
                                             <TabularFigure value={grandTotal} type="currency" weight="bold" size="base" />
                                         </div>
                                     </div>
                                     <div className="md:col-span-2">
-                                        <span className="font-medium text-slate-500">{t.proposalWizard.step4.summaryTitleLabel}</span>
-                                        <p className="font-serif text-sm font-semibold text-slate-900">{data.judul_penelitian || '-'}</p>
+                                        <span className="font-medium text-slate-500 dark:text-slate-400">
+                                            {t.proposalWizard.step4.summaryTitleLabel}
+                                        </span>
+                                        <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                            {data.judul_penelitian || '-'}
+                                        </p>
                                     </div>
                                     <div>
-                                        <span className="font-medium text-slate-500">{t.proposalWizard.step4.summaryTeamCount}</span>
-                                        <p className="font-mono font-semibold text-slate-900">
+                                        <span className="font-medium text-slate-500 dark:text-slate-400">
+                                            {t.proposalWizard.step4.summaryTeamCount}
+                                        </span>
+                                        <p className="font-mono font-semibold text-slate-900 dark:text-slate-100">
                                             {data.members.length + 1} {locale === 'en' ? 'Researchers' : 'Peneliti'}
                                         </p>
                                     </div>
@@ -966,7 +1004,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                             </div>
 
                             {/* Declaration of Integrity */}
-                            <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+                            <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
                                 <div className="flex items-start space-x-3">
                                     <Checkbox
                                         id="integrity"
@@ -981,16 +1019,18 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                                 });
                                             }
                                         }}
-                                        className="mt-0.5 border-slate-400 data-[state=checked]:border-blue-900 data-[state=checked]:bg-blue-900"
+                                        className="mt-0.5 border-slate-400 data-[state=checked]:border-blue-900 data-[state=checked]:bg-blue-900 dark:border-slate-600 dark:data-[state=checked]:border-blue-600 dark:data-[state=checked]:bg-blue-600"
                                     />
                                     <div className="space-y-1">
                                         <Label
                                             htmlFor="integrity"
-                                            className="cursor-pointer font-sans text-xs font-bold tracking-wider text-slate-900 uppercase"
+                                            className="cursor-pointer font-sans text-xs font-bold tracking-wider text-slate-900 uppercase dark:text-slate-100"
                                         >
                                             {t.proposalWizard.step4.integrityTitle}
                                         </Label>
-                                        <p className="text-xs leading-relaxed text-slate-600">{t.proposalWizard.step4.integrityStatement}</p>
+                                        <p className="text-xs leading-relaxed text-slate-600 dark:text-slate-400">
+                                            {t.proposalWizard.step4.integrityStatement}
+                                        </p>
                                     </div>
                                 </div>
                                 {stepErrors.integrity && <p className="ml-7 text-xs font-medium text-rose-600">{stepErrors.integrity}</p>}
@@ -1001,9 +1041,9 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
 
                 {/* Global form errors */}
                 {Object.keys(errors).length > 0 && (
-                    <div className="space-y-1 rounded-lg border border-rose-300 bg-rose-50 p-4 text-xs text-rose-800">
+                    <div className="space-y-1 rounded-lg border border-rose-300 bg-rose-50 p-4 text-xs text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300">
                         <p className="font-bold">{t.proposalWizard.nav.validationErrorTitle}</p>
-                        <ul className="list-inside list-disc space-y-0.5 text-rose-700">
+                        <ul className="list-inside list-disc space-y-0.5 text-rose-700 dark:text-rose-400">
                             {Object.entries(errors).map(([field, msg]) => (
                                 <li key={field}>{msg}</li>
                             ))}
@@ -1013,21 +1053,21 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
             </div>
 
             {/* Sticky Bottom Navigation Bar */}
-            <div className="fixed right-0 bottom-0 left-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur-md sm:px-8">
+            <div className="fixed right-0 bottom-0 left-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur-md sm:px-8 dark:border-slate-800 dark:bg-slate-950/95">
                 <div className="container mx-auto flex max-w-5xl flex-col items-center justify-between gap-3 sm:flex-row">
                     {/* Left: Draft Saved Indicator */}
-                    <div className="flex items-center space-x-2 font-mono text-xs text-slate-600">
+                    <div className="flex items-center space-x-2 font-mono text-xs text-slate-600 dark:text-slate-400">
                         {lastSavedTime ? (
-                            <span className="inline-flex items-center space-x-1.5 font-semibold text-emerald-700">
+                            <span className="inline-flex items-center space-x-1.5 font-semibold text-emerald-700 dark:text-emerald-400">
                                 <Check className="h-3.5 w-3.5" />
                                 <span>
                                     {t.proposalWizard.nav.draftSavedIndicator} ({format(t.proposalWizard.nav.autoSavedAt, { time: lastSavedTime })})
                                 </span>
                             </span>
                         ) : isDirty ? (
-                            <span className="font-mono font-medium text-amber-700">[PERUBAHAN BELUM DISIMPAN]</span>
+                            <span className="font-mono font-medium text-amber-700 dark:text-amber-400">[PERUBAHAN BELUM DISIMPAN]</span>
                         ) : (
-                            <span className="font-mono text-slate-400">{t.proposalWizard.nav.draftSavedIndicator}</span>
+                            <span className="font-mono text-slate-400 dark:text-slate-500">{t.proposalWizard.nav.draftSavedIndicator}</span>
                         )}
                     </div>
 
@@ -1039,7 +1079,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                             variant="outline"
                             disabled={processing}
                             onClick={() => handleSubmit('draft')}
-                            className="border-slate-300 font-sans text-xs text-slate-700 hover:bg-slate-100"
+                            className="border-slate-300 font-sans text-xs text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
                         >
                             <Save className="mr-1.5 h-3.5 w-3.5" />
                             {processing ? t.proposalWizard.nav.savingDraft : t.proposalWizard.nav.saveDraft}
@@ -1051,7 +1091,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                             variant="secondary"
                             disabled={currentStep === 1 || processing}
                             onClick={handlePrevStep}
-                            className="font-sans text-xs text-slate-700"
+                            className="font-sans text-xs text-slate-700 dark:text-slate-200"
                         >
                             <ChevronLeft className="mr-1 h-3.5 w-3.5" />
                             {t.proposalWizard.nav.prevStep}
@@ -1063,7 +1103,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                 type="button"
                                 onClick={handleNextStep}
                                 disabled={processing}
-                                className="bg-blue-900 font-sans text-xs text-white hover:bg-blue-800"
+                                className="bg-blue-900 font-sans text-xs text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
                             >
                                 {t.proposalWizard.nav.nextStep}
                                 <ChevronRight className="ml-1 h-3.5 w-3.5" />
@@ -1073,7 +1113,7 @@ export default function Wizard({ schemas = [], lecturers = [] }: WizardProps) {
                                 type="button"
                                 disabled={processing || !integrityAgreed || !data.file_dokumen_proposal}
                                 onClick={() => handleSubmit('submit')}
-                                className="bg-emerald-700 font-sans text-xs font-semibold text-white hover:bg-emerald-800"
+                                className="bg-emerald-700 font-sans text-xs font-semibold text-white hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500"
                             >
                                 <Send className="mr-1.5 h-3.5 w-3.5" />
                                 {processing ? t.proposalWizard.nav.submitting : t.proposalWizard.nav.submitProposal}

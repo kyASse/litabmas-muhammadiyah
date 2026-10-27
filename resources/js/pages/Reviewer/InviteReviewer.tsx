@@ -67,7 +67,7 @@ export default function InviteReviewer({ submission, candidates }: Props) {
                     <h2 className="mb-4 text-lg font-semibold">Rekomendasi Pakar</h2>
 
                     {!candidates || candidates.length === 0 ? (
-                        <div className="rounded-lg border border-slate-200 bg-slate-50 p-8 text-center">
+                        <div className="rounded-lg border border-slate-200 bg-slate-50 p-8 text-center dark:border-slate-800 dark:bg-slate-900">
                             <p className="text-muted-foreground">Tidak ada kandidat reviewer yang tersedia saat ini.</p>
                         </div>
                     ) : (

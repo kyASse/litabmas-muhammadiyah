@@ -26,7 +26,7 @@ interface Props {
 
 function ProgressBar({ percentage }: { percentage: number }) {
     return (
-        <div className="h-2 w-full rounded-full bg-slate-100">
+        <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800">
             <div className="h-2 rounded-full bg-primary" style={{ width: `${percentage}%` }} />
         </div>
     );
@@ -64,7 +64,7 @@ export default function EvaluationIndex({ pendingEvaluations }: Props) {
                         placeholder={t.reviewerEvaluation.searchPlaceholder}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full rounded-lg border border-border px-4 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
+                        className="w-full rounded-lg border border-border bg-background px-4 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
                     />
                 </div>
 
@@ -74,7 +74,7 @@ export default function EvaluationIndex({ pendingEvaluations }: Props) {
                 ) : (
                     <div className="overflow-x-auto rounded-lg border border-border">
                         <table className="w-full text-sm">
-                            <thead className="bg-slate-50 text-left text-muted-foreground">
+                            <thead className="bg-slate-50 text-left text-muted-foreground dark:bg-slate-950/60">
                                 <tr>
                                     <th className="px-4 py-3 font-semibold">{t.reviewerEvaluation.tableColTitle}</th>
                                     <th className="px-4 py-3 font-semibold">{t.reviewerEvaluation.tableColLecturer}</th>
@@ -84,7 +84,7 @@ export default function EvaluationIndex({ pendingEvaluations }: Props) {
                             </thead>
                             <tbody className="divide-y divide-border">
                                 {filtered.map((item) => (
-                                    <tr key={item.id_report} className="bg-white hover:bg-slate-50">
+                                    <tr key={item.id_report} className="bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800/50">
                                         <td className="px-4 py-3 font-medium text-foreground">{item.judul_penelitian}</td>
                                         <td className="px-4 py-3 text-muted-foreground">{item.nama_dosen}</td>
                                         <td className="w-48 px-4 py-3">

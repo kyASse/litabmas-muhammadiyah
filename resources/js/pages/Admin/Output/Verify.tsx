@@ -266,21 +266,23 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                 <PageHeader title={t.output.verifyTitle} subtitle={t.output.verifySubtitle} isEditorialSerif />
 
                 {/* Filter Toolbar */}
-                <div className="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+                <div className="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         {/* Status Filter */}
                         <div className="space-y-1">
-                            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase">{t.output.filterStatus}</Label>
+                            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                {t.output.filterStatus}
+                            </Label>
                             <Select
                                 value={statusFilter}
                                 onValueChange={(val) => {
                                     setStatusFilter(val);
                                 }}
                             >
-                                <SelectTrigger className="bg-white">
+                                <SelectTrigger className="border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                                     <SelectValue placeholder={t.output.allStatuses} />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="dark:border-slate-800 dark:bg-slate-900">
                                     <SelectItem value="all">{t.output.allStatuses}</SelectItem>
                                     <SelectItem value="Submitted">{t.output.submitted}</SelectItem>
                                     <SelectItem value="Verified">{t.output.verified}</SelectItem>
@@ -291,17 +293,19 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
                         {/* Cluster Filter */}
                         <div className="space-y-1">
-                            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase">{t.output.filterCluster}</Label>
+                            <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                {t.output.filterCluster}
+                            </Label>
                             <Select
                                 value={clusterFilter}
                                 onValueChange={(val) => {
                                     setClusterFilter(val);
                                 }}
                             >
-                                <SelectTrigger className="bg-white">
+                                <SelectTrigger className="border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                                     <SelectValue placeholder={t.output.allClusters} />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="dark:border-slate-800 dark:bg-slate-900">
                                     <SelectItem value="all">{t.output.allClusters}</SelectItem>
                                     <SelectItem value="Journal">{t.output.journalShort}</SelectItem>
                                     <SelectItem value="Book">{t.output.bookShort}</SelectItem>
@@ -314,17 +318,19 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                         {/* University Filter (Super Admin) */}
                         {universities.length > 0 && (
                             <div className="space-y-1">
-                                <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase">{t.output.filterUniversity}</Label>
+                                <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                    {t.output.filterUniversity}
+                                </Label>
                                 <Select
                                     value={universityFilter}
                                     onValueChange={(val) => {
                                         setUniversityFilter(val);
                                     }}
                                 >
-                                    <SelectTrigger className="bg-white">
+                                    <SelectTrigger className="border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100">
                                         <SelectValue placeholder={t.output.allUniversities} />
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="dark:border-slate-800 dark:bg-slate-900">
                                         <SelectItem value="all">{t.output.allUniversities}</SelectItem>
                                         {universities.map((univ) => (
                                             <SelectItem key={univ.id} value={String(univ.id)}>
@@ -339,7 +345,11 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
                         {/* Filter Buttons */}
                         <div className="flex items-end gap-2">
-                            <Button type="button" onClick={handleApplyFilters} className="flex-1 bg-blue-900 text-white hover:bg-blue-800">
+                            <Button
+                                type="button"
+                                onClick={handleApplyFilters}
+                                className="flex-1 bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                            >
                                 <Filter className="mr-1.5 h-3.5 w-3.5" />
                                 {t.common.filter}
                             </Button>
@@ -347,7 +357,7 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                 type="button"
                                 variant="outline"
                                 onClick={handleResetFilters}
-                                className="border-slate-300 text-slate-700 hover:bg-slate-50"
+                                className="border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                                 title={t.common.reset}
                             >
                                 <RotateCcw className="h-4 w-4" />
@@ -357,10 +367,10 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                 </div>
 
                 {/* Output Verification Table */}
-                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs">
+                <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm text-slate-600">
-                            <thead className="border-b border-slate-200 bg-slate-50/75 text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                        <table className="w-full text-left text-sm text-slate-600 dark:text-slate-400">
+                            <thead className="border-b border-slate-200 bg-slate-50/75 text-xs font-semibold tracking-wider text-slate-700 uppercase dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300">
                                 <tr>
                                     <th scope="col" className="px-6 py-3.5">
                                         {t.output.proposal}
@@ -385,13 +395,15 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-200">
+                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
                                 {dataList.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
+                                        <td colSpan={7} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                                             <div className="mx-auto max-w-sm space-y-2">
-                                                <Layers className="mx-auto h-8 w-8 text-slate-400" />
-                                                <p className="font-serif text-sm font-semibold text-slate-800">{t.output.empty}</p>
+                                                <Layers className="mx-auto h-8 w-8 text-slate-400 dark:text-slate-600" />
+                                                <p className="font-serif text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                                    {t.output.empty}
+                                                </p>
                                             </div>
                                         </td>
                                     </tr>
@@ -405,21 +417,21 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                         const fileUrl = getFileUrl(filePath);
 
                                         return (
-                                            <tr key={output.id} className="transition-colors hover:bg-slate-50/50">
+                                            <tr key={output.id} className="transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
                                                 {/* Proposal & University */}
                                                 <td className="px-6 py-4">
                                                     <div className="max-w-xs space-y-0.5">
                                                         <div className="flex items-center gap-1.5">
                                                             {output.proposal?.university?.code && (
-                                                                <span className="py-0.2 rounded-sm bg-slate-100 px-1 font-mono text-[10px] font-bold text-slate-700">
+                                                                <span className="py-0.2 rounded-sm bg-slate-100 px-1 font-mono text-[10px] font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                                                                     [{output.proposal.university.code}]
                                                                 </span>
                                                             )}
-                                                            <span className="font-mono text-xs font-semibold text-slate-400">
+                                                            <span className="font-mono text-xs font-semibold text-slate-400 dark:text-slate-500">
                                                                 #{output.id_proposal}
                                                             </span>
                                                         </div>
-                                                        <p className="line-clamp-2 font-serif text-sm font-medium text-slate-900">
+                                                        <p className="line-clamp-2 font-serif text-sm font-medium text-slate-900 dark:text-slate-100">
                                                             {output.proposal?.judul ?? '-'}
                                                         </p>
                                                     </div>
@@ -427,31 +439,33 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
                                                 {/* Lecturer */}
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className="font-medium text-slate-800">{output.proposal?.pengusul?.name ?? '-'}</span>
+                                                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                                                        {output.proposal?.pengusul?.name ?? '-'}
+                                                    </span>
                                                 </td>
 
                                                 {/* Cluster Badge */}
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     {output.tipe_luaran === 'Journal' && (
-                                                        <span className="inline-flex items-center gap-1 rounded-md border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-800">
+                                                        <span className="inline-flex items-center gap-1 rounded-md border border-sky-200 bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-800 dark:border-sky-800/50 dark:bg-sky-950/40 dark:text-sky-300">
                                                             <BookOpen className="h-3.5 w-3.5" />
                                                             {t.output.journalShort}
                                                         </span>
                                                     )}
                                                     {output.tipe_luaran === 'Book' && (
-                                                        <span className="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-semibold text-purple-800">
+                                                        <span className="inline-flex items-center gap-1 rounded-md border border-purple-200 bg-purple-50 px-2.5 py-1 text-xs font-semibold text-purple-800 dark:border-purple-800/50 dark:bg-purple-950/40 dark:text-purple-300">
                                                             <BookMarked className="h-3.5 w-3.5" />
                                                             {t.output.bookShort}
                                                         </span>
                                                     )}
                                                     {output.tipe_luaran === 'Hki' && (
-                                                        <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800">
+                                                        <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:border-amber-800/50 dark:bg-amber-950/40 dark:text-amber-300">
                                                             <ShieldCheck className="h-3.5 w-3.5" />
                                                             {t.output.hkiShort}
                                                         </span>
                                                     )}
                                                     {output.tipe_luaran === 'Product' && (
-                                                        <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800">
+                                                        <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:border-emerald-800/50 dark:bg-emerald-950/40 dark:text-emerald-300">
                                                             <Box className="h-3.5 w-3.5" />
                                                             {t.output.productShort}
                                                         </span>
@@ -463,12 +477,14 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                                     <div className="max-w-md space-y-1">
                                                         {output.tipe_luaran === 'Journal' && journal && (
                                                             <>
-                                                                <p className="font-serif text-sm font-semibold text-slate-900">
+                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">
                                                                     {journal.judul_artikel}
                                                                 </p>
-                                                                <p className="text-xs text-slate-600">
+                                                                <p className="text-xs text-slate-600 dark:text-slate-400">
                                                                     {journal.nama_jurnal} |{' '}
-                                                                    <span className="font-medium text-slate-800">{journal.indeksasi}</span>
+                                                                    <span className="font-medium text-slate-800 dark:text-slate-200">
+                                                                        {journal.indeksasi}
+                                                                    </span>
                                                                 </p>
                                                                 {journal.doi_url && (
                                                                     <a
@@ -479,7 +495,7 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                                                         }
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
-                                                                        className="inline-flex items-center gap-1 font-mono text-xs text-blue-900 hover:underline"
+                                                                        className="inline-flex items-center gap-1 font-mono text-xs text-blue-900 hover:underline dark:text-blue-400"
                                                                     >
                                                                         <span className="font-semibold">DOI:</span> {journal.doi_url}
                                                                         <ExternalLink className="h-3 w-3" />
@@ -490,29 +506,38 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
                                                         {output.tipe_luaran === 'Book' && book && (
                                                             <>
-                                                                <p className="font-serif text-sm font-semibold text-slate-900">{book.judul_buku}</p>
-                                                                <p className="text-xs text-slate-600">
+                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                                                    {book.judul_buku}
+                                                                </p>
+                                                                <p className="text-xs text-slate-600 dark:text-slate-400">
                                                                     {book.penerbit} ({book.tahun_terbit})
                                                                 </p>
-                                                                <p className="font-mono text-xs text-slate-700">
-                                                                    <span className="font-semibold text-slate-500">ISBN:</span> {book.isbn}
+                                                                <p className="font-mono text-xs text-slate-700 dark:text-slate-300">
+                                                                    <span className="font-semibold text-slate-500 dark:text-slate-400">ISBN:</span>{' '}
+                                                                    {book.isbn}
                                                                 </p>
                                                             </>
                                                         )}
 
                                                         {output.tipe_luaran === 'Hki' && hki && (
                                                             <>
-                                                                <p className="font-serif text-sm font-semibold text-slate-900">{hki.judul_ciptaan}</p>
-                                                                <p className="text-xs text-slate-600">{hki.jenis_hki.replace(/_/g, ' ')}</p>
-                                                                <div className="flex flex-wrap gap-2 font-mono text-xs text-slate-700">
+                                                                <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">
+                                                                    {hki.judul_ciptaan}
+                                                                </p>
+                                                                <p className="text-xs text-slate-600 dark:text-slate-400">
+                                                                    {hki.jenis_hki.replace(/_/g, ' ')}
+                                                                </p>
+                                                                <div className="flex flex-wrap gap-2 font-mono text-xs text-slate-700 dark:text-slate-300">
                                                                     {hki.nomor_pendaftaran && (
                                                                         <span>
-                                                                            <span className="text-slate-500">Reg:</span> {hki.nomor_pendaftaran}
+                                                                            <span className="text-slate-500 dark:text-slate-400">Reg:</span>{' '}
+                                                                            {hki.nomor_pendaftaran}
                                                                         </span>
                                                                     )}
                                                                     {hki.nomor_sertifikat && (
                                                                         <span>
-                                                                            <span className="text-slate-500">Sert:</span> {hki.nomor_sertifikat}
+                                                                            <span className="text-slate-500 dark:text-slate-400">Sert:</span>{' '}
+                                                                            {hki.nomor_sertifikat}
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -522,19 +547,21 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                                         {output.tipe_luaran === 'Product' && product && (
                                                             <>
                                                                 <div className="flex items-center gap-2">
-                                                                    <p className="font-serif text-sm font-semibold text-slate-900">
+                                                                    <p className="font-serif text-sm font-semibold text-slate-900 dark:text-slate-100">
                                                                         {product.nama_produk}
                                                                     </p>
-                                                                    <span className="inline-flex rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-bold text-slate-800">
+                                                                    <span className="inline-flex rounded-sm bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-bold text-slate-800 dark:bg-slate-800 dark:text-slate-200">
                                                                         TKT {product.tingkat_kesiapan_teknologi}
                                                                     </span>
                                                                 </div>
-                                                                <p className="line-clamp-2 text-xs text-slate-600">{product.deskripsi_produk}</p>
+                                                                <p className="line-clamp-2 text-xs text-slate-600 dark:text-slate-400">
+                                                                    {product.deskripsi_produk}
+                                                                </p>
                                                             </>
                                                         )}
 
                                                         {output.catatan_verifikasi && (
-                                                            <div className="mt-1 rounded-md border border-slate-200 bg-slate-50 p-2 text-xs text-slate-700">
+                                                            <div className="mt-1 rounded-md border border-slate-200 bg-slate-50 p-2 text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-800/60 dark:text-slate-300">
                                                                 <span className="font-semibold">{t.output.verificationNotes}:</span>{' '}
                                                                 {output.catatan_verifikasi}
                                                             </div>
@@ -545,11 +572,11 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                                 {/* Target Status */}
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     {output.target_status === 'Wajib' ? (
-                                                        <span className="inline-flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800">
+                                                        <span className="inline-flex items-center gap-1 rounded-md border border-emerald-300 bg-emerald-50 px-2 py-0.5 text-xs font-bold text-emerald-800 dark:border-emerald-800/50 dark:bg-emerald-950/40 dark:text-emerald-300">
                                                             {t.output.mandatoryBadge}
                                                         </span>
                                                     ) : (
-                                                        <span className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-800">
+                                                        <span className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-800 dark:border-blue-800/50 dark:bg-blue-950/40 dark:text-blue-300">
                                                             {t.output.additionalBadge}
                                                         </span>
                                                     )}
@@ -569,7 +596,7 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                                                 variant="outline"
                                                                 size="sm"
                                                                 onClick={() => handleOpenPreview(output)}
-                                                                className="border-slate-200 text-slate-700 hover:bg-slate-50"
+                                                                className="border-slate-200 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                                                                 title={t.output.previewDoc}
                                                             >
                                                                 <Eye className="mr-1 h-3.5 w-3.5" />
@@ -581,7 +608,7 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                                             type="button"
                                                             size="sm"
                                                             onClick={() => openVerifyModal(output)}
-                                                            className="bg-blue-900 text-white hover:bg-blue-800"
+                                                            className="bg-blue-900 text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
                                                         >
                                                             <ShieldCheck className="mr-1 h-3.5 w-3.5" />
                                                             {t.output.verify}
@@ -598,7 +625,7 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
                     {/* Pagination */}
                     {outputs.last_page > 1 && (
-                        <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50/50 px-6 py-3 text-xs text-slate-500">
+                        <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50/50 px-6 py-3 text-xs text-slate-500 dark:border-slate-800 dark:bg-slate-800/40 dark:text-slate-400">
                             <div>
                                 <span>
                                     Page {outputs.current_page} of {outputs.last_page} ({outputs.total} total)
@@ -612,10 +639,10 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                         preserveScroll
                                         className={`rounded-md px-3 py-1 font-medium transition-colors ${
                                             link.active
-                                                ? 'bg-blue-900 text-white'
+                                                ? 'bg-blue-900 text-white dark:bg-blue-600'
                                                 : link.url
-                                                  ? 'text-slate-700 hover:bg-slate-200'
-                                                  : 'cursor-not-allowed text-slate-400'
+                                                  ? 'text-slate-700 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-700'
+                                                  : 'cursor-not-allowed text-slate-400 dark:text-slate-600'
                                         }`}
                                         dangerouslySetInnerHTML={{ __html: link.label }}
                                     />
@@ -628,16 +655,16 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
             {/* Document Preview Modal */}
             <Dialog open={Boolean(previewDocUrl)} onOpenChange={(open) => !open && setPreviewDocUrl(null)}>
-                <DialogContent className="max-h-[95vh] max-w-4xl p-4 sm:rounded-xl">
-                    <DialogHeader className="border-b border-slate-200 pb-3">
-                        <DialogTitle className="font-serif text-lg font-bold text-slate-900">{previewDocTitle}</DialogTitle>
-                        <DialogDescription className="text-xs text-slate-500">
+                <DialogContent className="max-h-[95vh] max-w-4xl p-4 sm:rounded-xl dark:border-slate-800 dark:bg-slate-900">
+                    <DialogHeader className="border-b border-slate-200 pb-3 dark:border-slate-800">
+                        <DialogTitle className="font-serif text-lg font-bold text-slate-900 dark:text-slate-100">{previewDocTitle}</DialogTitle>
+                        <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
                             {previewDocUrl && (
                                 <a
                                     href={previewDocUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center gap-1 text-blue-900 hover:underline"
+                                    className="inline-flex items-center gap-1 text-blue-900 hover:underline dark:text-blue-400"
                                 >
                                     <ExternalLink className="h-3 w-3" />
                                     {t.output.downloadPdf}
@@ -646,7 +673,7 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="h-[70vh] w-full overflow-hidden rounded-md border border-slate-200 bg-slate-100">
+                    <div className="h-[70vh] w-full overflow-hidden rounded-md border border-slate-200 bg-slate-100 dark:border-slate-800 dark:bg-slate-950">
                         {previewDocUrl && <iframe src={previewDocUrl} title={previewDocTitle} className="h-full w-full" />}
                     </div>
 
@@ -655,7 +682,7 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                             type="button"
                             variant="outline"
                             onClick={() => setPreviewDocUrl(null)}
-                            className="border-slate-300 text-slate-700 hover:bg-slate-50"
+                            className="border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                         >
                             {t.output.closePreview}
                         </Button>
@@ -665,27 +692,30 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
             {/* Verification Action Modal */}
             <Dialog open={Boolean(verifyingOutput)} onOpenChange={(open) => !open && setVerifyingOutput(null)}>
-                <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto bg-white p-6 shadow-xl sm:rounded-xl">
-                    <DialogHeader className="border-b border-slate-200 pb-3">
-                        <DialogTitle className="font-serif text-xl font-bold tracking-tight text-slate-900">{t.output.verifyModalTitle}</DialogTitle>
-                        <DialogDescription className="text-xs text-slate-600">{t.output.verifyModalDesc}</DialogDescription>
+                <DialogContent className="max-h-[90vh] max-w-xl overflow-y-auto bg-white p-6 shadow-xl sm:rounded-xl dark:border-slate-800 dark:bg-slate-900">
+                    <DialogHeader className="border-b border-slate-200 pb-3 dark:border-slate-800">
+                        <DialogTitle className="font-serif text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                            {t.output.verifyModalTitle}
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-slate-600 dark:text-slate-400">{t.output.verifyModalDesc}</DialogDescription>
                     </DialogHeader>
 
                     {verifyingOutput && (
                         <form onSubmit={handleVerifySubmit} className="space-y-5 pt-3">
                             {/* Summary Box */}
-                            <div className="space-y-1 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs">
-                                <p className="font-semibold text-slate-800">{verifyingOutput.proposal?.judul}</p>
-                                <p className="text-slate-600">
+                            <div className="space-y-1 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs dark:border-slate-800 dark:bg-slate-800/60">
+                                <p className="font-semibold text-slate-800 dark:text-slate-200">{verifyingOutput.proposal?.judul}</p>
+                                <p className="text-slate-600 dark:text-slate-400">
                                     {t.output.lecturer}:{' '}
-                                    <span className="font-medium text-slate-900">{verifyingOutput.proposal?.pengusul?.name}</span> •{' '}
-                                    {t.output.cluster}: <span className="font-semibold text-slate-900">{verifyingOutput.tipe_luaran}</span>
+                                    <span className="font-medium text-slate-900 dark:text-slate-100">{verifyingOutput.proposal?.pengusul?.name}</span>{' '}
+                                    • {t.output.cluster}:{' '}
+                                    <span className="font-semibold text-slate-900 dark:text-slate-100">{verifyingOutput.tipe_luaran}</span>
                                 </p>
                             </div>
 
                             {/* Decision Choice */}
                             <div className="space-y-2">
-                                <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                <Label className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
                                     {t.output.status} <span className="text-rose-600">*</span>
                                 </Label>
                                 <div className="grid grid-cols-2 gap-3">
@@ -697,16 +727,18 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                         }}
                                         className={`flex items-center justify-between rounded-lg border p-3.5 text-left transition-all ${
                                             data.status_verifikasi === 'Verified'
-                                                ? 'border-emerald-600 bg-emerald-50/50 shadow-xs ring-1 ring-emerald-600'
-                                                : 'border-slate-200 bg-white hover:border-slate-300'
+                                                ? 'border-emerald-600 bg-emerald-50/50 shadow-xs ring-1 ring-emerald-600 dark:border-emerald-500 dark:bg-emerald-950/40 dark:ring-emerald-500'
+                                                : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
                                         }`}
                                     >
                                         <div>
-                                            <span className="block text-sm font-bold text-emerald-900">{t.output.approveAction}</span>
-                                            <span className="text-xs text-emerald-700">{t.output.verified}</span>
+                                            <span className="block text-sm font-bold text-emerald-900 dark:text-emerald-300">
+                                                {t.output.approveAction}
+                                            </span>
+                                            <span className="text-xs text-emerald-700 dark:text-emerald-400">{t.output.verified}</span>
                                         </div>
                                         <CheckCircle2
-                                            className={`h-5 w-5 ${data.status_verifikasi === 'Verified' ? 'text-emerald-700' : 'text-slate-400'}`}
+                                            className={`h-5 w-5 ${data.status_verifikasi === 'Verified' ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-400 dark:text-slate-500'}`}
                                         />
                                     </button>
 
@@ -717,16 +749,16 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                         }}
                                         className={`flex items-center justify-between rounded-lg border p-3.5 text-left transition-all ${
                                             data.status_verifikasi === 'Rejected'
-                                                ? 'border-rose-600 bg-rose-50/50 shadow-xs ring-1 ring-rose-600'
-                                                : 'border-slate-200 bg-white hover:border-slate-300'
+                                                ? 'border-rose-600 bg-rose-50/50 shadow-xs ring-1 ring-rose-600 dark:border-rose-500 dark:bg-rose-950/40 dark:ring-rose-500'
+                                                : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600'
                                         }`}
                                     >
                                         <div>
-                                            <span className="block text-sm font-bold text-rose-900">{t.output.rejectAction}</span>
-                                            <span className="text-xs text-rose-700">{t.output.rejected}</span>
+                                            <span className="block text-sm font-bold text-rose-900 dark:text-rose-300">{t.output.rejectAction}</span>
+                                            <span className="text-xs text-rose-700 dark:text-rose-400">{t.output.rejected}</span>
                                         </div>
                                         <XCircle
-                                            className={`h-5 w-5 ${data.status_verifikasi === 'Rejected' ? 'text-rose-700' : 'text-slate-400'}`}
+                                            className={`h-5 w-5 ${data.status_verifikasi === 'Rejected' ? 'text-rose-700 dark:text-rose-400' : 'text-slate-400 dark:text-slate-500'}`}
                                         />
                                     </button>
                                 </div>
@@ -734,12 +766,15 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
 
                             {/* Approve confirmation or Rejection notes */}
                             {data.status_verifikasi === 'Verified' ? (
-                                <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 text-xs text-emerald-900">
+                                <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-3 text-xs text-emerald-900 dark:border-emerald-800/60 dark:bg-emerald-950/40 dark:text-emerald-200">
                                     <p className="font-medium">{t.output.approveConfirmDesc}</p>
                                 </div>
                             ) : (
                                 <div className="space-y-1.5">
-                                    <Label htmlFor="catatan_verifikasi" className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
+                                    <Label
+                                        htmlFor="catatan_verifikasi"
+                                        className="text-xs font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300"
+                                    >
                                         {t.output.rejectNotesLabel} <span className="text-rose-600">*</span>
                                     </Label>
                                     <Textarea
@@ -751,21 +786,25 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                             setFormValidationError(null);
                                         }}
                                         placeholder={t.output.rejectNotesPlaceholder}
-                                        className="bg-white text-sm"
+                                        className="bg-white text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                     />
-                                    {formValidationError && <p className="text-xs font-semibold text-rose-600">{formValidationError}</p>}
-                                    {errors.catatan_verifikasi && <p className="text-xs font-semibold text-rose-600">{errors.catatan_verifikasi}</p>}
+                                    {formValidationError && (
+                                        <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">{formValidationError}</p>
+                                    )}
+                                    {errors.catatan_verifikasi && (
+                                        <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">{errors.catatan_verifikasi}</p>
+                                    )}
                                 </div>
                             )}
 
                             {/* Modal Footer */}
-                            <DialogFooter className="gap-2 border-t border-slate-200 pt-4 sm:gap-0">
+                            <DialogFooter className="gap-2 border-t border-slate-200 pt-4 sm:gap-0 dark:border-slate-800">
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => setVerifyingOutput(null)}
                                     disabled={processing}
-                                    className="border-slate-300 text-slate-700 hover:bg-slate-50"
+                                    className="border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
                                 >
                                     {t.output.cancel}
                                 </Button>
@@ -774,8 +813,8 @@ export default function Verify({ outputs, filters = {}, universities = [] }: Ver
                                     disabled={processing}
                                     className={
                                         data.status_verifikasi === 'Verified'
-                                            ? 'bg-emerald-700 text-white hover:bg-emerald-800'
-                                            : 'bg-rose-700 text-white hover:bg-rose-800'
+                                            ? 'bg-emerald-700 text-white hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-500'
+                                            : 'bg-rose-700 text-white hover:bg-rose-800 dark:bg-rose-600 dark:hover:bg-rose-500'
                                     }
                                 >
                                     {processing ? (

@@ -2,11 +2,12 @@ import logoUrl from '@/assets/logo_dark.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher';
 import { UniversityCombobox } from '@/components/ui/university-combobox';
 import { useTranslation } from '@/hooks/use-translation';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { Info } from 'lucide-react';
+import { FormEventHandler } from 'react';
 
 type University = {
     id: number;
@@ -21,9 +22,10 @@ type RegisterForm = {
     password: string;
     password_confirmation: string;
     university_id: string;
-    role_type: 'user' | 'lppm';
+    nidn: string;
+    faculty: string;
+    study_program: string;
     phone: string;
-    position: string;
 };
 
 interface Props {
@@ -31,19 +33,18 @@ interface Props {
 }
 
 export default function Register({ universities }: Props) {
+    const { t } = useTranslation();
     const { data, setData, post, processing, errors } = useForm<RegisterForm>({
         name: '',
         email: '',
         password: '',
         password_confirmation: '',
         university_id: '',
-        role_type: 'user',
+        nidn: '',
+        faculty: '',
+        study_program: '',
         phone: '',
-        position: '',
     });
-
-    const { t } = useTranslation();
-    const [roleType, setRoleType] = useState<'user' | 'lppm'>('user');
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -52,188 +53,205 @@ export default function Register({ universities }: Props) {
 
     return (
         <>
-            <Head title={`${t.common.appName} - ${t.navigation.register}`} />
+            <Head title={`${t.common.appName} - ${t.auth.registerTitle}`} />
 
             <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4 font-sans text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
-                <div className="w-full max-w-md">
+                <div className="w-full max-w-xl">
                     {/* Header */}
-                    <div className="mb-8 text-center">
+                    <div className="mb-6 text-center">
                         <Link href="/" className="inline-flex flex-col items-center">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white p-1.5 shadow-md ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-                                <img src={logoUrl} alt={t.common.appName} className="h-9 w-9 object-contain" />
+                            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white p-2 shadow-md ring-1 ring-slate-200/90 dark:bg-slate-900 dark:ring-slate-800">
+                                <img src={logoUrl} alt={t.common.appName} className="h-10 w-10 object-contain" />
                             </div>
                             <h1 className="mt-3 font-serif text-2xl font-bold tracking-tight text-slate-900 dark:text-white">{t.common.appName}</h1>
-                            <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">{t.common.tagline}</p>
+                            <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">{t.auth.portalSubtitle}</p>
                         </Link>
                     </div>
 
-                    {/* Register Form */}
-                    <div className="rounded-2xl bg-white p-4 shadow-xl sm:p-8 dark:bg-[#0f172a] dark:shadow-2xl">
-                        <div className="mb-8 text-center">
-                            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Daftar Akun</h2>
-                            <p className="mt-2 text-gray-600 dark:text-gray-300">Buat akun baru untuk memulai</p>
+                    {/* Register Card */}
+                    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm sm:p-8 dark:border-slate-800 dark:bg-slate-900">
+                        <div className="mb-6 flex items-start justify-between gap-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t.auth.registerTitle}</h2>
+                                <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{t.auth.registerSubtitle}</p>
+                            </div>
+                            <LanguageSwitcher variant="segmented" />
+                        </div>
+
+                        {/* Approval Notice Banner */}
+                        <div className="mb-6 flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50/70 p-3 text-xs text-blue-900 dark:border-blue-900/40 dark:bg-blue-950/40 dark:text-blue-300">
+                            <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-800 dark:text-blue-400" />
+                            <p className="leading-relaxed">{t.auth.approvalNotice}</p>
                         </div>
 
                         <form onSubmit={submit} className="space-y-4">
-                            {/* Name */}
+                            {/* Full Name */}
                             <div>
-                                <Label htmlFor="name">Nama Lengkap *</Label>
+                                <Label htmlFor="name" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    {t.auth.fullNameLabel} *
+                                </Label>
                                 <Input
                                     id="name"
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
+                                    placeholder={t.auth.fullNamePlaceholder}
                                     required
                                     autoFocus
-                                    className="mt-2"
+                                    className="mt-1.5 h-10 rounded-lg border-slate-200 text-xs focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-950"
                                 />
-                                {errors.name && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>}
+                                {errors.name && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.name}</p>}
                             </div>
 
                             {/* Email */}
                             <div>
-                                <Label htmlFor="email">Email *</Label>
+                                <Label htmlFor="email" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    {t.auth.emailLabel} *
+                                </Label>
                                 <Input
                                     id="email"
                                     type="email"
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
+                                    placeholder={t.auth.emailPlaceholder}
                                     required
-                                    className="mt-2"
+                                    className="mt-1.5 h-10 rounded-lg border-slate-200 text-xs focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-950"
                                 />
-                                {errors.email && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>}
+                                {errors.email && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.email}</p>}
                             </div>
 
                             {/* University Selection */}
                             <div>
-                                <Label htmlFor="university">Universitas *</Label>
-                                <div className="mt-2">
+                                <Label htmlFor="university" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                    {t.auth.universityLabel} *
+                                </Label>
+                                <div className="mt-1.5">
                                     <UniversityCombobox
                                         universities={universities}
                                         value={data.university_id}
                                         onValueChange={(value) => setData('university_id', value)}
-                                        placeholder="Pilih Universitas"
+                                        placeholder={t.auth.universityPlaceholder}
                                         error={errors.university_id}
                                     />
                                 </div>
                             </div>
 
-                            {/* Role Type Selection */}
-                            <div>
-                                <Label>Daftar Sebagai *</Label>
-                                <RadioGroup
-                                    value={data.role_type}
-                                    onValueChange={(value: 'user' | 'lppm') => {
-                                        setData('role_type', value);
-                                        setRoleType(value);
-                                    }}
-                                    className="mt-2 space-y-3"
-                                >
-                                    <div className="flex items-start space-x-3 rounded-lg border p-3 hover:bg-gray-50 dark:hover:bg-gray-800">
-                                        <RadioGroupItem value="user" id="user" className="mt-0.5" />
-                                        <div className="flex-1">
-                                            <Label htmlFor="user" className="cursor-pointer font-medium">
-                                                Pengelola Jurnal (User)
-                                            </Label>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                Untuk pengelola jurnal yang akan mengelola data jurnal di universitas
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start space-x-3 rounded-lg border p-3 hover:bg-gray-50 dark:hover:bg-gray-800">
-                                        <RadioGroupItem value="lppm" id="lppm" className="mt-0.5" />
-                                        <div className="flex-1">
-                                            <Label htmlFor="lppm" className="cursor-pointer font-medium">
-                                                Admin LPPM
-                                            </Label>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                Untuk admin LPPM yang akan menyetujui pendaftaran user dan jurnal
-                                            </p>
-                                        </div>
-                                    </div>
-                                </RadioGroup>
-                                {errors.role_type && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.role_type}</p>}
+                            {/* Academic Profile (NIDN & Phone) */}
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <Label htmlFor="nidn" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                        {t.auth.nidnLabel}
+                                    </Label>
+                                    <Input
+                                        id="nidn"
+                                        value={data.nidn}
+                                        onChange={(e) => setData('nidn', e.target.value)}
+                                        placeholder={t.auth.nidnPlaceholder}
+                                        className="mt-1.5 h-10 rounded-lg border-slate-200 text-xs focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-950"
+                                    />
+                                    {errors.nidn && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.nidn}</p>}
+                                </div>
 
-                                {/* Info based on role selection */}
-                                <div className="mt-2 rounded-lg bg-blue-50 p-3 dark:bg-blue-900/20">
-                                    <p className="text-xs text-blue-700 dark:text-blue-300">
-                                        {roleType === 'lppm'
-                                            ? '[PERHATIAN] Akun LPPM akan disetujui oleh Dikti (Super Admin)'
-                                            : '[INFORMASI] Akun User akan disetujui oleh Admin LPPM universitas Anda'}
-                                    </p>
+                                <div>
+                                    <Label htmlFor="phone" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                        {t.auth.phoneLabel}
+                                    </Label>
+                                    <Input
+                                        id="phone"
+                                        type="tel"
+                                        value={data.phone}
+                                        onChange={(e) => setData('phone', e.target.value)}
+                                        placeholder={t.auth.phonePlaceholder}
+                                        className="mt-1.5 h-10 rounded-lg border-slate-200 text-xs focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-950"
+                                    />
+                                    {errors.phone && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.phone}</p>}
                                 </div>
                             </div>
 
-                            {/* Phone */}
-                            <div>
-                                <Label htmlFor="phone">No. Telepon</Label>
-                                <Input
-                                    id="phone"
-                                    type="tel"
-                                    value={data.phone}
-                                    onChange={(e) => setData('phone', e.target.value)}
-                                    className="mt-2"
-                                    placeholder="08123456789"
-                                />
-                                {errors.phone && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.phone}</p>}
+                            {/* Faculty & Study Program */}
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <Label htmlFor="faculty" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                        {t.auth.facultyLabel}
+                                    </Label>
+                                    <Input
+                                        id="faculty"
+                                        value={data.faculty}
+                                        onChange={(e) => setData('faculty', e.target.value)}
+                                        placeholder={t.auth.facultyPlaceholder}
+                                        className="mt-1.5 h-10 rounded-lg border-slate-200 text-xs focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-950"
+                                    />
+                                    {errors.faculty && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.faculty}</p>}
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="study_program" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                        {t.auth.studyProgramLabel}
+                                    </Label>
+                                    <Input
+                                        id="study_program"
+                                        value={data.study_program}
+                                        onChange={(e) => setData('study_program', e.target.value)}
+                                        placeholder={t.auth.studyProgramPlaceholder}
+                                        className="mt-1.5 h-10 rounded-lg border-slate-200 text-xs focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-950"
+                                    />
+                                    {errors.study_program && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.study_program}</p>}
+                                </div>
                             </div>
 
-                            {/* Position */}
-                            <div>
-                                <Label htmlFor="position">Jabatan</Label>
-                                <Input
-                                    id="position"
-                                    value={data.position}
-                                    onChange={(e) => setData('position', e.target.value)}
-                                    className="mt-2"
-                                    placeholder="Dosen, Staf LPPM, dll"
-                                />
-                                {errors.position && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.position}</p>}
+                            {/* Password & Confirmation */}
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                <div>
+                                    <Label htmlFor="password" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                        {t.auth.passwordLabel} *
+                                    </Label>
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        value={data.password}
+                                        onChange={(e) => setData('password', e.target.value)}
+                                        placeholder={t.auth.passwordPlaceholder}
+                                        required
+                                        className="mt-1.5 h-10 rounded-lg border-slate-200 text-xs focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-950"
+                                    />
+                                    {errors.password && <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.password}</p>}
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="password_confirmation" className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                                        {t.auth.passwordConfirmLabel} *
+                                    </Label>
+                                    <Input
+                                        id="password_confirmation"
+                                        type="password"
+                                        value={data.password_confirmation}
+                                        onChange={(e) => setData('password_confirmation', e.target.value)}
+                                        placeholder={t.auth.passwordConfirmPlaceholder}
+                                        required
+                                        className="mt-1.5 h-10 rounded-lg border-slate-200 text-xs focus:border-blue-900 focus:ring-1 focus:ring-blue-900 dark:border-slate-800 dark:bg-slate-950"
+                                    />
+                                    {errors.password_confirmation && (
+                                        <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.password_confirmation}</p>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Password */}
-                            <div>
-                                <Label htmlFor="password">Password *</Label>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    value={data.password}
-                                    onChange={(e) => setData('password', e.target.value)}
-                                    required
-                                    className="mt-2"
-                                />
-                                {errors.password && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>}
-                            </div>
-
-                            {/* Password Confirmation */}
-                            <div>
-                                <Label htmlFor="password_confirmation">Konfirmasi Password *</Label>
-                                <Input
-                                    id="password_confirmation"
-                                    type="password"
-                                    value={data.password_confirmation}
-                                    onChange={(e) => setData('password_confirmation', e.target.value)}
-                                    required
-                                    className="mt-2"
-                                />
-                                {errors.password_confirmation && (
-                                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password_confirmation}</p>
-                                )}
-                            </div>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400">{t.auth.passwordHint}</p>
 
                             {/* Submit Button */}
-                            <Button type="submit" disabled={processing} className="mt-6 w-full">
-                                {processing ? 'Mendaftar...' : 'Daftar'}
+                            <Button
+                                type="submit"
+                                disabled={processing}
+                                className="mt-4 h-10 w-full rounded-lg bg-blue-900 text-xs font-semibold text-white shadow-sm hover:bg-blue-800"
+                            >
+                                {processing ? t.auth.registeringButton : t.auth.registerButton}
                             </Button>
                         </form>
 
                         {/* Login Link */}
-                        <p className="mt-6 text-center text-sm text-gray-600 dark:text-gray-300">
-                            Sudah punya akun?{' '}
-                            <Link
-                                href={route('login')}
-                                className="font-medium text-green-600 hover:text-green-700 dark:text-green-300 dark:hover:text-green-400"
-                            >
-                                Login di sini
+                        <p className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
+                            {t.auth.alreadyHaveAccount}{' '}
+                            <Link href={route('login')} className="font-semibold text-blue-900 hover:underline dark:text-blue-400">
+                                {t.auth.loginHere}
                             </Link>
                         </p>
                     </div>

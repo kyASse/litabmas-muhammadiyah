@@ -78,15 +78,15 @@ export default function AdminKampusCreate({ universities }: Props) {
 
                 <form onSubmit={handleSubmit} className="w-full space-y-6">
                     {/* Section 1: Personal Information */}
-                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
-                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5">
-                            <User className="h-5 w-5 text-blue-900" />
-                            <h2 className="text-sm font-semibold text-slate-900">{t.adminCampusAdmins.personalInfo}</h2>
+                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5 dark:border-slate-800">
+                            <User className="h-5 w-5 text-blue-900 dark:text-blue-400" />
+                            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t.adminCampusAdmins.personalInfo}</h2>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <Label htmlFor="name" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                <Label htmlFor="name" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
                                     {t.adminCampusAdmins.nameLabel} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
@@ -95,7 +95,7 @@ export default function AdminKampusCreate({ universities }: Props) {
                                     value={data.name}
                                     onChange={(e) => setData('name', e.target.value)}
                                     placeholder={t.adminCampusAdmins.namePlaceholder}
-                                    className="text-sm"
+                                    className="text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                     autoFocus
                                     required
                                 />
@@ -103,7 +103,7 @@ export default function AdminKampusCreate({ universities }: Props) {
                             </div>
 
                             <div>
-                                <Label htmlFor="email" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                <Label htmlFor="email" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
                                     {t.adminCampusAdmins.emailLabel} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
@@ -112,14 +112,14 @@ export default function AdminKampusCreate({ universities }: Props) {
                                     value={data.email}
                                     onChange={(e) => setData('email', e.target.value)}
                                     placeholder={t.adminCampusAdmins.emailPlaceholder}
-                                    className="text-sm"
+                                    className="text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                     required
                                 />
                                 <InputError message={errors.email} className="mt-1" />
                             </div>
 
                             <div>
-                                <Label htmlFor="phone" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                <Label htmlFor="phone" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
                                     {t.adminCampusAdmins.phoneLabel}
                                 </Label>
                                 <Input
@@ -128,13 +128,13 @@ export default function AdminKampusCreate({ universities }: Props) {
                                     value={data.phone}
                                     onChange={(e) => setData('phone', e.target.value)}
                                     placeholder={t.adminCampusAdmins.phonePlaceholder}
-                                    className="font-mono text-sm"
+                                    className="font-mono text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                 />
                                 <InputError message={errors.phone} className="mt-1" />
                             </div>
 
                             <div>
-                                <Label htmlFor="position" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                <Label htmlFor="position" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
                                     {t.adminCampusAdmins.positionLabel}
                                 </Label>
                                 <Input
@@ -143,7 +143,7 @@ export default function AdminKampusCreate({ universities }: Props) {
                                     value={data.position}
                                     onChange={(e) => setData('position', e.target.value)}
                                     placeholder={t.adminCampusAdmins.positionPlaceholder}
-                                    className="text-sm"
+                                    className="text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                 />
                                 <InputError message={errors.position} className="mt-1" />
                             </div>
@@ -151,15 +151,15 @@ export default function AdminKampusCreate({ universities }: Props) {
                     </div>
 
                     {/* Section 2: Account Credentials */}
-                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
-                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5">
-                            <KeyRound className="h-5 w-5 text-blue-900" />
-                            <h2 className="text-sm font-semibold text-slate-900">{t.adminCampusAdmins.accountCredentials}</h2>
+                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5 dark:border-slate-800">
+                            <KeyRound className="h-5 w-5 text-blue-900 dark:text-blue-400" />
+                            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t.adminCampusAdmins.accountCredentials}</h2>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                                <Label htmlFor="password" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                <Label htmlFor="password" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
                                     {t.adminCampusAdmins.passwordLabel} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
@@ -168,14 +168,17 @@ export default function AdminKampusCreate({ universities }: Props) {
                                     value={data.password}
                                     onChange={(e) => setData('password', e.target.value)}
                                     placeholder={t.adminCampusAdmins.passwordPlaceholder}
-                                    className="font-mono text-sm"
+                                    className="font-mono text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                     required
                                 />
                                 <InputError message={errors.password} className="mt-1" />
                             </div>
 
                             <div>
-                                <Label htmlFor="password_confirmation" className="mb-1.5 block text-xs font-medium text-slate-700">
+                                <Label
+                                    htmlFor="password_confirmation"
+                                    className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300"
+                                >
                                     {t.adminCampusAdmins.confirmPasswordLabel} <span className="text-rose-500">*</span>
                                 </Label>
                                 <Input
@@ -184,7 +187,7 @@ export default function AdminKampusCreate({ universities }: Props) {
                                     value={data.password_confirmation}
                                     onChange={(e) => setData('password_confirmation', e.target.value)}
                                     placeholder={t.adminCampusAdmins.confirmPasswordPlaceholder}
-                                    className="font-mono text-sm"
+                                    className="font-mono text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
                                     required
                                 />
                                 <InputError message={errors.password_confirmation} className="mt-1" />
@@ -193,14 +196,14 @@ export default function AdminKampusCreate({ universities }: Props) {
                     </div>
 
                     {/* Section 3: University Assignment */}
-                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
-                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5">
-                            <Building2 className="h-5 w-5 text-blue-900" />
-                            <h2 className="text-sm font-semibold text-slate-900">{t.adminCampusAdmins.universityAffiliation}</h2>
+                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5 dark:border-slate-800">
+                            <Building2 className="h-5 w-5 text-blue-900 dark:text-blue-400" />
+                            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t.adminCampusAdmins.universityAffiliation}</h2>
                         </div>
 
                         <div>
-                            <Label htmlFor="university_id" className="mb-1.5 block text-xs font-medium text-slate-700">
+                            <Label htmlFor="university_id" className="mb-1.5 block text-xs font-medium text-slate-700 dark:text-slate-300">
                                 {t.adminCampusAdmins.universityLabel} <span className="text-rose-500">*</span>
                             </Label>
                             <UniversityCombobox
@@ -215,16 +218,16 @@ export default function AdminKampusCreate({ universities }: Props) {
                     </div>
 
                     {/* Section 4: Account Status */}
-                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs">
-                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5">
-                            <ShieldCheck className="h-5 w-5 text-blue-900" />
-                            <h2 className="text-sm font-semibold text-slate-900">{t.adminCampusAdmins.activeStatus}</h2>
+                    <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                        <div className="mb-3.5 flex items-center gap-2.5 border-b border-slate-100 pb-2.5 dark:border-slate-800">
+                            <ShieldCheck className="h-5 w-5 text-blue-900 dark:text-blue-400" />
+                            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{t.adminCampusAdmins.activeStatus}</h2>
                         </div>
 
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-slate-900">{t.adminCampusAdmins.activeStatus}</p>
-                                <p className="text-xs text-slate-500">{t.adminCampusAdmins.activeDescription}</p>
+                                <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{t.adminCampusAdmins.activeStatus}</p>
+                                <p className="text-xs text-slate-500 dark:text-slate-400">{t.adminCampusAdmins.activeDescription}</p>
                             </div>
                             <Switch checked={data.is_active} onCheckedChange={(val) => setData('is_active', val)} />
                         </div>
@@ -234,11 +237,20 @@ export default function AdminKampusCreate({ universities }: Props) {
                     {/* Form Action Buttons */}
                     <div className="flex items-center justify-end gap-3 pt-2">
                         <Link href={route('admin.admin-kampus.index')}>
-                            <Button type="button" variant="outline" disabled={processing} className="text-xs">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                disabled={processing}
+                                className="text-xs dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                            >
                                 {t.common.cancel}
                             </Button>
                         </Link>
-                        <Button type="submit" disabled={processing} className="bg-blue-900 px-6 text-xs font-medium text-white hover:bg-blue-800">
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="bg-blue-900 px-6 text-xs font-medium text-white hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-500"
+                        >
                             {processing ? t.common.loading : t.adminCampusAdmins.createTitle}
                         </Button>
                     </div>
