@@ -170,7 +170,7 @@ export default function OutputReport({ outputs, statsByType, statsByYear, filter
             `}</style>
 
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
-                <div className="relative overflow-hidden rounded-xl border border-sidebar-border/70 bg-white p-6 dark:border-sidebar-border dark:bg-neutral-950">
+                <div className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                     {/* ── On-screen page header ── */}
                     <div className="no-print mb-6">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

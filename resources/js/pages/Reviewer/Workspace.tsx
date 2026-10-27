@@ -357,15 +357,15 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
     const formContent = (
         <div className="space-y-6">
             {/* Sub-Navigation Tabs */}
-            <div className="border-b border-slate-200">
+            <div className="border-b border-slate-200 dark:border-slate-800">
                 <nav className="-mb-px flex space-x-4" aria-label="Tabs">
                     <button
                         type="button"
                         onClick={() => setActiveTab('admin')}
                         className={`inline-flex items-center gap-2 border-b-2 px-3 py-2.5 font-sans text-xs font-semibold transition-all ${
                             activeTab === 'admin'
-                                ? 'border-blue-900 text-blue-900'
-                                : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
+                                ? 'border-blue-900 text-blue-900 dark:border-sky-400 dark:text-sky-400'
+                                : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-200'
                         }`}
                     >
                         <FileCheck className="h-4 w-4" />
@@ -376,8 +376,8 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                         onClick={() => setActiveTab('substansi')}
                         className={`inline-flex items-center gap-2 border-b-2 px-3 py-2.5 font-sans text-xs font-semibold transition-all ${
                             activeTab === 'substansi'
-                                ? 'border-blue-900 text-blue-900'
-                                : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700'
+                                ? 'border-blue-900 text-blue-900 dark:border-sky-400 dark:text-sky-400'
+                                : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-700 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:text-slate-200'
                         }`}
                     >
                         <Scale className="h-4 w-4" />
@@ -390,26 +390,26 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
             {activeTab === 'admin' && (
                 <div className="space-y-5">
                     {/* Notice Banner */}
-                    <div className="flex items-start gap-2.5 rounded-md border border-slate-200 bg-slate-50 p-3 font-sans text-xs text-slate-700">
-                        <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-900" />
+                    <div className="flex items-start gap-2.5 rounded-md border border-slate-200 bg-slate-50 p-3 font-sans text-xs text-slate-700 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300">
+                        <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-900 dark:text-sky-400" />
                         <div className="space-y-0.5">
-                            <p className="font-semibold text-slate-900">{t.reviewerWorkspace.adminVerificationTitle}</p>
-                            <p className="text-slate-600">{t.reviewerWorkspace.adminReadOnlyNotice}</p>
+                            <p className="font-semibold text-slate-900 dark:text-slate-100">{t.reviewerWorkspace.adminVerificationTitle}</p>
+                            <p className="text-slate-600 dark:text-slate-400">{t.reviewerWorkspace.adminReadOnlyNotice}</p>
                         </div>
                     </div>
 
                     {/* Status & Catatan Administrasi Bappeda */}
-                    <div className="space-y-3 rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
-                            <span className="font-sans text-xs font-bold text-slate-800 uppercase">{t.reviewerWorkspace.adminStatusLabel}</span>
+                    <div className="space-y-3 rounded-md border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2.5 dark:border-slate-800">
+                            <span className="font-sans text-xs font-bold text-slate-800 uppercase dark:text-slate-200">{t.reviewerWorkspace.adminStatusLabel}</span>
                             <StatusBadge status={proposal?.status_proposal || 'Lolos_Administrasi'} size="sm" />
                         </div>
 
                         <div className="space-y-1.5 pt-1">
-                            <label className="font-sans text-[11px] font-semibold text-slate-600 uppercase">
+                            <label className="font-sans text-[11px] font-semibold text-slate-600 uppercase dark:text-slate-400">
                                 {t.reviewerWorkspace.adminNotesLabel}
                             </label>
-                            <div className="rounded border border-slate-200 bg-slate-50 p-3 font-sans text-xs leading-relaxed text-slate-800">
+                            <div className="rounded border border-slate-200 bg-slate-50 p-3 font-sans text-xs leading-relaxed text-slate-800 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-200">
                                 {proposal?.catatan_administrasi ||
                                     'Seluruh berkas persyaratan telah diverifikasi lengkap dan memenuhi standar Bappeda.'}
                             </div>
@@ -417,23 +417,23 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                     </div>
 
                     {/* Administrative Checklist Table (Read-Only) */}
-                    <div className="space-y-2 rounded-md border border-slate-200 bg-white p-4 shadow-xs">
-                        <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
-                            <ClipboardCheck className="h-4 w-4 text-emerald-700" />
-                            <h4 className="font-sans text-xs font-bold text-slate-900 uppercase">{t.reviewerWorkspace.adminChecklistTitle}</h4>
+                    <div className="space-y-2 rounded-md border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+                        <div className="flex items-center gap-2 border-b border-slate-100 pb-2 dark:border-slate-800">
+                            <ClipboardCheck className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
+                            <h4 className="font-sans text-xs font-bold text-slate-900 uppercase dark:text-slate-100">{t.reviewerWorkspace.adminChecklistTitle}</h4>
                         </div>
 
-                        <div className="divide-y divide-slate-100">
+                        <div className="divide-y divide-slate-100 dark:divide-slate-800">
                             {administrativeCriteria && administrativeCriteria.length > 0 ? (
                                 administrativeCriteria.map((item, idx) => (
                                     <div key={item.id} className="flex items-center justify-between py-2.5 text-xs">
                                         <div className="space-y-0.5 pr-2">
-                                            <p className="font-sans font-medium text-slate-900">
+                                            <p className="font-sans font-medium text-slate-900 dark:text-slate-100">
                                                 {idx + 1}. {item.nama_kriteria}
                                             </p>
-                                            {item.deskripsi && <p className="font-sans text-[11px] text-slate-500">{item.deskripsi}</p>}
+                                            {item.deskripsi && <p className="font-sans text-[11px] text-slate-500 dark:text-slate-400">{item.deskripsi}</p>}
                                         </div>
-                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800">
+                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300">
                                             <CheckCircle2 className="h-3 w-3" />
                                             <span>{t.reviewerWorkspace.adminChecklistVerified}</span>
                                         </span>
@@ -442,28 +442,28 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                             ) : (
                                 <div className="space-y-2 py-2">
                                     <div className="flex items-center justify-between py-1 text-xs">
-                                        <span className="font-sans font-medium text-slate-900">
+                                        <span className="font-sans font-medium text-slate-900 dark:text-slate-100">
                                             1. Surat Pengantar LPPM & Validasi Format Proposal
                                         </span>
-                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800">
+                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300">
                                             <CheckCircle2 className="h-3 w-3" />
                                             <span>{t.reviewerWorkspace.adminChecklistVerified}</span>
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-1 text-xs">
-                                        <span className="font-sans font-medium text-slate-900">
+                                        <span className="font-sans font-medium text-slate-900 dark:text-slate-100">
                                             2. Rincian Anggaran Biaya (RAB) sesuai Pagu Skema
                                         </span>
-                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800">
+                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300">
                                             <CheckCircle2 className="h-3 w-3" />
                                             <span>{t.reviewerWorkspace.adminChecklistVerified}</span>
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between py-1 text-xs">
-                                        <span className="font-sans font-medium text-slate-900">
+                                        <span className="font-sans font-medium text-slate-900 dark:text-slate-100">
                                             3. Surat Pernyataan Bebas Plagiarisme dan Kesanggupan Riset
                                         </span>
-                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800">
+                                        <span className="inline-flex shrink-0 items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-sans text-[11px] font-semibold text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/40 dark:text-emerald-300">
                                             <CheckCircle2 className="h-3 w-3" />
                                             <span>{t.reviewerWorkspace.adminChecklistVerified}</span>
                                         </span>
@@ -480,14 +480,14 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                 <form onSubmit={handleSubmitFinal} className="space-y-6">
                     {/* Server-Side Validation Errors Banner */}
                     {Object.keys(errors).length > 0 && (
-                        <div className="space-y-1.5 rounded-md border-2 border-rose-500 bg-rose-50 p-3.5 text-rose-900 shadow-xs">
+                        <div className="space-y-1.5 rounded-md border-2 border-rose-500 bg-rose-50 p-3.5 text-rose-900 shadow-xs dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200">
                             <div className="flex items-center gap-2">
-                                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" />
-                                <h4 className="font-sans text-xs font-bold tracking-wider text-rose-800 uppercase">
+                                <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                                <h4 className="font-sans text-xs font-bold tracking-wider text-rose-800 uppercase dark:text-rose-300">
                                     {t.reviewerWorkspace.validationErrorTitle}
                                 </h4>
                             </div>
-                            <ul className="list-inside list-disc space-y-1 pl-1 font-sans text-xs text-rose-700">
+                            <ul className="list-inside list-disc space-y-1 pl-1 font-sans text-xs text-rose-700 dark:text-rose-400">
                                 {Object.entries(errors).map(([field, message]) => (
                                     <li key={field}>{String(message)}</li>
                                 ))}
@@ -496,36 +496,36 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                     )}
 
                     {/* Header / Instructions */}
-                    <div className="border-b border-slate-200 pb-3">
+                    <div className="border-b border-slate-200 pb-3 dark:border-slate-800">
                         <div className="flex items-center gap-2">
-                            <Scale className="h-4 w-4 text-blue-900" />
-                            <h3 className="font-sans text-sm font-bold tracking-wide text-slate-900 uppercase">
+                            <Scale className="h-4 w-4 text-blue-900 dark:text-sky-400" />
+                            <h3 className="font-sans text-sm font-bold tracking-wide text-slate-900 uppercase dark:text-slate-100">
                                 {t.reviewerWorkspace.discreteScaleTitle}
                             </h3>
                         </div>
-                        <p className="mt-1 font-sans text-xs leading-relaxed text-slate-500">{t.reviewerWorkspace.discreteScaleDesc}</p>
+                        <p className="mt-1 font-sans text-xs leading-relaxed text-slate-500 dark:text-slate-400">{t.reviewerWorkspace.discreteScaleDesc}</p>
                     </div>
 
                     {/* Proposal Quick Meta Card */}
-                    <div className="space-y-1.5 rounded-md border border-slate-200 bg-slate-50 p-3 font-sans text-xs">
-                        <div className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-slate-700 uppercase">
-                            <FileText className="h-3.5 w-3.5 text-slate-500" />
+                    <div className="space-y-1.5 rounded-md border border-slate-200 bg-slate-50 p-3 font-sans text-xs dark:border-slate-800 dark:bg-slate-900/60">
+                        <div className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                            <FileText className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
                             <span>{t.reviewerWorkspace.proposalDetails}</span>
                         </div>
-                        <p className="truncate font-serif text-xs font-medium text-slate-900">{proposalTitle}</p>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-[11px] text-slate-600">
+                        <p className="truncate font-serif text-xs font-medium text-slate-900 dark:text-slate-100">{proposalTitle}</p>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-[11px] text-slate-600 dark:text-slate-400">
                             <span className="flex items-center gap-1">
                                 <User className="h-3 w-3 text-slate-400" />
-                                <strong className="text-slate-700">{t.reviewerWorkspace.researcher}:</strong> {researcherName}
+                                <strong className="text-slate-700 dark:text-slate-300">{t.reviewerWorkspace.researcher}:</strong> {researcherName}
                             </span>
                             <span className="flex items-center gap-1">
                                 <BookOpen className="h-3 w-3 text-slate-400" />
-                                <strong className="text-slate-700">{t.reviewerWorkspace.scheme}:</strong> {schemeName}
+                                <strong className="text-slate-700 dark:text-slate-300">{t.reviewerWorkspace.scheme}:</strong> {schemeName}
                             </span>
                             {budgetCap && (
                                 <span className="flex items-center gap-1">
                                     <Coins className="h-3 w-3 text-slate-400" />
-                                    <strong className="text-slate-700">{t.reviewerWorkspace.budgetCap}:</strong>
+                                    <strong className="text-slate-700 dark:text-slate-300">{t.reviewerWorkspace.budgetCap}:</strong>
                                     <TabularFigure value={budgetCap} type="currency" size="sm" weight="semibold" />
                                 </span>
                             )}
@@ -539,24 +539,24 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                             const isItemCommentValid = (item.komentar || '').trim().length > 0;
 
                             return (
-                                <div key={idx} className="space-y-3 rounded-md border border-slate-200 bg-white p-4 shadow-xs">
+                                <div key={idx} className="space-y-3 rounded-md border border-slate-200 bg-white p-4 shadow-xs dark:border-slate-800 dark:bg-slate-900">
                                     {/* Criterion Header */}
-                                    <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
+                                    <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5 dark:border-slate-800">
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <span className="font-sans text-xs font-bold text-slate-800">
+                                                <span className="font-sans text-xs font-bold text-slate-800 dark:text-slate-200">
                                                     {idx + 1}. {item.kriteria}
                                                 </span>
-                                                <span className="rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-blue-800">
+                                                <span className="rounded border border-blue-200 bg-blue-50 px-1.5 py-0.5 font-mono text-[10px] font-bold text-blue-800 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300">
                                                     {item.bobot}%
                                                 </span>
                                             </div>
                                             {item.deskripsi && (
-                                                <p className="mt-1 font-sans text-[11px] leading-relaxed text-slate-500">{item.deskripsi}</p>
+                                                <p className="mt-1 font-sans text-[11px] leading-relaxed text-slate-500 dark:text-slate-400">{item.deskripsi}</p>
                                             )}
                                         </div>
                                         <div className="shrink-0 text-right">
-                                            <span className="font-mono text-xs font-bold text-blue-900">
+                                            <span className="font-mono text-xs font-bold text-blue-900 dark:text-sky-400">
                                                 {weightedPoints} / {item.bobot}
                                             </span>
                                         </div>
@@ -564,7 +564,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
 
                                     {/* Discrete 1-5 Choice Buttons (Bebas Slider) */}
                                     <div className="space-y-1.5">
-                                        <label className="font-sans text-[11px] font-semibold text-slate-700 uppercase">
+                                        <label className="font-sans text-[11px] font-semibold text-slate-700 uppercase dark:text-slate-300">
                                             Skala Nilai (1 - 5) <span className="text-rose-600">*</span>
                                         </label>
                                         <div className="grid grid-cols-5 gap-1.5">
@@ -581,8 +581,8 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                                     onClick={() => handleScoreSelect(idx, opt.val)}
                                                     className={`flex flex-col items-center justify-center rounded border p-2 text-center transition-all ${
                                                         item.skor === opt.val
-                                                            ? 'border-blue-900 bg-blue-900 text-white shadow-xs'
-                                                            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                                                            ? 'border-blue-900 bg-blue-900 text-white shadow-xs dark:border-sky-500 dark:bg-sky-600 dark:text-white'
+                                                            : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 dark:hover:border-slate-600 dark:hover:bg-slate-800'
                                                     }`}
                                                 >
                                                     <span className="font-mono text-sm font-bold">{opt.val}</span>
@@ -595,11 +595,11 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                     {/* Mandatory Qualitative Commentary per Criteria */}
                                     <div className="space-y-1.5 pt-1">
                                         <div className="flex items-center justify-between">
-                                            <label className="font-sans text-[11px] font-semibold text-slate-700 uppercase">
+                                            <label className="font-sans text-[11px] font-semibold text-slate-700 uppercase dark:text-slate-300">
                                                 {t.reviewerWorkspace.criterionCommentLabel} <span className="text-rose-600">*</span>
                                             </label>
                                             {isItemCommentValid && (
-                                                <span className="font-sans text-[10px] font-bold text-emerald-700">
+                                                <span className="font-sans text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
                                                     {t.reviewerWorkspace.notesValid}
                                                 </span>
                                             )}
@@ -611,12 +611,12 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                             placeholder={t.reviewerWorkspace.criterionCommentPlaceholder}
                                             className={`w-full rounded-md border p-2 font-sans text-xs leading-relaxed transition-colors focus:ring-1 ${
                                                 !isItemCommentValid
-                                                    ? 'border-amber-400 bg-amber-50/20 focus:border-amber-500 focus:ring-amber-500'
-                                                    : 'border-slate-300 bg-white focus:border-blue-900 focus:ring-blue-900'
+                                                    ? 'border-amber-400 bg-amber-50/20 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-800/60 dark:bg-amber-950/20 dark:text-slate-100'
+                                                    : 'border-slate-300 bg-white focus:border-blue-900 focus:ring-blue-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-sky-500 dark:focus:ring-sky-500'
                                             }`}
                                         />
                                         {!isItemCommentValid && (
-                                            <p className="font-sans text-[10px] text-amber-700">{t.reviewerWorkspace.criterionCommentRequired}</p>
+                                            <p className="font-sans text-[10px] text-amber-700 dark:text-amber-400">{t.reviewerWorkspace.criterionCommentRequired}</p>
                                         )}
                                     </div>
                                 </div>
@@ -625,14 +625,14 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                     </div>
 
                     {/* Real-Time Aggregate Score Calculator (Zero CLS) */}
-                    <div className="space-y-2 rounded-lg border border-slate-300 bg-slate-50 p-4">
+                    <div className="space-y-2 rounded-lg border border-slate-300 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
                         <div className="flex items-center justify-between">
                             <div>
                                 <div className="flex items-center gap-2">
-                                    <span className="font-sans text-xs font-bold tracking-wide text-slate-900 uppercase">
+                                    <span className="font-sans text-xs font-bold tracking-wide text-slate-900 uppercase dark:text-slate-100">
                                         {t.reviewerWorkspace.totalScoreLabel}
                                     </span>
-                                    <span className="font-mono text-[11px] text-slate-500">{t.reviewerWorkspace.totalScoreScale}</span>
+                                    <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">{t.reviewerWorkspace.totalScoreScale}</span>
                                 </div>
                                 <div className="mt-1">
                                     <span
@@ -647,14 +647,14 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                 type="score"
                                 size="2xl"
                                 weight="bold"
-                                className={aggregateScore >= 70 ? 'text-emerald-700' : 'text-rose-700'}
+                                className={aggregateScore >= 70 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'}
                             />
                         </div>
                     </div>
 
                     {/* Final Recommendation Selector (Pills) */}
                     <div className="space-y-2">
-                        <label className="block font-sans text-xs font-bold tracking-wider text-slate-800 uppercase">
+                        <label className="block font-sans text-xs font-bold tracking-wider text-slate-800 uppercase dark:text-slate-200">
                             {t.reviewerWorkspace.recommendationLabel} <span className="text-rose-600">*</span>
                         </label>
                         <div className="grid grid-cols-3 gap-2">
@@ -664,7 +664,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                 className={`rounded border px-2.5 py-2 text-center font-sans text-xs font-semibold transition-all ${
                                     recommendation === 'Diterima'
                                         ? 'border-emerald-700 bg-emerald-600 text-white shadow-xs'
-                                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
                                 }`}
                             >
                                 {t.reviewerWorkspace.recAccepted}
@@ -675,7 +675,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                 className={`rounded border px-2.5 py-2 text-center font-sans text-xs font-semibold transition-all ${
                                     recommendation === 'Revisi'
                                         ? 'border-amber-600 bg-amber-500 text-white shadow-xs'
-                                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
                                 }`}
                             >
                                 {t.reviewerWorkspace.recRevision}
@@ -686,7 +686,7 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                                 className={`rounded border px-2.5 py-2 text-center font-sans text-xs font-semibold transition-all ${
                                     recommendation === 'Ditolak'
                                         ? 'border-rose-700 bg-rose-600 text-white shadow-xs'
-                                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                                        : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
                                 }`}
                             >
                                 {t.reviewerWorkspace.recRejected}
@@ -697,14 +697,14 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                     {/* Qualitative Notes Textarea with Character Counter */}
                     <div className="space-y-1.5">
                         <div className="flex items-center justify-between">
-                            <label className="font-sans text-xs font-bold tracking-wider text-slate-800 uppercase">
+                            <label className="font-sans text-xs font-bold tracking-wider text-slate-800 uppercase dark:text-slate-200">
                                 {t.reviewerWorkspace.notesLabel} <span className="text-rose-600">*</span>
                             </label>
                             <div className="flex items-center gap-1.5 font-mono text-xs">
-                                <span className={isNotesValid ? 'font-semibold text-emerald-700' : 'font-medium text-amber-700'}>
+                                <span className={isNotesValid ? 'font-semibold text-emerald-700 dark:text-emerald-400' : 'font-medium text-amber-700 dark:text-amber-400'}>
                                     {format(t.reviewerWorkspace.notesMinCount, { count: String(notes.trim().length) })}
                                 </span>
-                                {isNotesValid && <span className="text-[10px] font-bold text-emerald-700">{t.reviewerWorkspace.notesValid}</span>}
+                                {isNotesValid && <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400">{t.reviewerWorkspace.notesValid}</span>}
                             </div>
                         </div>
                         <textarea
@@ -714,48 +714,48 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                             placeholder={t.reviewerWorkspace.notesPlaceholder}
                             className={`w-full rounded-md border p-2.5 font-sans text-xs leading-relaxed transition-colors focus:ring-1 ${
                                 !isNotesValid && notes.length > 0
-                                    ? 'border-amber-400 bg-amber-50/20 focus:border-amber-500 focus:ring-amber-500'
-                                    : 'border-slate-300 bg-white focus:border-blue-900 focus:ring-blue-900'
+                                    ? 'border-amber-400 bg-amber-50/20 focus:border-amber-500 focus:ring-amber-500 dark:border-amber-800/60 dark:bg-amber-950/20 dark:text-slate-100'
+                                    : 'border-slate-300 bg-white focus:border-blue-900 focus:ring-blue-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:border-sky-500 dark:focus:ring-sky-500'
                             }`}
                         />
                         {!isNotesValid && (
-                            <p className="flex items-center gap-1 font-sans text-[11px] text-amber-700">
-                                <AlertTriangle className="h-3 w-3 shrink-0 text-amber-600" />
+                            <p className="flex items-center gap-1 font-sans text-[11px] text-amber-700 dark:text-amber-400">
+                                <AlertTriangle className="h-3 w-3 shrink-0 text-amber-600 dark:text-amber-400" />
                                 <span>{t.reviewerWorkspace.notesReminder}</span>
                             </p>
                         )}
                     </div>
 
                     {/* Conflict of Interest (CoI) Notice Checkbox */}
-                    <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
+                    <div className="rounded-md border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900/60">
                         <label className="flex cursor-pointer items-start gap-2.5">
                             <input
                                 type="checkbox"
                                 checked={coiAcknowledged}
                                 onChange={(e) => setCoiAcknowledged(e.target.checked)}
-                                className="mt-0.5 rounded border-slate-300 text-blue-900 focus:ring-blue-900"
+                                className="mt-0.5 rounded border-slate-300 text-blue-900 focus:ring-blue-900 dark:border-slate-700 dark:bg-slate-950 dark:text-sky-500"
                             />
-                            <span className="font-sans text-xs leading-snug text-slate-800">{t.reviewerWorkspace.coiNotice}</span>
+                            <span className="font-sans text-xs leading-snug text-slate-800 dark:text-slate-200">{t.reviewerWorkspace.coiNotice}</span>
                         </label>
-                        {!coiAcknowledged && <p className="mt-1 pl-6 font-sans text-[11px] text-slate-500">{t.reviewerWorkspace.coiRequiredHint}</p>}
+                        {!coiAcknowledged && <p className="mt-1 pl-6 font-sans text-[11px] text-slate-500 dark:text-slate-400">{t.reviewerWorkspace.coiRequiredHint}</p>}
                     </div>
 
                     {/* Draft Saved Notification Notice */}
                     {draftSavedAlert && (
-                        <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 p-2.5 font-sans text-xs text-blue-900">
-                            <CheckCircle2 className="h-4 w-4 shrink-0 text-blue-700" />
+                        <div className="flex items-center gap-2 rounded-md border border-blue-200 bg-blue-50 p-2.5 font-sans text-xs text-blue-900 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300">
+                            <CheckCircle2 className="h-4 w-4 shrink-0 text-blue-700 dark:text-sky-400" />
                             <span className="font-semibold">{t.reviewerWorkspace.draftSavedIndicator}</span>
                             <span>{t.reviewerWorkspace.draftSavedMessage}</span>
                         </div>
                     )}
 
                     {/* Form Action Buttons */}
-                    <div className="flex items-center space-x-2.5 border-t border-slate-200 pt-2">
+                    <div className="flex items-center space-x-2.5 border-t border-slate-200 pt-2 dark:border-slate-800">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={handleSaveDraft}
-                            className="h-9 flex-1 gap-1.5 border-slate-300 font-sans text-xs font-semibold text-slate-700 hover:text-slate-900"
+                            className="h-9 flex-1 gap-1.5 border-slate-300 font-sans text-xs font-semibold text-slate-700 hover:text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100"
                         >
                             <Save className="h-3.5 w-3.5" />
                             <span>{t.reviewerWorkspace.btnSaveDraft}</span>
@@ -766,8 +766,8 @@ export default function ReviewerWorkspace({ review, proposal, substantiveCriteri
                             disabled={!isFormComplete || processing}
                             className={`h-9 flex-1 gap-1.5 font-sans text-xs font-semibold transition-all ${
                                 isFormComplete && !processing
-                                    ? 'bg-blue-900 text-white shadow-xs hover:bg-blue-800'
-                                    : 'cursor-not-allowed border-slate-200 bg-slate-300 text-slate-500'
+                                    ? 'bg-blue-900 text-white shadow-xs hover:bg-blue-800 dark:bg-sky-600 dark:text-white dark:hover:bg-sky-500'
+                                    : 'cursor-not-allowed border-slate-200 bg-slate-300 text-slate-500 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-600'
                             }`}
                         >
                             <Send className="h-3.5 w-3.5" />
